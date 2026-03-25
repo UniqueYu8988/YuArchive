@@ -22,7 +22,7 @@ if %errorlevel% neq 0 (
 echo.
 echo [2/3] 数据已全部脱水注水完毕，准备推送到 GitHub...
 git add public/webp_cache
-git add public/archive_data.json
+git add src/data/archive_data.json
 git commit -m "Auto-sync from OneDrive: %date% %time%"
 
 echo.

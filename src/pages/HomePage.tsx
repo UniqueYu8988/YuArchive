@@ -141,7 +141,7 @@ export default function HomePage({ data }: HomePageProps) {
         <div className="hero-branding">
           <h1 className="hero-title">Yu Archive</h1>
           <p className="hero-desc">
-            收录共计 {data.meta.total_count} 款作品。这里是我的数字灵魂碎片，在比特流中永恒回响。
+            收录共计 {games.total_count + visions.total_count + music.total_count + texts.total_count} 款作品。这里是我的数字灵魂碎片，在比特流中永恒回响。
           </p>
         </div>
       </section>

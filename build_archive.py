@@ -27,7 +27,7 @@ except ImportError:
 ONEDRIVE_DATA_ROOT = Path(r"C:\Users\Yu\OneDrive\图片\Data backup")
 PUBLIC_ROOT = Path(r"C:\Users\Yu\AI\Archive\public")
 WEBP_CACHE_DIR = PUBLIC_ROOT / "webp_cache"
-JSON_OUTPUT_PATH = PUBLIC_ROOT / "archive_data.json"
+JSON_OUTPUT_PATH = Path(r"C:\Users\Yu\AI\Archive\src\data\archive_data.json")
 
 WEBP_QUALITY = 90
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
@@ -370,6 +370,7 @@ def main():
     }
 
     # 2. 将最终注入好的纯净态数据写入目标点
+    JSON_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     try:
         with open(JSON_OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)

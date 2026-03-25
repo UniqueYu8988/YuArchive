@@ -14,7 +14,7 @@ import TextsPage  from './pages/TextsPage'
 import HomePage   from './pages/HomePage'
 
 // 导入 JSON 数据（Vite 内联为 ES module）
-import archiveDataRaw from '../public/archive_data.json'
+import archiveDataRaw from './data/archive_data.json'
 const archiveData = archiveDataRaw as ArchiveData
 
 // ── Navbar ───────────────────────────────────────────────────
