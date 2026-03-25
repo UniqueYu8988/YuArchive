@@ -2,6 +2,10 @@
 
 **“在数据的废墟中，重建属于我的主观记录。无所谓他人的百科，只关乎我的足迹。”**
 
+<div align="center">
+  <img src="./public/archive_demo.webp" alt="YuArchive Interactive Showcase" width="800" style="border-radius: 14px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);" />
+</div>
+
 YuArchive 是一座基于 React + Vite 的多维情感档案库，采用极其纯粹且解耦的前后端分离架构。前端只负责极致的皇家黑白极简与毛玻璃拟态渲染，后端由极度集成的 Python 引擎统领全量数据的“压缩脱水”。
 
 ---
