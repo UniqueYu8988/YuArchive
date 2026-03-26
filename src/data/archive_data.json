@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-27T04:37:02.455828",
+    "generated_at": "2026-03-27T04:40:15.022006",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data backup"
   },
@@ -3954,7 +3954,7 @@
     "music": {
       "key": "music",
       "display_name": "Music",
-      "total_count": 30,
+      "total_count": 31,
       "sort_mode": "music",
       "items": [
         {
@@ -4085,83 +4085,90 @@
         },
         {
           "id": "music_18",
+          "title": "Minecraft",
+          "cover": "webp_cache/Music/Covers/Minecraft.webp",
+          "description": "🎹 极简清冷的钢琴与温润的电子合成器缓缓流淌！这是属于最初方块世界的纯粹与孤独。在无尽探索与静谧夜晚的交替中，轻柔的旋律悄然唤醒心底最柔软的回忆，带你重回那段独自搭建庇护所的治愈时光！🟩",
+          "content": "1. Subwoofer Lullaby\n2. Living Mice\n3. Dry Hands\n4. Moog City\n5. Mice On Venus\n6. Wet Hands\n7. Sweden\n8. Danny\n9. Beginning\n10. KEY"
+        },
+        {
+          "id": "music_19",
           "title": "MONSTER HUNTER",
           "cover": "webp_cache/Music/Covers/MONSTER HUNTER.webp",
           "description": "🐲 雄浑激昂的铜管交响与空灵古朴的和风雅乐震撼共鸣！旋律化作苍茫天地间的狩猎号角，在龙啸与太鼓的轰鸣中点燃不屈的勇气。彻底释放那份挑战巨兽的无畏与热血，谱写最纯粹的猎人史诗！⚔️",
           "content": "1.  Kamura's Song of Purification\n2.  英雄の証"
         },
         {
-          "id": "music_19",
+          "id": "music_20",
           "title": "Ori and the Blind Forest",
           "cover": "webp_cache/Music/Covers/Ori and the Blind Forest.webp",
           "description": "🌳 空灵圣洁的轻声吟唱与恢弘管弦交融！音符化作点亮幽暗森林的微光，倾诉着爱与牺牲的温柔童话。在极致绝美的旋律中，每一次跃动都触碰着心底最柔软的治愈力量！✨",
           "content": "1.  The Spirit Tree\n2.  Escaping the Ruins\n3.  The Waters Cleansed\n4.  Restoring the Light, Facing the Dark\n5.  Gumo's Hideout\n6.  The Ancestral Trees\n7.  Down the Moon Grotto\n8.  Up the Spirit Caverns Walls\n9.  Finding Sein\n10.  First Steps Into Sunken Glades\n11.  Inspiriting\n12.  Naru, Embracing the Light\n13.  Ori, Lost In the Storm"
         },
         {
-          "id": "music_20",
+          "id": "music_21",
           "title": "Ori and the Wil of the Wisps",
           "cover": "webp_cache/Music/Covers/Ori and the Wil of the Wisps.webp",
           "description": "🦉 情感更加磅礴跌宕的奇幻史诗交响！交织着面对破败世界的悲壮与寻找希望的挣扎。雄浑的合唱与泣血的弦乐，将这场向死而生的宿命之旅推向直击灵魂的落泪高潮！💧",
           "content": "1. In Wonderment of Winter \n\n2. Overlooking the Mill \n\n3. A Keepsake from the Past \n\n4. Ori, Embracing the Light \n\n5. Sanctuary in the Glades \n\n6. Now Use the Light, We Want to see\n7. Luma Pools \n8. Silent Woodlands \n9. Escaping a Foul Presence \n10. A Shine Upon Inkwater Marsh \n11. Main Theme"
         },
         {
-          "id": "music_21",
+          "id": "music_22",
           "title": "OUTER WILDS",
           "cover": "webp_cache/Music/Covers/OUTER WILDS.webp",
           "description": "🪕 温暖随性的班卓琴与深邃宇宙的寂寥遥相呼应！在恒星爆发的绚烂中循环往复，轻拨琴弦奏响向死而生的探险诗篇。带你沉浸于篝火旁的极致浪漫与无尽求索！🔥",
           "content": "1.  Echoes of the Eye\n2.  Travelers'encore"
         },
         {
-          "id": "music_22",
+          "id": "music_23",
           "title": "PERSONA 3",
           "cover": "webp_cache/Music/Covers/PERSONA 3.webp",
           "description": "🎧 潮流说唱与空灵流行的完美交错！在静谧的忧伤与激昂的节拍间游走，用充满都市感的旋律触碰生命与时间的底色。音乐中潜藏着对抗宿命的温柔与决绝，一秒将你拉入那幽蓝色的影时间！🌙",
           "content": "## Part I\n1. I Will Protect You \n2. Deep Breath Deep Breath\n3. Full Moon Full Life\n4. Burn My Dread-Last Battle Reload\n5. Burn My Dread-Reload\n6. Memories of You\n7. Memories of the School\n8. Changing Seasons\n9. It's Going Down Now\n10. Joy\n## Part II\n1. During the Exam\n2. Paulownia Mall\n3. Color Your Night\n4. Mass Destruction\n5. lwatodai Dorm\n6. When The Moon's Reaching Out Stars\n7. Aria of the Soul\n8. Want To Be Close\n9. Full Moon Full Life"
         },
         {
-          "id": "music_23",
+          "id": "music_24",
           "title": "PERSONA 5",
           "cover": "webp_cache/Music/Covers/PERSONA 5.webp",
           "description": "🎷 极致华丽的酸性爵士与放克摇滚狂欢！张扬着反叛精神与不羁的都市摩登感，每一个跳跃的音符都在疯狂挑动神经。伴随充满爆发力的歌声，瞬间点燃偷心怪盗的华丽演出与正义之火！🔥",
           "content": "## Part I\n1. Beneath the Mask\n2. When Mother Was There\n3. Sunset Bridge\n4. Tokyo Emergency\n5. Wake Up, Get Up, Get Out There\n6. Hoshi To Bokura To\n7. Rivers In the Desert\n8. The Whims of Fate\n9. Break it Down\n10. Life Goes On\n## Part II\n1. Have a Short Rest\n2. Butterfly Kiss\n3. Tokyo Daylight\n4. Layer Cake\n5. Last Surprise\n6. Aria of the Soul\n7. Life Will Change"
         },
         {
-          "id": "music_24",
+          "id": "music_25",
           "title": "Portal",
           "cover": "webp_cache/Music/Covers/Portal.webp",
           "description": "🍰 冰冷机械感与黑色幽默在电子节拍中完美咬合！极简的合成器音效构建出幽闭又荒诞的实验室。即使一切都在坍塌，那段充满讽刺却意外甜美的歌声依然在心底轻快回荡！🤖",
           "content": "1.  Still Alive"
         },
         {
-          "id": "music_25",
+          "id": "music_26",
           "title": "Slime Rancher",
           "cover": "webp_cache/Music/Covers/Slime Rancher.webp",
           "description": "🌈 轻盈跃动的吉他与充满活力的合成器音效Q弹碰撞！旋律犹如微风拂过外星荒野，带来无忧无虑的悠闲与探索未知的好奇。在温暖和煦的阳光下，拥抱那份最纯真可爱的治愈时光！✨",
           "content": "1.  Dry Reef Theme"
         },
         {
-          "id": "music_26",
+          "id": "music_27",
           "title": "Stardew Valley",
           "cover": "webp_cache/Music/Covers/Stardew Valley.webp",
           "description": "🌾 温润质朴的乡村民谣与随四季更迭的轻柔环境音和解交融！清透的长笛与拨弦声洗去疲惫，将田园牧歌的宁静娓娓道来。在晨露与晚星的陪伴中，找回内心深处最安宁的归宿！🌻",
           "content": "1.  Stardew Valley Overture"
         },
         {
-          "id": "music_27",
+          "id": "music_28",
           "title": "Teamfight Tactics",
           "cover": "webp_cache/Music/Covers/TFT.webp",
           "description": "🎧 多流派音乐的奇妙碰撞与灵动混音！化身棋盘DJ，在羁绊专属的节拍中自由打碟。每一次阵容大成都是一场燃爆全场的演唱会，伴随欢脱律动，彻底沉浸于这场属于弈子的狂欢派对！🎶",
           "content": "1.  REMIX RUMBLE"
         },
         {
-          "id": "music_28",
+          "id": "music_29",
           "title": "VALORANT",
           "cover": "webp_cache/Music/Covers/VALORANT.webp",
           "description": "🎧 致命冷酷的Trap节拍与前卫电子的赛博狂飙！凌厉的贝斯线条与撕裂的节奏感，将战术博弈的窒息感与心跳加速完美复刻。一秒拉满肾上腺素，在枪林弹雨中宣泄最狂妄的锐气！🔫",
           "content": "1.  ＞one\n2.  UNDEFEATED\n3.  Last Shot\n4.  RUN！\n5.  SUPERPOWER\n6.  Fire Again\n7.  Ticking Away\n8.  Die For You"
         },
         {
-          "id": "music_29",
+          "id": "music_30",
           "title": "World Championship Series",
           "cover": "webp_cache/Music/Covers/World Championship Series.webp",
           "description": "🏟️ 极具爆发力的流行摇滚与万人合唱的巅峰共振！激昂鼓点与撕裂苍穹的歌声，承载着登峰造极的渴望与涅槃重生的决绝。在热血沸腾的史诗高潮中，见证传奇诞生的不朽荣光！🏆",
