@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-27T02:28:20.510514",
+    "generated_at": "2026-03-27T03:40:36.236180",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data backup"
   },
@@ -11,363 +11,6 @@
       "total_count": 318,
       "sort_mode": "timeline",
       "years": [
-        {
-          "year": 9999,
-          "folder": "Game-Season",
-          "items": [
-            {
-              "id": "games_9999_0",
-              "image_path": "webp_cache/Games/Game-Season/D4S11神圣赠礼.webp",
-              "title": "D4S11神圣赠礼",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_1",
-              "image_path": "webp_cache/Games/Game-Season/D4S12绝灭屠戮.webp",
-              "title": "D4S12绝灭屠戮",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_2",
-              "image_path": "webp_cache/Games/Game-Season/D4S3造物主赛季.webp",
-              "title": "D4S3造物主赛季",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_3",
-              "image_path": "webp_cache/Games/Game-Season/D4S4战利品重生.webp",
-              "title": "D4S4战利品重生",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_4",
-              "image_path": "webp_cache/Games/Game-Season/D4S6憎恨高升.webp",
-              "title": "D4S6憎恨高升",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_5",
-              "image_path": "webp_cache/Games/Game-Season/D4S7巫术赛季 .webp",
-              "title": "D4S7巫术赛季 ",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_6",
-              "image_path": "webp_cache/Games/Game-Season/D4S8彼列归来 .webp",
-              "title": "D4S8彼列归来 ",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_7",
-              "image_path": "webp_cache/Games/Game-Season/S10强音争霸.webp",
-              "title": "S10强音争霸",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_8",
-              "image_path": "webp_cache/Games/Game-Season/S11画中灵.webp",
-              "title": "S11画中灵",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_9",
-              "image_path": "webp_cache/Games/Game-Season/S12魔法大乱斗.webp",
-              "title": "S12魔法大乱斗",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_10",
-              "image_path": "webp_cache/Games/Game-Season/S13步入双城.webp",
-              "title": "S13步入双城",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_11",
-              "image_path": "webp_cache/Games/Game-Season/S14赛博之城.webp",
-              "title": "S14赛博之城",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_12",
-              "image_path": "webp_cache/Games/Game-Season/S15格斗竞技场.webp",
-              "title": "S15格斗竞技场",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_13",
-              "image_path": "webp_cache/Games/Game-Season/S16传世之说.webp",
-              "title": "S16传世之说",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_14",
-              "image_path": "webp_cache/Games/Game-Season/S1云顶之弈.webp",
-              "title": "S1云顶之弈",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_15",
-              "image_path": "webp_cache/Games/Game-Season/S2元素崛起.webp",
-              "title": "S2元素崛起",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_16",
-              "image_path": "webp_cache/Games/Game-Season/S3.5再战星海.webp",
-              "title": "S3.5再战星海",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_17",
-              "image_path": "webp_cache/Games/Game-Season/S3银河战争.webp",
-              "title": "S3银河战争",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_18",
-              "image_path": "webp_cache/Games/Game-Season/S4.5瑞兽闹新春.webp",
-              "title": "S4.5瑞兽闹新春",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_19",
-              "image_path": "webp_cache/Games/Game-Season/S4命运之轮.webp",
-              "title": "S4命运之轮",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_20",
-              "image_path": "webp_cache/Games/Game-Season/S5.5英雄黎明.webp",
-              "title": "S5.5英雄黎明",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_21",
-              "image_path": "webp_cache/Games/Game-Season/S5光明与黑暗.webp",
-              "title": "S5光明与黑暗",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_22",
-              "image_path": "webp_cache/Games/Game-Season/S6.5霓虹之夜.webp",
-              "title": "S6.5霓虹之夜",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_23",
-              "image_path": "webp_cache/Games/Game-Season/S6双城之战.webp",
-              "title": "S6双城之战",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_24",
-              "image_path": "webp_cache/Games/Game-Season/S7.5隐秘海域.webp",
-              "title": "S7.5隐秘海域",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_25",
-              "image_path": "webp_cache/Games/Game-Season/S7巨龙之境.webp",
-              "title": "S7巨龙之境",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_26",
-              "image_path": "webp_cache/Games/Game-Season/S8.5铲铲市危机.webp",
-              "title": "S8.5铲铲市危机",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_27",
-              "image_path": "webp_cache/Games/Game-Season/S8怪兽来袭！.webp",
-              "title": "S8怪兽来袭！",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_28",
-              "image_path": "webp_cache/Games/Game-Season/S9.5向着地平线.webp",
-              "title": "S9.5向着地平线",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_29",
-              "image_path": "webp_cache/Games/Game-Season/S9符文大陆传说.webp",
-              "title": "S9符文大陆传说",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_30",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2017.webp",
-              "title": "Worlds 2017",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_31",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2018.webp",
-              "title": "Worlds 2018",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_32",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2019.webp",
-              "title": "Worlds 2019",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_33",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2020.webp",
-              "title": "Worlds 2020",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_34",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2021.webp",
-              "title": "Worlds 2021",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_35",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2022.webp",
-              "title": "Worlds 2022",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_36",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2023.webp",
-              "title": "Worlds 2023",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_37",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2024.webp",
-              "title": "Worlds 2024",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            },
-            {
-              "id": "games_9999_38",
-              "image_path": "webp_cache/Games/Game-Season/Worlds 2025.webp",
-              "title": "Worlds 2025",
-              "cinema": false,
-              "quote": "",
-              "url": "",
-              "type": "game"
-            }
-          ]
-        },
         {
           "year": 2026.0,
           "folder": "Game-2026",
@@ -466,6 +109,363 @@
               "id": "games_2026.0_10",
               "image_path": "webp_cache/Games/Game-2026/霍格沃兹之遗.webp",
               "title": "霍格沃兹之遗",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            }
+          ]
+        },
+        {
+          "year": 2025.5,
+          "folder": "Game-Season",
+          "items": [
+            {
+              "id": "games_2025.5_0",
+              "image_path": "webp_cache/Games/Game-Season/D4S11神圣赠礼.webp",
+              "title": "D4S11神圣赠礼",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_1",
+              "image_path": "webp_cache/Games/Game-Season/D4S12绝灭屠戮.webp",
+              "title": "D4S12绝灭屠戮",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_2",
+              "image_path": "webp_cache/Games/Game-Season/D4S3造物主赛季.webp",
+              "title": "D4S3造物主赛季",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_3",
+              "image_path": "webp_cache/Games/Game-Season/D4S4战利品重生.webp",
+              "title": "D4S4战利品重生",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_4",
+              "image_path": "webp_cache/Games/Game-Season/D4S6憎恨高升.webp",
+              "title": "D4S6憎恨高升",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_5",
+              "image_path": "webp_cache/Games/Game-Season/D4S7巫术赛季 .webp",
+              "title": "D4S7巫术赛季 ",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_6",
+              "image_path": "webp_cache/Games/Game-Season/D4S8彼列归来 .webp",
+              "title": "D4S8彼列归来 ",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_7",
+              "image_path": "webp_cache/Games/Game-Season/S10强音争霸.webp",
+              "title": "S10强音争霸",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_8",
+              "image_path": "webp_cache/Games/Game-Season/S11画中灵.webp",
+              "title": "S11画中灵",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_9",
+              "image_path": "webp_cache/Games/Game-Season/S12魔法大乱斗.webp",
+              "title": "S12魔法大乱斗",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_10",
+              "image_path": "webp_cache/Games/Game-Season/S13步入双城.webp",
+              "title": "S13步入双城",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_11",
+              "image_path": "webp_cache/Games/Game-Season/S14赛博之城.webp",
+              "title": "S14赛博之城",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_12",
+              "image_path": "webp_cache/Games/Game-Season/S15格斗竞技场.webp",
+              "title": "S15格斗竞技场",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_13",
+              "image_path": "webp_cache/Games/Game-Season/S16传世之说.webp",
+              "title": "S16传世之说",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_14",
+              "image_path": "webp_cache/Games/Game-Season/S1云顶之弈.webp",
+              "title": "S1云顶之弈",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_15",
+              "image_path": "webp_cache/Games/Game-Season/S2元素崛起.webp",
+              "title": "S2元素崛起",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_16",
+              "image_path": "webp_cache/Games/Game-Season/S3.5再战星海.webp",
+              "title": "S3.5再战星海",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_17",
+              "image_path": "webp_cache/Games/Game-Season/S3银河战争.webp",
+              "title": "S3银河战争",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_18",
+              "image_path": "webp_cache/Games/Game-Season/S4.5瑞兽闹新春.webp",
+              "title": "S4.5瑞兽闹新春",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_19",
+              "image_path": "webp_cache/Games/Game-Season/S4命运之轮.webp",
+              "title": "S4命运之轮",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_20",
+              "image_path": "webp_cache/Games/Game-Season/S5.5英雄黎明.webp",
+              "title": "S5.5英雄黎明",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_21",
+              "image_path": "webp_cache/Games/Game-Season/S5光明与黑暗.webp",
+              "title": "S5光明与黑暗",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_22",
+              "image_path": "webp_cache/Games/Game-Season/S6.5霓虹之夜.webp",
+              "title": "S6.5霓虹之夜",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_23",
+              "image_path": "webp_cache/Games/Game-Season/S6双城之战.webp",
+              "title": "S6双城之战",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_24",
+              "image_path": "webp_cache/Games/Game-Season/S7.5隐秘海域.webp",
+              "title": "S7.5隐秘海域",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_25",
+              "image_path": "webp_cache/Games/Game-Season/S7巨龙之境.webp",
+              "title": "S7巨龙之境",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_26",
+              "image_path": "webp_cache/Games/Game-Season/S8.5铲铲市危机.webp",
+              "title": "S8.5铲铲市危机",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_27",
+              "image_path": "webp_cache/Games/Game-Season/S8怪兽来袭！.webp",
+              "title": "S8怪兽来袭！",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_28",
+              "image_path": "webp_cache/Games/Game-Season/S9.5向着地平线.webp",
+              "title": "S9.5向着地平线",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_29",
+              "image_path": "webp_cache/Games/Game-Season/S9符文大陆传说.webp",
+              "title": "S9符文大陆传说",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_30",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2017.webp",
+              "title": "Worlds 2017",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_31",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2018.webp",
+              "title": "Worlds 2018",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_32",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2019.webp",
+              "title": "Worlds 2019",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_33",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2020.webp",
+              "title": "Worlds 2020",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_34",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2021.webp",
+              "title": "Worlds 2021",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_35",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2022.webp",
+              "title": "Worlds 2022",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_36",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2023.webp",
+              "title": "Worlds 2023",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_37",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2024.webp",
+              "title": "Worlds 2024",
+              "cinema": false,
+              "quote": "",
+              "url": "",
+              "type": "game"
+            },
+            {
+              "id": "games_2025.5_38",
+              "image_path": "webp_cache/Games/Game-Season/Worlds 2025.webp",
+              "title": "Worlds 2025",
               "cinema": false,
               "quote": "",
               "url": "",
