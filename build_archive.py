@@ -16,7 +16,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 try:
-    from PIL import Image
+    from PIL import Image, ImageOps
     # 屏蔽 PIL 内部的最大图片像素警告
     Image.MAX_IMAGE_PIXELS = None
 except ImportError:
@@ -24,7 +24,7 @@ except ImportError:
     sys.exit(1)
 
 # ── 核心常量配置区 ─────────────────────────────────────────────────────
-ONEDRIVE_DATA_ROOT = Path(r"C:\Users\Yu\OneDrive\图片\Data backup")
+ONEDRIVE_DATA_ROOT = Path(r"C:\Users\Yu\OneDrive\图片\Data")
 PUBLIC_ROOT = Path(r"C:\Users\Yu\AI\Archive\public")
 WEBP_CACHE_DIR = PUBLIC_ROOT / "webp_cache"
 JSON_OUTPUT_PATH = Path(r"C:\Users\Yu\AI\Archive\src\data\archive_data.json")
@@ -78,19 +78,7 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
             
             if needs_crop:
                 target_w, target_h = 600, 900
-                img_w, img_h = img.size
-                scale = min(target_w / img_w, target_h / img_h)
-                new_w, new_h = int(img_w * scale), int(img_h * scale)
-                
-                # 双线性或 Lanczos 重采样
-                img_resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-                
-                # 生成透明纯净大底画框
-                new_img = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
-                
-                paste_x, paste_y = (target_w - new_w) // 2, (target_h - new_h) // 2
-                new_img.paste(img_resized, (paste_x, paste_y))
-                img = new_img
+                img = ImageOps.fit(img, (target_w, target_h), method=Image.Resampling.LANCZOS)
                 
             img.save(dst_webp_path, 'WEBP', quality=WEBP_QUALITY, method=6)
             
@@ -108,9 +96,24 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
 # 📦 Markdown / YAML 纯原生引擎
 # ─────────────────────────────────────────────────────────────
 
-def extract_year_from_folder(folder_name: str) -> int | None:
-    match = re.search(r'\b(19|20)\d{2}\b', folder_name)
-    return int(match.group(0)) if match else None
+def extract_year_from_folder(folder_name: str) -> float | None:
+    """
+    从文件夹名称中提取年份。
+    加入特判魔法：处理赛季/持续运营的特殊分类！
+    """
+    # 👑 特判：捕捉 Season 文件夹
+    if "Season" in folder_name or "season" in folder_name:
+        # 返回 9999 会让它永远在最顶端。
+        # 如果你想让它视觉上排在 2026 年的正下方，请把这里改成返回 2025.5 
+        return 2025.5
+
+    match = re.search(r'(\d{4})', folder_name)
+    if match:
+        year = int(match.group(1))
+        # 稍微放宽一点对未来年份的限制
+        if 1970 <= year <= 2050:
+            return float(year)
+    return None
 
 def scan_images_in_folder(folder: Path) -> list:
     """搜寻该文件夹内部的一级文件，并将图像文件剥离出来"""
