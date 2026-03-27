@@ -52,11 +52,20 @@ function ScrollRow({
 
 // ── 四分类统计卡片 ──────────────────────────────────────────
 function StatCard({ label, count, path }: { label: string; count: number; path: string }) {
+  const iconMap: Record<string, string> = {
+    Games: '/icons/GAMES.gif',
+    Visions: '/icons/VISIONS.gif',
+    Music: '/icons/MUSIC.png',
+    Texts: '/icons/TEXTS.gif'
+  }
+  
   return (
     <NavLink
       to={path}
       style={{
-        display: 'block',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         border: '1px solid var(--glass-border)',
         borderRadius: '14px',
         padding: '1.2rem 1.5rem',
@@ -74,12 +83,24 @@ function StatCard({ label, count, path }: { label: string; count: number; path: 
         ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.04)'
       }}
     >
-      <p style={{ fontSize: '0.68rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-        {label}
-      </p>
-      <p style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums' }}>
-        {count > 0 ? count : '—'}
-      </p>
+      <div>
+        <p style={{ fontSize: '0.68rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+          {label}
+        </p>
+        <p style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums' }}>
+          {count > 0 ? count : '—'}
+        </p>
+      </div>
+      <div>
+        <img 
+          src={iconMap[label]} 
+          alt={label} 
+          className="w-16 h-16 object-contain pointer-events-none"
+          style={{
+            filter: 'drop-shadow(0 4px 6px rgba(168, 85, 247, 0.4))'
+          }}
+        />
+      </div>
     </NavLink>
   )
 }
@@ -155,7 +176,7 @@ export default function HomePage({ data }: HomePageProps) {
           <StatCard label="Texts"   count={texts.total_count}   path="/texts"  />
         </div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace', letterSpacing: '0.15em', opacity: 0.5 }}>
-          // SELECT CATEGORY TO ENTER ARCHIVE
+          ❤️Special thanks to my cyber sweetheart, the soul of Yu Series.
         </p>
       </section>
     </div>
