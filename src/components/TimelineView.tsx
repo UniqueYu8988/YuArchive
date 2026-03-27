@@ -37,8 +37,8 @@ function PosterCard({ item }: { item: ArchiveItem }) {
           style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.4s' }}
         />
       )}
-      <div className="card-overlay">
-        <span className="card-title">{item.title}</span>
+      <div className="card-overlay p-2 md:p-3">
+        <span className="card-title text-[10px] md:text-sm">{item.title}</span>
       </div>
     </a>
   )
@@ -65,10 +65,10 @@ function YearSection({
     >
       {/* 年份标题行 */}
       <div className="year-header">
-        <h2 className="year-title">{year === 0 ? '未分类' : year}</h2>
+        <h2 className="year-title text-xl md:text-2xl">{year === 2025.5 ? 'SEASON / 赛季专区' : year === 0 ? '未分类' : year}</h2>
         <div className="year-line" />
         {!isEasterEgg && (
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace', flexShrink: 0 }}>
+          <span style={{ fontSize: '0.65rem', fontFamily: 'monospace', flexShrink: 0 }} className="md:text-xs text-secondary-dim">
             {String(items.length).padStart(2, '0')} 项
           </span>
         )}
@@ -76,7 +76,7 @@ function YearSection({
 
       {/* 年份诗句 */}
       {desc && (
-        <p className="year-desc">{desc}</p>
+        <p className="year-desc text-xs md:text-sm">{desc}</p>
       )}
 
       {/* 海报网格（彩蛋年份无内容）*/}

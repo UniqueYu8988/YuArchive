@@ -42,7 +42,7 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute }: NavbarProps) {
         <NavLink to="/" className="nav-logo">
           {/* favicon.png 是白色线稿：亮色主题用 invert(1) 变黑可见；暗色主题就是白色，保持原样 */}
           <img src="/favicon.png" alt="Yu" className="nav-avatar" />
-          <span className="nav-title">Archive</span>
+          <span className="nav-title hidden md:inline">Archive</span>
         </NavLink>
 
         {/* ── 中区：四大分类路由 ── */}
@@ -54,7 +54,7 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute }: NavbarProps) {
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
               <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
-              <span>{item.name}</span>
+              <span className="hidden md:inline">{item.name}</span>
             </NavLink>
           ))}
         </div>

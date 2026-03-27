@@ -71,9 +71,9 @@ export default function MusicPage({ data }: Props) {
         )}
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
+      <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '900px' }}>
         {hasData ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+          <div className="flex flex-col gap-6 md:gap-12">
             {data.items.map((item, idx) => {
               const isExpanded = expandedId === item.id
 
@@ -95,28 +95,15 @@ export default function MusicPage({ data }: Props) {
                   {/* 专辑 Header 区：封面 + 信息 (Clickable) */}
                   <div
                     onClick={() => toggleExpand(item.id)}
-                    style={{
-                      display: 'flex',
-                      gap: '2.5rem',
-                      alignItems: 'center',
-                      padding: '2rem',
-                      cursor: 'pointer',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseEnter={e => {
-                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.06)'
-                    }}
-                    onMouseLeave={e => {
-                      ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                    }}
+                    className="flex items-center gap-4 md:gap-10 p-4 md:p-8 cursor-pointer transition-colors"
                   >
                     {/* 封面 */}
                     <div
                       style={{
-                        width: isExpanded ? '140px' : '100px',
-                        height: isExpanded ? '140px' : '100px',
+                        width: isExpanded ? (window.innerWidth < 768 ? '100px' : '140px') : (window.innerWidth < 768 ? '70px' : '100px'),
+                        height: isExpanded ? (window.innerWidth < 768 ? '100px' : '140px') : (window.innerWidth < 768 ? '70px' : '100px'),
                         flexShrink: 0,
-                        borderRadius: '12px',
+                        borderRadius: '10px',
                         overflow: 'hidden',
                         boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
                         background: 'var(--bg-secondary)',
@@ -139,7 +126,7 @@ export default function MusicPage({ data }: Props) {
                             alignItems: 'center',
                             justifyContent: 'center',
                             color: 'var(--text-secondary)',
-                            fontSize: '0.8rem'
+                            fontSize: '0.7rem'
                           }}
                         >
                           No Cover
@@ -148,31 +135,15 @@ export default function MusicPage({ data }: Props) {
                     </div>
 
                     {/* 标题 & 描述 */}
-                    <div style={{ flex: 1 }}>
+                    <div className="flex-1 overflow-hidden">
                       <h2
-                        style={{
-                          fontSize: isExpanded ? '1.75rem' : '1.4rem',
-                          fontWeight: 700,
-                          color: 'var(--text-primary)',
-                          marginBottom: '0.5rem',
-                          letterSpacing: '-0.02em',
-                          transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-                        }}
+                        className={`font-bold transition-all duration-500 tracking-tight text-primary leading-tight ${isExpanded ? 'text-lg md:text-2xl mb-1 md:mb-2' : 'text-base md:text-xl mb-1'}`}
                       >
                         {item.title}
                       </h2>
                       {item.description && (
                         <p
-                          style={{
-                            fontSize: '0.9rem',
-                            color: 'var(--text-secondary)',
-                            lineHeight: 1.5,
-                            opacity: 0.7,
-                            display: '-webkit-box',
-                            WebkitLineClamp: isExpanded ? 'none' : '2',
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          }}
+                          className={`text-secondary text-[11px] md:text-sm leading-relaxed opacity-70 transition-all ${isExpanded ? 'line-clamp-none' : 'line-clamp-1 md:line-clamp-2'}`}
                         >
                           {item.description}
                         </p>
@@ -181,14 +152,9 @@ export default function MusicPage({ data }: Props) {
 
                     {/* 展开指示器 */}
                     <div
-                      style={{
-                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                        color: 'var(--text-secondary)',
-                        padding: '0 1rem'
-                      }}
+                      className={`transition-transform duration-500 text-secondary px-2 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
                     >
-                      <ChevronDown size={24} strokeWidth={1.5} />
+                      <ChevronDown size={window.innerWidth < 768 ? 18 : 24} strokeWidth={1.5} />
                     </div>
                   </div>
 
@@ -202,9 +168,8 @@ export default function MusicPage({ data }: Props) {
                   >
                     <div style={{ overflow: 'hidden' }}>
                       <div
-                        className="album-tracklist"
+                        className="album-tracklist px-4 md:px-8 pb-6 md:pb-10"
                         style={{
-                          padding: '0 2rem 2.5rem',
                           borderTop: '1px solid var(--glass-border)'
                         }}
                       >
@@ -231,15 +196,10 @@ export default function MusicPage({ data }: Props) {
 
                               return (
                                 <li
+                                  className="flex items-center py-2 md:py-3 border-b border-glass-border transition-colors relative"
                                   style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    padding: '0.8rem 1.2rem',
-                                    borderBottom: '1px solid var(--glass-border)',
                                     color: 'var(--text-primary)',
-                                    fontSize: '0.95rem',
-                                    transition: 'background 0.2s',
-                                    position: 'relative',
+                                    fontSize: '0.825rem',
                                   }}
                                   onMouseEnter={e => {
                                     ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.06)'
@@ -251,14 +211,7 @@ export default function MusicPage({ data }: Props) {
                                   }}
                                 >
                                   <span
-                                    style={{
-                                      color: 'var(--text-secondary)',
-                                      fontFamily: 'monospace',
-                                      width: '2.5rem',
-                                      fontSize: '0.85rem',
-                                      opacity: 0.6
-                                    }}
-                                    className="track-number"
+                                    className="track-number text-[10px] md:text-xs text-secondary-dim opacity-60 w-8 md:w-10 font-mono"
                                   />
                                   <a
                                     href={spotifyUrl}
@@ -274,9 +227,10 @@ export default function MusicPage({ data }: Props) {
                                       position: 'relative'
                                     }}
                                   >
-                                    <span style={{ position: 'relative' }}>
+                                    <span 
+                                      className="relative text-xs md:text-sm"
+                                    >
                                       {props.children}
-                                      {/* 下划线动效 */}
                                       <span
                                         style={{
                                           position: 'absolute',
@@ -289,7 +243,6 @@ export default function MusicPage({ data }: Props) {
                                         }}
                                       />
                                     </span>
-                                    {/* 悬停展示 Spotify 小飞镖 */}
                                     <span style={{ 
                                       marginLeft: '0.5rem', 
                                       opacity: hoveredTrack ? 1 : 0, 
@@ -307,49 +260,19 @@ export default function MusicPage({ data }: Props) {
                             },
                             h1: ({ node, ...props }) => (
                               <h3
-                                style={{
-                                  fontSize: '0.9rem',
-                                  color: 'var(--text-secondary)',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.15em',
-                                  marginTop: '2.5rem',
-                                  marginBottom: '1rem',
-                                  borderBottom: '1px solid var(--glass-border)',
-                                  paddingBottom: '0.5rem',
-                                  opacity: 0.8
-                                }}
+                                className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
                                 {...props}
                               />
                             ),
                             h2: ({ node, ...props }) => (
                               <h3
-                                style={{
-                                  fontSize: '0.9rem',
-                                  color: 'var(--text-secondary)',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.15em',
-                                  marginTop: '2.5rem',
-                                  marginBottom: '1rem',
-                                  borderBottom: '1px solid var(--glass-border)',
-                                  paddingBottom: '0.5rem',
-                                  opacity: 0.8
-                                }}
+                                className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
                                 {...props}
                               />
                             ),
                             h3: ({ node, ...props }) => (
                               <h3
-                                style={{
-                                  fontSize: '0.9rem',
-                                  color: 'var(--text-secondary)',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.15em',
-                                  marginTop: '2.5rem',
-                                  marginBottom: '1rem',
-                                  borderBottom: '1px solid var(--glass-border)',
-                                  paddingBottom: '0.5rem',
-                                  opacity: 0.8
-                                }}
+                                className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
                                 {...props}
                               />
                             )

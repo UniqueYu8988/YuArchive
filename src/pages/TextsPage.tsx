@@ -59,9 +59,9 @@ export default function TextsPage({ data }: Props) {
         )}
       </div>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 2rem' }}>
+      <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '800px' }}>
         {hasData ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="flex flex-col gap-4 md:gap-6">
             {data.items.map((item, idx) => {
               const isExpanded = expandedId === item.id;
               
@@ -83,14 +83,7 @@ export default function TextsPage({ data }: Props) {
                   {/* Card Header (Clickable) */}
                   <div 
                     onClick={() => toggleExpand(item.id)}
-                    style={{
-                      padding: '1.5rem 2rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1.2rem',
-                      transition: 'background 0.2s',
-                    }}
+                    className="p-4 md:p-8 cursor-pointer flex flex-col gap-3 md:gap-5 transition-colors"
                     onMouseEnter={e => {
                       (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.08)';
                     }}
@@ -99,44 +92,31 @@ export default function TextsPage({ data }: Props) {
                     }}
                   >
                     {/* Top Row: Title + Chevron */}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%' }}>
-                      <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.4, flex: 1, paddingRight: '1rem', margin: 0 }}>
+                    <div className="flex items-start justify-between w-full">
+                      <h2 className={`font-semibold text-primary tracking-tight leading-snug flex-1 pr-4 m-0 transition-all ${isExpanded ? 'text-lg md:text-xl' : 'text-base md:text-lg'}`}>
                         {item.title}
                       </h2>
-                      <div style={{
-                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'var(--text-primary)',
-                        flexShrink: 0,
-                        marginTop: '2px'
-                      }}>
-                        <ChevronDown size={20} strokeWidth={1.5} />
+                      <div 
+                        className={`transition-transform duration-500 flex items-center justify-center text-primary flex-shrink-0 mt-0.5 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
+                      >
+                        <ChevronDown size={isExpanded ? 24 : 20} strokeWidth={1.5} />
                       </div>
                     </div>
                     
                     {/* Bottom Row: Tags + Date */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex gap-2 flex-wrap">
                         {item.tags.map(tag => (
                           <span 
                             key={tag}
-                            style={{
-                              fontSize: '0.75rem',
-                              padding: '0.2rem 0.6rem',
-                              background: 'rgba(128,128,128,0.1)',
-                              color: 'var(--text-secondary)',
-                              borderRadius: '4px'
-                            }}
+                            className="text-[10px] md:text-xs px-2 py-0.5 bg-[rgba(128,128,128,0.1)] text-secondary rounded"
                           >
                             #{tag}
                           </span>
                         ))}
                       </div>
                       
-                      <span className="font-geek tracking-wider font-bold" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', opacity: 0.85, letterSpacing: '0.08em' }}>
+                      <span className="font-geek tracking-wider font-bold text-[10px] md:text-sm text-secondary opacity-85">
                         {item.date}
                       </span>
                     </div>
@@ -151,23 +131,19 @@ export default function TextsPage({ data }: Props) {
                     }}
                   >
                     <div style={{ overflow: 'hidden' }}>
-                      <div style={{
-                        padding: '1rem 2rem 2rem',
-                        borderTop: '1px solid var(--glass-border)',
-                        color: 'var(--text-primary)'
-                      }}>
+                      <div className="px-4 md:px-8 pb-6 md:pb-10 border-t border-glass-border text-primary">
                         {/* 优雅的 Markdown 渲染 */}
                         <div className="elegant-markdown">
                           <ReactMarkdown
                             components={{
-                              p: ({node, ...props}) => <p style={{ fontSize: '1.05rem', lineHeight: 1.8, color: 'var(--text-secondary)', marginBottom: '1.5rem', letterSpacing: '0.02em' }} {...props} />,
-                              h1: ({node, ...props}) => <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', marginTop: '2.5rem', marginBottom: '1rem', fontWeight: 600 }} {...props} />,
-                              h2: ({node, ...props}) => <h4 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', marginTop: '2rem', marginBottom: '0.8rem', fontWeight: 600 }} {...props} />,
-                              h3: ({node, ...props}) => <h5 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', marginTop: '1.5rem', marginBottom: '0.8rem', fontWeight: 600 }} {...props} />,
-                              ul: ({node, ...props}) => <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.8 }} {...props} />,
-                              ol: ({node, ...props}) => <ol style={{ paddingLeft: '1.5rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.8 }} {...props} />,
-                              li: ({node, ...props}) => <li style={{ marginBottom: '0.5rem' }} {...props} />,
-                              blockquote: ({node, ...props}) => <blockquote style={{ borderLeft: '4px solid var(--glass-border)', paddingLeft: '1rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '1.5rem', opacity: 0.8 }} {...props} />
+                              p: ({node, ...props}) => <p className="text-xs md:text-base leading-relaxed md:leading-loose text-secondary mb-4 md:mb-6 tracking-normal md:tracking-wide font-light" {...props} />,
+                              h1: ({node, ...props}) => <h3 className="text-lg md:text-2xl text-primary mt-6 md:mt-10 mb-4 font-semibold" {...props} />,
+                              h2: ({node, ...props}) => <h4 className="text-base md:text-xl text-primary mt-5 md:mt-8 mb-3 font-semibold" {...props} />,
+                              h3: ({node, ...props}) => <h5 className="text-sm md:text-lg text-primary mt-4 md:mt-6 mb-2 font-semibold" {...props} />,
+                              ul: ({node, ...props}) => <ul className="pl-4 md:pl-6 text-secondary mb-4 md:mb-6 leading-relaxed" {...props} />,
+                              ol: ({node, ...props}) => <ol className="pl-4 md:pl-6 text-secondary mb-4 md:mb-6 leading-relaxed" {...props} />,
+                              li: ({node, ...props}) => <li className="mb-2" {...props} />,
+                              blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-glass-border pl-4 text-secondary italic mb-4 md:mb-6 opacity-80" {...props} />
                             }}
                           >
                             {item.content}

@@ -58,37 +58,38 @@ function VisionsPosterCard({ item }: { item: ArchiveItem }) {
       )}
 
       {/* ── 统一毛玻璃悬停层（Glassmorphism + 紫韵高光） ── */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.2rem',
-        background: 'rgba(10, 10, 15, 0.45)', // 极客暗色
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        opacity: hovered ? 1 : 0,
-        transition: 'all 0.4s cubic-bezier(0.2, 0, 0, 1)',
-        pointerEvents: 'none',
-        boxShadow: hovered ? 'inset 0 0 0 1px rgba(168, 85, 247, 0.25)' : 'none' // 极其克制的皇家紫高光边框
-      }}>
+      <div 
+        className="flex items-center justify-center p-3 md:p-5"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(10, 10, 15, 0.45)', // 极客暗色
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          opacity: hovered ? 1 : 0,
+          transition: 'all 0.4s cubic-bezier(0.2, 0, 0, 1)',
+          pointerEvents: 'none',
+          boxShadow: hovered ? 'inset 0 0 0 1px rgba(168, 85, 247, 0.25)' : 'none' // 极其克制的皇家紫高光边框
+        }}
+      >
         {hasQuote && (
-          <p style={{
-            color: '#fff',
-            fontSize: '0.85rem',
-            fontWeight: 500,
-            lineHeight: 1.6,
-            textAlign: 'center',
-            letterSpacing: '0.02em',
-            textShadow: '0 2px 8px rgba(0,0,0,0.6)',
-            display: '-webkit-box',
-            WebkitLineClamp: 5,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            transform: hovered ? 'translateY(0)' : 'translateY(10px)',
-            transition: 'transform 0.4s cubic-bezier(0.2, 0, 0, 1)'
-          }}>
+          <p 
+            className="text-[10px] md:text-xs lg:text-sm"
+            style={{
+              color: '#fff',
+              fontWeight: 500,
+              lineHeight: 1.6,
+              textAlign: 'center',
+              letterSpacing: '0.02em',
+              textShadow: '0 2px 8px rgba(0,0,0,0.6)',
+              display: '-webkit-box',
+              WebkitLineClamp: 5,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              transform: hovered ? 'translateY(0)' : 'translateY(10px)',
+              transition: 'transform 0.4s cubic-bezier(0.2, 0, 0, 1)'
+            }}
+          >
             {displayText}
           </p>
         )}
@@ -169,9 +170,9 @@ function VisionsYearSection({
       style={{ animationDelay: `${index * 0.07}s`, opacity: 0, animationFillMode: 'both' }}
     >
       <div className="year-header">
-        <h2 className="year-title">{year === 0 ? '未分类' : year}</h2>
+        <h2 className="year-title text-xl md:text-2xl">{year === 0 ? '未分类' : year}</h2>
         <div className="year-line" />
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'monospace', flexShrink: 0 }}>
+        <span style={{ fontSize: '0.65rem', fontFamily: 'monospace', flexShrink: 0 }} className="md:text-xs text-secondary-dim">
           {String(items.length).padStart(2, '0')} 部
         </span>
       </div>

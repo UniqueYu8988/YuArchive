@@ -305,9 +305,15 @@ body {
 
 /* ── 年份网格（Games 等分类页） ─────────── */
 .media-grid-container {
-  padding: 2rem 2.5rem;
+  padding: 1rem;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .media-grid-container {
+    padding: 2rem 2.5rem;
+  }
 }
 
 .year-section { margin-bottom: 3.5rem; }
@@ -345,8 +351,21 @@ body {
 
 .year-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .year-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .year-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
 /* 海报卡片 */
@@ -425,9 +444,15 @@ body {
 
 /* ── 分类页头部 ──────────────────────────── */
 .page-header {
-  padding: 2rem 2.5rem 1.5rem;
+  padding: 1.5rem 1rem 1rem;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .page-header {
+    padding: 2rem 2.5rem 1.5rem;
+  }
 }
 .page-label {
   font-size: 0.72rem;
