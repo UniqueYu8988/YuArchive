@@ -12,6 +12,7 @@ export default function GamesPage({ data }: Props) {
       title="溯游纪元"
       subtitle="在虚拟的边界，重塑无数次人生"
       showEasterEgg={true}
+      mode="games"
     />
   )
 }

@@ -9,6 +9,14 @@ export interface ArchiveItem {
   quote?: string        // 悬停时展示的短评金句
   url?: string          // 作品对应的外部传送门链接（Visions 专属）
   type?: 'movie' | 'anime' | 'tv' | string // 混合时间线分类标记（Visions 专属）
+  game_meta_enabled?: boolean
+  english_title?: string
+  platform?: 'steam' | 'xbox' | 'riotgame' | 'battlenet' | 'playstation' | 'switch' | string
+  price?: string
+  rating?: number | ''
+  playtime?: '<1h' | '<10h' | '<50h' | '<100h' | '>100h' | string
+  completed?: boolean
+  genre?: 'action' | 'rpg' | 'strategy' | 'shooter' | 'simulation' | 'sports' | 'racing' | 'puzzle' | 'casual' | string
 }
 
 /** 时间线年份分组（用于 Games / Movies / Animes） */
@@ -71,6 +79,43 @@ export interface ArchiveData {
     source_root: string
     version: string
     validation?: {
+      games_meta_skipped_folders?: string[]
+      games_meta_templates_updated?: string[]
+      games_meta_inventory?: Array<{
+        folder: string
+        title: string
+        english_title?: string
+        suggested_english_title?: string
+        platform?: string
+        genre?: string
+        rating?: number | ''
+        playtime?: string
+        price?: string
+        completed?: boolean
+        url?: string
+        has_english_title?: boolean
+        has_url?: boolean
+        has_price?: boolean
+        has_genre?: boolean
+        has_rating?: boolean
+        has_playtime?: boolean
+      }>
+      games_steam_autofill_hits?: number
+      games_steam_autofill_misses?: number
+      games_meta_todo?: Array<{
+        folder: string
+        title: string
+        english_title?: string
+        platform?: string
+        genre?: string
+        rating?: number | ''
+        playtime?: string
+        price?: string
+        completed?: boolean
+        url?: string
+        search_hint?: string
+        missing: string[]
+      }>
       music_missing_covers: Array<{ title: string; file: string; cover: string }>
       music_external_covers: string[]
       texts_date_issues: Array<{

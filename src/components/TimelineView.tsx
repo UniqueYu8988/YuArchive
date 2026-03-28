@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { CircleDollarSign, Clock3, Star, Trophy } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem } from '../types'
 import { yearDescriptions, easterEggYear } from '../data/yearDescriptions'
 
@@ -7,15 +8,49 @@ function toImageUrl(imagePath: string): string {
 }
 
 // ── 单张海报卡片 (改造成 Steam 纯净直连魔法链接) ───────────────────
-function PosterCard({ item }: { item: ArchiveItem }) {
+function formatGameRating(rating?: number | '') {
+  const value = typeof rating === 'number' ? rating : 0
+  return '★'.repeat(value) + '☆'.repeat(5 - value)
+}
+
+function formatGameGenre(genre?: string) {
+  const labels: Record<string, string> = {
+    action: 'Action',
+    rpg: 'RPG',
+    strategy: 'Strategy',
+    shooter: 'Shooter',
+    simulation: 'Simulation',
+    sports: 'Sports',
+    racing: 'Racing',
+    puzzle: 'Puzzle',
+    casual: 'Casual',
+  }
+  if (!genre) return 'Unclassified'
+  return labels[genre] ?? genre
+}
+
+function platformBadge(platform?: string) {
+  const badges: Record<string, string> = {
+    steam: 'S',
+    xbox: 'X',
+    riotgame: 'R',
+    battlenet: 'B',
+    playstation: 'PS',
+    switch: 'NS',
+  }
+  return badges[platform ?? ''] ?? '?'
+}
+
+function PosterCard({ item, mode = 'default' }: { item: ArchiveItem; mode?: 'default' | 'games' }) {
   const [loaded, setLoaded]   = useState(false)
   const [error, setError]     = useState(false)
-
-  const steamSearchUrl = `https://store.steampowered.com/search/?term=${encodeURIComponent(item.title)}`
+  const href = item.url || '#'
+  const isGames = mode === 'games' && item.game_meta_enabled
+  const ratingText = useMemo(() => formatGameRating(item.rating), [item.rating])
 
   return (
     <a
-      href={steamSearchUrl}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       className="poster-card interactive-poster"
@@ -37,9 +72,98 @@ function PosterCard({ item }: { item: ArchiveItem }) {
           style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.4s' }}
         />
       )}
-      <div className="card-overlay p-2 md:p-3">
-        <span className="card-title text-[10px] md:text-sm">{item.title}</span>
-      </div>
+      {!isGames ? (
+        <div className="card-overlay p-2 md:p-3">
+          <span className="card-title text-[10px] md:text-sm">{item.title}</span>
+        </div>
+      ) : (
+        <>
+          <div
+            className="game-hover-shell p-3 md:p-4"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(8,8,12,0.92) 0%, rgba(8,8,12,0.72) 45%, rgba(8,8,12,0.08) 100%)',
+              opacity: 0,
+              transition: 'opacity 0.28s ease',
+              pointerEvents: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <div className="game-hover-overlay">
+              <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem', lineHeight: 1.25 }}>
+                {item.title}
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: '0.72rem', lineHeight: 1.25, marginTop: '0.2rem' }}>
+                {item.english_title || 'Pending Title'}
+              </div>
+              <div style={{ display: 'grid', gap: '0.3rem', marginTop: '0.75rem' }}>
+                <div style={{ color: 'rgba(255,255,255,0.88)', fontSize: '0.68rem' }}>
+                  {formatGameGenre(item.genre)}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'rgba(255,255,255,0.88)', fontSize: '0.68rem' }}>
+                  <Star size={12} color="#facc15" fill="#facc15" />
+                  <span>{ratingText}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'rgba(255,255,255,0.88)', fontSize: '0.68rem' }}>
+                  <Clock3 size={12} />
+                  <span>{item.playtime || 'Unknown'}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'rgba(255,255,255,0.88)', fontSize: '0.68rem' }}>
+                  <CircleDollarSign size={12} />
+                  <span>{item.price || '--'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {item.platform && (
+            <div style={{
+              position: 'absolute',
+              top: '0.5rem',
+              left: '0.5rem',
+              minWidth: '24px',
+              height: '24px',
+              borderRadius: '999px',
+              background: 'rgba(255,255,255,0.18)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              padding: '0 0.4rem',
+              pointerEvents: 'none',
+            }}>
+              {platformBadge(item.platform)}
+            </div>
+          )}
+
+          {item.completed && (
+            <div style={{
+              position: 'absolute',
+              top: '0.5rem',
+              right: '0.5rem',
+              minWidth: '24px',
+              height: '24px',
+              borderRadius: '999px',
+              background: 'rgba(234, 179, 8, 0.92)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#111',
+              boxShadow: '0 0 14px rgba(234,179,8,0.35)',
+              pointerEvents: 'none',
+            }}>
+              <Trophy size={13} />
+            </div>
+          )}
+        </>
+      )}
     </a>
   )
 }
@@ -50,11 +174,13 @@ function YearSection({
   items,
   index,
   isEasterEgg = false,
+  mode = 'default',
 }: {
   year: number
   items: ArchiveItem[]
   index: number
   isEasterEgg?: boolean
+  mode?: 'default' | 'games'
 }) {
   const desc = yearDescriptions[year]
 
@@ -83,7 +209,7 @@ function YearSection({
       {!isEasterEgg && items.length > 0 && (
         <div className="year-grid">
           {items.map(item => (
-            <PosterCard key={item.id} item={item} />
+            <PosterCard key={item.id} item={item} mode={mode} />
           ))}
         </div>
       )}
@@ -108,9 +234,10 @@ interface TimelineViewProps {
   subtitle?: string
   /** 是否在底部追加 2001 彩蛋（只有 Games 页需要） */
   showEasterEgg?: boolean
+  mode?: 'default' | 'games'
 }
 
-export default function TimelineView({ data, title, subtitle, showEasterEgg = false }: TimelineViewProps) {
+export default function TimelineView({ data, title, subtitle, showEasterEgg = false, mode = 'default' }: TimelineViewProps) {
   const hasData = data.years.length > 0 && data.total_count > 0
 
   return (
@@ -142,6 +269,7 @@ export default function TimelineView({ data, title, subtitle, showEasterEgg = fa
                 year={yearGroup.year}
                 items={yearGroup.items}
                 index={idx}
+                mode={mode}
               />
             ))}
 
