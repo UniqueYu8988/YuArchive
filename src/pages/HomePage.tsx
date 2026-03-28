@@ -95,6 +95,7 @@ function StatCard({ label, count, path }: { label: string; count: number; path: 
         <img 
           src={iconMap[label]} 
           alt={label} 
+          loading="lazy"
           className="w-16 h-16 object-contain pointer-events-none"
           style={{
             filter: 'drop-shadow(0 4px 6px rgba(168, 85, 247, 0.4))'

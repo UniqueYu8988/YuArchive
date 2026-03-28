@@ -115,6 +115,7 @@ export default function MusicPage({ data }: Props) {
                         <img
                           src={toImageUrl(item.cover)}
                           alt={item.title}
+                          loading="lazy"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
                       ) : (

@@ -574,3 +574,14 @@ body {
   50% { transform: scaleY(1.2); }
   100% { transform: scaleY(0.9); }
 }
+
+/* ── 图片加载骨架屏 ─────────────────────────────────────────── */
+.poster-skeleton {
+  background: rgba(255, 255, 255, 0.04);
+  animation: pulse-skeleton 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-skeleton {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
