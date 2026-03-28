@@ -114,23 +114,27 @@ interface HomePageProps {
 export default function HomePage({ data }: HomePageProps) {
   const { games, visions, music, texts } = data.categories
 
-  // 过滤老游戏 (<= 2015)，并将 2025/2026 的新作品强行置顶到最前面
+  // 过滤老游戏 (<= 2015)，并将最近两年的作品优先排到最前面
   const allItems = useMemo(() => {
-    // 1. 过滤并提取所有 > 2015 的 item
     const validItems = [...games.years]
       .filter(y => y.year > 2015)
       .sort((a, b) => b.year - a.year)
-      .flatMap(y => y.items)
+    const latestYear = validItems.reduce((maxYear, yearGroup) => {
+      const numericYear = Math.floor(yearGroup.year)
+      return numericYear > maxYear ? numericYear : maxYear
+    }, 0)
 
-    // 2. 将 2025 和 2026 的 item 强行摘离
-    const newItems = validItems.filter(item => 
-      item.id.includes('_2025_') || item.id.includes('_2026_')
-    )
-    const otherItems = validItems.filter(item => 
-      !item.id.includes('_2025_') && !item.id.includes('_2026_')
-    )
+    if (latestYear === 0) {
+      return validItems.flatMap(y => y.items)
+    }
 
-    // 3. 拼接返回，确保最新的在最前几行
+    const newItems = validItems
+      .filter(yearGroup => Math.floor(yearGroup.year) >= latestYear - 1)
+      .flatMap(yearGroup => yearGroup.items)
+    const otherItems = validItems
+      .filter(yearGroup => Math.floor(yearGroup.year) < latestYear - 1)
+      .flatMap(yearGroup => yearGroup.items)
+
     return [...newItems, ...otherItems]
   }, [games])
 

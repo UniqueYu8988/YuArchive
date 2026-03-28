@@ -49,6 +49,7 @@ export interface TextItem {
   id: string
   title: string
   date: string
+  sort_date?: string
   tags: string[]
   content: string
 }
@@ -69,6 +70,18 @@ export interface ArchiveData {
     generated_at: string
     source_root: string
     version: string
+    validation?: {
+      music_missing_covers: Array<{ title: string; file: string; cover: string }>
+      music_external_covers: string[]
+      texts_date_issues: Array<{
+        title: string
+        file: string
+        raw_date: string
+        normalized_date: string
+        status: string
+      }>
+      visions_orphan_meta: string[]
+    }
   }
   categories: {
     games: TimelineCategory

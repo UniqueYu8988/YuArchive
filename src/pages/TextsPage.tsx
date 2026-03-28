@@ -42,6 +42,11 @@ export default function TextsPage({ data }: Props) {
     }
   }, [expandedId])
 
+  const formatDisplayDate = (rawDate: string, sortDate?: string) => {
+    if (sortDate) return sortDate
+    return rawDate
+  }
+
   return (
     <div style={{ paddingBottom: '6rem' }}>
       <div className="page-header animate-fade-up">
@@ -106,18 +111,25 @@ export default function TextsPage({ data }: Props) {
                     {/* Bottom Row: Tags + Date */}
                     <div className="flex items-center justify-between w-full">
                       <div className="flex gap-2 flex-wrap">
-                        {item.tags.map(tag => (
+                        {item.tags.length > 0 ? item.tags.map(tag => (
                           <span 
                             key={tag}
                             className="text-[10px] md:text-xs px-2 py-0.5 bg-[rgba(128,128,128,0.1)] text-secondary rounded"
                           >
                             #{tag}
                           </span>
-                        ))}
+                        )) : (
+                          <span className="text-[10px] md:text-xs text-secondary opacity-60">
+                            无标签
+                          </span>
+                        )}
                       </div>
                       
-                      <span className="font-geek tracking-wider font-bold text-[10px] md:text-sm text-secondary opacity-85">
-                        {item.date}
+                      <span
+                        className="font-geek tracking-wider font-bold text-[10px] md:text-sm text-secondary opacity-85"
+                        title={formatDisplayDate(item.date, item.sort_date)}
+                      >
+                        {formatDisplayDate(item.date, item.sort_date)}
                       </span>
                     </div>
                   </div>
@@ -166,7 +178,7 @@ export default function TextsPage({ data }: Props) {
                                cursor: 'pointer',
                                padding: '0.5rem 1rem',
                                borderRadius: '20px',
-                               transition: 'all 0.2sease'
+                               transition: 'all 0.2s ease'
                              }}
                              onMouseEnter={e => {
                                (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';

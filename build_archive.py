@@ -41,6 +41,8 @@ CATEGORIES = {
 }
 # ──────────────────────────────────────────────────────────────────────
 
+DEFAULT_TEXT_DATE = "1970-01-01"
+
 
 def is_image(path: Path) -> bool:
     return path.suffix.lower() in IMAGE_EXTENSIONS
@@ -121,8 +123,12 @@ def scan_images_in_folder(folder: Path) -> list:
     return [p for p in sorted(folder.iterdir()) if p.is_file() and is_image(p)]
 
 
+def normalize_title(value: str) -> str:
+    return value.strip()
+
+
 def parse_markdown_with_frontmatter(file_path: Path) -> dict:
-    metadata = {"title": file_path.stem, "date": "1970-01-01", "tags": []}
+    metadata = {"title": file_path.stem, "date": DEFAULT_TEXT_DATE, "tags": []}
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -151,7 +157,73 @@ def parse_markdown_with_frontmatter(file_path: Path) -> dict:
                     metadata[key] = val
 
     if in_frontmatter: body_start_idx = 0
+    metadata["title"] = normalize_title(str(metadata.get("title", file_path.stem) or file_path.stem))
+    if isinstance(metadata.get("tags"), list):
+        metadata["tags"] = [t.strip() for t in metadata["tags"] if t and t.strip()]
     return {"metadata": metadata, "content": "".join(lines[body_start_idx:]).strip()}
+
+
+def normalize_text_date(raw_date: str, file_path: Path) -> tuple[str, str]:
+    value = (raw_date or "").strip()
+    if not value:
+        return DEFAULT_TEXT_DATE, "missing"
+
+    for fmt in ("%Y-%m-%d", "%Y/%m/%d"):
+        try:
+            dt = datetime.strptime(value, fmt)
+            return dt.strftime("%Y-%m-%d"), "full"
+        except ValueError:
+            pass
+
+    for fmt in ("%m-%d", "%m/%d"):
+        try:
+            dt = datetime.strptime(value, fmt)
+            year = datetime.fromtimestamp(file_path.stat().st_mtime).year
+            normalized = datetime(year, dt.month, dt.day)
+            return normalized.strftime("%Y-%m-%d"), "partial"
+        except ValueError:
+            pass
+
+    return DEFAULT_TEXT_DATE, "invalid"
+
+
+def find_music_cover(markdown_path: Path, cover_value: str, cat_root: Path) -> tuple[Path | None, str]:
+    raw_value = (cover_value or "").strip()
+    candidates: list[Path] = []
+
+    if raw_value:
+        raw_path = Path(raw_value)
+        if raw_path.is_absolute():
+            candidates.append(raw_path)
+        else:
+            candidates.append(markdown_path.parent / raw_value)
+            candidates.append(cat_root / raw_value)
+            candidates.append(cat_root / "Covers" / raw_value)
+
+        if raw_path.name:
+            candidates.append(markdown_path.parent / raw_path.name)
+            candidates.append(cat_root / raw_path.name)
+            candidates.append(cat_root / "Covers" / raw_path.name)
+
+    stem = markdown_path.stem
+    for ext in IMAGE_EXTENSIONS:
+        candidates.append(markdown_path.with_suffix(ext))
+        candidates.append(cat_root / "Covers" / f"{stem}{ext}")
+
+    seen = set()
+    for candidate in candidates:
+        try:
+            resolved = candidate.resolve(strict=False)
+        except OSError:
+            resolved = candidate
+        normalized = str(resolved).lower()
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        if candidate.exists() and candidate.is_file() and is_image(candidate):
+            return candidate, raw_value
+
+    return None, raw_value
 
 
 def parse_visions_meta_yamls(visions_root: Path) -> dict:
@@ -167,7 +239,7 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
                     if not stripped or stripped.startswith("#"): continue
 
                     if not line.startswith(" ") and not line.startswith("\t"):
-                        current_title = stripped.rstrip(":")
+                        current_title = normalize_title(stripped.rstrip(":"))
                         if (current_title.startswith('"') and current_title.endswith('"')) or \
                            (current_title.startswith("'") and current_title.endswith("'")):
                             current_title = current_title[1:-1]
@@ -191,7 +263,7 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
 # 🚀 四大类别深库扫描
 # ─────────────────────────────────────────────────────────────
 
-def process_timeline_category(root: Path, category_key: str) -> dict:
+def process_timeline_category(root: Path, category_key: str, report: dict) -> dict:
     category_name = CATEGORIES[category_key]
     category_root = root / category_name
     print(f"\n📂 [1/4] 扫描 {category_name} (时间线架构)...")
@@ -210,7 +282,7 @@ def process_timeline_category(root: Path, category_key: str) -> dict:
             year_map[year] = {"year": year, "folder": sub_folder.name, "items": []}
 
         for img_path in images:
-            file_stem = img_path.stem
+            file_stem = normalize_title(img_path.stem)
             # 在这里处理转码压缩逻辑
             webp_url = process_and_get_webp_path(img_path, category_key)
             
@@ -232,7 +304,7 @@ def process_timeline_category(root: Path, category_key: str) -> dict:
     }
 
 
-def process_visions_category(root: Path) -> dict:
+def process_visions_category(root: Path, report: dict) -> dict:
     print(f"\n📂 [2/4] 扫描 Visions (光影混合架构)...")
     visions_root = root / "Visions"
     
@@ -241,6 +313,7 @@ def process_visions_category(root: Path) -> dict:
 
     year_map = {}
     meta_map = parse_visions_meta_yamls(visions_root)
+    used_meta_titles = set()
     
     for sub_folder in sorted(visions_root.iterdir()):
         if not sub_folder.is_dir(): continue
@@ -253,8 +326,10 @@ def process_visions_category(root: Path) -> dict:
             year_map[year] = {"year": year, "folder": sub_folder.name, "items": []}
 
         for img_path in images:
-            file_stem = img_path.stem
+            file_stem = normalize_title(img_path.stem)
             meta_entry = meta_map.get(file_stem, {})
+            if meta_entry:
+                used_meta_titles.add(file_stem)
             item_type = meta_entry.get("type", "movie")
             
             webp_url = process_and_get_webp_path(img_path, "visions")
@@ -269,6 +344,10 @@ def process_visions_category(root: Path) -> dict:
                 "type":   item_type,
             })
 
+    orphan_titles = sorted(set(meta_map) - used_meta_titles)
+    if orphan_titles:
+        report["visions_orphan_meta"].extend(orphan_titles)
+
     sorted_years = sorted(year_map.values(), key=lambda y: y["year"] if y["year"] != 0 else -1, reverse=True)
     return {
         "key": "visions", "display_name": "Visions",
@@ -277,7 +356,7 @@ def process_visions_category(root: Path) -> dict:
     }
 
 
-def process_music_category(root: Path) -> dict:
+def process_music_category(root: Path, report: dict) -> dict:
     """处理律动板块。虽然不带年份，但也会提取所有 Cover，并将封面转 WebP 压缩"""
     print(f"\n📂 [3/4] 扫描 Music (黑胶原声排版)...")
     cat_root = root / CATEGORIES["music"]
@@ -291,11 +370,22 @@ def process_music_category(root: Path) -> dict:
             meta = parse_markdown_with_frontmatter(item)
             cover_url = ""
             cover_filename = meta["metadata"].get("cover", "")
-            
-            if cover_filename:
-                possible_cover = item.parent / cover_filename
-                if possible_cover.exists():
-                    cover_url = process_and_get_webp_path(possible_cover, "music")
+            cover_path, raw_cover = find_music_cover(item, cover_filename, cat_root)
+
+            if cover_path:
+                try:
+                    if cover_path.is_relative_to(ONEDRIVE_DATA_ROOT):
+                        cover_url = process_and_get_webp_path(cover_path, "music")
+                    else:
+                        report["music_external_covers"].append(str(cover_path))
+                except ValueError:
+                    report["music_external_covers"].append(str(cover_path))
+            else:
+                report["music_missing_covers"].append({
+                    "title": meta["metadata"].get("title", item.stem),
+                    "file": str(item),
+                    "cover": raw_cover,
+                })
 
             items.append({
                 "id": f"music_{len(items)}",
@@ -311,7 +401,7 @@ def process_music_category(root: Path) -> dict:
     }
 
 
-def process_texts_category(root: Path) -> dict:
+def process_texts_category(root: Path, report: dict) -> dict:
     print(f"\n📂 [4/4] 扫描 Texts (纯文本解析引擎)...")
     cat_root = root / CATEGORIES["texts"]
 
@@ -322,15 +412,26 @@ def process_texts_category(root: Path) -> dict:
     for item in cat_root.rglob("*"):
         if item.is_file() and item.suffix.lower() in TEXT_EXTENSIONS:
             parsed = parse_markdown_with_frontmatter(item)
+            title = parsed["metadata"].get("title", item.stem)
+            sort_date, date_status = normalize_text_date(parsed["metadata"].get("date", DEFAULT_TEXT_DATE), item)
+            if date_status != "full":
+                report["texts_date_issues"].append({
+                    "title": title,
+                    "file": str(item),
+                    "raw_date": parsed["metadata"].get("date", ""),
+                    "normalized_date": sort_date,
+                    "status": date_status,
+                })
             items.append({
                 "id": f"text_{len(items)}",
-                "title": parsed["metadata"].get("title", item.stem),
-                "date": parsed["metadata"].get("date", "1970-01-01"),
+                "title": title,
+                "date": parsed["metadata"].get("date", DEFAULT_TEXT_DATE),
+                "sort_date": sort_date,
                 "tags": parsed["metadata"].get("tags", []),
                 "content": parsed["content"]
             })
-            
-    items.sort(key=lambda x: x["date"], reverse=True)
+
+    items.sort(key=lambda x: (x["sort_date"], x["title"]), reverse=True)
     return {
         "key": "texts", "display_name": "Texts",
         "total_count": len(items), "sort_mode": "text", "items": items
@@ -356,6 +457,12 @@ def main():
     WEBP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     start_time = time.time()
+    report = {
+        "music_missing_covers": [],
+        "music_external_covers": [],
+        "texts_date_issues": [],
+        "visions_orphan_meta": [],
+    }
 
     # 1. Pipeline 全部交由四大函数驱动
     data = {
@@ -363,12 +470,13 @@ def main():
             "generated_at": datetime.now().isoformat(),
             "version": "3.0.0",
             "source_root": str(ONEDRIVE_DATA_ROOT),
+            "validation": report,
         },
         "categories": {
-            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games"),
-            "visions": process_visions_category(ONEDRIVE_DATA_ROOT),
-            "music":   process_music_category(ONEDRIVE_DATA_ROOT),
-            "texts":   process_texts_category(ONEDRIVE_DATA_ROOT),
+            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report),
+            "visions": process_visions_category(ONEDRIVE_DATA_ROOT, report),
+            "music":   process_music_category(ONEDRIVE_DATA_ROOT, report),
+            "texts":   process_texts_category(ONEDRIVE_DATA_ROOT, report),
         }
     }
 
@@ -389,6 +497,7 @@ def main():
     print(f"  📌 WebP 转码区: {WEBP_CACHE_DIR}")
     print(f"  📌 结构输出区: {JSON_OUTPUT_PATH}")
     print(f"  📊 总项目数：{total_items} 项")
+    print(f"  🧪 校验摘要：Music 缺封面 {len(report['music_missing_covers'])} 项 | 外部封面 {len(report['music_external_covers'])} 项 | Text 日期告警 {len(report['texts_date_issues'])} 项 | Visions 孤儿元数据 {len(report['visions_orphan_meta'])} 项")
     print(f"  ⏱  总耗时：{total_time:.2f} 秒")
     print("=" * 65)
 

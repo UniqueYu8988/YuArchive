@@ -20,6 +20,46 @@ interface Props {
   data: MusicCategory
 }
 
+function TrackItem({ children }: { children?: React.ReactNode }) {
+  const songName = extractText(children).trim()
+  const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(songName)}`
+
+  return (
+    <li
+      className="group flex items-center py-2 md:py-3 border-b border-glass-border transition-colors relative hover:bg-[rgba(128,128,128,0.06)]"
+      style={{
+        color: 'var(--text-primary)',
+        fontSize: '0.825rem',
+      }}
+    >
+      <span className="track-number text-[10px] md:text-xs text-secondary-dim opacity-60 w-8 md:w-10 font-mono" />
+      <a
+        href={spotifyUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group/link inline-flex items-center flex-1 no-underline transition-colors"
+        style={{
+          color: 'inherit',
+          position: 'relative',
+        }}
+      >
+        <span className="relative text-xs md:text-sm transition-colors group-hover/link:text-[#1DB954]">
+          {children}
+          <span
+            className="absolute left-0 bottom-[-2px] h-[1px] w-0 transition-all duration-300 group-hover/link:w-full"
+            style={{ background: '#1DB954' }}
+          />
+        </span>
+        <span
+          className="ml-2 flex items-center text-[#1DB954] opacity-0 -translate-x-1.5 transition-all duration-300 group-hover/link:opacity-100 group-hover/link:translate-x-0"
+        >
+          <ExternalLink size={14} />
+        </span>
+      </a>
+    </li>
+  )
+}
+
 export default function MusicPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -99,9 +139,8 @@ export default function MusicPage({ data }: Props) {
                   >
                     {/* 封面 */}
                     <div
+                      className={isExpanded ? 'w-[100px] h-[100px] md:w-[140px] md:h-[140px]' : 'w-[70px] h-[70px] md:w-[100px] md:h-[100px]'}
                       style={{
-                        width: isExpanded ? (window.innerWidth < 768 ? '100px' : '140px') : (window.innerWidth < 768 ? '70px' : '100px'),
-                        height: isExpanded ? (window.innerWidth < 768 ? '100px' : '140px') : (window.innerWidth < 768 ? '70px' : '100px'),
                         flexShrink: 0,
                         borderRadius: '10px',
                         overflow: 'hidden',
@@ -155,7 +194,7 @@ export default function MusicPage({ data }: Props) {
                     <div
                       className={`transition-transform duration-500 text-secondary px-2 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
                     >
-                      <ChevronDown size={window.innerWidth < 768 ? 18 : 24} strokeWidth={1.5} />
+                      <ChevronDown size={20} strokeWidth={1.5} />
                     </div>
                   </div>
 
@@ -190,75 +229,7 @@ export default function MusicPage({ data }: Props) {
                                 {...props}
                               />
                             ),
-                            li: ({ node, ...props }) => {
-                              const [hoveredTrack, setHoveredTrack] = useState(false)
-                              const songName = extractText(props.children).trim()
-                              const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(songName)}`
-
-                              return (
-                                <li
-                                  className="flex items-center py-2 md:py-3 border-b border-glass-border transition-colors relative"
-                                  style={{
-                                    color: 'var(--text-primary)',
-                                    fontSize: '0.825rem',
-                                  }}
-                                  onMouseEnter={e => {
-                                    ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.06)'
-                                    setHoveredTrack(true)
-                                  }}
-                                  onMouseLeave={e => {
-                                    ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                                    setHoveredTrack(false)
-                                  }}
-                                >
-                                  <span
-                                    className="track-number text-[10px] md:text-xs text-secondary-dim opacity-60 w-8 md:w-10 font-mono"
-                                  />
-                                  <a
-                                    href={spotifyUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      color: hoveredTrack ? '#1DB954' : 'inherit',
-                                      textDecoration: 'none',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      flex: 1,
-                                      transition: 'color 0.3s ease',
-                                      position: 'relative'
-                                    }}
-                                  >
-                                    <span 
-                                      className="relative text-xs md:text-sm"
-                                    >
-                                      {props.children}
-                                      <span
-                                        style={{
-                                          position: 'absolute',
-                                          left: 0,
-                                          bottom: '-2px',
-                                          width: hoveredTrack ? '100%' : '0%',
-                                          height: '1px',
-                                          background: '#1DB954',
-                                          transition: 'width 0.3s ease',
-                                        }}
-                                      />
-                                    </span>
-                                    <span style={{ 
-                                      marginLeft: '0.5rem', 
-                                      opacity: hoveredTrack ? 1 : 0, 
-                                      transform: hoveredTrack ? 'translateX(0)' : 'translateX(-6px)',
-                                      transition: 'all 0.3s ease',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      color: '#1DB954'
-                                    }}>
-                                      <ExternalLink size={14} />
-                                    </span>
-                                  </a>
-                                </li>
-                              )
-                            },
+                            li: ({ node, ...props }) => <TrackItem>{props.children}</TrackItem>,
                             h1: ({ node, ...props }) => (
                               <h3
                                 className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
