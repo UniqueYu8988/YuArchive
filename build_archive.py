@@ -20,7 +20,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 try:
-    from PIL import Image, ImageOps
+    from PIL import Image, ImageChops, ImageOps
     # 屏蔽 PIL 内部的最大图片像素警告
     Image.MAX_IMAGE_PIXELS = None
 except ImportError:
@@ -53,10 +53,117 @@ CATEGORIES = {
 
 DEFAULT_TEXT_DATE = "1970-01-01"
 GAME_META_FILENAME = "meta.yaml"
-GAME_META_SKIP_FOLDERS = {"Game-2010", "Game-2015", "Game-Season"}
+GAME_LIVE_FOLDER = "Game-Live"
+GAME_META_SKIP_FOLDERS = {"Game-2010", "Game-2015", "Game-Season", GAME_LIVE_FOLDER}
+GAME_SEASON_FOLDER = "Game-Season"
 GAME_PLATFORM_CHOICES = ("steam", "xbox", "riotgame", "battlenet", "playstation", "switch")
-GAME_PLAYTIME_CHOICES = ("<1h", "<10h", "<50h", "<100h", ">100h")
 GAME_GENRE_CHOICES = ("action", "rpg", "strategy", "shooter", "simulation", "sports", "racing", "puzzle", "casual")
+GAME_TITLE_DISPLAY_OVERRIDES = {
+    "腐朽之木": "熔炉密林",
+    "暴力派对": "揍击派对",
+    "来自太空": "霓虹入侵者",
+}
+GAME_SEASON_RULES = [
+    {"title": "云顶之弈", "prefix": "TFT_", "label": "赛季"},
+    {"title": "英雄联盟", "prefix": "LOL_", "label": "全球总决赛"},
+    {"title": "暗黑破坏神 IV", "prefix": "D4_", "label": "赛季"},
+]
+GAME_SEASON_DEFAULTS = {
+    "云顶之弈": {
+        "english_title": "Teamfight Tactics",
+        "url": "https://teamfighttactics.leagueoflegends.com/",
+        "platform": "riotgame",
+        "price": "Free",
+        "genre": "strategy",
+        "summary": "每一次赛季更替，都像在熟悉规则里重新学习命运。",
+        "hover_note": "阵容会过时，但那种临场应变的快感不会。",
+        "season_heading": "云顶之弈赛季图集",
+        "season_subheading": "Seasonal Archive",
+        "season_description": "从 Set 的更替里，记录一次次回到棋盘前的心情与手感。",
+    },
+    "英雄联盟": {
+        "english_title": "League of Legends",
+        "url": "https://www.leagueoflegends.com/",
+        "platform": "riotgame",
+        "price": "Free",
+        "genre": "rpg",
+        "summary": "它不属于某个年份，只会在很多个秋天里再次出现。",
+        "hover_note": "版本更迭不断，真正留下来的总是那些一起看完的夜晚。",
+        "season_heading": "英雄联盟赛季图集",
+        "season_subheading": "Seasonal Archive",
+        "season_description": "这里收纳的不是全部赛季，而是那些真正留下了回声的版本与赛事时刻。",
+    },
+    "暗黑破坏神 IV": {
+        "english_title": "Diablo IV",
+        "url": "https://diablo4.blizzard.com/",
+        "platform": "xbox",
+        "price": "GamePass",
+        "genre": "rpg",
+        "summary": "地狱不会真正结束，它只是换一种方式把人重新召回去。",
+        "hover_note": "赛季像轮回，刷子落下去的时候，时间就变得没有那么重要。",
+        "season_heading": "暗黑破坏神 IV赛季图集",
+        "season_subheading": "Seasonal Archive",
+        "season_description": "从恶疫到鲜血，从彼列归来到绝灭屠戮，都是这场漫长征程里的阶段性回响。",
+    },
+}
+GAME_SEASON_TARGET_YEAR = 2026.0
+GAME_SEASON_PRIORITY = {
+    "英雄联盟": 0,
+    "云顶之弈": 1,
+    "暗黑破坏神 IV": 2,
+}
+GAME_SEASON_ENTRY_META = {
+    "英雄联盟": {
+        "Worlds 2017": {"champion": "Samsung Galaxy", "note": "安掌门终于圆梦，旧王朝也在鸟巢的夜里缓缓落幕。"},
+        "Worlds 2018": {"champion": "Invictus Gaming", "note": "翻山而过的那一年，LPL 终于等来了属于自己的第一冠。"},
+        "Worlds 2019": {"champion": "FunPlus Phoenix", "note": "FPX 把四包二和游走体系打成了那一年的版本答案。"},
+        "Worlds 2020": {"champion": "DAMWON Gaming", "note": "Nuguri、Canyon、ShowMaker 的三叉戟，像教科书一样完整。"},
+        "Worlds 2021": {"champion": "EDward Gaming", "note": "我们是冠军，这句话终于不用只在梦里说了。"},
+        "Worlds 2022": {"champion": "DRX", "note": "从入围赛一路杀到最后，像童话一样不讲道理的一冠。"},
+        "Worlds 2023": {"champion": "T1", "note": "Faker 第四冠，所有关于时代是否结束的争论都安静了一晚。"},
+        "Worlds 2024": {"champion": "T1", "note": "当所有人都在等传奇谢幕时，T1 又把奖杯留在了自己手里。"},
+        "Worlds 2025": {"champion": "T1", "note": "当所有人都在等新王加冕时，最后举起奖杯的还是那个最熟悉的名字。"},
+    },
+    "云顶之弈": {
+        "S1云顶之弈": {"period": "2019.06", "theme": "云顶之弈", "feature": "初代羁绊"},
+        "S2元素崛起": {"period": "2019.11", "theme": "元素崛起", "feature": "元素格"},
+        "S3银河战争": {"period": "2020.03", "theme": "银河战争", "feature": "星系"},
+        "S3.5再战星海": {"period": "2020.06", "theme": "再战星海", "feature": "星系"},
+        "S4命运之轮": {"period": "2020.09", "theme": "命运之轮", "feature": "天选之人"},
+        "S4.5瑞兽闹新春": {"period": "2021.01", "theme": "瑞兽闹新春", "feature": "天选之人"},
+        "S5光明与黑暗": {"period": "2021.04", "theme": "光明与黑暗", "feature": "黑暗武器"},
+        "S5.5英雄黎明": {"period": "2021.07", "theme": "英雄黎明", "feature": "光明武器"},
+        "S6双城之战": {"period": "2021.11", "theme": "双城之战", "feature": "海克斯强化"},
+        "S6.5霓虹之夜": {"period": "2022.02", "theme": "霓虹之夜", "feature": "海克斯强化"},
+        "S7巨龙之境": {"period": "2022.06", "theme": "巨龙之境", "feature": "龙神"},
+        "S7.5隐秘海域": {"period": "2022.09", "theme": "隐秘海域", "feature": "巨龙圣坛"},
+        "S8怪兽来袭！": {"period": "2022.12", "theme": "怪兽来袭！", "feature": "英雄强化"},
+        "S8.5铲铲市危机": {"period": "2023.03", "theme": "铲铲市危机", "feature": "黑客来袭"},
+        "S9符文大陆传说": {"period": "2023.06", "theme": "符文大陆传说", "feature": "地区传送门"},
+        "S9.5志逐天际": {"period": "2023.09", "theme": "志逐天际", "feature": "地区传送门"},
+        "S10强音争霸": {"period": "2023.11", "theme": "强音争霸", "feature": "赛季之星"},
+        "S11画中灵": {"period": "2024.03", "theme": "画中灵", "feature": "奇遇"},
+        "S12魔法大乱斗": {"period": "2024.07", "theme": "魔法大乱斗", "feature": "魔法符咒"},
+        "S13步入双城": {"period": "2024.11", "theme": "双城之战", "feature": "异常突变"},
+        "S14赛博之城": {"period": "2025.04", "theme": "赛博之城", "feature": "骇入"},
+        "S15格斗竞技场": {"period": "2025.07", "theme": "格斗竞技场", "feature": "Power Up"},
+        "S16传世之说": {"period": "2025.12", "theme": "传世之说", "feature": "解锁英雄"},
+    },
+    "暗黑破坏神 IV": {
+        "S3造物主赛季": {"period": "2024.01", "build": "游侠", "note": ""},
+        "S4战利品重生": {"period": "2024.05", "build": "巫师", "note": ""},
+        "S6憎恨高升": {"period": "2024.10", "build": "灵巫", "note": ""},
+        "S7巫术赛季": {"period": "2025.01", "build": "死灵法师", "note": ""},
+        "S8彼列归来": {"period": "2025.04", "build": "游侠", "note": ""},
+        "S11神圣赠礼": {"period": "2025.12", "build": "灵巫", "note": ""},
+        "S12绝灭屠戮": {"period": "2026.03", "build": "圣骑士", "note": ""},
+    },
+}
+GAME_DLC_SPLIT_TITLES = {
+    "女神异闻录3_Episode Aegis": ("女神异闻录 3 重制版", "Episode Aegis"),
+    "地平线5_风火轮": ("极限竞速：地平线 5", "风火轮"),
+    "暗黑破坏神4_憎恨之王": ("暗黑破坏神 IV", "憎恨之王"),
+}
 GAME_TITLE_ALIASES = {
     "哈迪斯": "Hades",
     "哈迪斯2": "Hades II",
@@ -94,6 +201,145 @@ def human_size(bytes_: int) -> str:
         bytes_ /= 1024
     return f"{bytes_:.1f} GB"
 
+
+def trim_transparent_padding(img: Image.Image) -> Image.Image:
+    """
+    对带透明边的海报做自动裁切，避免透明像素把卡片底色露出来。
+    仅在存在 alpha 且有效内容区域明显小于整张图时生效。
+    """
+    if "A" not in img.getbands():
+        return img
+
+    alpha = img.getchannel("A")
+    bbox = alpha.getbbox()
+    if not bbox:
+        return img
+
+    full_bbox = (0, 0, img.width, img.height)
+    if bbox == full_bbox:
+        return img
+
+    left, top, right, bottom = bbox
+    trimmed_w = right - left
+    trimmed_h = bottom - top
+    # 只有当透明留白比较明显时才裁，避免误伤轻微半透明边缘。
+    if trimmed_w < img.width - 4 or trimmed_h < img.height - 4:
+        return img.crop(bbox)
+
+    return img
+
+
+def estimate_alpha_matte_color(img: Image.Image) -> tuple[int, int, int]:
+    """
+    为带透明角/透明边的海报估一个接近原图边缘的铺底色，
+    避免透明区域直接露出页面底色。
+    """
+    if "A" not in img.getbands():
+        return (15, 16, 21)
+
+    width, height = img.size
+    rgba = img.load()
+    edge_samples: list[tuple[int, int, int]] = []
+    sample_step_x = max(1, width // 24)
+    sample_step_y = max(1, height // 24)
+
+    def add_sample(x: int, y: int):
+        r, g, b, a = rgba[x, y]
+        if a >= 32:
+            edge_samples.append((r, g, b))
+
+    for x in range(0, width, sample_step_x):
+        add_sample(x, 0)
+        add_sample(x, height - 1)
+    for y in range(0, height, sample_step_y):
+        add_sample(0, y)
+        add_sample(width - 1, y)
+
+    if not edge_samples:
+        for y in range(0, height, sample_step_y):
+            for x in range(0, width, sample_step_x):
+                r, g, b, a = rgba[x, y]
+                if a >= 64:
+                    edge_samples.append((r, g, b))
+
+    if not edge_samples:
+        return (15, 16, 21)
+
+    r = sum(color[0] for color in edge_samples) // len(edge_samples)
+    g = sum(color[1] for color in edge_samples) // len(edge_samples)
+    b = sum(color[2] for color in edge_samples) // len(edge_samples)
+    return (r, g, b)
+
+
+def flatten_alpha_to_edge_matte(img: Image.Image) -> Image.Image:
+    """
+    把透明区压到接近海报边缘的底色上，解决透明圆角露底的问题。
+    """
+    if "A" not in img.getbands():
+        return img
+
+    alpha = img.getchannel("A")
+    if alpha.getbbox() == (0, 0, img.width, img.height):
+        return img
+
+    matte = estimate_alpha_matte_color(img)
+    base = Image.new("RGBA", img.size, matte + (255,))
+    return Image.alpha_composite(base, img)
+
+
+def trim_uniform_matte_border(img: Image.Image) -> Image.Image:
+    """
+    识别海报四周接近同色的留白/外框，并自动裁掉。
+    主要用于影视海报里常见的白边、浅灰边、印刷式边框。
+    """
+    rgb = img.convert("RGB")
+    width, height = rgb.size
+    pixels = rgb.load()
+    border_samples: list[tuple[int, int, int]] = []
+
+    def add_sample(x: int, y: int):
+        border_samples.append(pixels[x, y])
+
+    step_x = max(1, width // 24)
+    step_y = max(1, height // 24)
+
+    for x in range(0, width, step_x):
+        add_sample(x, 0)
+        add_sample(x, min(2, height - 1))
+        add_sample(x, height - 1)
+        add_sample(x, max(0, height - 3))
+    for y in range(0, height, step_y):
+        add_sample(0, y)
+        add_sample(min(2, width - 1), y)
+        add_sample(width - 1, y)
+        add_sample(max(0, width - 3), y)
+
+    if not border_samples:
+        return img
+
+    matte = tuple(sum(color[i] for color in border_samples) // len(border_samples) for i in range(3))
+    bg = Image.new("RGB", rgb.size, matte)
+    diff = ImageChops.difference(rgb, bg).convert("L")
+    mask = diff.point(lambda value: 255 if value > 18 else 0)
+    bbox = mask.getbbox()
+
+    if not bbox:
+        return img
+
+    left, top, right, bottom = bbox
+    if left <= 6 and top <= 6 and (width - right) <= 6 and (height - bottom) <= 6:
+        return img
+
+    # 只裁较明显的统一边框，避免误伤内容本身贴边的海报。
+    if left < 10 and top < 10 and (width - right) < 10 and (height - bottom) < 10:
+        return img
+
+    cropped = img.crop(bbox)
+    if cropped.width < width * 0.72 or cropped.height < height * 0.72:
+        return img
+
+    return cropped
+
 def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
     """
     智能图像处理管道：增量判断，若需处理则执行转码及留白裁剪。
@@ -118,6 +364,11 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
         with Image.open(src_img_path) as img:
             # 透明通道处理
             img = img.convert('RGBA')
+
+            if category_key == "visions":
+                img = trim_transparent_padding(img)
+                img = flatten_alpha_to_edge_matte(img)
+                img = trim_uniform_matte_border(img)
             
             if needs_crop:
                 target_w, target_h = 600, 900
@@ -329,6 +580,154 @@ def default_game_meta() -> dict:
     }
 
 
+def canonicalize_game_title_for_match(value: str) -> str:
+    normalized = normalize_title(value).lower()
+    return re.sub(r"[\s_\-—:：·'\".!！?？\[\]\(\)]", "", normalized)
+
+
+def get_game_display_title(title: str) -> str:
+    return GAME_TITLE_DISPLAY_OVERRIDES.get(title, title)
+
+
+def season_order_value(title: str) -> float:
+    worlds_match = re.search(r"Worlds\s+(\d{4})", title, re.IGNORECASE)
+    if worlds_match:
+        return float(worlds_match.group(1))
+
+    season_match = re.search(r"S(\d+(?:\.\d+)?)", title, re.IGNORECASE)
+    if season_match:
+        try:
+            return float(season_match.group(1))
+        except ValueError:
+            return 0.0
+    return 0.0
+
+
+def season_source_year(folder_name: str) -> float:
+    return extract_year_from_folder(folder_name) or 0.0
+
+
+def get_game_sort_title(item: dict) -> str:
+    english_title = str(item.get("english_title", "") or "").strip()
+    if english_title:
+        return english_title.lower()
+    return str(item.get("title", "") or "").lower()
+
+
+def split_game_dlc_title(title: str) -> tuple[str, str] | None:
+    if title in GAME_DLC_SPLIT_TITLES:
+        return GAME_DLC_SPLIT_TITLES[title]
+    if "_" not in title:
+        return None
+    base_title, dlc_title = title.split("_", 1)
+    return normalize_title(base_title), normalize_title(dlc_title)
+
+
+def load_live_game_meta(root: Path) -> dict:
+    live_root = root / CATEGORIES["games"] / GAME_LIVE_FOLDER
+    if not live_root.exists():
+        return {}
+
+    def parse_flat_yaml(meta_file: Path) -> dict:
+        entry = default_game_meta()
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                for raw_line in f.readlines():
+                    stripped = raw_line.strip()
+                    if not stripped or stripped.startswith("#") or ":" not in stripped:
+                        continue
+                    key, _, value = stripped.partition(":")
+                    key = key.strip().lower()
+                    value = unquote_yaml_value(value.strip())
+                    if key == "completed":
+                        entry["completed"] = parse_bool(value)
+                    else:
+                        entry[key] = value
+        except Exception:
+            return {}
+        return entry
+
+    per_file_meta = {}
+    for meta_file in sorted(live_root.glob("*.yaml")):
+        if meta_file.name.lower() == GAME_META_FILENAME:
+            continue
+        title = normalize_title(meta_file.stem)
+        parsed = parse_flat_yaml(meta_file)
+        if parsed:
+            per_file_meta[title] = parsed
+
+    if per_file_meta:
+        return per_file_meta
+
+    legacy_meta_file = live_root / GAME_META_FILENAME
+    if legacy_meta_file.exists():
+        return parse_game_meta_yaml(legacy_meta_file)
+    return {}
+
+
+def find_live_game_cover(root: Path, title: str) -> str:
+    live_root = root / CATEGORIES["games"] / GAME_LIVE_FOLDER
+    if not live_root.exists():
+        return ""
+
+    for ext in IMAGE_EXTENSIONS:
+        candidate = live_root / f"{title}{ext}"
+        if candidate.exists() and candidate.is_file():
+            return process_and_get_webp_path(candidate, "games")
+    return ""
+
+
+def build_game_season_map(root: Path) -> tuple[dict[str, list[dict]], set[str], dict[str, dict]]:
+    games_root = root / CATEGORIES["games"]
+    season_map: dict[str, list[dict]] = {}
+    season_stems: set[str] = set()
+    representative_map: dict[str, dict] = {}
+    if not games_root.exists():
+        return season_map, season_stems, representative_map
+
+    for sub_folder in sorted(games_root.iterdir()):
+        if not sub_folder.is_dir():
+            continue
+        for img_path in scan_images_in_folder(sub_folder):
+            title = normalize_title(img_path.stem)
+            for rule in GAME_SEASON_RULES:
+                if title.startswith(rule["prefix"]):
+                    season_stems.add(title)
+                    season_title = title[len(rule["prefix"]):].strip()
+                    order = season_order_value(season_title)
+                    source_year = season_source_year(sub_folder.name)
+                    image_path = process_and_get_webp_path(img_path, "games")
+                    entry_meta = GAME_SEASON_ENTRY_META.get(rule["title"], {}).get(get_game_display_title(season_title), {})
+                    season_map.setdefault(rule["title"], []).append({
+                        "id": f"season_{rule['title']}_{len(season_map.get(rule['title'], []))}",
+                        "title": get_game_display_title(season_title),
+                        "image_path": image_path,
+                        "label": rule["label"],
+                        "champion": entry_meta.get("champion", ""),
+                        "note": entry_meta.get("note", ""),
+                        "period": entry_meta.get("period", ""),
+                        "theme": entry_meta.get("theme", ""),
+                        "feature": entry_meta.get("feature", ""),
+                        "build": entry_meta.get("build", ""),
+                        "icon_path": entry_meta.get("icon_path", ""),
+                        "order": order,
+                        "source_year": source_year,
+                    })
+                    current_rep = representative_map.get(rule["title"])
+                    if current_rep is None or order > current_rep["order"]:
+                        representative_map[rule["title"]] = {
+                            "image_path": image_path,
+                            "order": order,
+                            "year": source_year,
+                        }
+                    break
+
+    for title, items in season_map.items():
+        items.sort(key=lambda item: item["order"])
+
+    return season_map, season_stems, representative_map
+
+
 def parse_game_meta_yaml(meta_file: Path) -> dict:
     result = {}
     if not meta_file.exists():
@@ -366,7 +765,7 @@ def build_game_meta_template_content(image_titles: list[str], meta_map: dict) ->
     lines = [
         "# YuArchive Games 元数据模板",
         "# 可选 platform: steam / xbox / riotgame / battlenet / playstation / switch",
-        "# 可选 playtime: <1h / <10h / <50h / <100h / >100h",
+        "# playtime 为所见即所得：YAML 中写什么，前端就显示什么",
         "# 可选 genre: action / rpg / strategy / shooter / simulation / sports / racing / puzzle / casual",
         "",
     ]
@@ -377,11 +776,6 @@ def build_game_meta_template_content(image_titles: list[str], meta_map: dict) ->
         if title not in seen:
             ordered_titles.append(title)
             seen.add(title)
-    for title in sorted(meta_map):
-        if title not in seen:
-            ordered_titles.append(title)
-            seen.add(title)
-
     for title in ordered_titles:
         entry = default_game_meta()
         entry.update(meta_map.get(title, {}))
@@ -404,11 +798,24 @@ def build_game_meta_template_content(image_titles: list[str], meta_map: dict) ->
 def sync_game_meta_template(folder: Path, image_titles: list[str], report: dict, steam_cache: dict) -> dict:
     meta_file = folder / GAME_META_FILENAME
     existing = parse_game_meta_yaml(meta_file)
+    canonical_existing: dict[str, list[str]] = {}
+    for existing_title in existing:
+        canonical_existing.setdefault(canonicalize_game_title_for_match(existing_title), []).append(existing_title)
+
+    remapped_existing = {}
+    for title in image_titles:
+        if title in existing:
+            remapped_existing[title] = existing[title]
+            continue
+        candidates = canonical_existing.get(canonicalize_game_title_for_match(title), [])
+        if len(candidates) == 1:
+            remapped_existing[title] = existing[candidates[0]]
+
     merged = {}
 
     for title in image_titles:
         entry = default_game_meta()
-        entry.update(existing.get(title, {}))
+        entry.update(remapped_existing.get(title, {}))
         platform = str(entry.get("platform", "steam") or "steam").strip().lower()
         entry["platform"] = platform if platform in GAME_PLATFORM_CHOICES else "steam"
         entry["english_title"] = normalize_title(str(entry.get("english_title", "")))
@@ -417,7 +824,7 @@ def sync_game_meta_template(folder: Path, image_titles: list[str], report: dict,
         rating = parse_game_rating(str(entry.get("rating", "")))
         entry["rating"] = "" if rating is None else rating
         playtime = str(entry.get("playtime", "")).strip()
-        entry["playtime"] = playtime if playtime in GAME_PLAYTIME_CHOICES else ""
+        entry["playtime"] = playtime
         genre = str(entry.get("genre", "")).strip().lower()
         entry["genre"] = genre if genre in GAME_GENRE_CHOICES else ""
         entry["completed"] = bool(entry.get("completed"))
@@ -835,10 +1242,18 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
         return {"key": category_key, "display_name": category_name, "total_count": 0, "sort_mode": "timeline", "years": []}
 
     year_map = {}
+    game_season_map, game_season_stems, game_season_representatives = build_game_season_map(root) if category_key == "games" else ({}, set(), {})
+    live_game_meta = load_live_game_meta(root) if category_key == "games" else {}
     for sub_folder in sorted(category_root.iterdir()):
         if not sub_folder.is_dir(): continue
+        if category_key == "games" and sub_folder.name == GAME_SEASON_FOLDER:
+            continue
+        if category_key == "games" and sub_folder.name == GAME_LIVE_FOLDER:
+            continue
         year = extract_year_from_folder(sub_folder.name) or 0
         images = scan_images_in_folder(sub_folder)
+        if category_key == "games":
+            images = [img for img in images if normalize_title(img.stem) not in game_season_stems]
         if not images: continue
         image_titles = [normalize_title(img.stem) for img in images]
         game_meta = {}
@@ -859,11 +1274,21 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             # 在这里处理转码压缩逻辑
             webp_url = process_and_get_webp_path(img_path, category_key)
             meta_entry = game_meta.get(file_stem, default_game_meta()) if category_key == "games" else {}
-            
-            year_map[year]["items"].append({
-                "id": f"{category_key}_{year}_{len(year_map[year]['items'])}",
-                "image_path": webp_url,
-                "title": file_stem,
+            season_entry_list = game_season_map.get(file_stem, []) if category_key == "games" else []
+            dlc_split = split_game_dlc_title(file_stem) if category_key == "games" else None
+            cover_path = webp_url
+            display_title = get_game_display_title(dlc_split[1]) if dlc_split else (get_game_display_title(file_stem) if category_key == "games" else file_stem)
+            if category_key == "games" and file_stem in game_season_representatives and file_stem != "英雄联盟":
+                cover_path = game_season_representatives[file_stem]["image_path"]
+
+            target_year = GAME_SEASON_TARGET_YEAR if category_key == "games" and season_entry_list else year
+            if target_year not in year_map:
+                year_map[target_year] = {"year": target_year, "folder": sub_folder.name if target_year == year else f"Seasonal-{int(target_year)}", "items": []}
+
+            year_map[target_year]["items"].append({
+                "id": f"{category_key}_{target_year}_{len(year_map[target_year]['items'])}",
+                "image_path": cover_path,
+                "title": display_title,
                 "cinema": False,
                 "quote": "",
                 "url": resolve_game_url(file_stem, meta_entry) if category_key == "games" else "",
@@ -876,14 +1301,74 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
                 "playtime": meta_entry.get("playtime", ""),
                 "completed": meta_entry.get("completed", False),
                 "genre": meta_entry.get("genre", ""),
+                "seasonal": bool(season_entry_list),
+                "dlc": bool(dlc_split),
+                "dlc_parent": get_game_display_title(dlc_split[0]) if dlc_split else "",
+                "summary": meta_entry.get("summary", ""),
+                "hover_note": meta_entry.get("hover_note", ""),
+                "season_heading": meta_entry.get("season_heading", ""),
+                "season_subheading": meta_entry.get("season_subheading", ""),
+                "season_description": meta_entry.get("season_description", ""),
+                "season_entries": season_entry_list,
             })
 
-        if category_key == "games" and sub_folder.name not in GAME_META_SKIP_FOLDERS:
-            year_map[year]["items"].sort(
+    if category_key == "games":
+        existing_titles = {item["title"] for year_info in year_map.values() for item in year_info["items"]}
+        for title, season_entries in game_season_map.items():
+            if title in existing_titles:
+                continue
+            representative = game_season_representatives.get(title)
+            if not representative:
+                continue
+            year = GAME_SEASON_TARGET_YEAR
+            if year not in year_map:
+                year_map[year] = {"year": year, "folder": f"Seasonal-{int(year) if year else 'Misc'}", "items": []}
+            meta_entry = default_game_meta()
+            meta_entry.update(GAME_SEASON_DEFAULTS.get(title, {}))
+            meta_entry.update(live_game_meta.get(title, {}))
+            rating = parse_game_rating(str(meta_entry.get("rating", "")))
+            meta_entry["rating"] = "" if rating is None else rating
+            playtime = str(meta_entry.get("playtime", "")).strip()
+            meta_entry["playtime"] = playtime
+            meta_entry["completed"] = bool(meta_entry.get("completed"))
+            live_cover_path = find_live_game_cover(root, title)
+            year_map[year]["items"].append({
+                "id": f"{category_key}_{year}_{len(year_map[year]['items'])}",
+                "image_path": live_cover_path or representative["image_path"],
+                "title": get_game_display_title(title),
+                "cinema": False,
+                "quote": "",
+                "url": "",
+                "type": "game",
+                "game_meta_enabled": True,
+                "english_title": meta_entry.get("english_title", ""),
+                "platform": meta_entry.get("platform", ""),
+                "price": meta_entry.get("price", ""),
+                "rating": meta_entry.get("rating", ""),
+                "playtime": meta_entry.get("playtime", ""),
+                "completed": meta_entry.get("completed", False),
+                "genre": meta_entry.get("genre", ""),
+                "seasonal": True,
+                "dlc": False,
+                "dlc_parent": "",
+                "summary": meta_entry.get("summary", ""),
+                "hover_note": meta_entry.get("hover_note", ""),
+                "season_heading": meta_entry.get("season_heading", ""),
+                "season_subheading": meta_entry.get("season_subheading", ""),
+                "season_description": meta_entry.get("season_description", ""),
+                "season_entries": season_entries,
+            })
+
+    if category_key == "games":
+        for year_info in year_map.values():
+            year_info["items"].sort(
                 key=lambda item: (
+                    not bool(item.get("seasonal")),
+                    not bool(item.get("dlc")),
+                    GAME_SEASON_PRIORITY.get(item["title"], 999),
                     not bool(item.get("completed")),
                     -(item.get("rating") or 0),
-                    item["title"].lower(),
+                    get_game_sort_title(item),
                 )
             )
 

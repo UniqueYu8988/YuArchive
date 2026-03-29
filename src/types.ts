@@ -17,6 +17,27 @@ export interface ArchiveItem {
   playtime?: '<1h' | '<10h' | '<50h' | '<100h' | '>100h' | string
   completed?: boolean
   genre?: 'action' | 'rpg' | 'strategy' | 'shooter' | 'simulation' | 'sports' | 'racing' | 'puzzle' | 'casual' | string
+  seasonal?: boolean
+  dlc?: boolean
+  dlc_parent?: string
+  summary?: string
+  hover_note?: string
+  season_heading?: string
+  season_subheading?: string
+  season_description?: string
+  season_entries?: Array<{
+    id: string
+    title: string
+    image_path: string
+    label?: string
+    champion?: string
+    note?: string
+    period?: string
+    theme?: string
+    feature?: string
+    build?: string
+    icon_path?: string
+  }>
 }
 
 /** 时间线年份分组（用于 Games / Movies / Animes） */

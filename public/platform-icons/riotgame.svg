@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="18" fill="#d92d27"/>
-  <path d="M16 25l13-6 4 18-12 4-5-16Z" fill="#fff"/>
-  <path d="M33 18l13-6 2 8-12 4-3-6Z" fill="#fff"/>
-  <path d="M36 27h10v22H36z" fill="#fff"/>
-  <path d="M18 45h28v5H18z" fill="#fff"/>
-</svg>
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1774765333515" class="icon" viewBox="0 0 1097 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3129" xmlns:xlink="http://www.w3.org/1999/xlink" width="274.25" height="256"><path d="M583.533714 928.914286l-46.518857-119.954286 448.877714 23.04L966.656 1024l-383.122286-95.085714zM691.346286 0L61.878857 297.325714l97.353143 448.073143h128.438857L265.508571 424.96l19.675429-6.144 77.238857 326.656h133.339429l-4.900572-390.363429 19.748572-6.144 67.437714 396.507429h141.165714l33.353143-471.552 19.748572-6.144 34.962285 477.696h186.660572l65.755428-655.725714L691.346286 0z" fill="#D1353B" p-id="3130"></path></svg>

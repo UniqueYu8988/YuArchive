@@ -48,25 +48,129 @@ export default function TextsPage({ data }: Props) {
   }
 
   return (
-    <div style={{ paddingBottom: '6rem' }}>
-      <div className="page-header animate-fade-up">
-        <p className="page-label">{data.display_name}</p>
-        <h1 className="page-title" style={{ display: 'flex', alignItems: 'baseline' }}>
-          灵犀断章
-          <span className="text-sm text-gray-400 ml-4 font-light" style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginLeft: '1rem', fontWeight: 300, letterSpacing: '0.02em' }}>
-            在字里行间，寻觅灵魂的归宿
-          </span>
-        </h1>
-        {hasData && (
-          <p className="page-count">
-            共收录 <strong>{data.total_count}</strong> 篇短文
-          </p>
-        )}
-      </div>
+    <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem', paddingBottom: '6rem' }}>
+      {hasData ? (
+        <div className="animate-fade-up md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
+          <aside
+            style={{
+              position: 'sticky',
+              top: '88px',
+              alignSelf: 'start',
+            }}
+          >
+            <div
+              style={{
+                padding: '0.2rem 1.1rem 1rem',
+                marginBottom: '0.45rem',
+                textAlign: 'left',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.45rem',
+                }}
+              >
+                {data.display_name}
+              </div>
+              <h1
+                style={{
+                  fontSize: '2rem',
+                  lineHeight: 1,
+                  letterSpacing: '-0.05em',
+                  color: 'var(--text-primary)',
+                  fontWeight: 800,
+                  margin: 0,
+                }}
+              >
+                灵犀断章
+              </h1>
+              <div
+                style={{
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.86rem',
+                  marginTop: '0.55rem',
+                }}
+              >
+                共收录 <strong style={{ color: 'var(--text-primary)' }}>{data.total_count}</strong> 篇短文
+              </div>
+            </div>
 
-      <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '800px' }}>
-        {hasData ? (
-          <div className="flex flex-col gap-4 md:gap-6">
+            <div
+              style={{
+                borderRadius: '24px',
+                border: '1px solid var(--glass-border)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
+                padding: '1.1rem',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.16em',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.95rem',
+                }}
+              >
+                Archive Index
+              </div>
+              <div style={{ display: 'grid', gap: '0.38rem' }}>
+                {data.items.map(item => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setExpandedId(item.id)
+                      setTimeout(() => {
+                        const element = itemRefs.current[item.id]
+                        if (!element) return
+                        const offset = 108
+                        const bodyTop = document.body.getBoundingClientRect().top
+                        const elementTop = element.getBoundingClientRect().top
+                        const targetTop = elementTop - bodyTop - offset
+                        window.scrollTo({ top: targetTop, behavior: 'smooth' })
+                      }, 80)
+                    }}
+                    style={{
+                      textAlign: 'left',
+                      borderRadius: '14px',
+                      padding: '0.76rem 0.82rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: expandedId === item.id ? 'rgba(255,255,255,0.1)' : 'transparent',
+                      color: expandedId === item.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+                      fontSize: '0.84rem',
+                      transition: 'all 0.22s ease',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        marginBottom: '0.24rem',
+                      }}
+                    >
+                      {item.title}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>
+                      {formatDisplayDate(item.date, item.sort_date)}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <main style={{ minWidth: 0 }}>
+            <div style={{ maxWidth: '800px' }}>
+              <div className="flex flex-col gap-4 md:gap-6">
             {data.items.map((item, idx) => {
               const isExpanded = expandedId === item.id;
               
@@ -199,8 +303,11 @@ export default function TextsPage({ data }: Props) {
                 </div>
               );
             })}
-          </div>
-        ) : (
+              </div>
+            </div>
+          </main>
+        </div>
+      ) : (
           <div className="empty-vault animate-fade-up">
             <div style={{ fontSize: '6rem', color: 'var(--glass-border)', userSelect: 'none', lineHeight: 1 }}>∅</div>
             <div className="empty-vault-badge">
@@ -210,8 +317,7 @@ export default function TextsPage({ data }: Props) {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>思想的碎片尚未着陆</p>
             </div>
           </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }

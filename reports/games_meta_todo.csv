@@ -1,8 +1,1 @@
 ﻿folder,title,english_title,suggested_english_title,platform,genre,rating,playtime,price,completed,url,search_hint,missing_fields
-Game-2024,多娜多娜：一起来干坏事吧,Dohna Dohna ~Let's Do Bad Things Together~,,steam,rpg,4,<50h,,true,,https://store.steampowered.com/search/?term=Dohna+Dohna+~Let%27s+Do+Bad+Things+Together~,"price, url"
-Game-2024,极品飞车：不羁,Need for Speed Unbound,,xbox,racing,,,GamePass,false,https://store.steampowered.com/app/1846380/,https://store.steampowered.com/search/?term=Need+for+Speed+Unbound,"rating, playtime"
-Game-2024,植物大战僵尸：杂交版,Plants vs. Zombies: Hybrid Version,,steam,strategy,3,<50h,Free,false,,https://store.steampowered.com/search/?term=Plants+vs.+Zombies%3A+Hybrid+Version,url
-Game-2024,植物大战僵尸：融合版,Plants vs. Zombies: Fusion Version,,steam,strategy,3,<10h,Free,false,,https://store.steampowered.com/search/?term=Plants+vs.+Zombies%3A+Fusion+Version,url
-Game-2025,无用主播,No-good Streamer Mirai-chan,,steam,casual,3,<10h,,false,,https://store.steampowered.com/search/?term=No-good+Streamer+Mirai-chan,"price, url"
-Game-2025,星露谷物语,Stardew Valley,Stardew Valley,xbox,rpg,5,,GamePass,true,https://store.steampowered.com/app/413150/,https://store.steampowered.com/search/?term=Stardew+Valley,playtime
-Game-2026,这是谐音梗,,,steam,,5,<10h,,true,,https://store.steampowered.com/search/?term=%E8%BF%99%E6%98%AF%E8%B0%90%E9%9F%B3%E6%A2%97,"english_title, price, genre, url"

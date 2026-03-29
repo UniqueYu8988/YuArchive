@@ -1,276 +1,559 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { ChevronDown, ExternalLink } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
-import type { MusicCategory } from '../types'
-
-function extractText(node: React.ReactNode): string {
-  if (typeof node === 'string') return node
-  if (typeof node === 'number') return String(node)
-  if (Array.isArray(node)) return node.map(extractText).join('')
-  if (React.isValidElement(node)) return extractText(node.props.children)
-  return ''
-}
+import { useEffect, useMemo, useState } from 'react'
+import { ExternalLink, Music2, Play, Sparkles } from 'lucide-react'
+import type { MusicCategory, MusicItem } from '../types'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
   return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
 }
 
+function extractTracks(content: string): string[] {
+  return content
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => /^(?:[-*+]|\d+\.)\s+/.test(line))
+    .map(line => line.replace(/^(?:[-*+]|\d+\.)\s+/, '').trim())
+}
+
+function AlbumCard({
+  item,
+  active,
+  onSelect,
+}: {
+  item: MusicItem
+  active: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      style={{
+        border: active ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.06)',
+        background: active
+          ? 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)'
+          : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 100%)',
+        borderRadius: '22px',
+        padding: '0.95rem',
+        textAlign: 'left',
+        cursor: 'pointer',
+        transition: 'all 0.24s ease',
+        boxShadow: active ? '0 16px 36px rgba(0,0,0,0.08)' : '0 8px 20px rgba(0,0,0,0.03)',
+      }}
+    >
+      <div
+        style={{
+          aspectRatio: '1 / 1',
+          borderRadius: '18px',
+          overflow: 'hidden',
+          marginBottom: '0.8rem',
+          background: 'rgba(255,255,255,0.04)',
+        }}
+      >
+        {item.cover ? (
+          <img
+            src={toImageUrl(item.cover)}
+            alt={item.title}
+            loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            <Music2 size={28} />
+          </div>
+        )}
+      </div>
+
+      <div style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+        {item.title}
+      </div>
+    </button>
+  )
+}
+
 interface Props {
   data: MusicCategory
 }
 
-function TrackItem({ children }: { children?: React.ReactNode }) {
-  const songName = extractText(children).trim()
-  const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(songName)}`
-
-  return (
-    <li
-      className="group flex items-center py-2 md:py-3 border-b border-glass-border transition-colors relative hover:bg-[rgba(128,128,128,0.06)]"
-      style={{
-        color: 'var(--text-primary)',
-        fontSize: '0.825rem',
-      }}
-    >
-      <span className="track-number text-[10px] md:text-xs text-secondary-dim opacity-60 w-8 md:w-10 font-mono" />
-      <a
-        href={spotifyUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group/link inline-flex items-center flex-1 no-underline transition-colors"
-        style={{
-          color: 'inherit',
-          position: 'relative',
-        }}
-      >
-        <span className="relative text-xs md:text-sm transition-colors group-hover/link:text-[#1DB954]">
-          {children}
-          <span
-            className="absolute left-0 bottom-[-2px] h-[1px] w-0 transition-all duration-300 group-hover/link:w-full"
-            style={{ background: '#1DB954' }}
-          />
-        </span>
-        <span
-          className="ml-2 flex items-center text-[#1DB954] opacity-0 -translate-x-1.5 transition-all duration-300 group-hover/link:opacity-100 group-hover/link:translate-x-0"
-        >
-          <ExternalLink size={14} />
-        </span>
-      </a>
-    </li>
-  )
-}
-
 export default function MusicPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  
-  // 引用映射，用于滚动对焦
-  const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [selectedId, setSelectedId] = useState<string | null>(data.items[0]?.id ?? null)
+  const [selectedTrackIndex, setSelectedTrackIndex] = useState(0)
 
-  const toggleExpand = (id: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation()
-    setExpandedId(prev => (prev === id ? null : id))
-  }
-
-  // 当展开项变化时，平滑滚动到该项头部，并避开 70px 的固定导航栏
   useEffect(() => {
-    if (expandedId && itemRefs.current[expandedId]) {
-      const element = itemRefs.current[expandedId];
-      if (element) {
-        // 延迟一小会儿，等待 React 完成渲染和 Grid 开始动画
-        setTimeout(() => {
-          const offset = 120; // 70px navbar + 50px 呼吸间距
-          const bodyRect = document.body.getBoundingClientRect().top;
-          const elementRect = element.getBoundingClientRect().top;
-          const elementPosition = elementRect - bodyRect;
-          const offsetPosition = elementPosition - offset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }, 100);
-      }
+    if (!data.items.length) {
+      setSelectedId(null)
+      return
     }
-  }, [expandedId])
+
+    setSelectedId(current =>
+      current && data.items.some(item => item.id === current) ? current : data.items[0].id
+    )
+  }, [data.items])
+
+  const selectedItem = useMemo(
+    () => data.items.find(item => item.id === selectedId) ?? data.items[0] ?? null,
+    [data.items, selectedId]
+  )
+
+  const tracks = useMemo(() => (selectedItem ? extractTracks(selectedItem.content) : []), [selectedItem])
+
+  useEffect(() => {
+    setSelectedTrackIndex(0)
+  }, [selectedId])
+
+  const selectedTrack = tracks[selectedTrackIndex] ?? tracks[0] ?? ''
 
   return (
     <div style={{ paddingBottom: '6rem' }}>
-      <div className="page-header animate-fade-up">
-        <p className="page-label">{data.display_name}</p>
-        <h1 className="page-title" style={{ display: 'flex', alignItems: 'baseline' }}>
-          律动共鸣
-          <span className="text-sm text-gray-400 ml-4 font-light" style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginLeft: '1rem', fontWeight: 300, letterSpacing: '0.02em' }}>
-            以波长为载体，铭刻情绪与记忆
-          </span>
-        </h1>
-        {hasData && (
-          <p className="page-count">
-            共收录 <strong>{data.total_count}</strong> 张独立专辑
-          </p>
-        )}
-      </div>
-
-      <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '900px' }}>
-        {hasData ? (
-          <div className="flex flex-col gap-6 md:gap-12">
-            {data.items.map((item, idx) => {
-              const isExpanded = expandedId === item.id
-
-              return (
+      <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem' }}>
+        {hasData && selectedItem ? (
+          <div
+            className="animate-fade-up"
+            style={{
+              display: 'grid',
+              gap: '1.5rem',
+            }}
+          >
+            <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
+              <aside
+                style={{
+                  position: 'sticky',
+                  top: '88px',
+                }}
+              >
                 <div
-                  key={item.id}
-                  ref={el => (itemRefs.current[item.id] = el)}
-                  className="animate-fade-up"
                   style={{
-                    animationDelay: `${idx * 0.05}s`,
-                    animationFillMode: 'both',
-                    background: 'rgba(128,128,128,0.03)',
-                    border: '1px solid var(--glass-border)',
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    transition: 'background 0.3s, border-color 0.3s'
+                    padding: '0.2rem 1.1rem 1rem',
+                    marginBottom: '0.45rem',
+                    textAlign: 'left',
                   }}
                 >
-                  {/* 专辑 Header 区：封面 + 信息 (Clickable) */}
                   <div
-                    onClick={() => toggleExpand(item.id)}
-                    className="flex items-center gap-4 md:gap-10 p-4 md:p-8 cursor-pointer transition-colors"
+                    style={{
+                      fontSize: '0.72rem',
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'var(--text-secondary)',
+                      marginBottom: '0.45rem',
+                    }}
                   >
-                    {/* 封面 */}
+                    {data.display_name}
+                  </div>
+                  <h1
+                    style={{
+                      fontSize: '2rem',
+                      lineHeight: 1,
+                      letterSpacing: '-0.05em',
+                      color: 'var(--text-primary)',
+                      fontWeight: 800,
+                      margin: 0,
+                    }}
+                  >
+                    律动共鸣
+                  </h1>
+                  <div
+                    style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.86rem',
+                      marginTop: '0.55rem',
+                    }}
+                  >
+                    共收录 <strong style={{ color: 'var(--text-primary)' }}>{data.total_count}</strong> 张声音切片
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    borderRadius: '24px',
+                    border: '1px solid var(--glass-border)',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
+                    padding: '1.1rem',
+                    boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: '0.9rem',
+                      borderRadius: '18px',
+                      background: 'rgba(255,255,255,0.04)',
+                      marginBottom: '1rem',
+                    }}
+                  >
                     <div
-                      className={isExpanded ? 'w-[100px] h-[100px] md:w-[140px] md:h-[140px]' : 'w-[70px] h-[70px] md:w-[100px] md:h-[100px]'}
                       style={{
-                        flexShrink: 0,
-                        borderRadius: '10px',
-                        overflow: 'hidden',
-                        boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
-                        background: 'var(--bg-secondary)',
-                        border: '1px solid var(--glass-border)',
-                        transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+                        fontSize: '0.72rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.16em',
+                        color: 'var(--text-secondary)',
+                        marginBottom: '0.45rem',
                       }}
                     >
-                      {item.cover ? (
-                        <img
-                          src={toImageUrl(item.cover)}
-                          alt={item.title}
-                          loading="lazy"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'var(--text-secondary)',
-                            fontSize: '0.7rem'
-                          }}
-                        >
-                          No Cover
-                        </div>
-                      )}
+                      Current album
                     </div>
-
-                    {/* 标题 & 描述 */}
-                    <div className="flex-1 overflow-hidden">
-                      <h2
-                        className={`font-bold transition-all duration-500 tracking-tight text-primary leading-tight ${isExpanded ? 'text-lg md:text-2xl mb-1 md:mb-2' : 'text-base md:text-xl mb-1'}`}
-                      >
-                        {item.title}
-                      </h2>
-                      {item.description && (
-                        <p
-                          className={`text-secondary text-[11px] md:text-sm leading-relaxed opacity-70 transition-all ${isExpanded ? 'line-clamp-none' : 'line-clamp-1 md:line-clamp-2'}`}
-                        >
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* 展开指示器 */}
-                    <div
-                      className={`transition-transform duration-500 text-secondary px-2 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}
-                    >
-                      <ChevronDown size={20} strokeWidth={1.5} />
+                    <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+                      {selectedItem.title}
                     </div>
                   </div>
 
-                  {/* 音轨列表 Body 区 (Accordion Content) */}
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateRows: isExpanded ? '1fr' : '0fr',
-                      transition: 'grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-                    }}
-                  >
-                    <div style={{ overflow: 'hidden' }}>
+                  <div style={{ display: 'grid', gap: '0.38rem' }}>
+                    {tracks.length > 0 ? (
+                      tracks.map((track, index) => {
+                        const active = selectedTrackIndex === index
+                        return (
+                          <a
+                            key={`${selectedItem.id}_${index}`}
+                            href={`https://open.spotify.com/search/${encodeURIComponent(track)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setSelectedTrackIndex(index)}
+                            className="music-track-link"
+                            style={{
+                              textAlign: 'left',
+                              borderRadius: '14px',
+                              padding: '0.76rem 0.82rem',
+                              cursor: 'pointer',
+                              background: active ? 'rgba(29,185,84,0.12)' : 'transparent',
+                              color: active ? '#149244' : 'var(--text-secondary)',
+                              fontSize: '0.84rem',
+                              transition: 'all 0.22s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.6rem',
+                              textDecoration: 'none',
+                            }}
+                          >
+                            <Music2 size={14} />
+                            <span
+                              className="music-track-link__label"
+                              style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 1,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textDecoration: active ? 'none' : undefined,
+                              }}
+                            >
+                              {track}
+                            </span>
+                            <span
+                              className="music-track-link__arrow"
+                              style={{
+                                marginLeft: 'auto',
+                                color: '#1DB954',
+                                opacity: active ? 1 : 0,
+                                transform: active ? 'translateX(0)' : 'translateX(-6px)',
+                                transition: 'all 0.22s ease',
+                                fontSize: '0.8rem',
+                              }}
+                            >
+                              ↗
+                            </span>
+                          </a>
+                        )
+                      })
+                    ) : (
                       <div
-                        className="album-tracklist px-4 md:px-8 pb-6 md:pb-10"
                         style={{
-                          borderTop: '1px solid var(--glass-border)'
+                          color: 'var(--text-secondary)',
+                          fontSize: '0.82rem',
+                          padding: '0.6rem 0.2rem',
                         }}
                       >
-                        <ReactMarkdown
-                          components={{
-                            ul: ({ node, ...props }) => (
-                              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }} {...props} />
-                            ),
-                            ol: ({ node, ...props }) => (
-                              <ol
-                                style={{
-                                  listStyle: 'none',
-                                  padding: 0,
-                                  margin: 0,
-                                  counterReset: 'track-counter'
-                                }}
-                                {...props}
-                              />
-                            ),
-                            li: ({ node, ...props }) => <TrackItem>{props.children}</TrackItem>,
-                            h1: ({ node, ...props }) => (
-                              <h3
-                                className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
-                                {...props}
-                              />
-                            ),
-                            h2: ({ node, ...props }) => (
-                              <h3
-                                className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
-                                {...props}
-                              />
-                            ),
-                            h3: ({ node, ...props }) => (
-                              <h3
-                                className="text-[10px] md:text-sm text-secondary uppercase tracking-widest mt-6 md:mt-10 mb-2 md:mb-4 border-b border-glass-border pb-2 opacity-80"
-                                {...props}
-                              />
-                            )
+                        这张音册暂时还没有可展示的单曲列表。
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </aside>
+
+              <main style={{ minWidth: 0 }}>
+                <section
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '30px',
+                    border: '1px solid var(--glass-border)',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.015) 100%)',
+                    boxShadow: '0 24px 60px rgba(0,0,0,0.07)',
+                    padding: '1.6rem',
+                  }}
+                >
+                  <div className="md:grid md:grid-cols-[300px_1fr] md:gap-8" style={{ display: 'grid', gap: '1.5rem' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        minHeight: '300px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {selectedItem.cover && (
+                        <>
+                          <img
+                            src={toImageUrl(selectedItem.cover)}
+                            alt=""
+                            aria-hidden
+                            style={{
+                              position: 'absolute',
+                              inset: '8% 6% 10% 6%',
+                              width: '88%',
+                              height: '82%',
+                              objectFit: 'cover',
+                              filter: 'blur(34px) saturate(1.05)',
+                              opacity: 0.26,
+                              transform: 'scale(1.08)',
+                              borderRadius: '28px',
+                            }}
+                          />
+                          <div
+                            style={{
+                              position: 'absolute',
+                              inset: '12% 12%',
+                              borderRadius: '999px',
+                              background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 68%, transparent 100%)',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        </>
+                      )}
+
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: 'min(100%, 290px)',
+                          zIndex: 1,
+                        }}
+                      >
+                        <div
+                          style={{
+                            aspectRatio: '1 / 1',
+                            borderRadius: '28px',
+                            overflow: 'hidden',
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            boxShadow: '0 28px 52px rgba(0,0,0,0.16)',
                           }}
                         >
-                          {item.content}
-                        </ReactMarkdown>
+                          {selectedItem.cover ? (
+                            <img
+                              src={toImageUrl(selectedItem.cover)}
+                              alt={selectedItem.title}
+                              loading="lazy"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'var(--text-secondary)',
+                              }}
+                            >
+                              <Music2 size={44} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.48rem',
+                          padding: '0.4rem 0.78rem',
+                          borderRadius: '999px',
+                          background: 'rgba(29,185,84,0.1)',
+                          color: '#149244',
+                          fontSize: '0.7rem',
+                          letterSpacing: '0.14em',
+                          textTransform: 'uppercase',
+                          marginBottom: '0.95rem',
+                          width: 'fit-content',
+                        }}
+                      >
+                        <Sparkles size={13} />
+                        Featured Album
+                      </div>
+
+                      <h2
+                        style={{
+                          fontSize: 'clamp(2.4rem, 5vw, 4.8rem)',
+                          lineHeight: 0.94,
+                          letterSpacing: '-0.065em',
+                          color: 'var(--text-primary)',
+                          fontWeight: 800,
+                          marginBottom: '1rem',
+                        }}
+                      >
+                        {selectedItem.title}
+                      </h2>
+
+                      {selectedItem.description && (
+                        <p
+                          style={{
+                            maxWidth: '760px',
+                            color: 'var(--text-secondary)',
+                            fontSize: '1rem',
+                            lineHeight: 1.78,
+                            marginBottom: '1rem',
+                          }}
+                        >
+                          {selectedItem.description}
+                        </p>
+                      )}
+
+                      {selectedTrack && (
+                        <div
+                          style={{
+                            padding: '0.95rem 1rem',
+                            borderRadius: '18px',
+                            background: 'rgba(255,255,255,0.04)',
+                            border: '1px solid rgba(255,255,255,0.05)',
+                            marginBottom: '1rem',
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: '0.7rem',
+                              letterSpacing: '0.14em',
+                              textTransform: 'uppercase',
+                              color: 'var(--text-secondary)',
+                              marginBottom: '0.4rem',
+                            }}
+                          >
+                            Now Playing
+                          </div>
+                          <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.4 }}>
+                            {selectedTrack}
+                          </div>
+                        </div>
+                      )}
+
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '0.75rem',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!tracks.length) return
+                            setSelectedTrackIndex(current => (current + 1) % tracks.length)
+                          }}
+                          style={{
+                            border: 'none',
+                            borderRadius: '999px',
+                            padding: '0.88rem 1.35rem',
+                            background: '#1DB954',
+                            color: '#fff',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.55rem',
+                            fontSize: '0.92rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 14px 28px rgba(29,185,84,0.18)',
+                          }}
+                        >
+                          <Play size={15} />
+                          Play Now
+                        </button>
+
+                        <a
+                          href={`https://open.spotify.com/search/${encodeURIComponent(selectedItem.title)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            borderRadius: '999px',
+                            padding: '0.82rem 1.05rem',
+                            border: '1px solid var(--glass-border)',
+                            background: 'rgba(255,255,255,0.04)',
+                            color: 'var(--text-primary)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            textDecoration: 'none',
+                            fontSize: '0.88rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <ExternalLink size={15} />
+                          Spotify
+                        </a>
                       </div>
                     </div>
                   </div>
+                </section>
 
-                  <style>{`
-                    .album-tracklist li { counter-increment: track-counter; }
-                    .album-tracklist li .track-number::before {
-                      content: counter(track-counter, decimal-leading-zero);
-                    }
-                  `}</style>
-                </div>
-              )
-            })}
+                <section style={{ marginTop: '2.1rem' }}>
+                  <div className="year-header" style={{ marginBottom: '1rem' }}>
+                    <div>
+                      <h2 className="year-title text-xl md:text-2xl">My Library</h2>
+                      <p
+                        style={{
+                          marginTop: '0.45rem',
+                          color: 'var(--text-secondary)',
+                          fontSize: '0.84rem',
+                          paddingLeft: '1.1rem',
+                        }}
+                      >
+                        被反复收藏、也被反复点开的那些声音封套。
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                      gap: '1rem',
+                    }}
+                  >
+                    {data.items.map(item => (
+                      <AlbumCard
+                        key={item.id}
+                        item={item}
+                        active={item.id === selectedItem.id}
+                        onSelect={() => setSelectedId(item.id)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              </main>
+            </div>
           </div>
         ) : (
           <div className="empty-vault animate-fade-up">
             <div style={{ fontSize: '6rem', color: 'var(--glass-border)', userSelect: 'none', lineHeight: 1 }}>∅</div>
             <div className="empty-vault-badge">
-              <p style={{ fontSize: '0.68rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+              <p
+                style={{
+                  fontSize: '0.68rem',
+                  letterSpacing: '0.25em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 AUDIO · CLASSIFIED
               </p>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>频率尚未锁定</p>
@@ -278,6 +561,20 @@ export default function MusicPage({ data }: Props) {
           </div>
         )}
       </div>
+
+      <style>{`
+        .music-track-link:hover {
+          background: rgba(29,185,84,0.08) !important;
+          color: #149244 !important;
+        }
+        .music-track-link:hover .music-track-link__label {
+          color: #149244 !important;
+        }
+        .music-track-link:hover .music-track-link__arrow {
+          opacity: 1 !important;
+          transform: translateX(0) !important;
+        }
+      `}</style>
     </div>
   )
 }
