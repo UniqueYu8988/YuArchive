@@ -416,10 +416,11 @@ function SeasonPanel({ item }: { item: ArchiveItem }) {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(116px, 132px))',
-          gap: '0.9rem',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '0.75rem',
           alignContent: 'start',
         }}
+        className="year-grid season-inline-grid"
       >
         {entries.map((entry) => (
           <div
@@ -427,11 +428,6 @@ function SeasonPanel({ item }: { item: ArchiveItem }) {
             className="season-entry-card"
             style={{
               display: 'grid',
-              gap: '0.45rem',
-              padding: '0.4rem',
-              borderRadius: '14px',
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.06)',
             }}
           >
             {(() => {
@@ -457,14 +453,15 @@ function SeasonPanel({ item }: { item: ArchiveItem }) {
                       className="season-entry-hover"
                       style={{
                         position: 'absolute',
-                        inset: 0,
+                        inset: '50% 0 0 0',
                         padding: '0.72rem',
-                        background: 'linear-gradient(to top, rgba(8,8,12,0.94) 0%, rgba(8,8,12,0.78) 52%, rgba(8,8,12,0.14) 100%)',
+                        background: 'linear-gradient(to top, rgba(8,8,12,0.94) 0%, rgba(8,8,12,0.82) 62%, rgba(8,8,12,0.12) 100%)',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'flex-end',
                         transition: 'opacity 0.25s ease',
                         pointerEvents: 'none',
+                        borderRadius: '0 0 12px 12px',
                       }}
                     >
                       <div style={{ color: '#fff', fontSize: '0.78rem', lineHeight: 1.3, fontWeight: 700 }}>
@@ -511,12 +508,12 @@ function LiveArchiveSection({
   return (
     <div className="year-section animate-fade-up" style={{ opacity: 1, animationFillMode: 'both' }}>
       <div className="year-header">
-        <h2 className="year-title text-xl md:text-2xl">未完待续</h2>
+        <h2 className="year-title text-xl md:text-2xl">赛季旅程</h2>
         <div className="year-line" />
         <CountBadge count={items.length} unit="项" />
       </div>
 
-      <p className="year-desc text-xs md:text-sm">有些事物并不停在某一年，它们会在漫长更迭中反复归来，像季风，像联赛，像迟迟没有写完的旧梦。</p>
+      <p className="year-desc text-xs md:text-sm">它们并不以某一次通关或收尾为终点，而是在版本更迭里，一次次延长成仍在继续的旅程。</p>
 
       <div className="season-featured-section">
         <div className="season-featured-grid">
@@ -733,7 +730,7 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                     marginBottom: '0.8rem',
                   }}
                 >
-                  <span style={{ fontSize: '0.84rem', color: 'var(--text-primary)' }}>未完待续</span>
+                  <span style={{ fontSize: '0.84rem', color: 'var(--text-primary)' }}>赛季旅程</span>
                   <span style={{ fontSize: '0.74rem' }}>{liveItems.length}</span>
                 </a>
               )}

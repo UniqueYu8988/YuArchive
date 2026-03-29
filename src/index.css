@@ -432,6 +432,13 @@ body {
   opacity: 1;
 }
 
+.season-inline-grid .season-entry-card {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+}
+
 @media (min-width: 640px) {
   .year-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -461,6 +468,12 @@ body {
 
   .season-featured-section {
     padding: 1.25rem;
+  }
+
+  .season-inline-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 160px)) !important;
+    gap: 0.85rem !important;
+    justify-content: start !important;
   }
 }
 

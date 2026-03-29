@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-30T00:51:14.701398",
+    "generated_at": "2026-03-30T04:00:48.131019",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data",
     "validation": {
@@ -13096,12 +13096,34 @@
       "display_name": "Texts",
       "total_count": 18,
       "sort_mode": "text",
+      "sections": [
+        {
+          "key": "headline",
+          "title": "得到头条",
+          "description": "把每天值得留下的一点观察、判断与信息浓缩，整理成可以回看的文字切片。",
+          "count": 18
+        },
+        {
+          "key": "video-summary",
+          "title": "视频总结",
+          "description": "把长视频里的论点、结构与关键细节压缩成文字，方便再次检索与重温。",
+          "count": 0
+        },
+        {
+          "key": "notes",
+          "title": "心得体会",
+          "description": "不只是摘录信息，而是把它们折回自己的经验与理解，慢慢沉淀成更私人的笔记。",
+          "count": 0
+        }
+      ],
       "items": [
         {
           "id": "text_2",
           "title": "《大国小农》：重新理解中国农村的“蓄水池”与底牌价值",
           "date": "03-27",
           "sort_date": "2026-03-27",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "三农问题",
             "宏观结构"
@@ -13113,6 +13135,8 @@
           "title": "真正的休息不是停下，而是“换一种方式动起来”",
           "date": "03-26",
           "sort_date": "2026-03-26",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "精力管理",
             "有效休息"
@@ -13124,6 +13148,8 @@
           "title": "心源性猝死的真相：打破致命误解与科学预防指南",
           "date": "03-25",
           "sort_date": "2026-03-25",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "健康科普",
             "急救预防"
@@ -13135,6 +13161,8 @@
           "title": "黄仁勋GTC大会：全面迎接“Token经济学”时代",
           "date": "03-24",
           "sort_date": "2026-03-24",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "AI"
@@ -13146,6 +13174,8 @@
           "title": "费曼式学习法：打破互联网时代的“理解幻觉”",
           "date": "03-24",
           "sort_date": "2026-03-24",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "知乎"
           ],
@@ -13156,6 +13186,8 @@
           "title": "保罗·格雷厄姆《品牌时代》：当技术让技能贬值，个人品牌成最后壁垒",
           "date": "03-23",
           "sort_date": "2026-03-23",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "AI"
@@ -13167,6 +13199,8 @@
           "title": "金钱与幸福的真相：年薪多少才会最幸福？",
           "date": "03-22",
           "sort_date": "2026-03-22",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "心理"
@@ -13178,6 +13212,8 @@
           "title": "从霍尔木兹海峡的“金融封锁”，看懂塔勒布的“利益攸关”",
           "date": "03-21",
           "sort_date": "2026-03-21",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "商业"
@@ -13189,6 +13225,8 @@
           "title": "脱发的真相：损失了颜值，却可能赢得了“气场”？",
           "date": "03-20",
           "sort_date": "2026-03-20",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "心理"
@@ -13200,6 +13238,8 @@
           "title": "哈贝马斯的哲学遗产：如何在现代社会“好好讲道理”？",
           "date": "03-19",
           "sort_date": "2026-03-19",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "沟通"
@@ -13211,6 +13251,8 @@
           "title": "迈克尔·诺顿《仪式的力量》：看似“没用”的仪式，为何能改变大脑？",
           "date": "03-18",
           "sort_date": "2026-03-18",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到"
           ],
@@ -13221,6 +13263,8 @@
           "title": "马江博解读2026两会：八大关键趋势与机会判断",
           "date": "03-17",
           "sort_date": "2026-03-17",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "趋势"
@@ -13232,6 +13276,8 @@
           "title": "现象级AI应用“龙虾”（OpenClaw）：平民化的超级私人助理",
           "date": "03-16",
           "sort_date": "2026-03-16",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "AI"
@@ -13243,6 +13289,8 @@
           "title": "学历滤镜破碎：大厂高薪招募高中生，未来职场“技能为王”",
           "date": "03-15",
           "sort_date": "2026-03-15",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到",
             "趋势"
@@ -13254,6 +13302,8 @@
           "title": "马江博解读2026政府工作报告：主动换挡与“智能经济”新图景",
           "date": "03-14",
           "sort_date": "2026-03-14",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到"
           ],
@@ -13264,6 +13314,8 @@
           "title": "《2028全球智能危机》：AI引发的金融崩塌推演与叙事之争",
           "date": "03-13",
           "sort_date": "2026-03-13",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "#AI危机推演 #幽灵GDP #叙事经济学 #金融体系 #宏观思考"
           ],
@@ -13274,6 +13326,8 @@
           "title": "植树节特辑：从“盲目种树”到科学造林的观念进化",
           "date": "03-12",
           "sort_date": "2026-03-12",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "得到"
           ],
@@ -13284,6 +13338,8 @@
           "title": "你好世界 — 全能档案馆的起点",
           "date": "01-01",
           "sort_date": "2026-01-01",
+          "section": "headline",
+          "section_title": "得到头条",
           "tags": [
             "随笔",
             "起点"

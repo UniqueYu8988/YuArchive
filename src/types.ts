@@ -79,8 +79,17 @@ export interface TextItem {
   title: string
   date: string
   sort_date?: string
+  section?: string
+  section_title?: string
   tags: string[]
   content: string
+}
+
+export interface TextSection {
+  key: string
+  title: string
+  description?: string
+  count: number
 }
 
 export interface TextsCategory {
@@ -88,6 +97,7 @@ export interface TextsCategory {
   display_name: string
   total_count: number
   sort_mode: 'text'
+  sections?: TextSection[]
   items: TextItem[]
 }
 

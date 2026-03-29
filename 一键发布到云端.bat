@@ -21,13 +21,12 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [2/3] 数据已全部脱水注水完毕，准备推送到 GitHub...
-git add public/webp_cache
-git add public/icons
-git add src/data/archive_data.json
+git add -A
+git restore --staged ".vite-dev.log" 2>nul
 git commit -m "Auto-sync from OneDrive: %date% %time%"
 
 echo.
-echo [3/3] 正在发射至云端仓库，触发 Netlify 自动构建...
+echo [3/3] 正在发射至 GitHub 远端仓库...
 git push
 
 if %errorlevel% neq 0 (
@@ -39,8 +38,8 @@ if %errorlevel% neq 0 (
 
 echo.
 echo ========================================================
-echo   🎉 发布大成功！Netlify 正在云端快马加鞭为你构建网站！
-echo   请稍等片刻，直接刷新你的专属域名即可看到最新内容。
+echo   🎉 发布大成功！GitHub 已收到最新版本。
+echo   如果你后续切换到 Vercel，这一步同样可作为前置同步流程继续使用。
 echo ========================================================
 echo.
 pause

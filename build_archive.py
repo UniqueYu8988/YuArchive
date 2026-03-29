@@ -52,6 +52,35 @@ CATEGORIES = {
 # ──────────────────────────────────────────────────────────────────────
 
 DEFAULT_TEXT_DATE = "1970-01-01"
+TEXT_SECTION_DEFAULT_KEY = "headline"
+TEXT_SECTION_DEFAULT_TITLE = "得到头条"
+TEXT_SECTION_CONFIG = {
+    "headline": {
+        "title": "得到头条",
+        "description": "把每天值得留下的一点观察、判断与信息浓缩，整理成可以回看的文字切片。",
+    },
+    "video-summary": {
+        "title": "视频总结",
+        "description": "把长视频里的论点、结构与关键细节压缩成文字，方便再次检索与重温。",
+    },
+    "notes": {
+        "title": "心得体会",
+        "description": "不只是摘录信息，而是把它们折回自己的经验与理解，慢慢沉淀成更私人的笔记。",
+    },
+}
+TEXT_SECTION_ALIASES = {
+    "得到头条": "headline",
+    "headline": "headline",
+    "头条": "headline",
+    "视频总结": "video-summary",
+    "视频笔记": "video-summary",
+    "视频": "video-summary",
+    "video-summary": "video-summary",
+    "心得体会": "notes",
+    "心得": "notes",
+    "笔记": "notes",
+    "notes": "notes",
+}
 GAME_META_FILENAME = "meta.yaml"
 GAME_LIVE_FOLDER = "Game-Live"
 GAME_META_SKIP_FOLDERS = {"Game-2010", "Game-2015", "Game-Season", GAME_LIVE_FOLDER}
@@ -417,6 +446,34 @@ def scan_images_in_folder(folder: Path) -> list:
 
 def normalize_title(value: str) -> str:
     return value.strip()
+
+
+def slugify_section_key(value: str) -> str:
+    normalized = normalize_title(value).lower()
+    normalized = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "-", normalized).strip("-")
+    return normalized or "misc"
+
+
+def resolve_text_section(item_path: Path, cat_root: Path, metadata: dict) -> tuple[str, str, str]:
+    explicit_section = normalize_title(str(metadata.get("section", "")))
+    relative_parts = item_path.relative_to(cat_root).parts
+    folder_section = normalize_title(relative_parts[0]) if len(relative_parts) > 1 else ""
+    section_source = explicit_section or folder_section
+
+    if not section_source:
+        key = TEXT_SECTION_DEFAULT_KEY
+    else:
+        key = TEXT_SECTION_ALIASES.get(section_source, slugify_section_key(section_source))
+
+    config = TEXT_SECTION_CONFIG.get(key)
+    if config:
+        title = config["title"]
+        description = config.get("description", "")
+    else:
+        title = section_source or TEXT_SECTION_DEFAULT_TITLE
+        description = f"这里收纳的是「{title}」这一栏下持续积累的文本与记录。"
+
+    return key, title, description
 
 
 def unquote_yaml_value(value: str) -> str:
@@ -1485,11 +1542,18 @@ def process_texts_category(root: Path, report: dict) -> dict:
         return {"key": "texts", "display_name": "Texts", "total_count": 0, "sort_mode": "text", "items": []}
 
     items = []
+    section_counts: dict[str, int] = {}
+    section_titles: dict[str, str] = {}
+    section_descriptions: dict[str, str] = {}
     for item in cat_root.rglob("*"):
         if item.is_file() and item.suffix.lower() in TEXT_EXTENSIONS:
             parsed = parse_markdown_with_frontmatter(item)
             title = parsed["metadata"].get("title", item.stem)
             sort_date, date_status = normalize_text_date(parsed["metadata"].get("date", DEFAULT_TEXT_DATE), item)
+            section_key, section_title, section_description = resolve_text_section(item, cat_root, parsed["metadata"])
+            section_counts[section_key] = section_counts.get(section_key, 0) + 1
+            section_titles[section_key] = section_title
+            section_descriptions[section_key] = section_description
             if date_status != "full":
                 report["texts_date_issues"].append({
                     "title": title,
@@ -1503,14 +1567,28 @@ def process_texts_category(root: Path, report: dict) -> dict:
                 "title": title,
                 "date": parsed["metadata"].get("date", DEFAULT_TEXT_DATE),
                 "sort_date": sort_date,
+                "section": section_key,
+                "section_title": section_title,
                 "tags": parsed["metadata"].get("tags", []),
                 "content": parsed["content"]
             })
 
     items.sort(key=lambda x: (x["sort_date"], x["title"]), reverse=True)
+    section_order = ["headline", "video-summary", "notes"]
+    dynamic_keys = [key for key in section_counts.keys() if key not in section_order]
+    ordered_keys = section_order + sorted(dynamic_keys)
+    sections = [
+        {
+            "key": key,
+            "title": section_titles.get(key, TEXT_SECTION_CONFIG.get(key, {}).get("title", key)),
+            "description": section_descriptions.get(key, TEXT_SECTION_CONFIG.get(key, {}).get("description", "")),
+            "count": section_counts.get(key, 0),
+        }
+        for key in ordered_keys
+    ]
     return {
         "key": "texts", "display_name": "Texts",
-        "total_count": len(items), "sort_mode": "text", "items": items
+        "total_count": len(items), "sort_mode": "text", "sections": sections, "items": items
     }
 
 

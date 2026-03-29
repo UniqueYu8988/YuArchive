@@ -373,6 +373,7 @@ export default function Visions({ data }: VisionsProps) {
                 background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
                 padding: '1.1rem',
                 boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+                marginBottom: '1rem',
               }}
             >
               <div
@@ -411,7 +412,17 @@ export default function Visions({ data }: VisionsProps) {
                   )
                 })}
               </div>
+            </div>
 
+            <div
+              style={{
+                borderRadius: '24px',
+                border: '1px solid var(--glass-border)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
+                padding: '1.1rem',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+              }}
+            >
               <div
                 style={{
                   fontSize: '0.72rem',
