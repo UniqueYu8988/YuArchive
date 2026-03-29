@@ -29,16 +29,16 @@ function formatGameGenre(genre?: string) {
   return labels[genre] ?? genre
 }
 
-function platformBadge(platform?: string) {
-  const badges: Record<string, string> = {
-    steam: 'S',
-    xbox: 'X',
-    riotgame: 'R',
-    battlenet: 'B',
-    playstation: 'PS',
-    switch: 'NS',
+function platformIconPath(platform?: string) {
+  const icons: Record<string, string> = {
+    steam: '/platform-icons/steam.svg',
+    xbox: '/platform-icons/xbox.svg',
+    riotgame: '/platform-icons/riotgame.svg',
+    battlenet: '/platform-icons/battlenet.svg',
+    playstation: '/platform-icons/playstation.svg',
+    switch: '/platform-icons/switch.svg',
   }
-  return badges[platform ?? ''] ?? '?'
+  return icons[platform ?? ''] ?? ''
 }
 
 function PosterCard({ item, mode = 'default' }: { item: ArchiveItem; mode?: 'default' | 'games' }) {
@@ -84,12 +84,12 @@ function PosterCard({ item, mode = 'default' }: { item: ArchiveItem; mode?: 'def
               position: 'absolute',
               inset: 0,
               background: 'linear-gradient(to top, rgba(8,8,12,0.92) 0%, rgba(8,8,12,0.72) 45%, rgba(8,8,12,0.08) 100%)',
-              opacity: 0,
               transition: 'opacity 0.28s ease',
               pointerEvents: 'none',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'flex-end',
+              zIndex: 2,
             }}
           >
             <div className="game-hover-overlay">
@@ -124,8 +124,8 @@ function PosterCard({ item, mode = 'default' }: { item: ArchiveItem; mode?: 'def
               position: 'absolute',
               top: '0.5rem',
               left: '0.5rem',
-              minWidth: '24px',
-              height: '24px',
+              width: '28px',
+              height: '28px',
               borderRadius: '999px',
               background: 'rgba(255,255,255,0.18)',
               backdropFilter: 'blur(8px)',
@@ -133,13 +133,14 @@ function PosterCard({ item, mode = 'default' }: { item: ArchiveItem; mode?: 'def
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fff',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              padding: '0 0.4rem',
               pointerEvents: 'none',
+              zIndex: 3,
             }}>
-              {platformBadge(item.platform)}
+              <img
+                src={platformIconPath(item.platform)}
+                alt={item.platform}
+                style={{ width: '16px', height: '16px', objectFit: 'contain' }}
+              />
             </div>
           )}
 
@@ -158,6 +159,7 @@ function PosterCard({ item, mode = 'default' }: { item: ArchiveItem; mode?: 'def
               color: '#111',
               boxShadow: '0 0 14px rgba(234,179,8,0.35)',
               pointerEvents: 'none',
+              zIndex: 3,
             }}>
               <Trophy size={13} />
             </div>
