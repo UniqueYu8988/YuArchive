@@ -64,6 +64,7 @@ export interface MusicItem {
   description?: string // 专辑短评/描述
   content: string    // 音轨列表的 markdown 正文
   audio?: string
+  url?: string
   track_title?: string
 }
 

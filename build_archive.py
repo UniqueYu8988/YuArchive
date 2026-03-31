@@ -1741,6 +1741,13 @@ def process_music_category(root: Path, report: dict) -> dict:
                 "description": meta["metadata"].get("description", ""),
                 "content": meta["content"],
                 "audio": audio_url,
+                "url": str(
+                    meta["metadata"].get("url")
+                    or meta["metadata"].get("link")
+                    or meta["metadata"].get("spotify")
+                    or meta["metadata"].get("spotify_url")
+                    or ""
+                ).strip(),
                 "track_title": normalize_title(str(meta["metadata"].get("track_title", "")).strip()) or extract_music_primary_track(meta["content"], item.stem),
             })
 

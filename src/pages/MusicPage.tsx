@@ -136,6 +136,9 @@ export default function MusicPage({ data }: Props) {
   const featuredTrack = selectedItem?.track_title || tracks[0] || ''
   const audioUrl = selectedItem?.audio ? toImageUrl(selectedItem.audio) : ''
   const hasAudio = Boolean(audioUrl)
+  const directUrl = selectedItem?.url?.trim() || ''
+  const albumActionUrl = directUrl || `https://open.spotify.com/search/${encodeURIComponent(selectedItem?.title || '')}`
+  const albumActionLabel = directUrl ? 'Open Link' : 'Spotify Search'
   const progressPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0
 
   useEffect(() => {
@@ -300,7 +303,7 @@ export default function MusicPage({ data }: Props) {
                         return (
                           <a
                             key={`${selectedItem.id}_${index}`}
-                            href={`https://open.spotify.com/search/${encodeURIComponent(track)}`}
+                            href={directUrl || `https://open.spotify.com/search/${encodeURIComponent(track)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="music-track-link"
@@ -645,7 +648,7 @@ export default function MusicPage({ data }: Props) {
                         </button>
 
                         <a
-                          href={`https://open.spotify.com/search/${encodeURIComponent(selectedItem.title)}`}
+                          href={albumActionUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
@@ -663,7 +666,7 @@ export default function MusicPage({ data }: Props) {
                           }}
                         >
                           <ExternalLink size={15} />
-                          Spotify
+                          {albumActionLabel}
                         </a>
                       </div>
                     </div>

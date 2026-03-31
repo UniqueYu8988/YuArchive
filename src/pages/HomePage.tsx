@@ -1,4 +1,4 @@
-import { ArrowUpRight, CircleDollarSign, Clock3, Gem, Layers3, Star, Clapperboard, Tv } from 'lucide-react'
+import { ArrowUpRight, CircleDollarSign, Clock3, Star, Clapperboard, Tv } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useMemo, useState, type ReactNode } from 'react'
 import type { ArchiveData, ArchiveItem, MusicItem, TextItem } from '../types'
@@ -350,18 +350,6 @@ function formatGameRating(rating?: number | '') {
   return value > 0 ? '★'.repeat(value) : siteUi.unrated
 }
 
-function platformIconPath(platform?: string) {
-  const icons: Record<string, string> = {
-    steam: '/platform-icons/steam.svg',
-    xbox: '/platform-icons/xbox.svg',
-    riotgame: '/platform-icons/riotgame.svg',
-    battlenet: '/platform-icons/battlenet.svg',
-    playstation: '/platform-icons/playstation.svg',
-    switch: '/platform-icons/switch.svg',
-  }
-  return icons[platform ?? ''] ?? ''
-}
-
 function HomeGameCard({ item, featured = false }: { item: ArchiveItem; featured?: boolean }) {
   const ratingText = useMemo(() => formatGameRating(item.rating), [item.rating])
   const isDlc = Boolean(item.dlc)
@@ -457,123 +445,12 @@ function HomeGameCard({ item, featured = false }: { item: ArchiveItem; featured?
             </div>
           )}
           {item.hover_note && !isSeasonal && (
-            <div style={{ color: 'rgba(255,255,255,0.68)', fontSize: featured ? '0.69rem' : '0.63rem', lineHeight: 1.45, marginTop: '0.7rem', paddingRight: item.platform ? '2.8rem' : undefined }}>
+            <div style={{ color: 'rgba(255,255,255,0.68)', fontSize: featured ? '0.69rem' : '0.63rem', lineHeight: 1.45, marginTop: '0.7rem' }}>
               {item.hover_note}
             </div>
           )}
         </div>
       </div>
-
-      {item.platform && (
-        <div style={{
-          position: 'absolute',
-          right: '0.55rem',
-          bottom: '0.55rem',
-          width: '34px',
-          height: '34px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          zIndex: 3,
-          borderRadius: '10px',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(244,244,245,0.78) 100%)',
-          backdropFilter: 'blur(6px)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.26)',
-        }}>
-          <img
-            src={platformIconPath(item.platform)}
-            alt={item.platform}
-            style={{
-              width: item.platform === 'playstation' ? '24px' : '23px',
-              height: item.platform === 'playstation' ? '24px' : '23px',
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.08))',
-            }}
-          />
-        </div>
-      )}
-
-      {item.completed && (
-        <div style={{
-          position: 'absolute',
-          top: '0.45rem',
-          right: '0.45rem',
-          width: '28px',
-          height: '28px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          zIndex: 3,
-        }}>
-          <img
-            src="/platform-icons/crown.svg"
-            alt="completed"
-            style={{
-              width: '24px',
-              height: '24px',
-              objectFit: 'contain',
-              imageRendering: 'pixelated',
-              filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.35))',
-            }}
-          />
-        </div>
-      )}
-
-      {(isSeasonal || isDlc) && (
-        <div style={{
-          position: 'absolute',
-          top: '0.45rem',
-          left: '0.45rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.35rem',
-          zIndex: 3,
-          pointerEvents: 'none',
-        }}>
-          {isSeasonal && (
-            <div style={{
-              minWidth: '54px',
-              height: '28px',
-              borderRadius: '10px',
-              background: 'rgba(17,24,39,0.82)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 0.5rem',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.22)',
-              gap: '0.35rem',
-            }}>
-              <Layers3 size={14} />
-              <span style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.04em' }}>
-                赛季
-              </span>
-            </div>
-          )}
-          {isDlc && (
-            <div style={{
-              minWidth: '54px',
-              height: '28px',
-              borderRadius: '10px',
-              background: 'rgba(17,24,39,0.62)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 0.5rem',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-              gap: '0.35rem',
-            }}>
-              <Gem size={12} color="#fde68a" />
-              <span style={{ fontSize: '0.66rem', fontWeight: 700, letterSpacing: '0.04em' }}>
-                拓展
-              </span>
-            </div>
-          )}
-        </div>
-      )}
     </NavLink>
   )
 }

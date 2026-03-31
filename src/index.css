@@ -533,18 +533,19 @@ body {
   position: relative;
   background: var(--bg-secondary);
   cursor: pointer;
-  transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.35s ease;
+  transition: transform var(--motion-soft), box-shadow var(--motion-soft), filter var(--motion-soft);
+  will-change: transform;
 }
 .poster-card img {
   width: 100%; height: 100%;
   object-fit: cover; display: block;
-  transition: transform 0.35s ease;
+  transition: transform var(--motion-soft), filter var(--motion-soft);
 }
 .poster-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+  transform: translateY(-5px) scale(1.018);
+  box-shadow: 0 20px 44px rgba(0,0,0,0.18);
 }
-.poster-card:hover img { transform: scale(1.04); }
+.poster-card:hover img { transform: scale(1.045); }
 
 /* 卡片悬浮标题 */
 .poster-card .card-overlay {
@@ -572,7 +573,7 @@ body {
 
 .game-hover-overlay {
   transform: translateY(8px);
-  transition: transform 0.28s ease;
+  transition: transform var(--motion-soft);
 }
 
 .poster-card:hover .game-hover-shell {
@@ -592,6 +593,37 @@ body {
   background: linear-gradient(90deg, var(--bg-secondary) 25%, rgba(128,128,128,0.12) 50%, var(--bg-secondary) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes seasonPanelReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-track,
+  .vinyl-record {
+    animation: none !important;
+  }
 }
 
 /* ── 空状态 ──────────────────────────────── */
