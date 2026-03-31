@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-03-31T22:22:06.413367",
+    "generated_at": "2026-04-01T01:33:11.780562",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data",
     "site_ui": {
@@ -9225,8 +9225,8 @@
       "items": [
         {
           "id": "music_0",
-          "title": "Arcane II",
-          "cover": "webp_cache/Music/Covers/Arcane II.webp",
+          "title": "ARCANE II",
+          "cover": "webp_cache/Music/Covers/ARCANE II.webp",
           "description": "🎸坠入更加黑暗深邃的旋律漩涡！绝望的喘息与狂暴的怒火彻底融入重型摇滚与悲怆的管弦之中。每一次如心跳般沉重的鼓点，都在诉说着命运的失控与疯狂的毁灭，瞬间点燃灵魂深处的悲泣与战火！💥",
           "content": "## Part I\n1.  Ma Meilleure Ennemie\n2.  Come Play\n3.  Blood Sweat & Tears\n4.  The Line\n5.  Fantastic\n6.  Wasteland\n7.  Spin The Wheel\n8.  Rebel Heart\n9.  What Have They Done To Us\n10.  Remember Me\n## Part II\n1. 这样很好\n2. Paint The Town Blue\n3. To Ashes and Blood\n4. Hellfire\n5. Renegade\n6. Sucker\n7. I Can't Hear It Now",
           "audio": "",
@@ -9234,11 +9234,11 @@
         },
         {
           "id": "music_1",
-          "title": "Arcane",
-          "cover": "webp_cache/Music/Covers/Arcane.webp",
+          "title": "ARCANE",
+          "cover": "webp_cache/Music/Covers/ARCANE.webp",
           "description": "🎻华丽古典的管弦与狂野躁动的电子节拍激烈碰撞！旋律中流淌着极致的情绪张力，将皮城与祖安的撕裂与羁绊化作直击灵魂的独白。瞬间带你沉浸于科技与魔法交织的奇幻深渊！✨",
           "content": "1.  Dynasties and Dystopia\n2.  Snakes\n3.  What Could Have Been\n4.  Misfit Toys\n5.  Guns for Hire\n6.  Enemy\n7.  Dirty Little Animals\n8.  Goodbye\n9.  Playground\n10.  The Bridge\n11.  The City of Progress\n12.  Dear Friend Across The River",
-          "audio": "audio_cache/Music/Songs/Arcane.mp3",
+          "audio": "audio_cache/Music/Songs/ARCANE.mp3",
           "track_title": "Dynasties and Dystopia"
         },
         {

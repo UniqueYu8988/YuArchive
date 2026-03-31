@@ -10,8 +10,15 @@
 :root {
   --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   --border-radius: 20px;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-soft: 320ms var(--motion-ease);
+  --motion-slower: 460ms var(--motion-ease);
   /* 过渡：所有颜色属性 0.3s 丝滑切换 */
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 /* ── 极客质感字体 ────────────────────────────── */
@@ -162,13 +169,18 @@ body {
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: color var(--motion-soft), background-color var(--motion-soft), transform var(--motion-soft);
   background: transparent;
+}
+.nav-item svg {
+  transition: transform var(--motion-soft), opacity var(--motion-soft);
 }
 .nav-item:hover {
   color: var(--text-primary);
   background: rgba(128, 128, 128, 0.08);
+  transform: translateY(-1px);
 }
+.nav-item:hover svg { transform: translateY(-1px) scale(1.04); }
 .nav-item.active {
   color: var(--text-primary);
   background: rgba(128, 128, 128, 0.12);
@@ -444,6 +456,8 @@ body {
 
 .season-featured-panel {
   margin-bottom: 1rem;
+  animation: seasonPanelReveal 380ms var(--motion-ease);
+  transform-origin: top center;
 }
 
 .season-inline-panel::-webkit-scrollbar {
@@ -452,10 +466,13 @@ body {
 
 .season-entry-hover {
   opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--motion-soft), transform var(--motion-soft);
 }
 
 .season-entry-card:hover .season-entry-hover {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .season-inline-grid .season-entry-card {
@@ -463,6 +480,11 @@ body {
   border-radius: 0;
   background: transparent;
   border: none;
+  transition: transform var(--motion-soft), filter var(--motion-soft);
+}
+
+.season-inline-grid .season-entry-card:hover {
+  transform: translateY(-3px);
 }
 
 @media (min-width: 640px) {
@@ -590,23 +612,35 @@ body {
 
 /* ── 页面 fadeIn ─────────────────────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.992);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
-.animate-fade-up { animation: fadeUp 0.5s ease-out forwards; }
+.animate-fade-up {
+  animation: fadeUp 0.62s var(--motion-ease) forwards;
+  will-change: transform, opacity, filter;
+}
 
 .home-poster-card {
   transform: translateY(0);
-  transition: transform 0.26s ease, box-shadow 0.26s ease;
+  transition: transform var(--motion-soft), box-shadow var(--motion-soft), filter var(--motion-soft);
+  will-change: transform;
 }
 
 .home-poster-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.12) !important;
 }
 
 .home-poster-card:hover img {
-  transform: scale(1.04);
+  transform: scale(1.045);
 }
 
 .home-poster-hover {
@@ -640,12 +674,13 @@ body {
 
 .home-music-library-media {
   transform: translateY(0);
-  transition: transform 0.24s ease, box-shadow 0.24s ease;
+  transition: transform var(--motion-soft), box-shadow var(--motion-soft), filter var(--motion-soft);
+  will-change: transform;
 }
 
 .home-music-library-media:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.12) !important;
 }
 
 .home-music-library-hover {
@@ -660,7 +695,7 @@ body {
 }
 
 .home-welcome-title {
-  transition: filter 0.3s ease;
+  transition: filter var(--motion-soft), transform var(--motion-slower);
 }
 
 .home-section-title {
@@ -690,6 +725,30 @@ body {
 
 .home-side-divider-ornament {
   transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.home-section-shell {
+  transition: transform var(--motion-soft), opacity var(--motion-soft);
+}
+
+.home-glass-card {
+  transition: transform var(--motion-soft), box-shadow var(--motion-soft), border-color var(--motion-soft), background-color var(--motion-soft);
+  will-change: transform;
+}
+
+.home-glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.09) !important;
+}
+
+.home-sidebar-card {
+  transition: transform var(--motion-soft), box-shadow var(--motion-soft), border-color var(--motion-soft), background-color var(--motion-soft);
+  will-change: transform;
+}
+
+.home-sidebar-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.11);
 }
 
 [data-theme='light'] .home-ornament-corner {

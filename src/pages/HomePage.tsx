@@ -69,6 +69,7 @@ function SidebarStatCard({
 }) {
   return (
     <div
+      className="home-sidebar-card"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -821,6 +822,7 @@ const HOME_SECTION_BODY_STYLE: React.CSSProperties = {
 function HomeSectionShell({ children }: { children: ReactNode }) {
   return (
     <div
+      className="home-section-shell"
       style={{
         padding: '1.18rem 1.16rem 1.2rem',
       }}
@@ -881,6 +883,7 @@ function MusicFeatureCard({ item }: { item: MusicItem }) {
   return (
     <NavLink
       to="/music"
+      className="home-glass-card home-music-feature-card"
       style={{
         display: 'grid',
         gridTemplateColumns: '240px minmax(0, 1.2fr)',
@@ -1049,6 +1052,7 @@ function TextFeatureCard({ item }: { item: TextItem }) {
   return (
     <NavLink
       to="/texts"
+      className="home-glass-card"
       style={{
         display: 'block',
         textDecoration: 'none',
@@ -1109,6 +1113,7 @@ function TextListCard({ item }: { item: TextItem }) {
   return (
     <NavLink
       to="/texts"
+      className="home-glass-card"
       style={{
         display: 'block',
         textDecoration: 'none',

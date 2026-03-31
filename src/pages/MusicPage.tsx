@@ -1,11 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ExternalLink, Music2, Play, Sparkles } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ExternalLink, Music2, Pause, Play, Sparkles } from 'lucide-react'
 import type { MusicCategory, MusicItem } from '../types'
 import { siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
   return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+}
+
+function formatTime(totalSeconds: number): string {
+  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0:00'
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = Math.floor(totalSeconds % 60)
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
 function extractTracks(content: string): string[] {
@@ -47,8 +54,8 @@ function AlbumCard({
           aspectRatio: '1 / 1',
           borderRadius: '18px',
           overflow: 'hidden',
-          marginBottom: '0.8rem',
           background: 'rgba(255,255,255,0.04)',
+          position: 'relative',
         }}
       >
         {item.cover ? (
@@ -72,10 +79,26 @@ function AlbumCard({
             <Music2 size={28} />
           </div>
         )}
-      </div>
 
-      <div style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>
-        {item.title}
+        <div
+          className="music-library-card__overlay"
+          style={{
+            position: 'absolute',
+            inset: 'auto 0 0 0',
+            padding: '0.85rem 0.9rem 0.8rem',
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.72) 100%)',
+            color: '#fff',
+            fontSize: '0.95rem',
+            fontWeight: 700,
+            lineHeight: 1.25,
+            opacity: active ? 1 : 0,
+            transform: active ? 'translateY(0)' : 'translateY(12px)',
+            transition: 'all 0.22s ease',
+            pointerEvents: 'none',
+          }}
+        >
+          {item.title}
+        </div>
       </div>
     </button>
   )
@@ -88,7 +111,10 @@ interface Props {
 export default function MusicPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const [selectedId, setSelectedId] = useState<string | null>(data.items[0]?.id ?? null)
-  const [selectedTrackIndex, setSelectedTrackIndex] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
 
   useEffect(() => {
     if (!data.items.length) {
@@ -107,12 +133,73 @@ export default function MusicPage({ data }: Props) {
   )
 
   const tracks = useMemo(() => (selectedItem ? extractTracks(selectedItem.content) : []), [selectedItem])
+  const featuredTrack = selectedItem?.track_title || tracks[0] || ''
+  const audioUrl = selectedItem?.audio ? toImageUrl(selectedItem.audio) : ''
+  const hasAudio = Boolean(audioUrl)
+  const progressPercent = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0
 
   useEffect(() => {
-    setSelectedTrackIndex(0)
-  }, [selectedId])
+    const audio = audioRef.current
+    if (!audio) return
 
-  const selectedTrack = tracks[selectedTrackIndex] ?? tracks[0] ?? ''
+    audio.pause()
+    audio.currentTime = 0
+    audio.load()
+    setIsPlaying(false)
+    setCurrentTime(0)
+    setDuration(0)
+  }, [audioUrl, selectedId])
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const handleLoadedMetadata = () => setDuration(audio.duration || 0)
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime || 0)
+    const handleEnded = () => {
+      setIsPlaying(false)
+      setCurrentTime(0)
+    }
+    const handlePause = () => setIsPlaying(false)
+    const handlePlay = () => setIsPlaying(true)
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+    audio.addEventListener('timeupdate', handleTimeUpdate)
+    audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('pause', handlePause)
+    audio.addEventListener('play', handlePlay)
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      audio.removeEventListener('timeupdate', handleTimeUpdate)
+      audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('pause', handlePause)
+      audio.removeEventListener('play', handlePlay)
+    }
+  }, [audioUrl])
+
+  const togglePlayback = async () => {
+    const audio = audioRef.current
+    if (!audio || !hasAudio) return
+
+    if (isPlaying) {
+      audio.pause()
+      return
+    }
+
+    try {
+      await audio.play()
+    } catch {
+      setIsPlaying(false)
+    }
+  }
+
+  const handleSeek = (nextValue: number) => {
+    const audio = audioRef.current
+    if (!audio || !Number.isFinite(nextValue)) return
+    audio.currentTime = nextValue
+    setCurrentTime(nextValue)
+  }
 
   return (
     <div style={{ paddingBottom: '6rem' }}>
@@ -209,14 +296,13 @@ export default function MusicPage({ data }: Props) {
                   <div style={{ display: 'grid', gap: '0.38rem' }}>
                     {tracks.length > 0 ? (
                       tracks.map((track, index) => {
-                        const active = selectedTrackIndex === index
+                        const active = track === featuredTrack || (!featuredTrack && index === 0)
                         return (
                           <a
                             key={`${selectedItem.id}_${index}`}
                             href={`https://open.spotify.com/search/${encodeURIComponent(track)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={() => setSelectedTrackIndex(index)}
                             className="music-track-link"
                             style={{
                               textAlign: 'left',
@@ -289,7 +375,11 @@ export default function MusicPage({ data }: Props) {
                     padding: '1.6rem',
                   }}
                 >
-                  <div className="md:grid md:grid-cols-[300px_1fr] md:gap-8" style={{ display: 'grid', gap: '1.5rem' }}>
+                  <div
+                    key={selectedItem.id}
+                    className="music-feature-panel md:grid md:grid-cols-[300px_1fr] md:gap-8"
+                    style={{ display: 'grid', gap: '1.5rem' }}
+                  >
                     <div
                       style={{
                         position: 'relative',
@@ -374,22 +464,58 @@ export default function MusicPage({ data }: Props) {
                     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <div
                         style={{
-                          display: 'inline-flex',
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '0.65rem',
                           alignItems: 'center',
-                          gap: '0.48rem',
-                          padding: '0.4rem 0.78rem',
-                          borderRadius: '999px',
-                          background: 'rgba(29,185,84,0.1)',
-                          color: '#149244',
-                          fontSize: '0.7rem',
-                          letterSpacing: '0.14em',
-                          textTransform: 'uppercase',
                           marginBottom: '0.95rem',
-                          width: 'fit-content',
                         }}
                       >
-                        <Sparkles size={13} />
-                        Featured Album
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.48rem',
+                            padding: '0.4rem 0.78rem',
+                            borderRadius: '999px',
+                            background: 'rgba(29,185,84,0.1)',
+                            color: '#149244',
+                            fontSize: '0.7rem',
+                            letterSpacing: '0.14em',
+                            textTransform: 'uppercase',
+                            width: 'fit-content',
+                          }}
+                        >
+                          <Sparkles size={13} />
+                          Featured Album
+                        </div>
+
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.42rem',
+                            padding: '0.38rem 0.72rem',
+                            borderRadius: '999px',
+                            background: hasAudio ? 'rgba(29,185,84,0.08)' : 'rgba(255,255,255,0.04)',
+                            color: hasAudio ? '#149244' : 'var(--text-secondary)',
+                            fontSize: '0.68rem',
+                            letterSpacing: '0.14em',
+                            textTransform: 'uppercase',
+                            width: 'fit-content',
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: '0.44rem',
+                              height: '0.44rem',
+                              borderRadius: '999px',
+                              background: hasAudio ? '#1DB954' : 'rgba(255,255,255,0.32)',
+                              boxShadow: hasAudio ? '0 0 0 4px rgba(29,185,84,0.1)' : 'none',
+                            }}
+                          />
+                          {hasAudio ? 'Preview Ready' : 'Archive Only'}
+                        </div>
                       </div>
 
                       <h2
@@ -419,7 +545,7 @@ export default function MusicPage({ data }: Props) {
                         </p>
                       )}
 
-                      {selectedTrack && (
+                      {featuredTrack && (
                         <div
                           style={{
                             padding: '0.95rem 1rem',
@@ -441,10 +567,50 @@ export default function MusicPage({ data }: Props) {
                             Now Playing
                           </div>
                           <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.4 }}>
-                            {selectedTrack}
+                            {featuredTrack}
+                          </div>
+                          <div
+                            style={{
+                              display: 'grid',
+                              gap: '0.45rem',
+                              marginTop: '0.85rem',
+                            }}
+                          >
+                            <input
+                              className="music-progress"
+                              type="range"
+                              min={0}
+                              max={duration || 0}
+                              step={0.1}
+                              value={Math.min(currentTime, duration || 0)}
+                              onChange={event => handleSeek(Number(event.target.value))}
+                              disabled={!hasAudio}
+                              style={{
+                                width: '100%',
+                                cursor: hasAudio ? 'pointer' : 'not-allowed',
+                                opacity: hasAudio ? 1 : 0.45,
+                                background: `linear-gradient(90deg, #1DB954 0%, #1DB954 ${progressPercent}%, rgba(255,255,255,0.12) ${progressPercent}%, rgba(255,255,255,0.12) 100%)`,
+                              }}
+                            />
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                fontSize: '0.78rem',
+                                color: 'var(--text-secondary)',
+                              }}
+                            >
+                              <span>{formatTime(currentTime)}</span>
+                              <span>{hasAudio ? formatTime(duration) : '未添加试听'}</span>
+                            </div>
                           </div>
                         </div>
                       )}
+
+                      <audio ref={audioRef} preload="none">
+                        {audioUrl ? <source src={audioUrl} /> : null}
+                      </audio>
 
                       <div
                         style={{
@@ -456,27 +622,26 @@ export default function MusicPage({ data }: Props) {
                       >
                         <button
                           type="button"
-                          onClick={() => {
-                            if (!tracks.length) return
-                            setSelectedTrackIndex(current => (current + 1) % tracks.length)
-                          }}
+                          onClick={togglePlayback}
+                          disabled={!hasAudio}
                           style={{
                             border: 'none',
                             borderRadius: '999px',
                             padding: '0.88rem 1.35rem',
-                            background: '#1DB954',
+                            background: hasAudio ? '#1DB954' : 'rgba(255,255,255,0.08)',
                             color: '#fff',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '0.55rem',
                             fontSize: '0.92rem',
                             fontWeight: 700,
-                            cursor: 'pointer',
-                            boxShadow: '0 14px 28px rgba(29,185,84,0.18)',
+                            cursor: hasAudio ? 'pointer' : 'not-allowed',
+                            boxShadow: hasAudio ? '0 14px 28px rgba(29,185,84,0.18)' : 'none',
+                            opacity: hasAudio ? 1 : 0.6,
                           }}
                         >
-                          <Play size={15} />
-                          Play Now
+                          {isPlaying ? <Pause size={15} /> : <Play size={15} />}
+                          {hasAudio ? (isPlaying ? 'Pause Preview' : 'Play Preview') : 'No Preview'}
                         </button>
 
                         <a
@@ -564,6 +729,47 @@ export default function MusicPage({ data }: Props) {
       </div>
 
       <style>{`
+        .music-progress {
+          appearance: none;
+          -webkit-appearance: none;
+          height: 6px;
+          border-radius: 999px;
+          outline: none;
+        }
+        .music-progress::-webkit-slider-runnable-track {
+          height: 6px;
+          border-radius: 999px;
+          background: transparent;
+        }
+        .music-progress::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 14px;
+          height: 14px;
+          border-radius: 999px;
+          margin-top: -4px;
+          background: #ffffff;
+          border: 2px solid #1DB954;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.16);
+        }
+        .music-progress::-moz-range-track {
+          height: 6px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.12);
+        }
+        .music-progress::-moz-range-progress {
+          height: 6px;
+          border-radius: 999px;
+          background: #1DB954;
+        }
+        .music-progress::-moz-range-thumb {
+          width: 14px;
+          height: 14px;
+          border-radius: 999px;
+          background: #ffffff;
+          border: 2px solid #1DB954;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.16);
+        }
         .music-track-link:hover {
           background: rgba(29,185,84,0.08) !important;
           color: #149244 !important;
@@ -574,6 +780,24 @@ export default function MusicPage({ data }: Props) {
         .music-track-link:hover .music-track-link__arrow {
           opacity: 1 !important;
           transform: translateX(0) !important;
+        }
+        button:hover .music-library-card__overlay {
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+        }
+        .music-feature-panel {
+          animation: musicFeatureSwap 340ms cubic-bezier(0.22, 1, 0.36, 1);
+          transform-origin: center top;
+        }
+        @keyframes musicFeatureSwap {
+          0% {
+            opacity: 0;
+            transform: translateY(10px) scale(0.985);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
       `}</style>
     </div>
