@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import type { TextsCategory } from '../types'
+import { siteUi } from '../data/siteConfig'
 
 interface Props {
   data: TextsCategory
@@ -258,7 +259,7 @@ export default function TextsPage({ data }: Props) {
                   marginBottom: '0.55rem',
                 }}
               >
-                Selected Section
+                {siteUi.selected_section}
               </div>
               <h2
                 style={{

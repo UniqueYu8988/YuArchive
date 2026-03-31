@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { CircleDollarSign, Clock3, Gem, Layers3, Star } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem } from '../types'
 import { yearDescriptions, easterEggYear } from '../data/yearDescriptions'
+import { siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string): string {
   return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -63,7 +64,7 @@ function CountBadge({ count, unit }: { count: number; unit: string }) {
 // ── 单张海报卡片 (改造成 Steam 纯净直连魔法链接) ───────────────────
 function formatGameRating(rating?: number | '') {
   const value = typeof rating === 'number' ? rating : 0
-  return value > 0 ? '★'.repeat(value) : '未评分'
+  return value > 0 ? '★'.repeat(value) : siteUi.unrated
 }
 
 function formatGameGenre(genre?: string) {
@@ -78,12 +79,12 @@ function formatGameGenre(genre?: string) {
     puzzle: '解谜',
     casual: '休闲',
   }
-  if (!genre) return '未分类'
+  if (!genre) return siteUi.unclassified
   return labels[genre] ?? genre
 }
 
 function formatGamePlaytime(playtime?: string) {
-  if (!playtime) return '未知'
+  if (!playtime) return siteUi.unknown
   return playtime
 }
 
@@ -508,7 +509,7 @@ function LiveArchiveSection({
   return (
     <div className="year-section animate-fade-up" style={{ opacity: 1, animationFillMode: 'both' }}>
       <div className="year-header">
-        <h2 className="year-title text-xl md:text-2xl">赛季旅程</h2>
+        <h2 className="year-title text-xl md:text-2xl">{siteUi.season_journey}</h2>
         <div className="year-line" />
         <CountBadge count={items.length} unit="项" />
       </div>
@@ -574,7 +575,7 @@ function YearSection({
     >
       {/* 年份标题行 */}
       <div className="year-header">
-        <h2 className="year-title text-xl md:text-2xl">{year === 2025.5 ? 'SEASON / 赛季专区' : year === 0 ? '未分类' : year}</h2>
+        <h2 className="year-title text-xl md:text-2xl">{year === 2025.5 ? siteUi.season_special : year === 0 ? siteUi.unclassified : year}</h2>
         <div className="year-line" />
         {!isEasterEgg && (
           <CountBadge count={items.length} unit="项" />
@@ -730,7 +731,7 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                     marginBottom: '0.8rem',
                   }}
                 >
-                  <span style={{ fontSize: '0.84rem', color: 'var(--text-primary)' }}>赛季旅程</span>
+                  <span style={{ fontSize: '0.84rem', color: 'var(--text-primary)' }}>{siteUi.season_journey}</span>
                   <span style={{ fontSize: '0.74rem' }}>{liveItems.length}</span>
                 </a>
               )}
@@ -756,7 +757,7 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                       textDecoration: 'none',
                     }}
                   >
-                    <span>{yearGroup.year === 0 ? '未分类' : yearGroup.year}</span>
+                    <span>{yearGroup.year === 0 ? siteUi.unclassified : yearGroup.year}</span>
                     <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>{yearGroup.items.length}</span>
                   </a>
                 ))}

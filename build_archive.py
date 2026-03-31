@@ -13,6 +13,7 @@ import html
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from datetime import datetime
@@ -57,6 +58,22 @@ DEFAULT_TEXT_DATE = "1970-01-01"
 TEXT_SECTION_DEFAULT_KEY = "headline"
 TEXT_SECTION_CONFIG_FILENAME = "sections.yaml"
 GAME_META_FILENAME = "meta.yaml"
+VISIONS_META_FILENAME = "meta.yaml"
+SITE_UI_CONFIG_FILENAME = "site-ui.yaml"
+SITE_LAYOUT_CONFIG_FILENAME = "site-layout.yaml"
+HOMEPAGE_CONFIG_FILENAME = "homepage.yaml"
+VISION_FOLDER_YEAR_MAP = {
+    "此岸": 2026.0,
+    "未远": 2025.0,
+    "旧影": 2023.0,
+    "前尘": 2020.0,
+    "开端": 2017.0,
+    "2026": 2026.0,
+    "2024-2025": 2025.0,
+    "2021-2023": 2023.0,
+    "2018-2020": 2020.0,
+    "2017": 2017.0,
+}
 GAME_LIVE_FOLDER = "Game-Live"
 GAME_META_SKIP_FOLDERS = {"Game-2010", "Game-2015", "Game-Season", GAME_LIVE_FOLDER}
 GAME_SEASON_FOLDER = "Game-Season"
@@ -72,6 +89,34 @@ GAME_SEASON_PRIORITY = {
     "英雄联盟": 0,
     "云顶之弈": 1,
     "暗黑破坏神 IV": 2,
+}
+DEFAULT_SITE_UI = {
+    "current_album": "Current Album",
+    "selected_section": "Selected Section",
+    "unclassified": "未分类",
+    "unknown": "未知",
+    "unrated": "未评分",
+    "season_journey": "赛季旅程",
+    "season_special": "SEASON / 赛季专区",
+}
+DEFAULT_SITE_LAYOUT = {
+    "home_latest_games_count": 9,
+    "home_latest_visions_count": 9,
+    "home_latest_music_count": 7,
+    "home_latest_texts_count": 4,
+    "games_season_target_year": 2026,
+    "games_season_priority": {
+        "英雄联盟": 0,
+        "云顶之弈": 1,
+        "暗黑破坏神 IV": 2,
+    },
+    "texts_default_section_key": "headline",
+}
+DEFAULT_HOMEPAGE_CONFIG = {
+    "games": [],
+    "visions": [],
+    "music": [],
+    "texts": [],
 }
 GAME_TITLE_ALIASES = {
     "哈迪斯": "Hades",
@@ -249,6 +294,31 @@ def trim_uniform_matte_border(img: Image.Image) -> Image.Image:
 
     return cropped
 
+
+def find_case_variant_path(target_path: Path) -> Path | None:
+    parent = target_path.parent
+    if not parent.exists():
+        return None
+
+    target_name = target_path.name.lower()
+    for child in parent.iterdir():
+        if child.is_file() and child.name.lower() == target_name:
+            return child
+    return None
+
+
+def normalize_case_variant(existing_path: Path, target_path: Path) -> Path:
+    if existing_path.name == target_path.name:
+        return target_path
+
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = existing_path.with_name(f"__casefix__{existing_path.name}")
+    if temp_path.exists():
+        temp_path.unlink()
+    existing_path.rename(temp_path)
+    temp_path.rename(target_path)
+    return target_path
+
 def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
     """
     智能图像处理管道：增量判断，若需处理则执行转码及留白裁剪。
@@ -259,6 +329,9 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
         
     rel_path = src_img_path.relative_to(ONEDRIVE_DATA_ROOT)
     dst_webp_path = WEBP_CACHE_DIR / rel_path.with_suffix('.webp')
+    existing_variant = find_case_variant_path(dst_webp_path)
+    if existing_variant and existing_variant.name != dst_webp_path.name:
+        dst_webp_path = normalize_case_variant(existing_variant, dst_webp_path)
     
     needs_crop = category_key in ("games", "visions")
     
@@ -326,6 +399,10 @@ def extract_year_from_folder(folder_name: str) -> float | None:
         # 如果你想让它视觉上排在 2026 年的正下方，请把这里改成返回 2025.5 
         return 2025.5
 
+    mapped_year = VISION_FOLDER_YEAR_MAP.get(folder_name)
+    if mapped_year is not None:
+        return mapped_year
+
     match = re.search(r'(\d{4})', folder_name)
     if match:
         year = int(match.group(1))
@@ -350,7 +427,7 @@ def slugify_section_key(value: str) -> str:
     return normalized or "misc"
 
 
-def resolve_text_section(item_path: Path, cat_root: Path, metadata: dict) -> tuple[str, str, str]:
+def resolve_text_section(item_path: Path, cat_root: Path, metadata: dict, default_section_key: str = TEXT_SECTION_DEFAULT_KEY) -> tuple[str, str, str]:
     config_map, alias_map = load_text_section_config(cat_root)
     explicit_section = normalize_title(str(metadata.get("section", "")))
     relative_parts = item_path.relative_to(cat_root).parts
@@ -358,7 +435,7 @@ def resolve_text_section(item_path: Path, cat_root: Path, metadata: dict) -> tup
     section_source = explicit_section or folder_section
 
     if not section_source:
-        key = TEXT_SECTION_DEFAULT_KEY
+        key = default_section_key
     else:
         key = alias_map.get(section_source, slugify_section_key(section_source))
 
@@ -386,6 +463,106 @@ def yaml_string(value: str) -> str:
 
 def parse_bool(value: str) -> bool:
     return value.strip().lower() in {"true", "yes", "1"}
+
+
+def parse_scalar_value(value: str):
+    raw = unquote_yaml_value(value.strip())
+    lowered = raw.lower()
+    if lowered in {"true", "yes"}:
+        return True
+    if lowered in {"false", "no"}:
+        return False
+    if re.fullmatch(r"-?\d+", raw):
+        try:
+            return int(raw)
+        except ValueError:
+            return raw
+    if re.fullmatch(r"-?\d+\.\d+", raw):
+        try:
+            return float(raw)
+        except ValueError:
+            return raw
+    return raw
+
+
+def parse_flat_yaml_config(path: Path) -> dict:
+    result: dict[str, object] = {}
+    if not path.exists():
+        return result
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for raw_line in f.readlines():
+                stripped = raw_line.strip()
+                if not stripped or stripped.startswith("#") or ":" not in stripped:
+                    continue
+                key, _, value = stripped.partition(":")
+                result[key.strip()] = parse_scalar_value(value)
+    except Exception:
+        return {}
+
+    return result
+
+
+def load_site_ui_config(root: Path) -> dict:
+    config = DEFAULT_SITE_UI.copy()
+    config.update(parse_flat_yaml_config(root / SITE_UI_CONFIG_FILENAME))
+    return config
+
+
+def load_site_layout_config(root: Path) -> dict:
+    raw = parse_flat_yaml_config(root / SITE_LAYOUT_CONFIG_FILENAME)
+    layout = {
+        **DEFAULT_SITE_LAYOUT,
+        **{k: v for k, v in raw.items() if not k.startswith("games_season_priority_")},
+    }
+    priorities = dict(DEFAULT_SITE_LAYOUT["games_season_priority"])
+    for key, value in raw.items():
+        if key.startswith("games_season_priority_"):
+            title = key.replace("games_season_priority_", "", 1)
+            try:
+                priorities[title] = int(value)
+            except (TypeError, ValueError):
+                continue
+    layout["games_season_priority"] = priorities
+    return layout
+
+
+def load_homepage_config(root: Path) -> dict:
+    config = {
+        key: list(value)
+        for key, value in DEFAULT_HOMEPAGE_CONFIG.items()
+    }
+    config_path = root / HOMEPAGE_CONFIG_FILENAME
+    if not config_path.exists():
+        return config
+
+    current_key = None
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            for raw_line in f.readlines():
+                line = raw_line.rstrip("\n")
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+
+                indent = len(line) - len(line.lstrip(" "))
+                if indent == 0 and stripped.endswith(":"):
+                    key = normalize_title(stripped[:-1])
+                    current_key = key if key in config else None
+                    continue
+
+                if current_key and stripped.startswith("- "):
+                    value = unquote_yaml_value(stripped[2:].strip())
+                    if value:
+                        config[current_key].append(value)
+    except Exception:
+        return {
+            key: list(value)
+            for key, value in DEFAULT_HOMEPAGE_CONFIG.items()
+        }
+
+    return config
 
 
 def load_text_section_config(cat_root: Path) -> tuple[dict[str, dict], dict[str, str]]:
@@ -791,6 +968,8 @@ def build_game_meta_template_content(image_titles: list[str], meta_map: dict) ->
         "# 可选 platform: steam / xbox / riotgame / battlenet / playstation / switch",
         "# playtime 为所见即所得：YAML 中写什么，前端就显示什么",
         "# 可选 genre: action / rpg / strategy / shooter / simulation / sports / racing / puzzle / casual",
+        "# 可选 display_title: 覆盖网页显示标题，不改原文件名",
+        "# 可选 dlc_parent_title: DLC 所属本体显示名，仅 DLC 条目需要",
         "",
     ]
 
@@ -1273,7 +1452,16 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
     result = {}
     if not visions_root.exists(): return result
 
-    for meta_file in visions_root.rglob("*.yaml"):
+    meta_files = []
+    for period_dir in sorted([p for p in visions_root.iterdir() if p.is_dir()]):
+        preferred_meta = period_dir / VISIONS_META_FILENAME
+        legacy_meta = period_dir / f"{period_dir.name}.yaml"
+        if preferred_meta.exists():
+            meta_files.append(preferred_meta)
+        elif legacy_meta.exists():
+            meta_files.append(legacy_meta)
+
+    for meta_file in meta_files:
         current_title = None
         try:
             with open(meta_file, "r", encoding="utf-8") as f:
@@ -1306,10 +1494,13 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
 # 🚀 四大类别深库扫描
 # ─────────────────────────────────────────────────────────────
 
-def process_timeline_category(root: Path, category_key: str, report: dict, steam_cache: dict | None = None) -> dict:
+def process_timeline_category(root: Path, category_key: str, report: dict, steam_cache: dict | None = None, site_layout: dict | None = None) -> dict:
     category_name = CATEGORIES[category_key]
     category_root = root / category_name
     print(f"\n📂 [1/4] 扫描 {category_name} (时间线架构)...")
+    site_layout = site_layout or DEFAULT_SITE_LAYOUT
+    season_target_year = float(site_layout.get("games_season_target_year", GAME_SEASON_TARGET_YEAR))
+    season_priority = site_layout.get("games_season_priority", GAME_SEASON_PRIORITY)
 
     if not category_root.exists():
         return {"key": category_key, "display_name": category_name, "total_count": 0, "sort_mode": "timeline", "years": []}
@@ -1357,7 +1548,7 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             if category_key == "games" and file_stem in game_season_representatives and file_stem != "英雄联盟":
                 cover_path = game_season_representatives[file_stem]["image_path"]
 
-            target_year = GAME_SEASON_TARGET_YEAR if category_key == "games" and season_entry_list else year
+            target_year = season_target_year if category_key == "games" and season_entry_list else year
             if target_year not in year_map:
                 year_map[target_year] = {"year": target_year, "folder": sub_folder.name if target_year == year else f"Seasonal-{int(target_year)}", "items": []}
 
@@ -1396,7 +1587,7 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             representative = game_season_representatives.get(title)
             if not representative:
                 continue
-            year = GAME_SEASON_TARGET_YEAR
+            year = season_target_year
             if year not in year_map:
                 year_map[year] = {"year": year, "folder": f"Seasonal-{int(year) if year else 'Misc'}", "items": []}
             meta_entry = default_game_meta()
@@ -1440,7 +1631,7 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
                 key=lambda item: (
                     not bool(item.get("seasonal")),
                     not bool(item.get("dlc")),
-                    GAME_SEASON_PRIORITY.get(item["title"], 999),
+                    season_priority.get(item["title"], 999),
                     not bool(item.get("completed")),
                     -(item.get("rating") or 0),
                     get_game_sort_title(item),
@@ -1536,7 +1727,7 @@ def process_music_category(root: Path, report: dict) -> dict:
                     report["music_external_covers"].append(str(cover_path))
             else:
                 report["music_missing_covers"].append({
-                    "title": meta["metadata"].get("title", item.stem),
+                    "title": item.stem,
                     "file": str(item),
                     "cover": raw_cover,
                 })
@@ -1550,12 +1741,12 @@ def process_music_category(root: Path, report: dict) -> dict:
 
             items.append({
                 "id": f"music_{len(items)}",
-                "title": meta["metadata"].get("title", item.stem),
+                "title": item.stem,
                 "cover": cover_url,
                 "description": meta["metadata"].get("description", ""),
                 "content": meta["content"],
                 "audio": audio_url,
-                "track_title": normalize_title(str(meta["metadata"].get("track_title", "")).strip()) or extract_music_primary_track(meta["content"], meta["metadata"].get("title", item.stem)),
+                "track_title": normalize_title(str(meta["metadata"].get("track_title", "")).strip()) or extract_music_primary_track(meta["content"], item.stem),
             })
 
     return {
@@ -1564,9 +1755,11 @@ def process_music_category(root: Path, report: dict) -> dict:
     }
 
 
-def process_texts_category(root: Path, report: dict) -> dict:
+def process_texts_category(root: Path, report: dict, site_layout: dict | None = None) -> dict:
     print(f"\n📂 [4/4] 扫描 Texts (纯文本解析引擎)...")
     cat_root = root / CATEGORIES["texts"]
+    site_layout = site_layout or DEFAULT_SITE_LAYOUT
+    default_section_key = str(site_layout.get("texts_default_section_key", TEXT_SECTION_DEFAULT_KEY))
 
     if not cat_root.exists():
         return {"key": "texts", "display_name": "Texts", "total_count": 0, "sort_mode": "text", "items": []}
@@ -1581,7 +1774,7 @@ def process_texts_category(root: Path, report: dict) -> dict:
             parsed = parse_markdown_with_frontmatter(item)
             title = parsed["metadata"].get("title", item.stem)
             sort_date, date_status = normalize_text_date(parsed["metadata"].get("date", DEFAULT_TEXT_DATE), item)
-            section_key, section_title, section_description = resolve_text_section(item, cat_root, parsed["metadata"])
+            section_key, section_title, section_description = resolve_text_section(item, cat_root, parsed["metadata"], default_section_key)
             section_counts[section_key] = section_counts.get(section_key, 0) + 1
             section_titles[section_key] = section_title
             section_descriptions[section_key] = section_description
@@ -1643,6 +1836,9 @@ def main():
 
     start_time = time.time()
     steam_cache = load_steam_lookup_cache()
+    site_ui = load_site_ui_config(ONEDRIVE_DATA_ROOT)
+    site_layout = load_site_layout_config(ONEDRIVE_DATA_ROOT)
+    homepage_config = load_homepage_config(ONEDRIVE_DATA_ROOT)
     report = {
         "games_meta_skipped_folders": [],
         "games_meta_templates_updated": [],
@@ -1662,13 +1858,16 @@ def main():
             "generated_at": datetime.now().isoformat(),
             "version": "3.0.0",
             "source_root": str(ONEDRIVE_DATA_ROOT),
+            "site_ui": site_ui,
+            "site_layout": site_layout,
+            "homepage": homepage_config,
             "validation": report,
         },
         "categories": {
-            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report, steam_cache),
+            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report, steam_cache, site_layout),
             "visions": process_visions_category(ONEDRIVE_DATA_ROOT, report),
             "music":   process_music_category(ONEDRIVE_DATA_ROOT, report),
-            "texts":   process_texts_category(ONEDRIVE_DATA_ROOT, report),
+            "texts":   process_texts_category(ONEDRIVE_DATA_ROOT, report, site_layout),
         }
     }
 

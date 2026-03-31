@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Clapperboard, Tv } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem } from '../types'
+import { siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string): string {
   return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -17,7 +18,6 @@ const VISION_YEAR_LABELS: Record<number, string> = {
   2019: '前尘',
   2018: '前尘',
   2017: '开端',
-  0: '未分类',
 }
 
 function CountBadge({ count, unit }: { count: number; unit: string }) {
@@ -243,7 +243,7 @@ function VisionsYearSection({
   items: ArchiveItem[]
   index: number
 }) {
-  const yearLabel = VISION_YEAR_LABELS[Math.floor(year)] ?? String(year)
+  const yearLabel = VISION_YEAR_LABELS[Math.floor(year)] ?? (Math.floor(year) === 0 ? siteUi.unclassified : String(year))
 
   // 光影专属“三重优先级排序算法”
   const sortedItems = [...items].sort((a, b) => {

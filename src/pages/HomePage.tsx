@@ -2,6 +2,7 @@ import { ArrowUpRight, CircleDollarSign, Clock3, Gem, Layers3, Star, Clapperboar
 import { NavLink } from 'react-router-dom'
 import { useMemo, useState, type ReactNode } from 'react'
 import type { ArchiveData, ArchiveItem, MusicItem, TextItem } from '../types'
+import { homepageConfig, siteLayout, siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string) {
   return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -12,8 +13,38 @@ function clampText(text: string, maxLength: number) {
   return `${text.slice(0, maxLength).trim()}...`
 }
 
-function collectLatestTimelineItems(years: Array<{ items: ArchiveItem[] }>, count: number) {
-  return years.flatMap(year => year.items).slice(0, count)
+function collectTimelineItems(years: Array<{ items: ArchiveItem[] }>) {
+  return years.flatMap(year => year.items)
+}
+
+function selectConfiguredItems<T extends { id: string; title: string }>(
+  items: T[],
+  configuredTitles: string[],
+  count: number,
+) {
+  const selected: T[] = []
+  const usedIds = new Set<string>()
+
+  for (const title of configuredTitles) {
+    const match = items.find(item => item.title === title && !usedIds.has(item.id))
+    if (!match) continue
+    selected.push(match)
+    usedIds.add(match.id)
+    if (selected.length >= count) {
+      return selected
+    }
+  }
+
+  for (const item of items) {
+    if (usedIds.has(item.id)) continue
+    selected.push(item)
+    usedIds.add(item.id)
+    if (selected.length >= count) {
+      break
+    }
+  }
+
+  return selected
 }
 
 function extractPlainText(text: string, maxLength: number) {
@@ -315,7 +346,7 @@ const GAME_GENRE_LABELS: Record<string, string> = {
 
 function formatGameRating(rating?: number | '') {
   const value = typeof rating === 'number' ? rating : 0
-  return value > 0 ? '★'.repeat(value) : '未评分'
+  return value > 0 ? '★'.repeat(value) : siteUi.unrated
 }
 
 function platformIconPath(platform?: string) {
@@ -397,14 +428,14 @@ function HomeGameCard({ item, featured = false }: { item: ArchiveItem; featured?
           <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: featured ? '0.8rem' : '0.72rem', lineHeight: 1.25, marginTop: '0.2rem' }}>
             {item.english_title || 'Pending Title'}
           </div>
-          {item.summary && (
+          {item.summary && !isSeasonal && (
             <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: featured ? '0.72rem' : '0.66rem', lineHeight: 1.45, marginTop: '0.45rem' }}>
               {item.summary}
             </div>
           )}
           <div style={{ display: 'grid', gap: '0.3rem', marginTop: '0.75rem' }}>
             <div style={{ color: 'rgba(255,255,255,0.88)', fontSize: featured ? '0.74rem' : '0.68rem' }}>
-              {item.genre ? GAME_GENRE_LABELS[item.genre] ?? item.genre : '未分类'}
+                  {item.genre ? GAME_GENRE_LABELS[item.genre] ?? item.genre : siteUi.unclassified}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'rgba(255,255,255,0.88)', fontSize: featured ? '0.74rem' : '0.68rem' }}>
               <Star size={12} color="#facc15" fill="#facc15" />
@@ -412,7 +443,7 @@ function HomeGameCard({ item, featured = false }: { item: ArchiveItem; featured?
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'rgba(255,255,255,0.88)', fontSize: featured ? '0.74rem' : '0.68rem' }}>
               <Clock3 size={12} />
-              <span>{item.playtime || '未知'}</span>
+                <span>{item.playtime || siteUi.unknown}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'rgba(255,255,255,0.88)', fontSize: featured ? '0.74rem' : '0.68rem' }}>
               <CircleDollarSign size={12} />
@@ -424,7 +455,7 @@ function HomeGameCard({ item, featured = false }: { item: ArchiveItem; featured?
               扩展所属：{item.dlc_parent}
             </div>
           )}
-          {item.hover_note && (
+          {item.hover_note && !isSeasonal && (
             <div style={{ color: 'rgba(255,255,255,0.68)', fontSize: featured ? '0.69rem' : '0.63rem', lineHeight: 1.45, marginTop: '0.7rem', paddingRight: item.platform ? '2.8rem' : undefined }}>
               {item.hover_note}
             </div>
@@ -904,7 +935,7 @@ function MusicFeatureCard({ item }: { item: MusicItem }) {
               marginBottom: '0.48rem',
             }}
           >
-            Current Album
+            {siteUi.current_album}
           </div>
           <div
             style={{
@@ -1131,10 +1162,26 @@ interface HomePageProps {
 export default function HomePage({ data }: HomePageProps) {
   const { games, visions, music, texts } = data.categories
 
-  const latestGames = collectLatestTimelineItems(games.years, 9)
-  const latestVisions = collectLatestTimelineItems(visions.years, 9)
-  const latestMusic = music.items.slice(0, 7)
-  const latestTexts = texts.items.slice(0, 4)
+  const latestGames = selectConfiguredItems(
+    collectTimelineItems(games.years),
+    homepageConfig.games,
+    siteLayout.home_latest_games_count,
+  )
+  const latestVisions = selectConfiguredItems(
+    collectTimelineItems(visions.years),
+    homepageConfig.visions,
+    siteLayout.home_latest_visions_count,
+  )
+  const latestMusic = selectConfiguredItems(
+    music.items,
+    homepageConfig.music,
+    siteLayout.home_latest_music_count,
+  )
+  const latestTexts = selectConfiguredItems(
+    texts.items,
+    homepageConfig.texts,
+    siteLayout.home_latest_texts_count,
+  )
 
   const featuredMusic = latestMusic[0]
   const featuredText = latestTexts[0]
@@ -1223,8 +1270,8 @@ export default function HomePage({ data }: HomePageProps) {
                 <div style={HOME_SECTION_BODY_STYLE}>
                   <HomeSectionShell>
                     <SectionHeader id="home-games-title" title="Games" to="/games" />
-                  <HomePosterMosaic
-                      items={latestGames.slice(0, 9)}
+                    <HomePosterMosaic
+                      items={latestGames.slice(0, siteLayout.home_latest_games_count)}
                       renderCard={(item, featured) => <HomeGameCard key={item.id} item={item} featured={featured} />}
                     />
                     <HomeSectionDivider />
@@ -1279,7 +1326,7 @@ export default function HomePage({ data }: HomePageProps) {
                     rightImageZIndex={0}
                   />
                   <HomePosterMosaic
-                    items={latestVisions.slice(0, 9)}
+                    items={latestVisions.slice(0, siteLayout.home_latest_visions_count)}
                     renderCard={(item, featured) => <HomeVisionCard key={item.id} item={item} featured={featured} />}
                   />
                   <HomeSectionDivider />

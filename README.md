@@ -1,268 +1,575 @@
 # YuArchive
 
-YuArchive 是一个以个人记忆、兴趣轨迹和主观注释为核心的数字档案网站。  
-它不是把内容直接写死在前端里，而是把 `OneDrive` 中长期维护的原始素材，经过本地构建脚本转译成静态网页可消费的数据，再同步到 GitHub 并触发部署。
+YuArchive 是一套以 `OneDrive` 为唯一内容源、本地脚本负责构建、前端只负责展示的个人档案系统。
 
-## 项目定位
+它的维护逻辑可以概括成一句话：
 
-这个项目的目标不是做一个“百科式资料库”，而是做一座属于 Yu 自己的数字避难所：
+**往源目录丢素材 -> 改对应 md / yaml -> 跑一次 `build_archive.py` -> 网页自动更新。**
 
-- 记录游戏、影视、音乐、文本等长期兴趣轨迹
-- 让内容维护和前端展示彼此解耦
-- 让新增内容的成本尽量接近“往 OneDrive 丢素材”
-- 通过一次构建，把原始素材转成网页可直接使用的静态资源
+---
 
-## 当前网页特色
+## 1. 总体结构
 
-### 1. 首页不是普通导航页，而是滚动海报墙
+### 内容源目录
 
-首页 [`src/pages/HomePage.tsx`](./src/pages/HomePage.tsx) 采用多行横向滚动的游戏海报阵列，营造一种“记忆流不断掠过”的视觉感。  
-最近两年的内容会被自动优先放到前排，这样每次补档后首页都会自然显得更新鲜，不需要手动调整年份逻辑。
-
-### 2. 四大内容板块已经形成稳定结构
-
-- `Games`：按年份/阶段组织的时间线收藏
-- `Visions`：融合电影与番剧的统一光影长卷
-- `Music`：以 Markdown 为源的专辑与曲目档案
-- `Texts`：以 Markdown 为源的短文、摘录与思考记录
-
-这四个板块共用一份结构化数据源 [`src/data/archive_data.json`](./src/data/archive_data.json)，前端只负责展示，不直接参与原始内容维护。
-
-### 3. 视觉语言统一且有辨识度
-
-当前站点延续了 YuArchive 的核心美学：
-
-- 黑白极简为主，辅以克制的霓虹感高光
-- 固定导航栏 + 毛玻璃质感
-- 大量使用卡片、海报、时间线、渐隐动效
-- 亮暗主题切换
-- 首页与各内容页都强调“沉浸感优先，而不是信息面板化”
-
-对应的全局样式集中在 [`src/index.css`](./src/index.css)。
-
-### 4. Visions 板块具备内容优先级系统
-
-[`build_archive.py`](./build_archive.py) 会读取 `Visions` 下的 YAML 元数据，并在前端 [`src/pages/Visions.tsx`](./src/pages/Visions.tsx) 中实现更细腻的排序和展示：
-
-- `cinema: true` 的作品优先级最高
-- `movie` 高于 `tv`
-- `quote` 会作为悬停文案显示
-- `url` 作为外部跳转入口
-
-这意味着 Visions 不是单纯图片陈列，而是一套“带情绪标记的观看档案”。
-
-### 5. Music 与 Texts 已经支持从原始文档自动构建
-
-目前 `Music` 和 `Texts` 都是从 Markdown 直接生成：
-
-- `Music` 会解析 frontmatter 和正文曲目列表
-- `Texts` 会解析标题、日期、标签和正文内容
-- 构建脚本会把这些内容转成前端页面能直接消费的 JSON
-
-也就是说，后续大部分内容更新都不需要改 React 代码，优先改 OneDrive 中的源文件即可。
-
-## 项目文件管理规则
-
-这是当前项目最重要的一条规则：
-
-### 唯一内容源
-
-真正的源文件都放在：
+真正长期维护的内容都在：
 
 `C:\Users\Yu\OneDrive\图片\Data`
 
-这里是整个项目的内容主仓，不是 GitHub 仓库。
-
-它下面目前有四个主目录：
+目前分成四个主板块：
 
 - `Games`
 - `Visions`
 - `Music`
 - `Texts`
 
-你真正日常维护的是这里面的图片、Markdown、YAML 等文件。
+### 网页项目目录
 
-### 网页仓库的职责
-
-当前仓库：
+前端与构建层在：
 
 `C:\Users\Yu\AI\Archive`
 
-不是原始素材库，而是“构建层 + 展示层”。
+它的职责是：
 
-它负责：
+1. 扫描 `OneDrive` 中的原始素材
+2. 把图片转成网页使用的 `.webp`
+3. 把 Markdown / YAML 转成结构化数据
+4. 输出到：
+   - [`C:\Users\Yu\AI\Archive\public\webp_cache`](C:\Users\Yu\AI\Archive\public\webp_cache)
+   - [`C:\Users\Yu\AI\Archive\public\audio_cache`](C:\Users\Yu\AI\Archive\public\audio_cache)
+   - [`C:\Users\Yu\AI\Archive\src\data\archive_data.json`](C:\Users\Yu\AI\Archive\src\data\archive_data.json)
+5. 由 React 页面直接消费生成后的数据
 
-1. 读取 OneDrive 中的内容源
-2. 对图片做压缩 / 转码 / 标准化输出
-3. 把元数据整理成结构化 JSON
-4. 用 React + Vite 渲染为最终网页
-5. 通过 GitHub 推送触发远端部署
+### 当前构建入口
 
-### 关键结论
+核心脚本：
 
-可以把整个系统理解成下面这条单向流水线：
-
-`OneDrive 原始档案 -> build_archive.py 构建 -> archive_data.json + webp_cache -> React 前端展示 -> git push -> GitHub/Netlify 部署`
-
-所以：
-
-- OneDrive 管内容
-- Python 管转译
-- React 管展示
-- GitHub 管发布
-
-## 当前更新逻辑
-
-### 1. 在 OneDrive 中维护原始内容
-
-你新增或修改的第一现场始终是：
-
-`C:\Users\Yu\OneDrive\图片\Data`
-
-典型操作包括：
-
-- 给 `Games` 某个年份目录新增海报图
-- 在 `Visions` 中新增图片并更新 `meta.yaml`
-- 在 `Music` 中新增 Markdown 和封面
-- 在 `Texts` 中新增 Markdown 文章
-
-### 2. 运行构建脚本
-
-核心脚本是：
-
-[`build_archive.py`](./build_archive.py)
-
-它会做几件关键事情：
-
-- 扫描 `Games / Visions / Music / Texts`
-- 将图片转为 `.webp`
-- 把结果输出到 `public/webp_cache`
-- 生成最新的 [`src/data/archive_data.json`](./src/data/archive_data.json)
-- 记录校验信息，例如：
-  - Music 是否缺封面
-  - Texts 日期是否仍是非标准格式
-  - Visions 是否存在孤儿元数据
-
-### 3. 一键更新脚本负责本地发布动作
-
-当前一键脚本是：
-
-[`一键发布到云端.bat`](./一键发布到云端.bat)
-
-它的思路是：
-
-1. 运行 `build_archive.py`
-2. `git add` 生成后的静态资源和数据文件
-3. 自动提交
-4. 执行 `git push`
-
-也就是说，这个 bat 本质上是把“构建 + 提交 + 推送”串起来。
-
-### 4. GitHub 只承接发布结果
-
-GitHub 仓库保存的是网页项目本身，以及经过构建后可以部署的静态结果。  
-真正的内容原稿仍然在 OneDrive。
-
-这就是为什么后续新增内容时，优先思路应该始终是：
-
-先改 `OneDrive/Data`，再运行构建，再推送 GitHub。
-
-## OneDrive 目录建议约定
-
-为了让后续更新更稳定，建议保持下面这些规则。
-
-### Games
-
-- 每个年份或阶段一个文件夹，例如 `Game-2026`、`Game-Season`
-- 文件夹里主要放一级图片文件
-- 文件名直接作为作品标题来源
-
-### Visions
-
-- 按年份区间分目录
-- 图片文件名要和 YAML 顶层标题尽量一致
-- `quote / url / cinema / type` 通过 YAML 提供
-- 避免标题末尾多空格，否则容易出现“孤儿元数据”
-
-### Music
-
-- 每张专辑/主题内容使用一个 Markdown 文件
-- frontmatter 中可写 `title / cover / description`
-- 封面建议放在 `Music/Covers/`，并尽量使用与 Markdown 同名的图片
-
-### Texts
-
-- 每篇文章一个 Markdown 文件
-- frontmatter 建议至少包含：
-  - `title`
-  - `date`
-  - `tags`
-- 推荐将 `date` 统一成 `YYYY-MM-DD`
-
-目前脚本已经兼容部分旧格式，但统一后续维护会更稳。
-
-## 当前构建层能力
-
-截至目前，构建层已经支持：
-
-- 增量跳过未变化图片
-- 自动输出 `webp`
-- 从旧路径或 `Music/Covers/` 智能找回封面
-- 规范化 `Texts` 排序日期
-- 在 JSON 中生成校验摘要
-- 自动清除构建前遗留的异常文本项影响
-
-这意味着现在项目已经不只是“能生成页面”，而是开始具备“内容校验器”的能力。
-
-## 本地开发
-
-### 安装依赖
-
-```bash
-npm install
-```
-
-### 启动开发环境
-
-```bash
-npm run dev
-```
-
-### 重新构建归档数据
-
-```bash
-python -X utf8 build_archive.py
-```
-
-### 构建前端
-
-```bash
-npm run build
-```
-
-## 推荐维护习惯
-
-后续继续迭代时，建议始终按这个顺序工作：
-
-1. 在 `OneDrive\Data` 中维护内容
-2. 运行 `build_archive.py`
-3. 本地预览网页是否正常
-4. 再提交并推送 GitHub
-5. 最后继续做前端功能更新
-
-这样可以避免“前端改好了，但底层内容组织越来越乱”的问题。
-
-## 下一阶段功能方向
-
-基于当前结构，后续很适合继续做这些增强：
-
-- Texts 标签筛选 / 全文搜索
-- Music 的专辑筛选、封面聚合视图
-- 首页最近更新摘要
-- 可视化展示构建校验报告
-- 更完整的内容维护说明页
+[`C:\Users\Yu\AI\Archive\build_archive.py`](C:\Users\Yu\AI\Archive\build_archive.py)
 
 ---
 
-YuArchive 的核心不是“网页本身”，而是这套能长期维护的个人数字档案工作流。  
-只要 `OneDrive -> 构建 -> GitHub -> 部署` 这条链路继续稳定，这个站就会越来越像你自己的记忆操作系统。
+## 2. 每日更新流程
+
+以后你日常更新，默认按这套顺序即可：
+
+1. 在 `OneDrive\Data` 中新增图片、Markdown、YAML 或音频
+2. 运行：
+
+```powershell
+cd C:\Users\Yu\AI\Archive
+python -X utf8 build_archive.py
+```
+
+3. 本地预览：
+
+```powershell
+npm run dev
+```
+
+4. 确认页面没问题后，再按需提交 / 推送 GitHub
+
+如果只是改内容，不需要直接改 React 代码。
+
+---
+
+## 3. Games 维护规则
+
+### 目录结构
+
+`Games` 当前有这些目录：
+
+- `Game-2010`
+- `Game-2015`
+- `Game-2020`
+- `Game-2023`
+- `Game-2024`
+- `Game-2025`
+- `Game-2026`
+- `Game-Live`
+
+其中：
+
+- 普通游戏维护在各年份目录
+- 长期更新 / 赛季型内容维护在 `Game-Live`
+
+### 3.1 普通年份游戏
+
+示例目录：
+
+`C:\Users\Yu\OneDrive\图片\Data\Games\Game-2024`
+
+你要做的事：
+
+1. 把封面图放进年份目录
+2. 打开同目录下的 [`meta.yaml`](C:\Users\Yu\OneDrive\图片\Data\Games\Game-2024\meta.yaml)
+3. 补这一条的字段
+4. 运行构建脚本
+
+### 普通游戏支持字段
+
+在各年份 `meta.yaml` 里，每条游戏现在支持：
+
+- `english_title`
+- `url`
+- `platform`
+- `price`
+- `rating`
+- `playtime`
+- `completed`
+- `genre`
+- `display_title`
+- `dlc_parent_title`
+
+含义：
+
+- `display_title`
+  覆盖网页显示标题，不改原始图片文件名
+- `dlc_parent_title`
+  只给 DLC 用，用来指定“扩展所属”的显示名
+
+### 示例
+
+```yaml
+"地平线5_风火轮":
+  english_title: "Forza Horizon 5"
+  url: "https://store.steampowered.com/app/1551360/"
+  platform: "xbox"
+  price: "¥ 139"
+  rating: "5"
+  playtime: ">100h"
+  completed: true
+  genre: "racing"
+  display_title: "风火轮"
+  dlc_parent_title: "极限竞速：地平线 5"
+```
+
+### 文件命名规则
+
+#### 普通本体
+
+直接用游戏名：
+
+- `哈迪斯.png`
+- `最终幻想 VII：重制版.png`
+
+#### DLC
+
+使用 `_` 分隔：
+
+- `地平线5_风火轮.png`
+- `女神异闻录3_Episode Aegis.png`
+- `暗黑破坏神4_憎恨之王.png`
+
+现在 DLC 仍然作为独立条目显示，但标题和所属本体由 `display_title` / `dlc_parent_title` 控制。
+
+### 3.2 Game-Live：长期更新 / 赛季内容
+
+路径：
+
+`C:\Users\Yu\OneDrive\图片\Data\Games\Game-Live`
+
+这里维护三类长期更新内容：
+
+- [`英雄联盟.yaml`](C:\Users\Yu\OneDrive\图片\Data\Games\Game-Live\英雄联盟.yaml)
+- [`云顶之弈.yaml`](C:\Users\Yu\OneDrive\图片\Data\Games\Game-Live\云顶之弈.yaml)
+- [`暗黑破坏神 IV.yaml`](C:\Users\Yu\OneDrive\图片\Data\Games\Game-Live\暗黑破坏神%20IV.yaml)
+
+同时目录里还放：
+
+- 主封面，例如 `英雄联盟.png`
+- 各赛季图，例如 `LOL_Worlds 2024.png`、`TFT_S16传世之说.png`
+
+### Game-Live 顶层字段
+
+每份 yaml 顶层支持：
+
+- `english_title`
+- `url`
+- `platform`
+- `price`
+- `rating`
+- `playtime`
+- `completed`
+- `genre`
+- `summary`
+- `hover_note`
+- `season_heading`
+- `season_subheading`
+- `season_description`
+
+### Game-Live 赛季条目字段
+
+在 `season_entries:` 下面维护每一个赛季：
+
+#### LOL
+
+- `champion`
+- `note`
+
+#### 云顶之弈
+
+- `period`
+- `theme`
+- `feature`
+
+#### 暗黑破坏神 IV
+
+- `period`
+- `build`
+
+### 示例
+
+```yaml
+season_entries:
+  Worlds 2025:
+    champion: "T1"
+    note: "当所有人都在等新王加冕时，最后举起奖杯的还是那个最熟悉的名字。"
+```
+
+### 重要说明
+
+现在赛季可见内容已经优先从这 3 份 yaml 读取。  
+也就是说，后续赛季更新请直接改这些 yaml，不需要再碰脚本。
+
+---
+
+## 4. Visions 维护规则
+
+### 目录结构
+
+当前按时间段分目录：
+
+- `开端`
+- `前尘`
+- `旧影`
+- `未远`
+- `此岸`
+
+每个分段目录中：
+
+- 放海报图
+- 放一个统一命名的 `meta.yaml`
+
+### 维护方式
+
+1. 把新海报图放进对应分段目录
+2. 打开该目录下的 `meta.yaml`
+3. 确保图片标题和 yaml 顶层标题一致
+4. 补字段
+
+### Visions 支持字段
+
+- `cinema`
+- `quote`
+- `url`
+- `type`
+
+### 示例
+
+```yaml
+双城之战:
+  cinema: false
+  quote: "有些命运并不是为了被纠正，而是为了被看见。"
+  url: "https://www.themoviedb.org/"
+  type: "tv"
+```
+
+### 说明
+
+- `quote` 是 hover 里显示的短摘
+- `url` 一般导向 TMDB
+- `type` 当前用于电影 / TV / 动画筛选与图标区分
+- `cinema: true` 会显示院线观影标识
+
+---
+
+## 5. Music 维护规则
+
+### 目录结构
+
+路径：
+
+`C:\Users\Yu\OneDrive\图片\Data\Music`
+
+里面当前有：
+
+- `Covers`
+- `Songs`
+- 一批专辑 Markdown 文件
+
+### 维护方式
+
+每张专辑一份 md，例如：
+
+[`C:\Users\Yu\OneDrive\图片\Data\Music\Arcane.md`](C:\Users\Yu\OneDrive\图片\Data\Music\Arcane.md)
+
+支持的 frontmatter 目前是：
+
+- `Description`
+- `Cover`（可选，仅在你想手动指定封面时需要）
+- `Audio`（可选，仅在你想手动指定音频时需要）
+
+### 推荐维护规则
+
+#### 封面
+
+- 优先放在 `Covers`
+- 推荐封面文件名和 md 文件名保持一致
+- 如果同名，`Cover` 可以完全不写，脚本会自动匹配
+
+#### 音频
+
+- 一张专辑只对应一首代表曲
+- 把音频放在：
+  [`C:\Users\Yu\OneDrive\图片\Data\Music\Songs`](C:\Users\Yu\OneDrive\图片\Data\Music\Songs)
+- 推荐音频文件名与专辑 md 同名
+
+例如：
+
+- `Arcane.md`
+- `Songs\Arcane.mp3`
+
+这样 `Audio` 可以完全不写，脚本会自动匹配同名音频。
+
+### 当前音频规则
+
+如果 `Audio` 不写：
+
+- 脚本会自动尝试匹配 `Songs/专辑同名.{mp3,m4a,wav,ogg,flac,aac}`
+
+如果你手动填写 `Audio`：
+
+- 脚本优先使用你写的路径
+
+### 曲目标题规则
+
+网页展示的 `track_title` 会优先取：
+
+1. frontmatter 里的 `track_title`
+2. 如果没有，则自动取正文曲目列表的第一首
+
+所以后续你只要把“你想默认听的那首歌”放在第一首即可。
+
+### 当前最简维护规则
+
+如果你想把 `Music` 维护到最简单，直接遵守这一条就够了：
+
+- `md` 文件名 = 页面标题
+- `Covers` 里的封面文件名 = `md` 文件名
+- `Songs` 里的音频文件名 = `md` 文件名
+
+这样你通常只需要写：
+
+- `Description`
+- 曲目列表正文
+
+### 示例
+
+```md
+---
+Description: 这张原声像夜色里仍在发烫的霓虹。
+---
+
+1. What Could Have Been
+2. Enemy
+3. Guns for Hire
+```
+
+---
+
+## 6. Texts 维护规则
+
+### 目录结构
+
+路径：
+
+`C:\Users\Yu\OneDrive\图片\Data\Texts`
+
+现在它支持：
+
+- `得到头条`
+- `视频总结`
+- `心得体会`
+- 栏目定义在：
+  [`C:\Users\Yu\OneDrive\图片\Data\Texts\sections.yaml`](C:\Users\Yu\OneDrive\图片\Data\Texts\sections.yaml)
+
+### sections.yaml 的作用
+
+这里定义的是：
+
+- 栏目 `key`
+- 栏目标题
+- 栏目说明
+- 栏目别名
+
+例如：
+
+```yaml
+headline:
+  title: "得到头条"
+  description: "把每天值得留下的一点观察、判断与信息浓缩，整理成可以回看的文字切片。"
+  aliases: "得到头条,headline,头条"
+```
+
+### 文章归类规则
+
+优先级如下：
+
+1. frontmatter 里的 `section`
+2. 所在子文件夹名（例如 `得到头条` / `视频总结` / `心得体会`）
+3. 默认归到 `headline`
+
+### Texts 单篇文章支持字段
+
+- `title`
+- `date`
+- `tags`
+- `section`
+
+### 示例
+
+```md
+---
+Title: 你好世界 — 全能档案馆的起点
+Date: 2026-01-01
+Tags: [随笔, 起点]
+Section: notes
+---
+```
+
+### 日期说明
+
+`Texts` 目前仍建议你逐步统一成：
+
+`YYYY-MM-DD`
+
+因为脚本虽然能兼容旧格式，但仍会在构建摘要里提示日期告警。
+
+---
+
+## 7. 已经做到“所见即所得”的部分
+
+当前这些可见内容，已经不再靠脚本常量硬编码，而是回填到源文件维护：
+
+- `Texts` 的栏目标题和介绍
+- `Games` 的显示名覆盖
+- `Games` 的 DLC 显示标题和所属本体标题
+- `Game-Live` 的赛季条目内容
+- `Music` 的默认曲名推断
+- `Games` 的 `playtime` 显示文本
+
+也就是说，现在真正影响页面内容展示的那一层，已经基本回到 `OneDrive` 源目录维护。
+
+---
+
+## 8. 仍然属于“逻辑层”的固定规则
+
+现在这批全站级文案与逻辑，已经额外拆到源目录两份配置里：
+
+- [`C:\Users\Yu\OneDrive\图片\Data\site-ui.yaml`](C:\Users\Yu\OneDrive\图片\Data\site-ui.yaml)
+- [`C:\Users\Yu\OneDrive\图片\Data\site-layout.yaml`](C:\Users\Yu\OneDrive\图片\Data\site-layout.yaml)
+- [`C:\Users\Yu\OneDrive\图片\Data\homepage.yaml`](C:\Users\Yu\OneDrive\图片\Data\homepage.yaml)
+
+### site-ui.yaml
+
+适合维护：
+
+- `Current Album`
+- `Selected Section`
+- `未分类`
+- `未知`
+- `未评分`
+- `赛季旅程`
+
+### site-layout.yaml
+
+适合维护：
+
+- 首页各板块最新内容抽取数量
+- `Game-Live` 挂到哪一年
+- 赛季旅程优先级
+- `Texts` 默认栏目 key
+
+### homepage.yaml
+
+适合维护：
+
+- 首页各板块想优先展示的内容顺序
+- `Games / Visions / Music / Texts` 的钦点展示项
+
+规则：
+
+- 按标题精确匹配
+- 优先展示 `homepage.yaml` 里列出的内容
+- 如果某个板块没写满，剩余位置会自动补最新项
+
+还有一些东西仍在代码里，但它们主要是展示逻辑，不是档案内容本身：
+
+- `Game-Live` 统一展示到 `2026`
+- 赛季旅程内部顺序
+- 首页各板块最新内容的抽取数量
+- 一些 UI 标签，如：
+  - `Current Album`
+  - `Selected Section`
+  - `未分类`
+  - `未知`
+  - `未评分`
+
+这些不影响你日常补内容，但后续如果你也想把它们全部源文件化，可以继续做。
+
+---
+
+## 9. 本地常用命令
+
+### 重建数据
+
+```powershell
+cd C:\Users\Yu\AI\Archive
+python -X utf8 build_archive.py
+```
+
+### 本地开发预览
+
+```powershell
+npm run dev
+```
+
+### 生产构建检查
+
+```powershell
+npm run build
+```
+
+---
+
+## 10. 最推荐的维护习惯
+
+后面新增内容时，按这套最省心：
+
+1. 先往 `OneDrive\Data` 丢素材
+2. 再改对应 md / yaml
+3. 跑 `build_archive.py`
+4. 本地看页面
+5. 最后再决定要不要提交代码 / 推 GitHub
+
+如果没有改前端交互或样式，优先不要碰 React 文件。
+
+---
+
+## 11. 一句话版本
+
+### Games
+
+丢图片进年份目录，改同目录 `meta.yaml`；赛季改 `Game-Live` 那 3 份 yaml。
+
+### Visions
+
+丢海报进对应时间段目录，改该目录 `meta.yaml`。
+
+### Music
+
+加专辑 md、封面、同名音频进 `Songs`，第一首歌放想默认展示的曲目。
+
+### Texts
+
+写 md 即可，栏目配置改 `sections.yaml`，文章可用 `section` 或文件夹归类。

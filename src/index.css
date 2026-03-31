@@ -93,14 +93,15 @@ body {
 }
 
 .nav-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
 
 /* 左区：Logo */
 .nav-logo {
@@ -138,9 +139,18 @@ body {
 
 /* 中区：路由链接 */
 .nav-links {
-  display: flex;
-  gap: 0.3rem;
-}
+    display: flex;
+    gap: 0.3rem;
+  }
+
+@media (min-width: 1024px) {
+  .nav-links {
+      position: absolute;
+      left: calc(50% + 124px);
+      transform: translateX(-50%);
+      margin-left: 0;
+    }
+  }
 
 .nav-item {
   display: flex;

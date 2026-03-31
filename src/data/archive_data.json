@@ -1,8 +1,69 @@
 {
   "metadata": {
-    "generated_at": "2026-03-31T16:23:14.393087",
+    "generated_at": "2026-03-31T20:10:28.332670",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data",
+    "site_ui": {
+      "current_album": "Current Album",
+      "selected_section": "Selected Section",
+      "unclassified": "未分类",
+      "unknown": "未知",
+      "unrated": "未评分",
+      "season_journey": "赛季旅程",
+      "season_special": "SEASON / 赛季专区"
+    },
+    "site_layout": {
+      "home_latest_games_count": 9,
+      "home_latest_visions_count": 9,
+      "home_latest_music_count": 7,
+      "home_latest_texts_count": 4,
+      "games_season_target_year": 2026,
+      "games_season_priority": {
+        "英雄联盟": 0,
+        "云顶之弈": 1,
+        "暗黑破坏神 IV": 2
+      },
+      "texts_default_section_key": "headline"
+    },
+    "homepage": {
+      "games": [
+        "英雄联盟",
+        "云顶之弈",
+        "暗黑破坏神 IV",
+        "光与影：33号远征队",
+        "Episode Aegis",
+        "最终幻想 VII：重制版",
+        "空洞骑士：丝之歌",
+        "我的世界",
+        "极限竞速：地平线 5"
+      ],
+      "visions": [
+        "双城之战2",
+        "双城之战",
+        "赛博朋克 边缘行者",
+        "猫猫的奇幻漂流",
+        "罗小黑战记2",
+        "罗小黑战记",
+        "孤独摇滚 (下)",
+        "瑞克与莫蒂",
+        "头号玩家"
+      ],
+      "music": [
+        "Clair Obscur Expedition 33",
+        "Minecraft",
+        "FINAL FANTASY VII REMAKE",
+        "Forza Horizon 5",
+        "Hollow Knight",
+        "PERSONA 3",
+        "PERSONA 5"
+      ],
+      "texts": [
+        "《大国小农》：重新理解中国农村的“蓄水池”与底牌价值",
+        "真正的休息不是停下，而是“换一种方式动起来”",
+        "心源性猝死的真相：打破致命误解与科学预防指南",
+        "黄仁勋GTC大会：全面迎接“Token经济学”时代"
+      ]
+    },
     "validation": {
       "games_meta_skipped_folders": [
         "Game-2010",
@@ -3739,126 +3800,126 @@
       "texts_date_issues": [
         {
           "title": "你好世界 — 全能档案馆的起点",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\hello-world.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\hello-world.md",
           "raw_date": "01-01",
           "normalized_date": "2026-01-01",
           "status": "partial"
         },
         {
           "title": "《2028全球智能危机》：AI引发的金融崩塌推演与叙事之争",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\《2028全球智能危机》：AI引发的金融崩塌推演与叙事之争.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\《2028全球智能危机》：AI引发的金融崩塌推演与叙事之争.md",
           "raw_date": "03-13",
           "normalized_date": "2026-03-13",
           "status": "partial"
         },
         {
           "title": "《大国小农》：重新理解中国农村的“蓄水池”与底牌价值",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\《大国小农》：重新理解中国农村的“蓄水池”与底牌价值.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\《大国小农》：重新理解中国农村的“蓄水池”与底牌价值.md",
           "raw_date": "03-27",
           "normalized_date": "2026-03-27",
           "status": "partial"
         },
         {
           "title": "从霍尔木兹海峡的“金融封锁”，看懂塔勒布的“利益攸关”",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\从霍尔木兹海峡的“金融封锁”，看懂塔勒布的“利益攸关”.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\从霍尔木兹海峡的“金融封锁”，看懂塔勒布的“利益攸关”.md",
           "raw_date": "03-21",
           "normalized_date": "2026-03-21",
           "status": "partial"
         },
         {
           "title": "保罗·格雷厄姆《品牌时代》：当技术让技能贬值，个人品牌成最后壁垒",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\保罗·格雷厄姆《品牌时代》：当技术让技能贬值，个人品牌成最后壁垒.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\保罗·格雷厄姆《品牌时代》：当技术让技能贬值，个人品牌成最后壁垒.md",
           "raw_date": "03-23",
           "normalized_date": "2026-03-23",
           "status": "partial"
         },
         {
           "title": "哈贝马斯的哲学遗产：如何在现代社会“好好讲道理”？",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\哈贝马斯的哲学遗产：如何在现代社会“好好讲道理”？.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\哈贝马斯的哲学遗产：如何在现代社会“好好讲道理”？.md",
           "raw_date": "03-19",
           "normalized_date": "2026-03-19",
           "status": "partial"
         },
         {
           "title": "学历滤镜破碎：大厂高薪招募高中生，未来职场“技能为王”",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\学历滤镜破碎：大厂高薪招募高中生，未来职场“技能为王”.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\学历滤镜破碎：大厂高薪招募高中生，未来职场“技能为王”.md",
           "raw_date": "03-15",
           "normalized_date": "2026-03-15",
           "status": "partial"
         },
         {
           "title": "心源性猝死的真相：打破致命误解与科学预防指南",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\心源性猝死的真相：打破致命误解与科学预防指南.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\心源性猝死的真相：打破致命误解与科学预防指南.md",
           "raw_date": "03-25",
           "normalized_date": "2026-03-25",
           "status": "partial"
         },
         {
           "title": "植树节特辑：从“盲目种树”到科学造林的观念进化",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\植树节特辑：从“盲目种树”到科学造林的观念进化.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\植树节特辑：从“盲目种树”到科学造林的观念进化.md",
           "raw_date": "03-12",
           "normalized_date": "2026-03-12",
           "status": "partial"
         },
         {
           "title": "现象级AI应用“龙虾”（OpenClaw）：平民化的超级私人助理",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\现象级AI应用“龙虾”（OpenClaw）：平民化的超级私人助理.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\现象级AI应用“龙虾”（OpenClaw）：平民化的超级私人助理.md",
           "raw_date": "03-16",
           "normalized_date": "2026-03-16",
           "status": "partial"
         },
         {
           "title": "真正的休息不是停下，而是“换一种方式动起来”",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\真正的休息不是停下，而是“换一种方式动起来”.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\真正的休息不是停下，而是“换一种方式动起来”.md",
           "raw_date": "03-26",
           "normalized_date": "2026-03-26",
           "status": "partial"
         },
         {
           "title": "脱发的真相：损失了颜值，却可能赢得了“气场”？",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\脱发的真相：损失了颜值，却可能赢得了“气场”？.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\脱发的真相：损失了颜值，却可能赢得了“气场”？.md",
           "raw_date": "03-20",
           "normalized_date": "2026-03-20",
           "status": "partial"
         },
         {
           "title": "费曼式学习法：打破互联网时代的“理解幻觉”",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\费曼式学习法：打破互联网时代的“理解幻觉”.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\费曼式学习法：打破互联网时代的“理解幻觉”.md",
           "raw_date": "03-24",
           "normalized_date": "2026-03-24",
           "status": "partial"
         },
         {
           "title": "迈克尔·诺顿《仪式的力量》：看似“没用”的仪式，为何能改变大脑？",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\迈克尔·诺顿《仪式的力量》：看似“没用”的仪式，为何能改变大脑？.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\迈克尔·诺顿《仪式的力量》：看似“没用”的仪式，为何能改变大脑？.md",
           "raw_date": "03-18",
           "normalized_date": "2026-03-18",
           "status": "partial"
         },
         {
           "title": "金钱与幸福的真相：年薪多少才会最幸福？",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\金钱与幸福的真相：年薪多少才会最幸福？.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\金钱与幸福的真相：年薪多少才会最幸福？.md",
           "raw_date": "03-22",
           "normalized_date": "2026-03-22",
           "status": "partial"
         },
         {
           "title": "马江博解读2026两会：八大关键趋势与机会判断",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\马江博解读2026两会：八大关键趋势与机会判断.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\马江博解读2026两会：八大关键趋势与机会判断.md",
           "raw_date": "03-17",
           "normalized_date": "2026-03-17",
           "status": "partial"
         },
         {
           "title": "马江博解读2026政府工作报告：主动换挡与“智能经济”新图景",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\马江博解读2026政府工作报告：主动换挡与“智能经济”新图景.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\马江博解读2026政府工作报告：主动换挡与“智能经济”新图景.md",
           "raw_date": "03-14",
           "normalized_date": "2026-03-14",
           "status": "partial"
         },
         {
           "title": "黄仁勋GTC大会：全面迎接“Token经济学”时代",
-          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\黄仁勋GTC大会：全面迎接“Token经济学”时代.md",
+          "file": "C:\\Users\\Yu\\OneDrive\\图片\\Data\\Texts\\得到头条\\黄仁勋GTC大会：全面迎接“Token经济学”时代.md",
           "raw_date": "03-24",
           "normalized_date": "2026-03-24",
           "status": "partial"
@@ -4500,7 +4561,7 @@
                 {
                   "id": "season_暗黑破坏神 IV_5",
                   "title": "S7巫术赛季",
-                  "image_path": "webp_cache/Games/Game-Live/D4_S7巫术赛季 .webp",
+                  "image_path": "webp_cache/Games/Game-Live/D4_S7巫术赛季.webp",
                   "label": "赛季",
                   "champion": "",
                   "note": "",
@@ -4515,7 +4576,7 @@
                 {
                   "id": "season_暗黑破坏神 IV_6",
                   "title": "S8彼列归来",
-                  "image_path": "webp_cache/Games/Game-Live/D4_S8彼列归来 .webp",
+                  "image_path": "webp_cache/Games/Game-Live/D4_S8彼列归来.webp",
                   "label": "赛季",
                   "champion": "",
                   "note": "",
@@ -11861,11 +11922,11 @@
       "years": [
         {
           "year": 2026.0,
-          "folder": "2026",
+          "folder": "此岸",
           "items": [
             {
               "id": "movie_2026.0_0",
-              "image_path": "webp_cache/Visions/2026/失控玩家.webp",
+              "image_path": "webp_cache/Visions/此岸/失控玩家.webp",
               "title": "失控玩家",
               "cinema": false,
               "quote": "游戏里的平凡NPC突然觉醒，决定逆天改命成为拯救自己虚拟世界的超级英雄。",
@@ -11874,7 +11935,7 @@
             },
             {
               "id": "movie_2026.0_1",
-              "image_path": "webp_cache/Visions/2026/头号玩家.webp",
+              "image_path": "webp_cache/Visions/此岸/头号玩家.webp",
               "title": "头号玩家",
               "cinema": false,
               "quote": "在破败的未来世界戴上VR眼镜踏入“绿洲”，在光怪陆离的虚拟宇宙中寻找改变命运的彩蛋。",
@@ -11883,7 +11944,7 @@
             },
             {
               "id": "movie_2026.0_2",
-              "image_path": "webp_cache/Visions/2026/河狸变身计划.webp",
+              "image_path": "webp_cache/Visions/此岸/河狸变身计划.webp",
               "title": "河狸变身计划",
               "cinema": true,
               "quote": "一场阴差阳错的变身实验，让主角以河狸的视角展开了一场妙趣横生的荒野大冒险。",
@@ -11892,7 +11953,7 @@
             },
             {
               "id": "tv_2026.0_3",
-              "image_path": "webp_cache/Visions/2026/瑞克与莫蒂.webp",
+              "image_path": "webp_cache/Visions/此岸/瑞克与莫蒂.webp",
               "title": "瑞克与莫蒂",
               "cinema": false,
               "quote": "愤世嫉俗的疯狂科学家爷爷带着怯懦的孙子，穿梭在多元宇宙中展开脑洞大开的荒诞冒险。",
@@ -11901,7 +11962,7 @@
             },
             {
               "id": "movie_2026.0_4",
-              "image_path": "webp_cache/Visions/2026/疯狂动物城2.webp",
+              "image_path": "webp_cache/Visions/此岸/疯狂动物城2.webp",
               "title": "疯狂动物城2",
               "cinema": true,
               "quote": "兔朱迪和狐尼克搭档回归，在更加庞杂的动物城中揭开全新的悬疑阴谋。",
@@ -11910,7 +11971,7 @@
             },
             {
               "id": "movie_2026.0_5",
-              "image_path": "webp_cache/Visions/2026/速度与激情1.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情1.webp",
               "title": "速度与激情1",
               "cinema": false,
               "quote": "街头赛车与卧底警察的初次交锋，开启了一段充满引擎轰鸣与兄弟情谊的狂飙之旅。",
@@ -11919,7 +11980,7 @@
             },
             {
               "id": "movie_2026.0_6",
-              "image_path": "webp_cache/Visions/2026/速度与激情2.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情2.webp",
               "title": "速度与激情2",
               "cinema": false,
               "quote": "布莱恩在迈阿密重操旧业，在霓虹闪烁的街头赛车中试图洗清自己的罪名。",
@@ -11928,7 +11989,7 @@
             },
             {
               "id": "movie_2026.0_7",
-              "image_path": "webp_cache/Visions/2026/速度与激情3.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情3.webp",
               "title": "速度与激情3",
               "cinema": false,
               "quote": "漂移技术主宰的东京街头，街头车手在异国他乡的地下赛车世界中寻找自己的立足之地。",
@@ -11937,7 +11998,7 @@
             },
             {
               "id": "movie_2026.0_8",
-              "image_path": "webp_cache/Visions/2026/速度与激情4.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情4.webp",
               "title": "速度与激情4",
               "cinema": false,
               "quote": "多米尼克与布莱恩为了共同的复仇目标再次联手，在美墨边境展开狂野追逐。",
@@ -11946,7 +12007,7 @@
             },
             {
               "id": "movie_2026.0_9",
-              "image_path": "webp_cache/Visions/2026/速度与激情5.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情5.webp",
               "title": "速度与激情5",
               "cinema": false,
               "quote": "飞车家族齐聚里约热内卢，在逃避顶级探员追捕的同时策划一场惊天劫案。",
@@ -11955,7 +12016,7 @@
             },
             {
               "id": "movie_2026.0_10",
-              "image_path": "webp_cache/Visions/2026/速度与激情6.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情6.webp",
               "title": "速度与激情6",
               "cinema": false,
               "quote": "为了换取无罪赦免，飞车家族与霍布斯联手，在伦敦街头对抗极其危险的雇佣兵车队。",
@@ -11964,7 +12025,7 @@
             },
             {
               "id": "movie_2026.0_11",
-              "image_path": "webp_cache/Visions/2026/速度与激情7.webp",
+              "image_path": "webp_cache/Visions/此岸/速度与激情7.webp",
               "title": "速度与激情7",
               "cinema": false,
               "quote": "面对可怕的复仇者，飞车家族驾驶着重装战车，为了保护家人展开最催泪的终极一战。",
@@ -11973,7 +12034,7 @@
             },
             {
               "id": "movie_2026.0_12",
-              "image_path": "webp_cache/Visions/2026/飞驰人生3.webp",
+              "image_path": "webp_cache/Visions/此岸/飞驰人生3.webp",
               "title": "飞驰人生3",
               "cinema": true,
               "quote": "老头杯车队再聚首，张驰在全新的拉力赛道上续写属于中年人的热血传奇。",
@@ -11982,7 +12043,7 @@
             },
             {
               "id": "tv_2026.0_13",
-              "image_path": "webp_cache/Visions/2026/黑暗荣耀.webp",
+              "image_path": "webp_cache/Visions/此岸/黑暗荣耀.webp",
               "title": "黑暗荣耀",
               "cinema": false,
               "quote": "蛰伏多年的校园霸凌受害者，以冷酷缜密的计划向当年的加害者们展开令人窒息的绝望复仇。",
@@ -11992,12 +12053,12 @@
           ]
         },
         {
-          "year": 2024.0,
-          "folder": "2024-2025",
+          "year": 2025.0,
+          "folder": "未远",
           "items": [
             {
-              "id": "movie_2024.0_0",
-              "image_path": "webp_cache/Visions/2024-2025/功夫熊猫4.webp",
+              "id": "movie_2025.0_0",
+              "image_path": "webp_cache/Visions/未远/功夫熊猫4.webp",
               "title": "功夫熊猫4",
               "cinema": true,
               "quote": "神龙大侠阿宝即将成为和平谷的精神领袖，却遭遇了能变身成昔日宿敌的强大反派魅影妖后。",
@@ -12005,8 +12066,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_1",
-              "image_path": "webp_cache/Visions/2024-2025/千与千寻.webp",
+              "id": "movie_2025.0_1",
+              "image_path": "webp_cache/Visions/未远/千与千寻.webp",
               "title": "千与千寻",
               "cinema": true,
               "quote": "误入神明世界的少女千寻，在奇幻的汤屋中经历磨难，找回自我与拯救父母。",
@@ -12014,8 +12075,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2024.0_2",
-              "image_path": "webp_cache/Visions/2024-2025/双城之战2.webp",
+              "id": "tv_2025.0_2",
+              "image_path": "webp_cache/Visions/未远/双城之战2.webp",
               "title": "双城之战2",
               "cinema": false,
               "quote": "皮尔特沃夫与祖安的矛盾彻底爆发，金克丝与蔚的姐妹情谊在战火与阴谋中走向最终的宿命结局。",
@@ -12023,8 +12084,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2024.0_3",
-              "image_path": "webp_cache/Visions/2024-2025/哪吒之魔童闹海.webp",
+              "id": "movie_2025.0_3",
+              "image_path": "webp_cache/Visions/未远/哪吒之魔童闹海.webp",
               "title": "哪吒之魔童闹海",
               "cinema": true,
               "quote": "逆天改命的魔童哪吒面临重塑肉身的劫难，与敖丙并肩作战，在东海掀起更加惊心动魄的波澜。",
@@ -12032,8 +12093,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_4",
-              "image_path": "webp_cache/Visions/2024-2025/孤独摇滚 (上).webp",
+              "id": "movie_2025.0_4",
+              "image_path": "webp_cache/Visions/未远/孤独摇滚 (上).webp",
               "title": "孤独摇滚 (上)",
               "cinema": true,
               "quote": "严重社恐的吉他少女波奇酱加入纽带乐队，在跌跌撞撞的日常中努力绽放属于自己的光芒。",
@@ -12041,8 +12102,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_5",
-              "image_path": "webp_cache/Visions/2024-2025/孤独摇滚 (下).webp",
+              "id": "movie_2025.0_5",
+              "image_path": "webp_cache/Visions/未远/孤独摇滚 (下).webp",
               "title": "孤独摇滚 (下)",
               "cinema": true,
               "quote": "属于纽带乐队的青春故事继续燃烧，波奇酱在舞台的聚光灯下迎来了最闪耀的蜕变。",
@@ -12050,8 +12111,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_6",
-              "image_path": "webp_cache/Visions/2024-2025/幽灵公主.webp",
+              "id": "movie_2025.0_6",
+              "image_path": "webp_cache/Visions/未远/幽灵公主.webp",
               "title": "幽灵公主",
               "cinema": true,
               "quote": "被诅咒的少年为了寻找生机踏上旅途，卷入了人类与自然神明之间残酷而壮烈的生存之战。",
@@ -12059,8 +12120,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_7",
-              "image_path": "webp_cache/Visions/2024-2025/排球少年！！垃圾场决战.webp",
+              "id": "movie_2025.0_7",
+              "image_path": "webp_cache/Visions/未远/排球少年！！垃圾场决战.webp",
               "title": "排球少年！！垃圾场决战",
               "cinema": true,
               "quote": "乌野与音驹在全国大赛的舞台上终于迎来宿命对决，用汗水与热血点燃最纯粹的排球梦。",
@@ -12068,8 +12129,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_8",
-              "image_path": "webp_cache/Visions/2024-2025/机器人总动员.webp",
+              "id": "movie_2025.0_8",
+              "image_path": "webp_cache/Visions/未远/机器人总动员.webp",
               "title": "机器人总动员",
               "cinema": false,
               "quote": "孤独的废品清理机器人瓦力，为了追寻心爱的伊娃，跨越星河展开了一场拯救人类文明的宇宙冒险。",
@@ -12077,8 +12138,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2024.0_9",
-              "image_path": "webp_cache/Visions/2024-2025/欢迎来到实力至上主义的教室3.webp",
+              "id": "tv_2025.0_9",
+              "image_path": "webp_cache/Visions/未远/欢迎来到实力至上主义的教室3.webp",
               "title": "欢迎来到实力至上主义的教室3",
               "cinema": false,
               "quote": "高度育成高中的智斗愈演愈烈，绫小路清隆在暗中操控一切，带领D班向更高的顶点发起残酷冲击。",
@@ -12086,8 +12147,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2024.0_10",
-              "image_path": "webp_cache/Visions/2024-2025/沙丘2.webp",
+              "id": "movie_2025.0_10",
+              "image_path": "webp_cache/Visions/未远/沙丘2.webp",
               "title": "沙丘2",
               "cinema": true,
               "quote": "少年英雄保罗在厄拉科斯星的浩瀚沙漠中崛起，驾驭沙虫向覆灭家族的仇人发起史诗反击。",
@@ -12095,8 +12156,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_11",
-              "image_path": "webp_cache/Visions/2024-2025/浪浪山小妖怪.webp",
+              "id": "movie_2025.0_11",
+              "image_path": "webp_cache/Visions/未远/浪浪山小妖怪.webp",
               "title": "浪浪山小妖怪",
               "cinema": true,
               "quote": "卑微的小猪妖在为大王跑腿的日常中，体会着妖怪打工人的心酸与深藏的温柔。",
@@ -12104,8 +12165,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_12",
-              "image_path": "webp_cache/Visions/2024-2025/爱乐之城.webp",
+              "id": "movie_2025.0_12",
+              "image_path": "webp_cache/Visions/未远/爱乐之城.webp",
               "title": "爱乐之城",
               "cinema": true,
               "quote": "追梦的女演员与落魄的爵士乐手在星空下相遇，在理想与现实的交织中谱写出最浪漫凄美的恋曲。",
@@ -12113,8 +12174,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2024.0_13",
-              "image_path": "webp_cache/Visions/2024-2025/爱情公寓.webp",
+              "id": "tv_2025.0_13",
+              "image_path": "webp_cache/Visions/未远/爱情公寓.webp",
               "title": "爱情公寓",
               "cinema": false,
               "quote": "几位怀揣梦想的年轻人在同一屋檐下相遇，碰撞出无数爆笑又温馨的合租日常。",
@@ -12122,8 +12183,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2024.0_14",
-              "image_path": "webp_cache/Visions/2024-2025/爱情公寓2.webp",
+              "id": "tv_2025.0_14",
+              "image_path": "webp_cache/Visions/未远/爱情公寓2.webp",
               "title": "爱情公寓2",
               "cinema": false,
               "quote": "新老房客交替，不变的是那些关于友情、爱情和生活琐事的欢乐喜剧。",
@@ -12131,8 +12192,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2024.0_15",
-              "image_path": "webp_cache/Visions/2024-2025/爱情公寓3.webp",
+              "id": "tv_2025.0_15",
+              "image_path": "webp_cache/Visions/未远/爱情公寓3.webp",
               "title": "爱情公寓3",
               "cinema": false,
               "quote": "随着感情线的逐渐明朗，公寓里的欢喜冤家们在打打闹闹中迎来了更多的成长与选择。",
@@ -12140,8 +12201,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2024.0_16",
-              "image_path": "webp_cache/Visions/2024-2025/爱情公寓4.webp",
+              "id": "tv_2025.0_16",
+              "image_path": "webp_cache/Visions/未远/爱情公寓4.webp",
               "title": "爱情公寓4",
               "cinema": false,
               "quote": "步入职场和人生的新阶段，房客们在面对现实压力的同时，依然用乐观和幽默治愈着彼此。",
@@ -12149,8 +12210,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2024.0_17",
-              "image_path": "webp_cache/Visions/2024-2025/爱情公寓5.webp",
+              "id": "tv_2025.0_17",
+              "image_path": "webp_cache/Visions/未远/爱情公寓5.webp",
               "title": "爱情公寓5",
               "cinema": false,
               "quote": "青春的列车驶向终点，老朋友们纷纷步入婚姻的殿堂，为这段长达十年的公寓故事画上圆满的句号。",
@@ -12158,8 +12219,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2024.0_18",
-              "image_path": "webp_cache/Visions/2024-2025/猫猫的奇幻漂流.webp",
+              "id": "movie_2025.0_18",
+              "image_path": "webp_cache/Visions/未远/猫猫的奇幻漂流.webp",
               "title": "猫猫的奇幻漂流",
               "cinema": true,
               "quote": "一只黑猫在洪水泛滥的末日世界中，与一群性格迥异的动物在一艘小船上相依为命的奇幻旅程。",
@@ -12167,8 +12228,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2024.0_19",
-              "image_path": "webp_cache/Visions/2024-2025/罗小黑战记2.webp",
+              "id": "movie_2025.0_19",
+              "image_path": "webp_cache/Visions/未远/罗小黑战记2.webp",
               "title": "罗小黑战记2",
               "cinema": true,
               "quote": "妖精与人类共存的世界波澜再起，小黑和无限的温馨旅程又将面临全新的奇遇和挑战。",
@@ -12176,8 +12237,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2024.0_20",
-              "image_path": "webp_cache/Visions/2024-2025/败犬女主太多了！.webp",
+              "id": "tv_2025.0_20",
+              "image_path": "webp_cache/Visions/未远/败犬女主太多了！.webp",
               "title": "败犬女主太多了！",
               "cinema": false,
               "quote": "意外窥见人气美少女们被甩的尴尬瞬间，普通高中生莫名其妙地被卷入了这群女孩喧闹的青春日常。",
@@ -12185,8 +12246,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2024.0_21",
-              "image_path": "webp_cache/Visions/2024-2025/飞驰人生2.webp",
+              "id": "movie_2025.0_21",
+              "image_path": "webp_cache/Visions/未远/飞驰人生2.webp",
               "title": "飞驰人生2",
               "cinema": false,
               "quote": "落魄的驾校教练重组草台班子，开着破烂的赛车再次向巴音布鲁克拉力赛的巅峰发起冲刺。",
@@ -12196,12 +12257,12 @@
           ]
         },
         {
-          "year": 2021.0,
-          "folder": "2021-2023",
+          "year": 2023.0,
+          "folder": "旧影",
           "items": [
             {
-              "id": "movie_2021.0_0",
-              "image_path": "webp_cache/Visions/2021-2023/你好李焕英.webp",
+              "id": "movie_2023.0_0",
+              "image_path": "webp_cache/Visions/旧影/你好李焕英.webp",
               "title": "你好李焕英",
               "cinema": true,
               "quote": "意外穿越回八十年代的贾晓玲试图改变母亲的命运，却在欢笑与泪水中发现了一场更为深沉的母爱。",
@@ -12209,8 +12270,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2021.0_1",
-              "image_path": "webp_cache/Visions/2021-2023/你想活出怎样的人生.webp",
+              "id": "movie_2023.0_1",
+              "image_path": "webp_cache/Visions/旧影/你想活出怎样的人生.webp",
               "title": "你想活出怎样的人生",
               "cinema": true,
               "quote": "少年真人跟随神秘苍鹭踏入生与死交界的奇幻塔楼，在光怪陆离的世界中寻找自我与和解。",
@@ -12218,8 +12279,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2021.0_2",
-              "image_path": "webp_cache/Visions/2021-2023/别当欧尼酱了！.webp",
+              "id": "tv_2023.0_2",
+              "image_path": "webp_cache/Visions/旧影/别当欧尼酱了！.webp",
               "title": "别当欧尼酱了！",
               "cinema": false,
               "quote": "废柴宅男哥哥被天才妹妹喂下神秘药水变成了美少女，被迫展开令人啼笑皆非的全新萌系日常。",
@@ -12227,8 +12288,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_3",
-              "image_path": "webp_cache/Visions/2021-2023/动物狂想曲1.webp",
+              "id": "tv_2023.0_3",
+              "image_path": "webp_cache/Visions/旧影/动物狂想曲1.webp",
               "title": "动物狂想曲1",
               "cinema": false,
               "quote": "在肉食与草食动物共存的校园里，一只内心温柔的灰狼在跨越种族的感情与嗜血本能中痛苦挣扎。",
@@ -12236,8 +12297,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_4",
-              "image_path": "webp_cache/Visions/2021-2023/动物狂想曲2.webp",
+              "id": "tv_2023.0_4",
+              "image_path": "webp_cache/Visions/旧影/动物狂想曲2.webp",
               "title": "动物狂想曲2",
               "cinema": false,
               "quote": "卷入食杀事件的灰狼雷格西为了守护草食动物，在残酷的本能与社会的法则之间艰难寻找着正义与真相。",
@@ -12245,8 +12306,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_5",
-              "image_path": "webp_cache/Visions/2021-2023/双城之战.webp",
+              "id": "tv_2023.0_5",
+              "image_path": "webp_cache/Visions/旧影/双城之战.webp",
               "title": "双城之战",
               "cinema": false,
               "quote": "在皮尔特沃夫的繁华与祖安的阴暗之间，蔚和爆爆两姐妹的命运在海克斯科技的浪潮中走向残酷的撕裂。",
@@ -12254,8 +12315,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_6",
-              "image_path": "webp_cache/Visions/2021-2023/吉伊卡哇.webp",
+              "id": "tv_2023.0_6",
+              "image_path": "webp_cache/Visions/旧影/吉伊卡哇.webp",
               "title": "吉伊卡哇",
               "cinema": false,
               "quote": "胆小爱哭的吉伊卡哇和朋友们在充满奇妙设定的可爱世界里，努力打工生活、勇敢面对小怪物的治愈日常。",
@@ -12263,8 +12324,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_7",
-              "image_path": "webp_cache/Visions/2021-2023/国王排名.webp",
+              "id": "tv_2023.0_7",
+              "image_path": "webp_cache/Visions/旧影/国王排名.webp",
               "title": "国王排名",
               "cinema": false,
               "quote": "聋哑且毫无力量的波吉王子，凭借着一颗无比坚强善良的心，在暗流涌动的王国中踏上了成为最伟大国王的征途。",
@@ -12272,8 +12333,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_8",
-              "image_path": "webp_cache/Visions/2021-2023/女神的露天咖啡厅.webp",
+              "id": "tv_2023.0_8",
+              "image_path": "webp_cache/Visions/旧影/女神的露天咖啡厅.webp",
               "title": "女神的露天咖啡厅",
               "cinema": false,
               "quote": "东大落榜生回乡继承祖母留下的海边咖啡厅，与五位性格迥异的绝美店员展开了喧闹又温馨的同居生活。",
@@ -12281,8 +12342,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_9",
-              "image_path": "webp_cache/Visions/2021-2023/孤独摇滚！.webp",
+              "id": "tv_2023.0_9",
+              "image_path": "webp_cache/Visions/旧影/孤独摇滚！.webp",
               "title": "孤独摇滚！",
               "cinema": false,
               "quote": "极度社恐的吉他少女波奇酱意外加入纽带乐队，在一次次跌跌撞撞的排练与演出中努力绽放光芒。",
@@ -12290,8 +12351,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_10",
-              "image_path": "webp_cache/Visions/2021-2023/工作细胞1.webp",
+              "id": "tv_2023.0_10",
+              "image_path": "webp_cache/Visions/旧影/工作细胞1.webp",
               "title": "工作细胞1",
               "cinema": false,
               "quote": "在人体内部的庞大世界中，无数勤劳的细胞为了守护身体的健康，每天都在进行着惊心动魄的战斗。",
@@ -12299,8 +12360,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_11",
-              "image_path": "webp_cache/Visions/2021-2023/工作细胞2.webp",
+              "id": "tv_2023.0_11",
+              "image_path": "webp_cache/Visions/旧影/工作细胞2.webp",
               "title": "工作细胞2",
               "cinema": false,
               "quote": "熟悉的身体世界里，红血球、白血球等拟人化细胞们继续坚守岗位，对抗着全新的病毒入侵与生理危机。",
@@ -12308,8 +12369,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2021.0_12",
-              "image_path": "webp_cache/Visions/2021-2023/年会不能停.webp",
+              "id": "movie_2023.0_12",
+              "image_path": "webp_cache/Visions/旧影/年会不能停.webp",
               "title": "年会不能停",
               "cinema": false,
               "quote": "耿直的工厂钳工阴差阳错被调入集团总部，在荒诞的办公室政治中整顿职场，上演了一出爆笑喜剧。",
@@ -12317,8 +12378,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2021.0_13",
-              "image_path": "webp_cache/Visions/2021-2023/我推的孩子.webp",
+              "id": "tv_2023.0_13",
+              "image_path": "webp_cache/Visions/旧影/我推的孩子.webp",
               "title": "我推的孩子",
               "cinema": false,
               "quote": "转生为本命偶像孩子的狂热粉丝，在光鲜亮丽的娱乐圈背后，一步步探寻母亲遇害的黑暗真相。",
@@ -12326,8 +12387,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_14",
-              "image_path": "webp_cache/Visions/2021-2023/欢迎来到实力至上主义的教室1.webp",
+              "id": "tv_2023.0_14",
+              "image_path": "webp_cache/Visions/旧影/欢迎来到实力至上主义的教室1.webp",
               "title": "欢迎来到实力至上主义的教室1",
               "cinema": false,
               "quote": "在唯分数论的残酷精英高中里，深藏不露的绫小路清隆与问题学生们携手，向着A班的顶峰发起暗中挑战。",
@@ -12335,8 +12396,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_15",
-              "image_path": "webp_cache/Visions/2021-2023/欢迎来到实力至上主义的教室2.webp",
+              "id": "tv_2023.0_15",
+              "image_path": "webp_cache/Visions/旧影/欢迎来到实力至上主义的教室2.webp",
               "title": "欢迎来到实力至上主义的教室2",
               "cinema": false,
               "quote": "升入更高年级的D班迎来更加残酷的特别考试，绫小路清隆继续在暗中以绝对的实力掌控着战局。",
@@ -12344,8 +12405,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_16",
-              "image_path": "webp_cache/Visions/2021-2023/约定的梦幻岛.webp",
+              "id": "tv_2023.0_16",
+              "image_path": "webp_cache/Visions/旧影/约定的梦幻岛.webp",
               "title": "约定的梦幻岛",
               "cinema": false,
               "quote": "发现孤儿院其实是饲养人类的“农场”后，艾玛与天才伙伴们展开了一场惊心动魄的高智商越狱大作战。",
@@ -12353,8 +12414,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_17",
-              "image_path": "webp_cache/Visions/2021-2023/约定的梦幻岛2.webp",
+              "id": "tv_2023.0_17",
+              "image_path": "webp_cache/Visions/旧影/约定的梦幻岛2.webp",
               "title": "约定的梦幻岛2",
               "cinema": false,
               "quote": "逃出孤儿院的孩子们在充满致命恶鬼的广阔森林中艰难求生，寻找着人类与鬼和平共存的最后希望。",
@@ -12362,8 +12423,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2021.0_18",
-              "image_path": "webp_cache/Visions/2021-2023/赛博朋克 边缘行者.webp",
+              "id": "tv_2023.0_18",
+              "image_path": "webp_cache/Visions/旧影/赛博朋克 边缘行者.webp",
               "title": "赛博朋克 边缘行者",
               "cinema": false,
               "quote": "街头少年大卫装上军用义体，在霓虹闪烁、残酷无情的夜之城中化身赛博朋克，追逐属于自己的悲壮传奇。",
@@ -12371,8 +12432,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2021.0_19",
-              "image_path": "webp_cache/Visions/2021-2023/铃芽之旅.webp",
+              "id": "movie_2023.0_19",
+              "image_path": "webp_cache/Visions/旧影/铃芽之旅.webp",
               "title": "铃芽之旅",
               "cinema": true,
               "quote": "少女铃芽与化身成椅子的闭门师结伴，踏上一场穿越日本关闭灾祸之门、拯救世界的奇幻旅途。",
@@ -12382,12 +12443,12 @@
           ]
         },
         {
-          "year": 2018.0,
-          "folder": "2018-2020",
+          "year": 2020.0,
+          "folder": "前尘",
           "items": [
             {
-              "id": "movie_2018.0_0",
-              "image_path": "webp_cache/Visions/2018-2020/Re 从零开始的异世界生活 冰结之绊.webp",
+              "id": "movie_2020.0_0",
+              "image_path": "webp_cache/Visions/前尘/Re 从零开始的异世界生活 冰结之绊.webp",
               "title": "Re 从零开始的异世界生活 冰结之绊",
               "cinema": false,
               "quote": "揭开爱蜜莉雅与帕克缔结契约的过往，讲述了被孤独封印在冰雪森林中的少女与精灵相遇的感人前传。",
@@ -12395,8 +12456,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_1",
-              "image_path": "webp_cache/Visions/2018-2020/Re 从零开始的异世界生活 雪之回忆.webp",
+              "id": "movie_2020.0_1",
+              "image_path": "webp_cache/Visions/前尘/Re 从零开始的异世界生活 雪之回忆.webp",
               "title": "Re 从零开始的异世界生活 雪之回忆",
               "cinema": false,
               "quote": "在紧张残酷的轮回冒险中难得的宁静时光，昴和宅邸的大家一起举办了一场充满欢声笑语的冰雪祭典。",
@@ -12404,8 +12465,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_2",
-              "image_path": "webp_cache/Visions/2018-2020/Re 从零开始的异世界生活.webp",
+              "id": "tv_2020.0_2",
+              "image_path": "webp_cache/Visions/前尘/Re 从零开始的异世界生活.webp",
               "title": "Re 从零开始的异世界生活",
               "cinema": false,
               "quote": "突然被召唤到异世界的普通高中生菜月昴，凭借着“死亡回归”的能力，无数次跨越绝望拯救心爱的少女。",
@@ -12413,8 +12474,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2018.0_3",
-              "image_path": "webp_cache/Visions/2018-2020/公主连结Re Dive.webp",
+              "id": "tv_2020.0_3",
+              "image_path": "webp_cache/Visions/前尘/公主连结Re Dive.webp",
               "title": "公主连结Re Dive",
               "cinema": false,
               "quote": "失去记忆的少年在奇幻的大陆上醒来，与性格各异的美少女们结成公会，展开轻松爆笑的冒险美食之旅。",
@@ -12422,8 +12483,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_4",
-              "image_path": "webp_cache/Visions/2018-2020/冰雪奇缘2.webp",
+              "id": "movie_2020.0_4",
+              "image_path": "webp_cache/Visions/前尘/冰雪奇缘2.webp",
               "title": "冰雪奇缘2",
               "cinema": false,
               "quote": "艾莎为了探寻自己魔法的起源，与安娜一行人踏入未知的魔法森林，揭开阿伦黛尔王国尘封的历史真相。",
@@ -12431,8 +12492,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_5",
-              "image_path": "webp_cache/Visions/2018-2020/切尔诺贝利.webp",
+              "id": "tv_2020.0_5",
+              "image_path": "webp_cache/Visions/前尘/切尔诺贝利.webp",
               "title": "切尔诺贝利",
               "cinema": false,
               "quote": "真实还原那场震惊世界的核灾难，展现了在谎言与官僚主义交织的阴霾下，无数凡人英雄付出的惨痛牺牲。",
@@ -12440,8 +12501,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_6",
-              "image_path": "webp_cache/Visions/2018-2020/后来的我们.webp",
+              "id": "movie_2020.0_6",
+              "image_path": "webp_cache/Visions/前尘/后来的我们.webp",
               "title": "后来的我们",
               "cinema": true,
               "quote": "两个北漂青年在春运的火车上相识相恋，经历十年的聚散离合，最终在遗憾中学会了如何去爱。",
@@ -12449,8 +12510,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_7",
-              "image_path": "webp_cache/Visions/2018-2020/哪吒之魔童降世.webp",
+              "id": "movie_2020.0_7",
+              "image_path": "webp_cache/Visions/前尘/哪吒之魔童降世.webp",
               "title": "哪吒之魔童降世",
               "cinema": false,
               "quote": "背负魔丸宿命的哪吒面对世人的误解与命运的诅咒，发出了“我命由我不由天”的不屈呐喊。",
@@ -12458,8 +12519,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_8",
-              "image_path": "webp_cache/Visions/2018-2020/因为太怕痛就全点防御力了.webp",
+              "id": "tv_2020.0_8",
+              "image_path": "webp_cache/Visions/前尘/因为太怕痛就全点防御力了.webp",
               "title": "因为太怕痛就全点防御力了",
               "cinema": false,
               "quote": "缺乏游戏经验的萌新少女，因为怕痛把属性点全加在防御上，却意外成为了游戏中让人闻风丧胆的“移动要塞”。",
@@ -12467,8 +12528,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2018.0_9",
-              "image_path": "webp_cache/Visions/2018-2020/埃罗芒阿老师.webp",
+              "id": "tv_2020.0_9",
+              "image_path": "webp_cache/Visions/前尘/埃罗芒阿老师.webp",
               "title": "埃罗芒阿老师",
               "cinema": false,
               "quote": "兼职轻小说作家的男高中生，震惊地发现自己一直合作的插画师，竟然是家里那个重度家里蹲的没有血缘关系的妹妹。",
@@ -12476,8 +12537,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2018.0_10",
-              "image_path": "webp_cache/Visions/2018-2020/天使降临到我身边！.webp",
+              "id": "tv_2020.0_10",
+              "image_path": "webp_cache/Visions/前尘/天使降临到我身边！.webp",
               "title": "天使降临到我身边！",
               "cinema": false,
               "quote": "极度怕生的女大学生星野宫子，对妹妹带来的超可爱同学日向一见钟情，展开了充满萌点与欢乐的日常。",
@@ -12485,8 +12546,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_11",
-              "image_path": "webp_cache/Visions/2018-2020/天气之子.webp",
+              "id": "movie_2020.0_11",
+              "image_path": "webp_cache/Visions/前尘/天气之子.webp",
               "title": "天气之子",
               "cinema": true,
               "quote": "离家出走的少年在连绵阴雨的东京遇见了能让天空放晴的少女，为了拯救她，他不惜与整个世界为敌。",
@@ -12494,8 +12555,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_12",
-              "image_path": "webp_cache/Visions/2018-2020/寄生虫.webp",
+              "id": "movie_2020.0_12",
+              "image_path": "webp_cache/Visions/前尘/寄生虫.webp",
               "title": "寄生虫",
               "cinema": false,
               "quote": "居住在地下室的贫穷一家人通过各种伪装手段，像寄生虫一样渗透进富豪阶层的生活，引发了一场荒诞惨剧。",
@@ -12503,8 +12564,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_13",
-              "image_path": "webp_cache/Visions/2018-2020/小林家的龙女仆.webp",
+              "id": "tv_2020.0_13",
+              "image_path": "webp_cache/Visions/前尘/小林家的龙女仆.webp",
               "title": "小林家的龙女仆",
               "cinema": false,
               "quote": "疲惫的普通程序员小林，意外救下并收留了一头来自异世界的龙，开始了被龙女仆无微不至照顾的温馨生活。",
@@ -12512,8 +12573,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2018.0_14",
-              "image_path": "webp_cache/Visions/2018-2020/异度侵入.webp",
+              "id": "tv_2020.0_14",
+              "image_path": "webp_cache/Visions/前尘/异度侵入.webp",
               "title": "异度侵入",
               "cinema": false,
               "quote": "神探潜入连环杀手的潜意识世界“井”中，通过解析杀意构筑的奇异空间，寻找破案的关键线索。",
@@ -12521,8 +12582,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2018.0_15",
-              "image_path": "webp_cache/Visions/2018-2020/总之就是非常可爱.webp",
+              "id": "tv_2020.0_15",
+              "image_path": "webp_cache/Visions/前尘/总之就是非常可爱.webp",
               "title": "总之就是非常可爱",
               "cinema": false,
               "quote": "经历车祸奇迹生还的少年星空，与救了他的神秘美少女司闪电结婚，开始了甜到掉牙的新婚同居生活。",
@@ -12530,8 +12591,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_16",
-              "image_path": "webp_cache/Visions/2018-2020/我不是药神.webp",
+              "id": "movie_2020.0_16",
+              "image_path": "webp_cache/Visions/前尘/我不是药神.webp",
               "title": "我不是药神",
               "cinema": true,
               "quote": "经营惨淡的神油店老板阴差阳错成为慢粒白血病患者的“药神”，在法律与良知的边缘完成人性的救赎。",
@@ -12539,8 +12600,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_17",
-              "image_path": "webp_cache/Visions/2018-2020/我和我的祖国.webp",
+              "id": "movie_2020.0_17",
+              "image_path": "webp_cache/Visions/前尘/我和我的祖国.webp",
               "title": "我和我的祖国",
               "cinema": true,
               "quote": "七个不同时代的普通人，用他们平凡却闪光的故事，串联起新中国成立以来的壮阔历史瞬间。",
@@ -12548,8 +12609,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_18",
-              "image_path": "webp_cache/Visions/2018-2020/某科学的超电磁炮.webp",
+              "id": "tv_2020.0_18",
+              "image_path": "webp_cache/Visions/前尘/某科学的超电磁炮.webp",
               "title": "某科学的超电磁炮",
               "cinema": false,
               "quote": "在科学与超能力交织的学园都市里，拥有“超电磁炮”称号的御坂美琴和她的朋友们，一次次粉碎暗处的阴谋。",
@@ -12557,8 +12618,8 @@
               "type": "tv"
             },
             {
-              "id": "tv_2018.0_19",
-              "image_path": "webp_cache/Visions/2018-2020/爱情公寓.webp",
+              "id": "tv_2020.0_19",
+              "image_path": "webp_cache/Visions/前尘/爱情公寓.webp",
               "title": "爱情公寓",
               "cinema": false,
               "quote": "几位怀揣梦想的年轻人在同一屋檐下相遇，碰撞出无数爆笑又温馨的合租日常。",
@@ -12566,8 +12627,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_20",
-              "image_path": "webp_cache/Visions/2018-2020/紫罗兰永恒花园 剧场版.webp",
+              "id": "movie_2020.0_20",
+              "image_path": "webp_cache/Visions/前尘/紫罗兰永恒花园 剧场版.webp",
               "title": "紫罗兰永恒花园 剧场版",
               "cinema": false,
               "quote": "带着对少佐无尽的思念，薇尔莉特在漫长的等待与一封封信件中，终于迎来了属于她和少佐的奇迹。",
@@ -12575,8 +12636,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_21",
-              "image_path": "webp_cache/Visions/2018-2020/紫罗兰永恒花园.webp",
+              "id": "tv_2020.0_21",
+              "image_path": "webp_cache/Visions/前尘/紫罗兰永恒花园.webp",
               "title": "紫罗兰永恒花园",
               "cinema": false,
               "quote": "曾经是没有感情的战争机器的少女薇尔莉特，在成为代写书信的“自动手记人偶”后，逐渐理解了“爱”的含义。",
@@ -12584,8 +12645,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_22",
-              "image_path": "webp_cache/Visions/2018-2020/紫罗兰永恒花园外传 永远与自动手记人偶.webp",
+              "id": "movie_2020.0_22",
+              "image_path": "webp_cache/Visions/前尘/紫罗兰永恒花园外传 永远与自动手记人偶.webp",
               "title": "紫罗兰永恒花园外传 永远与自动手记人偶",
               "cinema": false,
               "quote": "薇尔莉特来到一所女子贵族学校，用她真挚的信件连结了被分离的姐妹，留下了一段关于思念的永恒传说。",
@@ -12593,8 +12654,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_23",
-              "image_path": "webp_cache/Visions/2018-2020/绿皮书.webp",
+              "id": "movie_2020.0_23",
+              "image_path": "webp_cache/Visions/前尘/绿皮书.webp",
               "title": "绿皮书",
               "cinema": false,
               "quote": "粗俗的意裔白人保镖与优雅的黑人天才钢琴家，跨越种族与阶级的偏见，在巡演路上结下了一段深厚的友谊。",
@@ -12602,17 +12663,17 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_24",
-              "image_path": "webp_cache/Visions/2018-2020/罗小黑战记.webp",
+              "id": "tv_2020.0_24",
+              "image_path": "webp_cache/Visions/前尘/罗小黑战记.webp",
               "title": "罗小黑战记",
               "cinema": false,
-              "quote": "失去家园的猫妖小黑在流浪途中结识了人类执行者无限，在妖精与人类的冲突中寻找属于自己的归宿。",
-              "url": "https://www.themoviedb.org/movie/620249",
-              "type": "movie"
+              "quote": "调皮可爱的猫妖小黑在人类世界里流浪，被少女小白收养后，展开了一系列温馨又奇妙的治愈日常。",
+              "url": "https://www.themoviedb.org/tv/88319",
+              "type": "tv"
             },
             {
-              "id": "movie_2018.0_25",
-              "image_path": "webp_cache/Visions/2018-2020/西虹市首富.webp",
+              "id": "movie_2020.0_25",
+              "image_path": "webp_cache/Visions/前尘/西虹市首富.webp",
               "title": "西虹市首富",
               "cinema": false,
               "quote": "落魄的丙级业余足球守门员意外获得一个月花光十亿的奇葩挑战，在金钱的考验中上演了一出荒诞闹剧。",
@@ -12620,8 +12681,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_26",
-              "image_path": "webp_cache/Visions/2018-2020/速度与激情 特别行动.webp",
+              "id": "movie_2020.0_26",
+              "image_path": "webp_cache/Visions/前尘/速度与激情 特别行动.webp",
               "title": "速度与激情 特别行动",
               "cinema": true,
               "quote": "互相看不顺眼的霍布斯与肖被迫结为搭档，共同对抗一名经过基因强化、企图掌握人类命运的超级反派。",
@@ -12629,8 +12690,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_27",
-              "image_path": "webp_cache/Visions/2018-2020/速度与激情10.webp",
+              "id": "movie_2020.0_27",
+              "image_path": "webp_cache/Visions/前尘/速度与激情10.webp",
               "title": "速度与激情10",
               "cinema": true,
               "quote": "飞车家族面临史上最疯狂、最致命的复仇者，多米尼克必须拼尽全力保护他所深爱的家人们。",
@@ -12638,8 +12699,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_28",
-              "image_path": "webp_cache/Visions/2018-2020/速度与激情8.webp",
+              "id": "movie_2020.0_28",
+              "image_path": "webp_cache/Visions/前尘/速度与激情8.webp",
               "title": "速度与激情8",
               "cinema": true,
               "quote": "遭受神秘黑客的要挟，多米尼克被迫背叛团队，飞车家族不得不与昔日死敌联手阻止世界陷入混乱。",
@@ -12647,8 +12708,8 @@
               "type": "movie"
             },
             {
-              "id": "movie_2018.0_29",
-              "image_path": "webp_cache/Visions/2018-2020/速度与激情9.webp",
+              "id": "movie_2020.0_29",
+              "image_path": "webp_cache/Visions/前尘/速度与激情9.webp",
               "title": "速度与激情9",
               "cinema": true,
               "quote": "多米尼克隐居的平静生活被打破，不得不面对自己失散多年、极度危险的亲弟弟带来的全球级威胁。",
@@ -12656,8 +12717,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_30",
-              "image_path": "webp_cache/Visions/2018-2020/青春猪头少年不会梦到兔女郎学姐.webp",
+              "id": "tv_2020.0_30",
+              "image_path": "webp_cache/Visions/前尘/青春猪头少年不会梦到兔女郎学姐.webp",
               "title": "青春猪头少年不会梦到兔女郎学姐",
               "cinema": false,
               "quote": "能够看见“思春期症候群”症状的少年咲太，在图书馆偶遇了穿着兔女郎装的学姐，卷入了一系列奇妙的青春治愈事件。",
@@ -12665,8 +12726,8 @@
               "type": "tv"
             },
             {
-              "id": "movie_2018.0_31",
-              "image_path": "webp_cache/Visions/2018-2020/青春猪头少年不会梦到怀梦美少女.webp",
+              "id": "movie_2020.0_31",
+              "image_path": "webp_cache/Visions/前尘/青春猪头少年不会梦到怀梦美少女.webp",
               "title": "青春猪头少年不会梦到怀梦美少女",
               "cinema": false,
               "quote": "咲太在初恋翔子和现任女友麻衣之间面临残酷的生死抉择，为了守护深爱之人，他不惜付出一切代价。",
@@ -12674,8 +12735,8 @@
               "type": "movie"
             },
             {
-              "id": "tv_2018.0_32",
-              "image_path": "webp_cache/Visions/2018-2020/鬼灭之刃.webp",
+              "id": "tv_2020.0_32",
+              "image_path": "webp_cache/Visions/前尘/鬼灭之刃.webp",
               "title": "鬼灭之刃",
               "cinema": false,
               "quote": "卖炭少年炭治郎为了让变成鬼的妹妹变回人类，毅然加入鬼杀队，踏上了充满血与泪的斩鬼之路。",
@@ -12686,11 +12747,11 @@
         },
         {
           "year": 2017.0,
-          "folder": "2017",
+          "folder": "开端",
           "items": [
             {
               "id": "movie_2017.0_0",
-              "image_path": "webp_cache/Visions/2017/你的名字。.webp",
+              "image_path": "webp_cache/Visions/开端/你的名字。.webp",
               "title": "你的名字。",
               "cinema": false,
               "quote": "互换身体的异地少男少女，在错位的时空中跨越陨石坠落的灾难，拼命寻找彼此的羁绊。",
@@ -12699,7 +12760,7 @@
             },
             {
               "id": "movie_2017.0_1",
-              "image_path": "webp_cache/Visions/2017/冰雪奇缘.webp",
+              "image_path": "webp_cache/Visions/开端/冰雪奇缘.webp",
               "title": "冰雪奇缘",
               "cinema": false,
               "quote": "拥有冰雪魔法的艾莎女王因恐惧封闭内心，妹妹安娜踏上冰雪之旅，用真爱的力量融化了冰封的王国与姐姐的心。",
@@ -12708,7 +12769,7 @@
             },
             {
               "id": "movie_2017.0_2",
-              "image_path": "webp_cache/Visions/2017/功夫熊猫.webp",
+              "image_path": "webp_cache/Visions/开端/功夫熊猫.webp",
               "title": "功夫熊猫",
               "cinema": false,
               "quote": "笨拙贪吃的大熊猫阿宝阴差阳错成为神龙大侠，在师父的严厉教导下领悟太极真谛，击败了强敌大龙。",
@@ -12717,7 +12778,7 @@
             },
             {
               "id": "movie_2017.0_3",
-              "image_path": "webp_cache/Visions/2017/功夫熊猫2.webp",
+              "image_path": "webp_cache/Visions/开端/功夫熊猫2.webp",
               "title": "功夫熊猫2",
               "cinema": false,
               "quote": "阿宝在对抗企图毁灭功夫的邪恶孔雀时，逐渐揭开了自己身世的伤痛过往，最终领悟了内心的平静。",
@@ -12726,7 +12787,7 @@
             },
             {
               "id": "movie_2017.0_4",
-              "image_path": "webp_cache/Visions/2017/功夫熊猫3.webp",
+              "image_path": "webp_cache/Visions/开端/功夫熊猫3.webp",
               "title": "功夫熊猫3",
               "cinema": false,
               "quote": "阿宝与生父重逢并回到了神秘的熊猫村，他必须教会一群笨拙的熊猫学会功夫，以对抗夺走他人气的大反派天煞。",
@@ -12735,7 +12796,7 @@
             },
             {
               "id": "movie_2017.0_5",
-              "image_path": "webp_cache/Visions/2017/夏洛特烦恼.webp",
+              "image_path": "webp_cache/Visions/开端/夏洛特烦恼.webp",
               "title": "夏洛特烦恼",
               "cinema": false,
               "quote": "中年废柴意外穿越回高中时代，试图改变命运、迎娶白富美，最终却发现平淡的真爱就在身边。",
@@ -12744,7 +12805,7 @@
             },
             {
               "id": "movie_2017.0_6",
-              "image_path": "webp_cache/Visions/2017/怦然心动.webp",
+              "image_path": "webp_cache/Visions/开端/怦然心动.webp",
               "title": "怦然心动",
               "cinema": false,
               "quote": "青梅竹马的少男少女在成长的磕磕绊绊中，逐渐学会了放下偏见，审视彼此灵魂深处最动人的光芒。",
@@ -12753,7 +12814,7 @@
             },
             {
               "id": "movie_2017.0_7",
-              "image_path": "webp_cache/Visions/2017/星际穿越.webp",
+              "image_path": "webp_cache/Visions/开端/星际穿越.webp",
               "title": "星际穿越",
               "cinema": false,
               "quote": "探险家们为了拯救濒临灭绝的人类，驾驶飞船穿越虫洞，在浩瀚宇宙与错乱的时空中寻找新的家园。",
@@ -12762,7 +12823,7 @@
             },
             {
               "id": "movie_2017.0_8",
-              "image_path": "webp_cache/Visions/2017/源代码.webp",
+              "image_path": "webp_cache/Visions/开端/源代码.webp",
               "title": "源代码",
               "cinema": false,
               "quote": "奉命调查爆炸案的军人一次次被送入遇难者死前八分钟的记忆残影中，在无尽的循环里拼死寻找拯救所有人的转机。",
@@ -12771,7 +12832,7 @@
             },
             {
               "id": "movie_2017.0_9",
-              "image_path": "webp_cache/Visions/2017/火星救援.webp",
+              "image_path": "webp_cache/Visions/开端/火星救援.webp",
               "title": "火星救援",
               "cinema": false,
               "quote": "被独自遗落在火星的宇航员，利用有限的物资和植物学知识，在绝境中展开了一场孤独而伟大的异星求生。",
@@ -12780,7 +12841,7 @@
             },
             {
               "id": "movie_2017.0_10",
-              "image_path": "webp_cache/Visions/2017/煎饼侠.webp",
+              "image_path": "webp_cache/Visions/开端/煎饼侠.webp",
               "title": "煎饼侠",
               "cinema": false,
               "quote": "跌入谷底的过气明星为了还债，东拼西凑拉起一支草台班子，试图拍摄一部超级英雄大电影。",
@@ -12789,7 +12850,7 @@
             },
             {
               "id": "movie_2017.0_11",
-              "image_path": "webp_cache/Visions/2017/疯狂动物城.webp",
+              "image_path": "webp_cache/Visions/开端/疯狂动物城.webp",
               "title": "疯狂动物城",
               "cinema": false,
               "quote": "乐观的兔警官与狡猾的狐狸意外结盟，在充满偏见与阴谋的动物大都会中寻找失踪人口的真相。",
@@ -12798,7 +12859,7 @@
             },
             {
               "id": "movie_2017.0_12",
-              "image_path": "webp_cache/Visions/2017/盗梦空间.webp",
+              "image_path": "webp_cache/Visions/开端/盗梦空间.webp",
               "title": "盗梦空间",
               "cinema": false,
               "quote": "顶级的盗梦贼深入目标潜意识的层层梦境中，试图完成一项几乎不可能的“植入思想”的终极任务。",
@@ -12806,17 +12867,17 @@
               "type": "movie"
             },
             {
-              "id": "movie_2017.0_13",
-              "image_path": "webp_cache/Visions/2017/罗小黑战记.webp",
+              "id": "tv_2017.0_13",
+              "image_path": "webp_cache/Visions/开端/罗小黑战记.webp",
               "title": "罗小黑战记",
               "cinema": false,
-              "quote": "失去家园的猫妖小黑在流浪途中结识了人类执行者无限，在妖精与人类的冲突中寻找属于自己的归宿。",
-              "url": "https://www.themoviedb.org/movie/620249",
-              "type": "movie"
+              "quote": "调皮可爱的猫妖小黑在人类世界里流浪，被少女小白收养后，展开了一系列温馨又奇妙的治愈日常。",
+              "url": "https://www.themoviedb.org/tv/88319",
+              "type": "tv"
             },
             {
               "id": "movie_2017.0_14",
-              "image_path": "webp_cache/Visions/2017/羞羞的铁拳.webp",
+              "image_path": "webp_cache/Visions/开端/羞羞的铁拳.webp",
               "title": "羞羞的铁拳",
               "cinema": false,
               "quote": "搏击选手与体育记者意外互换身体，在啼笑皆非的窘境中联手揭开假拳黑幕。",
@@ -12825,7 +12886,7 @@
             },
             {
               "id": "movie_2017.0_15",
-              "image_path": "webp_cache/Visions/2017/肖申克的救赎.webp",
+              "image_path": "webp_cache/Visions/开端/肖申克的救赎.webp",
               "title": "肖申克的救赎",
               "cinema": false,
               "quote": "被冤入狱的银行家在漫长残酷的铁窗生涯中，凭借着惊人的毅力与智慧，用希望之光凿穿了通往自由的漫长隧道。",
@@ -12834,7 +12895,7 @@
             },
             {
               "id": "movie_2017.0_16",
-              "image_path": "webp_cache/Visions/2017/阿甘正传.webp",
+              "image_path": "webp_cache/Visions/开端/阿甘正传.webp",
               "title": "阿甘正传",
               "cinema": false,
               "quote": "智商不高的阿甘凭借着纯粹的善良与执着的奔跑，在时代的洪流中无意间见证并参与了无数美国历史的奇迹。",
@@ -12843,7 +12904,7 @@
             },
             {
               "id": "movie_2017.0_17",
-              "image_path": "webp_cache/Visions/2017/黑客帝国.webp",
+              "image_path": "webp_cache/Visions/开端/黑客帝国.webp",
               "title": "黑客帝国",
               "cinema": false,
               "quote": "觉醒的黑客尼奥发现现实世界只是机器奴役人类的虚拟程序，毅然踏上了反抗机器霸权的救世之路。",
@@ -12852,7 +12913,7 @@
             },
             {
               "id": "movie_2017.0_18",
-              "image_path": "webp_cache/Visions/2017/黑客帝国2 重装上阵.webp",
+              "image_path": "webp_cache/Visions/开端/黑客帝国2 重装上阵.webp",
               "title": "黑客帝国2 重装上阵",
               "cinema": false,
               "quote": "锡安危在旦夕，尼奥在矩阵中探寻救世主的真正宿命，与先知和造物主展开了更深层的博弈。",
@@ -12861,7 +12922,7 @@
             },
             {
               "id": "movie_2017.0_19",
-              "image_path": "webp_cache/Visions/2017/黑客帝国3 矩阵革命.webp",
+              "image_path": "webp_cache/Visions/开端/黑客帝国3 矩阵革命.webp",
               "title": "黑客帝国3 矩阵革命",
               "cinema": false,
               "quote": "面对失控的史密斯与逼近的机器大军，尼奥前往机器城市，用生命的代价换取了人类与机器的和平。",
@@ -12870,7 +12931,7 @@
             },
             {
               "id": "movie_2017.0_20",
-              "image_path": "webp_cache/Visions/2017/黑客帝国4 矩阵重启.webp",
+              "image_path": "webp_cache/Visions/开端/黑客帝国4 矩阵重启.webp",
               "title": "黑客帝国4 矩阵重启",
               "cinema": false,
               "quote": "失去记忆的尼奥再次被唤醒，为了救出深爱的崔妮蒂，他毅然选择再次吞下红药丸重返矩阵。",
@@ -12889,8 +12950,8 @@
       "items": [
         {
           "id": "music_0",
-          "title": "ARCANE II",
-          "cover": "webp_cache/Music/Covers/ARCANE II.webp",
+          "title": "Arcane II",
+          "cover": "webp_cache/Music/Covers/Arcane II.webp",
           "description": "🎸坠入更加黑暗深邃的旋律漩涡！绝望的喘息与狂暴的怒火彻底融入重型摇滚与悲怆的管弦之中。每一次如心跳般沉重的鼓点，都在诉说着命运的失控与疯狂的毁灭，瞬间点燃灵魂深处的悲泣与战火！💥",
           "content": "## Part I\n1.  Ma Meilleure Ennemie\n2.  Come Play\n3.  Blood Sweat & Tears\n4.  The Line\n5.  Fantastic\n6.  Wasteland\n7.  Spin The Wheel\n8.  Rebel Heart\n9.  What Have They Done To Us\n10.  Remember Me\n## Part II\n1. 这样很好\n2. Paint The Town Blue\n3. To Ashes and Blood\n4. Hellfire\n5. Renegade\n6. Sucker\n7. I Can't Hear It Now",
           "audio": "",
@@ -12898,26 +12959,26 @@
         },
         {
           "id": "music_1",
-          "title": "ARCANE",
-          "cover": "webp_cache/Music/Covers/ARCANE.webp",
+          "title": "Arcane",
+          "cover": "webp_cache/Music/Covers/Arcane.webp",
           "description": "🎻华丽古典的管弦与狂野躁动的电子节拍激烈碰撞！旋律中流淌着极致的情绪张力，将皮城与祖安的撕裂与羁绊化作直击灵魂的独白。瞬间带你沉浸于科技与魔法交织的奇幻深渊！✨",
-          "content": "1.  What Could Have Been\n2.  Snakes\n3.  Dynasties and Dystopia\n4.  Misfit Toys\n5.  Guns for Hire\n6.  Enemy\n7.  Dirty Little Animals\n8.  Goodbye\n9.  Playground\n10.  The Bridge\n11.  The City of Progress\n12.  Dear Friend Across The River",
-          "audio": "",
-          "track_title": "What Could Have Been"
+          "content": "1.  Dynasties and Dystopia\n2.  Snakes\n3.  What Could Have Been\n4.  Misfit Toys\n5.  Guns for Hire\n6.  Enemy\n7.  Dirty Little Animals\n8.  Goodbye\n9.  Playground\n10.  The Bridge\n11.  The City of Progress\n12.  Dear Friend Across The River",
+          "audio": "audio_cache/Music/Songs/Arcane.mp3",
+          "track_title": "Dynasties and Dystopia"
         },
         {
           "id": "music_2",
           "title": "Astro Bot",
-          "cover": "webp_cache/Music/Covers/ASTRO BOT.webp",
+          "cover": "webp_cache/Music/Covers/Astro Bot.webp",
           "description": "🎮 灵动欢脱的电子律动与充满科技感的俏皮节拍蹦跳重合！无忧无虑的旋律瞬间激活童心，化作一场穿梭于游戏历史的欢乐庆典。在每一个跳跃的音符里，感受纯粹的快乐与奇思妙想！✨",
           "content": "1.  I Am Astro Bot",
-          "audio": "",
+          "audio": "audio_cache/Music/Songs/Astro Bot.mp3",
           "track_title": "I Am Astro Bot"
         },
         {
           "id": "music_3",
-          "title": "BALTRO",
-          "cover": "webp_cache/Music/Covers/BALTRO.webp",
+          "title": "Balatro",
+          "cover": "webp_cache/Music/Covers/Balatro.webp",
           "description": "🃏 迷幻慵懒的合成器浪潮与复古牌桌的滴答声完美融合！在致幻的电子旋律中坠入筹码翻倍的无尽深渊。这是一场令人上头的心流体验，一秒让你沉沦在算计与疯狂的数字魔术里！🎰",
           "content": "1.  Main Theme",
           "audio": "",
@@ -12934,8 +12995,8 @@
         },
         {
           "id": "music_5",
-          "title": "Clair Obscur：Expedition 33",
-          "cover": "webp_cache/Music/Covers/EXPEDITION 33.webp",
+          "title": "Clair Obscur Expedition 33",
+          "cover": "webp_cache/Music/Covers/Clair Obscur Expedition 33.webp",
           "description": "🕰️ 凄美空灵与浪漫古典的宿命交织！在超现实的奇幻画卷中，音符流淌着向死而生的优雅。如诗般的吟唱伴随厚重管弦，倾诉着对抗毁灭的悲壮，将你拉入那场绝望又美丽的末日远征！🎨",
           "content": "## Part I\n1. Une vie à peindre\n2. Clair-Obscur\n3. We Lost\n4. Lumiere\n5. Gustave\n6. Alicia\n7. Monoco\n8. Lune\n9. For Those Who Come After\n10. Simon, The Divergent Star\n\n## Part II\n1. Lost Voice\n2. Forgotten Battlefield-Dualliste\n3. Gestral Village -Gestral Merchant\n4. Ancient Sanctuary-Gestral Summer Party\n5. Flying Waters- Rain from the Ground\n6. Flying Waters - Goblu\n7. Spring Meadows-Beneath the Blue Tree\n8. Spring Meadows-Battling Breeze\n9. Spring Meadows-Get Up！ For Lumiere！\n10. Spring Meadows-Get Up！ For Lumiere！\n\n## Part III\n1. Aux Lendemains non Ecrits\n2. Our Drafts Unite\n3. Renoir\n4. Aline\n5. Paintress\n6. Visages-Portrait Imparfait\n7. Sirene -Poeme d'Amour\n8. Sirene -Robe de Jour\n9. World Map - Dechire la Toile\n10. World Map-In Lumiere's Name",
           "audio": "",
@@ -12965,7 +13026,7 @@
           "cover": "webp_cache/Music/Covers/FINAL FANTASY VII REMAKE.webp",
           "description": "🎹 史诗交响与重型摇滚的狂热碰撞！恢弘管弦与温柔钢琴交织，让经典旋律在钢铁丛林中焕发新生。音乐承载着反抗宿命的决绝与星球脉动，瞬间唤醒灵魂深处的热血与极致感动！⚔️",
           "content": "1. Aerith's Theme\n2. Tifa's Theme\n3. Let the Battles Begin！\n4. Hollow Skies\n5. The Prelude",
-          "audio": "",
+          "audio": "audio_cache/Music/Songs/FINAL FANTASY VII REMAKE.mp3",
           "track_title": "Aerith's Theme"
         },
         {
@@ -12974,7 +13035,7 @@
           "cover": "webp_cache/Music/Covers/Forza Horizon 4.webp",
           "description": "🍂 迷幻慵懒的独立流行与轻盈空灵的电子乐浪漫交织！旋律化作英伦四季的微风，吹过宁静乡村与古老城堡。在悠然疾驰的惬意中，尽情感受那份充满英式优雅与古典诗意的唯美狂奔！🚗",
           "content": "1.  A Moment Apart\n2.  Everything At Your Feet\n3.  Late Night",
-          "audio": "",
+          "audio": "audio_cache/Music/Songs/Forza Horizon 4.mp3",
           "track_title": "A Moment Apart"
         },
         {
@@ -12982,9 +13043,9 @@
           "title": "Forza Horizon 5",
           "cover": "webp_cache/Music/Covers/Forza Horizon 5.webp",
           "description": "🌵 热情奔放的拉丁节奏与躁动狂野的摇滚烈焰疯狂碰撞！激昂鼓点如同墨西哥烈日下的沙尘，瞬间点燃无尽的嘉年华狂欢。在引擎的野性轰鸣中，彻底释放那份冲破天际的自由与狂热！🌋",
-          "content": "## Part I\n1.  All Of The Time\n2.  Channel 43\n3.  Color\n4.  Cool Up\n5.  Afrika\n6.  Do It Better\n7.  Heat Waves\n8.  Fade\n9.  Sunshine\n10.  Skyscraping\n## Part II\n1.  Utopia\n2.  Weekends\n3.  Levitating\n4.  Get to Know You\n5.  Where We Started\n6.  Hello Hello Hello\n7.  Midnight Sun\n8.  Everything You Are\n9.  All I Want\n10.  Full Heart Fancy\n## Part III\n1.  Suéltame, Bogotá\n2.  new heartbreak\n3.  Look at the Sky\n4.  Quema\n5.  Preach\n6.  Rock You\n7.  Ohh My Ghosts\n8.  Straight To The Morning\n9.  You Can Get It\n10.  Urbandawn Forza",
+          "content": "## Part I\n1.  Heat Waves\n2.  All Of The Time\n3.  Color\n4.  Cool Up\n5.  Afrika\n6.  Do It Better\n7.  Channel 43\n8.  Fade\n9.  Sunshine\n10.  Skyscraping\n## Part II\n1.  Utopia\n2.  Weekends\n3.  Levitating\n4.  Get to Know You\n5.  Where We Started\n6.  Hello Hello Hello\n7.  Midnight Sun\n8.  Everything You Are\n9.  All I Want\n10.  Full Heart Fancy\n## Part III\n1.  Suéltame, Bogotá\n2.  new heartbreak\n3.  Look at the Sky\n4.  Quema\n5.  Preach\n6.  Rock You\n7.  Ohh My Ghosts\n8.  Straight To The Morning\n9.  You Can Get It\n10.  Urbandawn Forza",
           "audio": "",
-          "track_title": "All Of The Time"
+          "track_title": "Heat Waves"
         },
         {
           "id": "music_11",
@@ -13015,8 +13076,8 @@
         },
         {
           "id": "music_14",
-          "title": "KDA/HEARTSTEEL/True Damage",
-          "cover": "webp_cache/Music/Covers/KDA.webp",
+          "title": "KDA_HEARTSTEEL_True Damage",
+          "cover": "webp_cache/Music/Covers/KDA_HEARTSTEEL_True Damage.webp",
           "description": "🎤 极致潮流的K-Pop律动与前卫嘻哈的绝赞同频！闪耀霓虹光芒的合成器与洗脑Beat疯狂炸场，打破次元壁的摩登嗓音瞬间引爆流行狂潮。一秒带你直坠聚光灯下最璀璨耀眼的舞台！💎",
           "content": "1.  POP/STARS\n2.  Childhood Dreams\n3.  VILLAIN\n4.  MORE\n5.  THE BADDEST\n6.  DRUM GO DUM\n7.  I'LL SHOW YOU\n8.  GIANTS\n9.  PARANOIA",
           "audio": "",
@@ -13024,12 +13085,12 @@
         },
         {
           "id": "music_15",
-          "title": "League of Legends III",
-          "cover": "webp_cache/Music/Covers/League of Legends III.webp",
-          "description": "🎸 暴躁撕裂的重金属核嗓与早期奇幻乐的怀旧交织！五杀摇滚乐队的桀骜怒吼，碰撞着冰雪节的轻快铃铛声。在粗犷与欢脱的碰撞中，重温那段最纯粹热血、无畏无惧的青春记忆！❄️",
-          "content": "## Part I\n1.  The Boy Who Shattered Time\n2.  Flash Funk\n3.  PROJECT:Yi\n4.  Piercing Light\n5.  Bit Rush:Arcade Ahri\n6.  Bit Rush\n7.  Kinetic\n8.  PsyOps\n9.  Space Groove\n10.  Star Guardian\n## Part II\n1. Winterblessed\n2. Lunar Revel\n3. Everything Goes On\n4. 2018 Rift Rivals Theme\n5. Shine On",
+          "title": "League of Legends I",
+          "cover": "webp_cache/Music/Covers/League of Legends I.webp",
+          "description": "🎺 气势磅礴的史诗交响与现代电子乐的燃烈轰炸！振奋人心的旋律吹响全新征程的号角，将变幻莫测的战场化作激昂史诗。每一次战歌响起，都在瞬间唤醒你不可阻挡的竞技之魂！🔥",
+          "content": "## Part I\n1.  Hall of Legends:Orchestral Theme\n2.  Shine On\n3.  Coming Alive\n4.  Bite Marks\n5.  As We Fall\n6.  Awaken\n7.  Warriors\n8.  Bring Home The Glory\n9.  Starts Right Here\n10.  Sentinels of Light\n\n## Part II\n1.  I'll Find a Way\n2.  Rules\n3.  Fire to the Fuse\n4.  You & Me Makes Us\n5.  Still Here\n6.  Against All Odds\n7.  Here, Tomorrow\n8.  Burning Bright\n9.  The Call\n10.  Worlds Collide",
           "audio": "",
-          "track_title": "The Boy Who Shattered Time"
+          "track_title": "Hall of Legends:Orchestral Theme"
         },
         {
           "id": "music_16",
@@ -13042,12 +13103,12 @@
         },
         {
           "id": "music_17",
-          "title": "League of Legends I",
-          "cover": "webp_cache/Music/Covers/League of Legends I.webp",
-          "description": "🎺 气势磅礴的史诗交响与现代电子乐的燃烈轰炸！振奋人心的旋律吹响全新征程的号角，将变幻莫测的战场化作激昂史诗。每一次战歌响起，都在瞬间唤醒你不可阻挡的竞技之魂！🔥",
-          "content": "## Part I\n1.  Hall of Legends:Orchestral Theme\n2.  Shine On\n3.  Coming Alive\n4.  Bite Marks\n5.  As We Fall\n6.  Awaken\n7.  Warriors\n8.  Bring Home The Glory\n9.  Starts Right Here\n10.  Sentinels of Light\n\n## Part II\n1.  I'll Find a Way\n2.  Rules\n3.  Fire to the Fuse\n4.  You & Me Makes Us\n5.  Still Here\n6.  Against All Odds\n7.  Here, Tomorrow\n8.  Burning Bright\n9.  The Call\n10.  Worlds Collide",
+          "title": "League of Legends III",
+          "cover": "webp_cache/Music/Covers/League of Legends III.webp",
+          "description": "🎸 暴躁撕裂的重金属核嗓与早期奇幻乐的怀旧交织！五杀摇滚乐队的桀骜怒吼，碰撞着冰雪节的轻快铃铛声。在粗犷与欢脱的碰撞中，重温那段最纯粹热血、无畏无惧的青春记忆！❄️",
+          "content": "## Part I\n1.  The Boy Who Shattered Time\n2.  Flash Funk\n3.  PROJECT:Yi\n4.  Piercing Light\n5.  Bit Rush:Arcade Ahri\n6.  Bit Rush\n7.  Kinetic\n8.  PsyOps\n9.  Space Groove\n10.  Star Guardian\n## Part II\n1. Winterblessed\n2. Lunar Revel\n3. Everything Goes On\n4. 2018 Rift Rivals Theme\n5. Shine On",
           "audio": "",
-          "track_title": "Hall of Legends:Orchestral Theme"
+          "track_title": "The Boy Who Shattered Time"
         },
         {
           "id": "music_18",
@@ -13078,8 +13139,8 @@
         },
         {
           "id": "music_21",
-          "title": "Ori and the Wil of the Wisps",
-          "cover": "webp_cache/Music/Covers/Ori and the Wil of the Wisps.webp",
+          "title": "Ori and the Will of the Wisps",
+          "cover": "webp_cache/Music/Covers/Ori and the Will of the Wisps.webp",
           "description": "🦉 情感更加磅礴跌宕的奇幻史诗交响！交织着面对破败世界的悲壮与寻找希望的挣扎。雄浑的合唱与泣血的弦乐，将这场向死而生的宿命之旅推向直击灵魂的落泪高潮！💧",
           "content": "1. In Wonderment of Winter \n\n2. Overlooking the Mill \n\n3. A Keepsake from the Past \n\n4. Ori, Embracing the Light \n\n5. Sanctuary in the Glades \n\n6. Now Use the Light, We Want to see\n7. Luma Pools \n8. Silent Woodlands \n9. Escaping a Foul Presence \n10. A Shine Upon Inkwater Marsh \n11. Main Theme",
           "audio": "",
@@ -13087,8 +13148,8 @@
         },
         {
           "id": "music_22",
-          "title": "OUTER WILDS",
-          "cover": "webp_cache/Music/Covers/OUTER WILDS.webp",
+          "title": "Outer Wilds",
+          "cover": "webp_cache/Music/Covers/Outer Wilds.webp",
           "description": "🪕 温暖随性的班卓琴与深邃宇宙的寂寥遥相呼应！在恒星爆发的绚烂中循环往复，轻拨琴弦奏响向死而生的探险诗篇。带你沉浸于篝火旁的极致浪漫与无尽求索！🔥",
           "content": "1.  Echoes of the Eye\n2.  Travelers'encore",
           "audio": "",
@@ -13141,7 +13202,7 @@
         },
         {
           "id": "music_28",
-          "title": "Teamfight Tactics",
+          "title": "TFT",
           "cover": "webp_cache/Music/Covers/TFT.webp",
           "description": "🎧 多流派音乐的奇妙碰撞与灵动混音！化身棋盘DJ，在羁绊专属的节拍中自由打碟。每一次阵容大成都是一场燃爆全场的演唱会，伴随欢脱律动，彻底沉浸于这场属于弈子的狂欢派对！🎶",
           "content": "1.  REMIX RUMBLE",

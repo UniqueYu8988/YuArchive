@@ -105,12 +105,42 @@ export interface TextsCategory {
 
 export type Category = TimelineCategory | MusicCategory | TextsCategory
 
+export interface SiteUiConfig {
+  current_album: string
+  selected_section: string
+  unclassified: string
+  unknown: string
+  unrated: string
+  season_journey: string
+  season_special: string
+}
+
+export interface SiteLayoutConfig {
+  home_latest_games_count: number
+  home_latest_visions_count: number
+  home_latest_music_count: number
+  home_latest_texts_count: number
+  games_season_target_year: number
+  games_season_priority: Record<string, number>
+  texts_default_section_key: string
+}
+
+export interface HomepageConfig {
+  games: string[]
+  visions: string[]
+  music: string[]
+  texts: string[]
+}
+
 /** 整个 archive_data.json 的顶层结构 */
 export interface ArchiveData {
   metadata: {
     generated_at: string
     source_root: string
     version: string
+    site_ui?: SiteUiConfig
+    site_layout?: SiteLayoutConfig
+    homepage?: HomepageConfig
     validation?: {
       games_meta_skipped_folders?: string[]
       games_meta_templates_updated?: string[]

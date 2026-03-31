@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ExternalLink, Music2, Play, Sparkles } from 'lucide-react'
 import type { MusicCategory, MusicItem } from '../types'
+import { siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
@@ -198,7 +199,7 @@ export default function MusicPage({ data }: Props) {
                         marginBottom: '0.45rem',
                       }}
                     >
-                      Current album
+                      {siteUi.current_album}
                     </div>
                     <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>
                       {selectedItem.title}
