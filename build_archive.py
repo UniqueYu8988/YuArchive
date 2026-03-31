@@ -319,7 +319,7 @@ def normalize_case_variant(existing_path: Path, target_path: Path) -> Path:
     temp_path.rename(target_path)
     return target_path
 
-def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
+def process_and_get_webp_path(src_img_path: Path, category_key: str, output_rel_path: Path | None = None) -> str:
     """
     智能图像处理管道：增量判断，若需处理则执行转码及留白裁剪。
     返回能够被前端直接使用的从 public/ 开始的相对路径，如 'webp_cache/Games/...webp'。
@@ -327,7 +327,7 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
     if not src_img_path.exists():
         return ""
         
-    rel_path = src_img_path.relative_to(ONEDRIVE_DATA_ROOT)
+    rel_path = output_rel_path or src_img_path.relative_to(ONEDRIVE_DATA_ROOT)
     dst_webp_path = WEBP_CACHE_DIR / rel_path.with_suffix('.webp')
     existing_variant = find_case_variant_path(dst_webp_path)
     if existing_variant and existing_variant.name != dst_webp_path.name:
@@ -368,12 +368,15 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
     return f"webp_cache/{rel_path.with_suffix('.webp').as_posix()}"
 
 
-def process_and_get_audio_path(src_audio_path: Path) -> str:
+def process_and_get_audio_path(src_audio_path: Path, output_rel_path: Path | None = None) -> str:
     if not src_audio_path.exists():
         return ""
 
-    rel_path = src_audio_path.relative_to(ONEDRIVE_DATA_ROOT)
+    rel_path = output_rel_path or src_audio_path.relative_to(ONEDRIVE_DATA_ROOT)
     dst_audio_path = AUDIO_CACHE_DIR / rel_path
+    existing_variant = find_case_variant_path(dst_audio_path)
+    if existing_variant and existing_variant.name != dst_audio_path.name:
+        dst_audio_path = normalize_case_variant(existing_variant, dst_audio_path)
 
     if dst_audio_path.exists() and dst_audio_path.stat().st_size > 0:
         if dst_audio_path.stat().st_mtime >= src_audio_path.stat().st_mtime:
@@ -1344,7 +1347,44 @@ def find_music_cover(markdown_path: Path, cover_value: str, cat_root: Path) -> t
         if candidate.exists() and candidate.is_file() and is_image(candidate):
             return candidate, raw_value
 
+    matched_candidate = find_music_asset_by_stem(markdown_path.stem, cat_root / "Covers", set(IMAGE_EXTENSIONS))
+    if matched_candidate:
+        return matched_candidate, raw_value
+
     return None, raw_value
+
+
+def normalize_music_stem(value: str) -> str:
+    cleaned = re.sub(r"[._-]+", " ", value).strip().lower()
+    if not cleaned:
+        return ""
+
+    tokens = re.findall(r"[a-z0-9]+", cleaned)
+    normalized_tokens: list[str] = []
+    for token in tokens:
+        if re.fullmatch(r"[li1]+", token):
+            normalized_tokens.append("i" * len(token))
+        else:
+            normalized_tokens.append(token)
+    return "".join(normalized_tokens)
+
+
+def find_music_asset_by_stem(target_stem: str, directory: Path, allowed_suffixes: set[str]) -> Path | None:
+    if not directory.exists():
+        return None
+
+    normalized_target = normalize_music_stem(target_stem)
+    if not normalized_target:
+        return None
+
+    for child in directory.iterdir():
+        if not child.is_file():
+            continue
+        if child.suffix.lower() not in allowed_suffixes:
+            continue
+        if normalize_music_stem(child.stem) == normalized_target:
+            return child
+    return None
 
 
 def find_music_audio(markdown_path: Path, audio_value: str, cat_root: Path) -> tuple[Path | None, str]:
@@ -1374,6 +1414,10 @@ def find_music_audio(markdown_path: Path, audio_value: str, cat_root: Path) -> t
     for candidate in candidates:
         if candidate.exists() and candidate.is_file():
             return candidate, raw_value
+
+    matched_candidate = find_music_asset_by_stem(stem, songs_root, set(AUDIO_EXTENSIONS))
+    if matched_candidate:
+        return matched_candidate, raw_value
 
     return None, raw_value
 
@@ -1666,10 +1710,11 @@ def process_music_category(root: Path, report: dict) -> dict:
             cover_path, raw_cover = find_music_cover(item, cover_filename, cat_root)
             audio_path, _ = find_music_audio(item, audio_value, cat_root)
 
+            music_cover_rel_path = Path("Music") / "Covers" / f"{item.stem}.webp"
             if cover_path:
                 try:
                     if cover_path.is_relative_to(ONEDRIVE_DATA_ROOT):
-                        cover_url = process_and_get_webp_path(cover_path, "music")
+                        cover_url = process_and_get_webp_path(cover_path, "music", output_rel_path=music_cover_rel_path)
                     else:
                         report["music_external_covers"].append(str(cover_path))
                 except ValueError:
@@ -1684,7 +1729,8 @@ def process_music_category(root: Path, report: dict) -> dict:
             if audio_path:
                 try:
                     if audio_path.is_relative_to(ONEDRIVE_DATA_ROOT):
-                        audio_url = process_and_get_audio_path(audio_path)
+                        music_audio_rel_path = Path("Music") / "Songs" / f"{item.stem}{audio_path.suffix}"
+                        audio_url = process_and_get_audio_path(audio_path, output_rel_path=music_audio_rel_path)
                 except ValueError:
                     audio_url = ""
 
