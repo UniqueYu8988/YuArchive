@@ -31,6 +31,7 @@ except ImportError:
 ONEDRIVE_DATA_ROOT = Path(r"C:\Users\Yu\OneDrive\图片\Data")
 PUBLIC_ROOT = Path(r"C:\Users\Yu\AI\Archive\public")
 WEBP_CACHE_DIR = PUBLIC_ROOT / "webp_cache"
+AUDIO_CACHE_DIR = PUBLIC_ROOT / "audio_cache"
 JSON_OUTPUT_PATH = Path(r"C:\Users\Yu\AI\Archive\src\data\archive_data.json")
 REPORTS_ROOT = Path(r"C:\Users\Yu\AI\Archive\reports")
 GAMES_INVENTORY_CSV_PATH = REPORTS_ROOT / "games_meta_inventory.csv"
@@ -42,6 +43,7 @@ STEAM_LOOKUP_CACHE_PATH = REPORTS_ROOT / "steam_lookup_cache.json"
 WEBP_QUALITY = 90
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
 TEXT_EXTENSIONS = {".md", ".txt"}
+AUDIO_EXTENSIONS = {".mp3", ".m4a", ".wav", ".ogg", ".flac", ".aac"}
 
 CATEGORIES = {
     "games": "Games",
@@ -53,145 +55,23 @@ CATEGORIES = {
 
 DEFAULT_TEXT_DATE = "1970-01-01"
 TEXT_SECTION_DEFAULT_KEY = "headline"
-TEXT_SECTION_DEFAULT_TITLE = "得到头条"
-TEXT_SECTION_CONFIG = {
-    "headline": {
-        "title": "得到头条",
-        "description": "把每天值得留下的一点观察、判断与信息浓缩，整理成可以回看的文字切片。",
-    },
-    "video-summary": {
-        "title": "视频总结",
-        "description": "把长视频里的论点、结构与关键细节压缩成文字，方便再次检索与重温。",
-    },
-    "notes": {
-        "title": "心得体会",
-        "description": "不只是摘录信息，而是把它们折回自己的经验与理解，慢慢沉淀成更私人的笔记。",
-    },
-}
-TEXT_SECTION_ALIASES = {
-    "得到头条": "headline",
-    "headline": "headline",
-    "头条": "headline",
-    "视频总结": "video-summary",
-    "视频笔记": "video-summary",
-    "视频": "video-summary",
-    "video-summary": "video-summary",
-    "心得体会": "notes",
-    "心得": "notes",
-    "笔记": "notes",
-    "notes": "notes",
-}
+TEXT_SECTION_CONFIG_FILENAME = "sections.yaml"
 GAME_META_FILENAME = "meta.yaml"
 GAME_LIVE_FOLDER = "Game-Live"
 GAME_META_SKIP_FOLDERS = {"Game-2010", "Game-2015", "Game-Season", GAME_LIVE_FOLDER}
 GAME_SEASON_FOLDER = "Game-Season"
 GAME_PLATFORM_CHOICES = ("steam", "xbox", "riotgame", "battlenet", "playstation", "switch")
 GAME_GENRE_CHOICES = ("action", "rpg", "strategy", "shooter", "simulation", "sports", "racing", "puzzle", "casual")
-GAME_TITLE_DISPLAY_OVERRIDES = {
-    "腐朽之木": "熔炉密林",
-    "暴力派对": "揍击派对",
-    "来自太空": "霓虹入侵者",
-}
 GAME_SEASON_RULES = [
     {"title": "云顶之弈", "prefix": "TFT_", "label": "赛季"},
     {"title": "英雄联盟", "prefix": "LOL_", "label": "全球总决赛"},
     {"title": "暗黑破坏神 IV", "prefix": "D4_", "label": "赛季"},
 ]
-GAME_SEASON_DEFAULTS = {
-    "云顶之弈": {
-        "english_title": "Teamfight Tactics",
-        "url": "https://teamfighttactics.leagueoflegends.com/",
-        "platform": "riotgame",
-        "price": "Free",
-        "genre": "strategy",
-        "summary": "每一次赛季更替，都像在熟悉规则里重新学习命运。",
-        "hover_note": "阵容会过时，但那种临场应变的快感不会。",
-        "season_heading": "云顶之弈赛季图集",
-        "season_subheading": "Seasonal Archive",
-        "season_description": "从 Set 的更替里，记录一次次回到棋盘前的心情与手感。",
-    },
-    "英雄联盟": {
-        "english_title": "League of Legends",
-        "url": "https://www.leagueoflegends.com/",
-        "platform": "riotgame",
-        "price": "Free",
-        "genre": "rpg",
-        "summary": "它不属于某个年份，只会在很多个秋天里再次出现。",
-        "hover_note": "版本更迭不断，真正留下来的总是那些一起看完的夜晚。",
-        "season_heading": "英雄联盟赛季图集",
-        "season_subheading": "Seasonal Archive",
-        "season_description": "这里收纳的不是全部赛季，而是那些真正留下了回声的版本与赛事时刻。",
-    },
-    "暗黑破坏神 IV": {
-        "english_title": "Diablo IV",
-        "url": "https://diablo4.blizzard.com/",
-        "platform": "xbox",
-        "price": "GamePass",
-        "genre": "rpg",
-        "summary": "地狱不会真正结束，它只是换一种方式把人重新召回去。",
-        "hover_note": "赛季像轮回，刷子落下去的时候，时间就变得没有那么重要。",
-        "season_heading": "暗黑破坏神 IV赛季图集",
-        "season_subheading": "Seasonal Archive",
-        "season_description": "从恶疫到鲜血，从彼列归来到绝灭屠戮，都是这场漫长征程里的阶段性回响。",
-    },
-}
 GAME_SEASON_TARGET_YEAR = 2026.0
 GAME_SEASON_PRIORITY = {
     "英雄联盟": 0,
     "云顶之弈": 1,
     "暗黑破坏神 IV": 2,
-}
-GAME_SEASON_ENTRY_META = {
-    "英雄联盟": {
-        "Worlds 2017": {"champion": "Samsung Galaxy", "note": "安掌门终于圆梦，旧王朝也在鸟巢的夜里缓缓落幕。"},
-        "Worlds 2018": {"champion": "Invictus Gaming", "note": "翻山而过的那一年，LPL 终于等来了属于自己的第一冠。"},
-        "Worlds 2019": {"champion": "FunPlus Phoenix", "note": "FPX 把四包二和游走体系打成了那一年的版本答案。"},
-        "Worlds 2020": {"champion": "DAMWON Gaming", "note": "Nuguri、Canyon、ShowMaker 的三叉戟，像教科书一样完整。"},
-        "Worlds 2021": {"champion": "EDward Gaming", "note": "我们是冠军，这句话终于不用只在梦里说了。"},
-        "Worlds 2022": {"champion": "DRX", "note": "从入围赛一路杀到最后，像童话一样不讲道理的一冠。"},
-        "Worlds 2023": {"champion": "T1", "note": "Faker 第四冠，所有关于时代是否结束的争论都安静了一晚。"},
-        "Worlds 2024": {"champion": "T1", "note": "当所有人都在等传奇谢幕时，T1 又把奖杯留在了自己手里。"},
-        "Worlds 2025": {"champion": "T1", "note": "当所有人都在等新王加冕时，最后举起奖杯的还是那个最熟悉的名字。"},
-    },
-    "云顶之弈": {
-        "S1云顶之弈": {"period": "2019.06", "theme": "云顶之弈", "feature": "初代羁绊"},
-        "S2元素崛起": {"period": "2019.11", "theme": "元素崛起", "feature": "元素格"},
-        "S3银河战争": {"period": "2020.03", "theme": "银河战争", "feature": "星系"},
-        "S3.5再战星海": {"period": "2020.06", "theme": "再战星海", "feature": "星系"},
-        "S4命运之轮": {"period": "2020.09", "theme": "命运之轮", "feature": "天选之人"},
-        "S4.5瑞兽闹新春": {"period": "2021.01", "theme": "瑞兽闹新春", "feature": "天选之人"},
-        "S5光明与黑暗": {"period": "2021.04", "theme": "光明与黑暗", "feature": "黑暗武器"},
-        "S5.5英雄黎明": {"period": "2021.07", "theme": "英雄黎明", "feature": "光明武器"},
-        "S6双城之战": {"period": "2021.11", "theme": "双城之战", "feature": "海克斯强化"},
-        "S6.5霓虹之夜": {"period": "2022.02", "theme": "霓虹之夜", "feature": "海克斯强化"},
-        "S7巨龙之境": {"period": "2022.06", "theme": "巨龙之境", "feature": "龙神"},
-        "S7.5隐秘海域": {"period": "2022.09", "theme": "隐秘海域", "feature": "巨龙圣坛"},
-        "S8怪兽来袭！": {"period": "2022.12", "theme": "怪兽来袭！", "feature": "英雄强化"},
-        "S8.5铲铲市危机": {"period": "2023.03", "theme": "铲铲市危机", "feature": "黑客来袭"},
-        "S9符文大陆传说": {"period": "2023.06", "theme": "符文大陆传说", "feature": "地区传送门"},
-        "S9.5志逐天际": {"period": "2023.09", "theme": "志逐天际", "feature": "地区传送门"},
-        "S10强音争霸": {"period": "2023.11", "theme": "强音争霸", "feature": "赛季之星"},
-        "S11画中灵": {"period": "2024.03", "theme": "画中灵", "feature": "奇遇"},
-        "S12魔法大乱斗": {"period": "2024.07", "theme": "魔法大乱斗", "feature": "魔法符咒"},
-        "S13步入双城": {"period": "2024.11", "theme": "双城之战", "feature": "异常突变"},
-        "S14赛博之城": {"period": "2025.04", "theme": "赛博之城", "feature": "骇入"},
-        "S15格斗竞技场": {"period": "2025.07", "theme": "格斗竞技场", "feature": "Power Up"},
-        "S16传世之说": {"period": "2025.12", "theme": "传世之说", "feature": "解锁英雄"},
-    },
-    "暗黑破坏神 IV": {
-        "S3造物主赛季": {"period": "2024.01", "build": "游侠", "note": ""},
-        "S4战利品重生": {"period": "2024.05", "build": "巫师", "note": ""},
-        "S6憎恨高升": {"period": "2024.10", "build": "灵巫", "note": ""},
-        "S7巫术赛季": {"period": "2025.01", "build": "死灵法师", "note": ""},
-        "S8彼列归来": {"period": "2025.04", "build": "游侠", "note": ""},
-        "S11神圣赠礼": {"period": "2025.12", "build": "灵巫", "note": ""},
-        "S12绝灭屠戮": {"period": "2026.03", "build": "圣骑士", "note": ""},
-    },
-}
-GAME_DLC_SPLIT_TITLES = {
-    "女神异闻录3_Episode Aegis": ("女神异闻录 3 重制版", "Episode Aegis"),
-    "地平线5_风火轮": ("极限竞速：地平线 5", "风火轮"),
-    "暗黑破坏神4_憎恨之王": ("暗黑破坏神 IV", "憎恨之王"),
 }
 GAME_TITLE_ALIASES = {
     "哈迪斯": "Hades",
@@ -415,6 +295,22 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str) -> str:
     return f"webp_cache/{rel_path.with_suffix('.webp').as_posix()}"
 
 
+def process_and_get_audio_path(src_audio_path: Path) -> str:
+    if not src_audio_path.exists():
+        return ""
+
+    rel_path = src_audio_path.relative_to(ONEDRIVE_DATA_ROOT)
+    dst_audio_path = AUDIO_CACHE_DIR / rel_path
+
+    if dst_audio_path.exists() and dst_audio_path.stat().st_size > 0:
+        if dst_audio_path.stat().st_mtime >= src_audio_path.stat().st_mtime:
+            return f"audio_cache/{rel_path.as_posix()}"
+
+    dst_audio_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_audio_path, dst_audio_path)
+    return f"audio_cache/{rel_path.as_posix()}"
+
+
 # ─────────────────────────────────────────────────────────────
 # 📦 Markdown / YAML 纯原生引擎
 # ─────────────────────────────────────────────────────────────
@@ -455,6 +351,7 @@ def slugify_section_key(value: str) -> str:
 
 
 def resolve_text_section(item_path: Path, cat_root: Path, metadata: dict) -> tuple[str, str, str]:
+    config_map, alias_map = load_text_section_config(cat_root)
     explicit_section = normalize_title(str(metadata.get("section", "")))
     relative_parts = item_path.relative_to(cat_root).parts
     folder_section = normalize_title(relative_parts[0]) if len(relative_parts) > 1 else ""
@@ -463,14 +360,14 @@ def resolve_text_section(item_path: Path, cat_root: Path, metadata: dict) -> tup
     if not section_source:
         key = TEXT_SECTION_DEFAULT_KEY
     else:
-        key = TEXT_SECTION_ALIASES.get(section_source, slugify_section_key(section_source))
+        key = alias_map.get(section_source, slugify_section_key(section_source))
 
-    config = TEXT_SECTION_CONFIG.get(key)
+    config = config_map.get(key)
     if config:
         title = config["title"]
         description = config.get("description", "")
     else:
-        title = section_source or TEXT_SECTION_DEFAULT_TITLE
+        title = section_source or key
         description = f"这里收纳的是「{title}」这一栏下持续积累的文本与记录。"
 
     return key, title, description
@@ -489,6 +386,47 @@ def yaml_string(value: str) -> str:
 
 def parse_bool(value: str) -> bool:
     return value.strip().lower() in {"true", "yes", "1"}
+
+
+def load_text_section_config(cat_root: Path) -> tuple[dict[str, dict], dict[str, str]]:
+    config_file = cat_root / TEXT_SECTION_CONFIG_FILENAME
+    config_map: dict[str, dict] = {}
+    alias_map: dict[str, str] = {}
+    current_key = None
+
+    if not config_file.exists():
+        return config_map, alias_map
+
+    try:
+        with open(config_file, "r", encoding="utf-8") as f:
+            for raw_line in f.readlines():
+                line = raw_line.rstrip("\n")
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+
+                indent = len(line) - len(line.lstrip(" "))
+                if indent == 0 and stripped.endswith(":"):
+                    current_key = normalize_title(unquote_yaml_value(stripped[:-1].strip()))
+                    config_map[current_key] = {"title": current_key, "description": "", "aliases": []}
+                    alias_map[current_key] = current_key
+                    continue
+
+                if current_key and indent >= 2 and ":" in stripped:
+                    key, _, value = stripped.partition(":")
+                    key = key.strip().lower()
+                    value = unquote_yaml_value(value.strip())
+                    if key == "aliases":
+                        aliases = [normalize_title(part) for part in re.split(r"[,\|]", value) if normalize_title(part)]
+                        config_map[current_key]["aliases"] = aliases
+                        for alias in aliases:
+                            alias_map[alias] = current_key
+                    else:
+                        config_map[current_key][key] = value
+    except Exception:
+        return {}, {}
+
+    return config_map, alias_map
 
 
 def parse_game_rating(value: str) -> int | None:
@@ -634,6 +572,8 @@ def default_game_meta() -> dict:
         "playtime": "",
         "completed": False,
         "genre": "",
+        "display_title": "",
+        "dlc_parent_title": "",
     }
 
 
@@ -642,8 +582,9 @@ def canonicalize_game_title_for_match(value: str) -> str:
     return re.sub(r"[\s_\-—:：·'\".!！?？\[\]\(\)]", "", normalized)
 
 
-def get_game_display_title(title: str) -> str:
-    return GAME_TITLE_DISPLAY_OVERRIDES.get(title, title)
+def get_game_display_title(title: str, meta_entry: dict | None = None) -> str:
+    explicit = normalize_title(str((meta_entry or {}).get("display_title", "")))
+    return explicit or title
 
 
 def season_order_value(title: str) -> float:
@@ -672,8 +613,6 @@ def get_game_sort_title(item: dict) -> str:
 
 
 def split_game_dlc_title(title: str) -> tuple[str, str] | None:
-    if title in GAME_DLC_SPLIT_TITLES:
-        return GAME_DLC_SPLIT_TITLES[title]
     if "_" not in title:
         return None
     base_title, dlc_title = title.split("_", 1)
@@ -685,21 +624,45 @@ def load_live_game_meta(root: Path) -> dict:
     if not live_root.exists():
         return {}
 
-    def parse_flat_yaml(meta_file: Path) -> dict:
+    def parse_live_yaml(meta_file: Path) -> dict:
         entry = default_game_meta()
+        entry["season_entries_meta"] = {}
+        current_section = None
+        current_item = None
         try:
             with open(meta_file, "r", encoding="utf-8") as f:
                 for raw_line in f.readlines():
-                    stripped = raw_line.strip()
+                    line = raw_line.rstrip("\n")
+                    stripped = line.strip()
                     if not stripped or stripped.startswith("#") or ":" not in stripped:
                         continue
-                    key, _, value = stripped.partition(":")
-                    key = key.strip().lower()
-                    value = unquote_yaml_value(value.strip())
-                    if key == "completed":
-                        entry["completed"] = parse_bool(value)
-                    else:
-                        entry[key] = value
+
+                    indent = len(line) - len(line.lstrip(" "))
+
+                    if indent == 0 and stripped.endswith(":"):
+                        key = stripped[:-1].strip().lower()
+                        current_section = key
+                        current_item = None
+                        continue
+
+                    if current_section == "season_entries":
+                        if indent == 2 and stripped.endswith(":"):
+                            current_item = normalize_title(unquote_yaml_value(stripped[:-1].strip()))
+                            entry["season_entries_meta"][current_item] = {}
+                            continue
+                        if current_item and indent >= 4 and ":" in stripped:
+                            key, _, value = stripped.partition(":")
+                            entry["season_entries_meta"][current_item][key.strip().lower()] = unquote_yaml_value(value.strip())
+                            continue
+
+                    if indent == 0:
+                        key, _, value = stripped.partition(":")
+                        key = key.strip().lower()
+                        value = unquote_yaml_value(value.strip())
+                        if key == "completed":
+                            entry["completed"] = parse_bool(value)
+                        else:
+                            entry[key] = value
         except Exception:
             return {}
         return entry
@@ -709,7 +672,7 @@ def load_live_game_meta(root: Path) -> dict:
         if meta_file.name.lower() == GAME_META_FILENAME:
             continue
         title = normalize_title(meta_file.stem)
-        parsed = parse_flat_yaml(meta_file)
+        parsed = parse_live_yaml(meta_file)
         if parsed:
             per_file_meta[title] = parsed
 
@@ -734,11 +697,12 @@ def find_live_game_cover(root: Path, title: str) -> str:
     return ""
 
 
-def build_game_season_map(root: Path) -> tuple[dict[str, list[dict]], set[str], dict[str, dict]]:
+def build_game_season_map(root: Path, live_game_meta: dict | None = None) -> tuple[dict[str, list[dict]], set[str], dict[str, dict]]:
     games_root = root / CATEGORIES["games"]
     season_map: dict[str, list[dict]] = {}
     season_stems: set[str] = set()
     representative_map: dict[str, dict] = {}
+    live_game_meta = live_game_meta or {}
     if not games_root.exists():
         return season_map, season_stems, representative_map
 
@@ -754,10 +718,13 @@ def build_game_season_map(root: Path) -> tuple[dict[str, list[dict]], set[str], 
                     order = season_order_value(season_title)
                     source_year = season_source_year(sub_folder.name)
                     image_path = process_and_get_webp_path(img_path, "games")
-                    entry_meta = GAME_SEASON_ENTRY_META.get(rule["title"], {}).get(get_game_display_title(season_title), {})
+                    display_title = get_game_display_title(season_title)
+                    entry_meta = (
+                        live_game_meta.get(rule["title"], {}).get("season_entries_meta", {}).get(display_title, {})
+                    )
                     season_map.setdefault(rule["title"], []).append({
                         "id": f"season_{rule['title']}_{len(season_map.get(rule['title'], []))}",
-                        "title": get_game_display_title(season_title),
+                        "title": display_title,
                         "image_path": image_path,
                         "label": rule["label"],
                         "champion": entry_meta.get("champion", ""),
@@ -846,6 +813,8 @@ def build_game_meta_template_content(image_titles: list[str], meta_map: dict) ->
             f"  playtime: {yaml_string(str(entry.get('playtime', '')))}",
             f"  completed: {'true' if entry.get('completed') else 'false'}",
             f"  genre: {yaml_string(str(entry.get('genre', '')))}",
+            *([f"  display_title: {yaml_string(str(entry.get('display_title', '')))}"] if entry.get("display_title") else []),
+            *([f"  dlc_parent_title: {yaml_string(str(entry.get('dlc_parent_title', '')))}"] if entry.get("dlc_parent_title") else []),
             "",
         ])
 
@@ -885,6 +854,8 @@ def sync_game_meta_template(folder: Path, image_titles: list[str], report: dict,
         genre = str(entry.get("genre", "")).strip().lower()
         entry["genre"] = genre if genre in GAME_GENRE_CHOICES else ""
         entry["completed"] = bool(entry.get("completed"))
+        entry["display_title"] = normalize_title(str(entry.get("display_title", "")))
+        entry["dlc_parent_title"] = normalize_title(str(entry.get("dlc_parent_title", "")))
 
         if title not in GAME_TITLE_ALIASES and not looks_like_english_title(title) and contains_cjk(entry["english_title"]):
             entry["english_title"] = ""
@@ -1253,6 +1224,51 @@ def find_music_cover(markdown_path: Path, cover_value: str, cat_root: Path) -> t
     return None, raw_value
 
 
+def find_music_audio(markdown_path: Path, audio_value: str, cat_root: Path) -> tuple[Path | None, str]:
+    raw_value = (audio_value or "").strip()
+    candidates: list[Path] = []
+    stem = markdown_path.stem
+
+    songs_root = cat_root / "Songs"
+
+    if raw_value:
+        raw_path = Path(raw_value)
+        if raw_path.is_absolute():
+            candidates.append(raw_path)
+        else:
+            candidates.append(markdown_path.parent / raw_value)
+            candidates.append(cat_root / raw_value)
+            candidates.append(songs_root / raw_value)
+            for ext in AUDIO_EXTENSIONS:
+                candidates.append(markdown_path.parent / f"{raw_value}{ext}")
+                candidates.append(cat_root / f"{raw_value}{ext}")
+                candidates.append(songs_root / f"{raw_value}{ext}")
+    else:
+        for ext in AUDIO_EXTENSIONS:
+            candidates.append(markdown_path.with_suffix(ext))
+            candidates.append(songs_root / f"{stem}{ext}")
+
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_file():
+            return candidate, raw_value
+
+    return None, raw_value
+
+
+def extract_music_primary_track(content: str, fallback: str) -> str:
+    for raw_line in content.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        numbered = re.match(r"^\d+\.\s+(.*)$", line)
+        if numbered:
+            return numbered.group(1).strip()
+        bullet = re.match(r"^[-*]\s+(.*)$", line)
+        if bullet:
+            return bullet.group(1).strip()
+    return fallback
+
+
 def parse_visions_meta_yamls(visions_root: Path) -> dict:
     result = {}
     if not visions_root.exists(): return result
@@ -1299,8 +1315,8 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
         return {"key": category_key, "display_name": category_name, "total_count": 0, "sort_mode": "timeline", "years": []}
 
     year_map = {}
-    game_season_map, game_season_stems, game_season_representatives = build_game_season_map(root) if category_key == "games" else ({}, set(), {})
     live_game_meta = load_live_game_meta(root) if category_key == "games" else {}
+    game_season_map, game_season_stems, game_season_representatives = build_game_season_map(root, live_game_meta) if category_key == "games" else ({}, set(), {})
     for sub_folder in sorted(category_root.iterdir()):
         if not sub_folder.is_dir(): continue
         if category_key == "games" and sub_folder.name == GAME_SEASON_FOLDER:
@@ -1334,7 +1350,10 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             season_entry_list = game_season_map.get(file_stem, []) if category_key == "games" else []
             dlc_split = split_game_dlc_title(file_stem) if category_key == "games" else None
             cover_path = webp_url
-            display_title = get_game_display_title(dlc_split[1]) if dlc_split else (get_game_display_title(file_stem) if category_key == "games" else file_stem)
+            display_title = (
+                get_game_display_title(dlc_split[1], meta_entry) if dlc_split
+                else (get_game_display_title(file_stem, meta_entry) if category_key == "games" else file_stem)
+            )
             if category_key == "games" and file_stem in game_season_representatives and file_stem != "英雄联盟":
                 cover_path = game_season_representatives[file_stem]["image_path"]
 
@@ -1360,7 +1379,7 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
                 "genre": meta_entry.get("genre", ""),
                 "seasonal": bool(season_entry_list),
                 "dlc": bool(dlc_split),
-                "dlc_parent": get_game_display_title(dlc_split[0]) if dlc_split else "",
+                "dlc_parent": normalize_title(str(meta_entry.get("dlc_parent_title", ""))) or (get_game_display_title(dlc_split[0]) if dlc_split else ""),
                 "summary": meta_entry.get("summary", ""),
                 "hover_note": meta_entry.get("hover_note", ""),
                 "season_heading": meta_entry.get("season_heading", ""),
@@ -1381,7 +1400,6 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             if year not in year_map:
                 year_map[year] = {"year": year, "folder": f"Seasonal-{int(year) if year else 'Misc'}", "items": []}
             meta_entry = default_game_meta()
-            meta_entry.update(GAME_SEASON_DEFAULTS.get(title, {}))
             meta_entry.update(live_game_meta.get(title, {}))
             rating = parse_game_rating(str(meta_entry.get("rating", "")))
             meta_entry["rating"] = "" if rating is None else rating
@@ -1392,7 +1410,7 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             year_map[year]["items"].append({
                 "id": f"{category_key}_{year}_{len(year_map[year]['items'])}",
                 "image_path": live_cover_path or representative["image_path"],
-                "title": get_game_display_title(title),
+                "title": get_game_display_title(title, meta_entry),
                 "cinema": False,
                 "quote": "",
                 "url": "",
@@ -1503,7 +1521,10 @@ def process_music_category(root: Path, report: dict) -> dict:
             meta = parse_markdown_with_frontmatter(item)
             cover_url = ""
             cover_filename = meta["metadata"].get("cover", "")
+            audio_url = ""
+            audio_value = meta["metadata"].get("audio", "")
             cover_path, raw_cover = find_music_cover(item, cover_filename, cat_root)
+            audio_path, _ = find_music_audio(item, audio_value, cat_root)
 
             if cover_path:
                 try:
@@ -1520,12 +1541,21 @@ def process_music_category(root: Path, report: dict) -> dict:
                     "cover": raw_cover,
                 })
 
+            if audio_path:
+                try:
+                    if audio_path.is_relative_to(ONEDRIVE_DATA_ROOT):
+                        audio_url = process_and_get_audio_path(audio_path)
+                except ValueError:
+                    audio_url = ""
+
             items.append({
                 "id": f"music_{len(items)}",
                 "title": meta["metadata"].get("title", item.stem),
                 "cover": cover_url,
                 "description": meta["metadata"].get("description", ""),
-                "content": meta["content"]
+                "content": meta["content"],
+                "audio": audio_url,
+                "track_title": normalize_title(str(meta["metadata"].get("track_title", "")).strip()) or extract_music_primary_track(meta["content"], meta["metadata"].get("title", item.stem)),
             })
 
     return {
@@ -1545,6 +1575,7 @@ def process_texts_category(root: Path, report: dict) -> dict:
     section_counts: dict[str, int] = {}
     section_titles: dict[str, str] = {}
     section_descriptions: dict[str, str] = {}
+    section_config_map, _ = load_text_section_config(cat_root)
     for item in cat_root.rglob("*"):
         if item.is_file() and item.suffix.lower() in TEXT_EXTENSIONS:
             parsed = parse_markdown_with_frontmatter(item)
@@ -1574,14 +1605,14 @@ def process_texts_category(root: Path, report: dict) -> dict:
             })
 
     items.sort(key=lambda x: (x["sort_date"], x["title"]), reverse=True)
-    section_order = ["headline", "video-summary", "notes"]
+    section_order = list(section_config_map.keys())
     dynamic_keys = [key for key in section_counts.keys() if key not in section_order]
-    ordered_keys = section_order + sorted(dynamic_keys)
+    ordered_keys = [key for key in section_order if key in section_counts] + sorted(dynamic_keys)
     sections = [
         {
             "key": key,
-            "title": section_titles.get(key, TEXT_SECTION_CONFIG.get(key, {}).get("title", key)),
-            "description": section_descriptions.get(key, TEXT_SECTION_CONFIG.get(key, {}).get("description", "")),
+            "title": section_titles.get(key, section_config_map.get(key, {}).get("title", key)),
+            "description": section_descriptions.get(key, section_config_map.get(key, {}).get("description", "")),
             "count": section_counts.get(key, 0),
         }
         for key in ordered_keys

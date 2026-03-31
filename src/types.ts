@@ -63,6 +63,8 @@ export interface MusicItem {
   cover: string      // 封面图片相对路径
   description?: string // 专辑短评/描述
   content: string    // 音轨列表的 markdown 正文
+  audio?: string
+  track_title?: string
 }
 
 export interface MusicCategory {
