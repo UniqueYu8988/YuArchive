@@ -1000,7 +1000,7 @@ def build_game_meta_template_content(image_titles: list[str], meta_map: dict) ->
     return "\n".join(lines).rstrip() + "\n"
 
 
-def sync_game_meta_template(folder: Path, image_titles: list[str], report: dict, steam_cache: dict) -> dict:
+def sync_game_meta_template(folder: Path, image_titles: list[str], report: dict) -> dict:
     meta_file = folder / GAME_META_FILENAME
     existing = parse_game_meta_yaml(meta_file)
     canonical_existing: dict[str, list[str]] = {}
@@ -1042,63 +1042,7 @@ def sync_game_meta_template(folder: Path, image_titles: list[str], report: dict,
             entry["price"] = ""
             entry["genre"] = ""
 
-        suggested_english_title = guess_game_english_title(title)
-
-        if entry["platform"] == "steam":
-            steam_query = entry["english_title"] or (title if looks_like_english_title(title) else "")
-            steam_meta = fetch_steam_metadata(steam_query, steam_cache, report) if steam_query else None
-            if steam_meta:
-                if not entry["url"]:
-                    entry["url"] = steam_meta.get("url", "")
-                if not entry["price"]:
-                    entry["price"] = steam_meta.get("price", "")
-                if not entry["genre"]:
-                    entry["genre"] = steam_meta.get("genre", "")
-
         merged[title] = entry
-        report["games_meta_inventory"].append({
-            "folder": folder.name,
-            "title": title,
-            "english_title": entry["english_title"],
-            "suggested_english_title": suggested_english_title,
-            "platform": entry["platform"],
-            "genre": entry["genre"],
-            "rating": entry["rating"],
-            "playtime": entry["playtime"],
-            "price": entry["price"],
-            "completed": entry["completed"],
-            "url": entry["url"],
-            "has_english_title": bool(entry["english_title"]),
-            "has_url": bool(entry["url"]),
-            "has_price": bool(entry["price"]),
-            "has_genre": bool(entry["genre"]),
-            "has_rating": entry["rating"] not in ("", None),
-            "has_playtime": bool(entry["playtime"]),
-            "has_completed": True,
-        })
-
-        missing = []
-        for field in ("english_title", "price", "rating", "playtime", "genre"):
-            if entry[field] in ("", None):
-                missing.append(field)
-        if not entry["url"]:
-            missing.append("url")
-        if missing:
-            report["games_meta_todo"].append({
-                "folder": folder.name,
-                "title": title,
-                "english_title": entry["english_title"],
-                "platform": entry["platform"],
-                "genre": entry["genre"],
-                "rating": entry["rating"],
-                "playtime": entry["playtime"],
-                "price": entry["price"],
-                "completed": entry["completed"],
-                "url": entry["url"],
-                "suggested_english_title": suggested_english_title,
-                "search_hint": f"https://store.steampowered.com/search/?term={quote_plus(entry['english_title'] or title)}",
-                "missing": missing,
-            })
 
     content = build_game_meta_template_content(image_titles, merged)
     previous = meta_file.read_text(encoding="utf-8") if meta_file.exists() else None
@@ -1494,7 +1438,7 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
 # 🚀 四大类别深库扫描
 # ─────────────────────────────────────────────────────────────
 
-def process_timeline_category(root: Path, category_key: str, report: dict, steam_cache: dict | None = None, site_layout: dict | None = None) -> dict:
+def process_timeline_category(root: Path, category_key: str, report: dict, site_layout: dict | None = None) -> dict:
     category_name = CATEGORIES[category_key]
     category_root = root / category_name
     print(f"\n📂 [1/4] 扫描 {category_name} (时间线架构)...")
@@ -1508,12 +1452,17 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
     year_map = {}
     live_game_meta = load_live_game_meta(root) if category_key == "games" else {}
     game_season_map, game_season_stems, game_season_representatives = build_game_season_map(root, live_game_meta) if category_key == "games" else ({}, set(), {})
-    for sub_folder in sorted(category_root.iterdir()):
+    timeline_folders = [folder for folder in sorted(category_root.iterdir()) if folder.is_dir()]
+    visible_folders = []
+    for folder in timeline_folders:
+        if category_key == "games" and folder.name in {GAME_SEASON_FOLDER, GAME_LIVE_FOLDER}:
+            continue
+        visible_folders.append(folder)
+
+    total_visible_folders = len(visible_folders)
+    for index, sub_folder in enumerate(visible_folders, start=1):
+        print(f"   ↳ [{index}/{total_visible_folders}] 处理 {sub_folder.name} ...", flush=True)
         if not sub_folder.is_dir(): continue
-        if category_key == "games" and sub_folder.name == GAME_SEASON_FOLDER:
-            continue
-        if category_key == "games" and sub_folder.name == GAME_LIVE_FOLDER:
-            continue
         year = extract_year_from_folder(sub_folder.name) or 0
         images = scan_images_in_folder(sub_folder)
         if category_key == "games":
@@ -1527,7 +1476,7 @@ def process_timeline_category(root: Path, category_key: str, report: dict, steam
             if sub_folder.name in GAME_META_SKIP_FOLDERS:
                 report["games_meta_skipped_folders"].append(sub_folder.name)
             else:
-                game_meta = sync_game_meta_template(sub_folder, image_titles, report, steam_cache or {})
+                game_meta = sync_game_meta_template(sub_folder, image_titles, report)
                 game_meta_enabled = True
 
         if year not in year_map:
@@ -1835,17 +1784,12 @@ def main():
     WEBP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     start_time = time.time()
-    steam_cache = load_steam_lookup_cache()
     site_ui = load_site_ui_config(ONEDRIVE_DATA_ROOT)
     site_layout = load_site_layout_config(ONEDRIVE_DATA_ROOT)
     homepage_config = load_homepage_config(ONEDRIVE_DATA_ROOT)
     report = {
         "games_meta_skipped_folders": [],
         "games_meta_templates_updated": [],
-        "games_meta_inventory": [],
-        "games_meta_todo": [],
-        "games_steam_autofill_hits": 0,
-        "games_steam_autofill_misses": 0,
         "music_missing_covers": [],
         "music_external_covers": [],
         "texts_date_issues": [],
@@ -1864,7 +1808,7 @@ def main():
             "validation": report,
         },
         "categories": {
-            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report, steam_cache, site_layout),
+            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report, site_layout),
             "visions": process_visions_category(ONEDRIVE_DATA_ROOT, report),
             "music":   process_music_category(ONEDRIVE_DATA_ROOT, report),
             "texts":   process_texts_category(ONEDRIVE_DATA_ROOT, report, site_layout),
@@ -1880,9 +1824,6 @@ def main():
         print(f"❌ [致命] 写入 {JSON_OUTPUT_PATH.name} 全盘失败：{e}")
         sys.exit(1)
 
-    export_games_todo_reports(report)
-    save_steam_lookup_cache(steam_cache)
-
     total_time = time.time() - start_time
     total_items = sum(c["total_count"] for c in data["categories"].values())
     
@@ -1890,16 +1831,8 @@ def main():
     print("  🎉 打包脱水完成，所有数据已绝对硬塞入前端！")
     print(f"  📌 WebP 转码区: {WEBP_CACHE_DIR}")
     print(f"  📌 结构输出区: {JSON_OUTPUT_PATH}")
-    report_outputs = report.get("games_report_outputs", {})
-    print(f"  📌 Games 总览清单: {report_outputs.get('inventory_csv', GAMES_INVENTORY_CSV_PATH)}")
-    print(f"  📌 Games 英文名缺失: {report_outputs.get('missing_english_csv', GAMES_MISSING_ENGLISH_CSV_PATH)}")
-    print(f"  📌 Games 待补清单: {report_outputs.get('todo_csv', GAMES_TODO_CSV_PATH)}")
     print(f"  📊 总项目数：{total_items} 项")
-    print(f"  🧪 校验摘要：Games 待补元数据 {len(report['games_meta_todo'])} 项 | Steam 自动补全 {report['games_steam_autofill_hits']} 项 | 模板更新 {len(report['games_meta_templates_updated'])} 个 | Music 缺封面 {len(report['music_missing_covers'])} 项 | Text 日期告警 {len(report['texts_date_issues'])} 项 | Visions 孤儿元数据 {len(report['visions_orphan_meta'])} 项")
-    if report.get("games_report_fallback_paths"):
-        print("  ⚠️  检测到报表文件被占用，已写入 .latest 备用文件：")
-        for original, fallback in report["games_report_fallback_paths"].items():
-            print(f"     - {original} -> {fallback}")
+    print(f"  🧪 校验摘要：模板更新 {len(report['games_meta_templates_updated'])} 个 | Music 缺封面 {len(report['music_missing_covers'])} 项 | Text 日期告警 {len(report['texts_date_issues'])} 项 | Visions 孤儿元数据 {len(report['visions_orphan_meta'])} 项")
     print(f"  ⏱  总耗时：{total_time:.2f} 秒")
     print("=" * 65)
 
