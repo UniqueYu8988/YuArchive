@@ -410,15 +410,6 @@ export default function MusicPage({ data }: Props) {
                               borderRadius: '28px',
                             }}
                           />
-                          <div
-                            style={{
-                              position: 'absolute',
-                              inset: '12% 12%',
-                              borderRadius: '999px',
-                              background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 68%, transparent 100%)',
-                              pointerEvents: 'none',
-                            }}
-                          />
                         </>
                       )}
 

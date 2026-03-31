@@ -1369,6 +1369,23 @@ def normalize_music_stem(value: str) -> str:
     return "".join(normalized_tokens)
 
 
+def music_cache_stem(value: str) -> str:
+    """
+    为 Music 资源生成稳定的缓存文件名。
+    避免源文件大小写变化后，本地 Windows 正常、线上大小写敏感环境 404。
+    """
+    cleaned = re.sub(r"\s+", " ", value).strip()
+    cleaned = re.sub(r'[<>:"/\\\\|?*]+', "-", cleaned)
+    cleaned = cleaned.strip(". ")
+    if not cleaned:
+        return "untitled"
+
+    slug = cleaned.casefold()
+    slug = re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "-", slug)
+    slug = re.sub(r"-{2,}", "-", slug).strip("-")
+    return slug or "untitled"
+
+
 def find_music_asset_by_stem(target_stem: str, directory: Path, allowed_suffixes: set[str]) -> Path | None:
     if not directory.exists():
         return None
@@ -1703,6 +1720,7 @@ def process_music_category(root: Path, report: dict) -> dict:
     for item in cat_root.rglob("*"):
         if item.is_file() and item.suffix.lower() in TEXT_EXTENSIONS:
             meta = parse_markdown_with_frontmatter(item)
+            cache_stem = music_cache_stem(item.stem)
             cover_url = ""
             cover_filename = meta["metadata"].get("cover", "")
             audio_url = ""
@@ -1710,7 +1728,7 @@ def process_music_category(root: Path, report: dict) -> dict:
             cover_path, raw_cover = find_music_cover(item, cover_filename, cat_root)
             audio_path, _ = find_music_audio(item, audio_value, cat_root)
 
-            music_cover_rel_path = Path("Music") / "Covers" / f"{item.stem}.webp"
+            music_cover_rel_path = Path("Music") / "Covers" / f"{cache_stem}.webp"
             if cover_path:
                 try:
                     if cover_path.is_relative_to(ONEDRIVE_DATA_ROOT):
@@ -1729,7 +1747,7 @@ def process_music_category(root: Path, report: dict) -> dict:
             if audio_path:
                 try:
                     if audio_path.is_relative_to(ONEDRIVE_DATA_ROOT):
-                        music_audio_rel_path = Path("Music") / "Songs" / f"{item.stem}{audio_path.suffix}"
+                        music_audio_rel_path = Path("Music") / "Songs" / f"{cache_stem}{audio_path.suffix.lower()}"
                         audio_url = process_and_get_audio_path(audio_path, output_rel_path=music_audio_rel_path)
                 except ValueError:
                     audio_url = ""
