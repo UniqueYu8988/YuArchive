@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-04-01T04:09:56.226799",
+    "generated_at": "2026-04-02T04:06:56.706679",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data",
     "site_ui": {
@@ -9215,7 +9215,153 @@
             }
           ]
         }
-      ]
+      ],
+      "showcase": {
+        "title": "角色橱窗",
+        "description": "脱离下方光影仓库的一小块脸谱化角色留影，上方用动图，下方用静态头像切换。",
+        "entries": [
+          {
+            "id": "miku",
+            "title": "Miku",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/miku.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/miku.webp"
+          },
+          {
+            "id": "后藤一里",
+            "title": "后藤一里",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/后藤一里.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/后藤一里.webp"
+          },
+          {
+            "id": "喜多郁代",
+            "title": "喜多郁代",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/喜多郁代.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/喜多郁代.webp"
+          },
+          {
+            "id": "伊地知虹夏",
+            "title": "伊地知虹夏",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/伊地知虹夏.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/伊地知虹夏.webp"
+          },
+          {
+            "id": "山田凉",
+            "title": "山田凉",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/山田凉.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/山田凉.webp"
+          },
+          {
+            "id": "八奈见杏菜",
+            "title": "八奈见杏菜",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/八奈见杏菜.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/八奈见杏菜.webp"
+          },
+          {
+            "id": "金克丝",
+            "title": "金克丝",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/金克丝.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/金克丝.webp"
+          },
+          {
+            "id": "露西",
+            "title": "露西",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/露西.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/露西.webp"
+          },
+          {
+            "id": "星野爱",
+            "title": "星野爱",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/星野爱.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/星野爱.webp"
+          },
+          {
+            "id": "薇尔莉特",
+            "title": "薇尔莉特",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/薇尔莉特.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/薇尔莉特.webp"
+          },
+          {
+            "id": "拉姆",
+            "title": "拉姆",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/拉姆.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/拉姆.webp"
+          },
+          {
+            "id": "蕾姆",
+            "title": "蕾姆",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/蕾姆.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/蕾姆.webp"
+          },
+          {
+            "id": "爱蜜莉雅",
+            "title": "爱蜜莉雅",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/爱蜜莉雅.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/爱蜜莉雅.webp"
+          },
+          {
+            "id": "和泉纱雾",
+            "title": "和泉纱雾",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/和泉纱雾.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/和泉纱雾.webp"
+          },
+          {
+            "id": "康娜",
+            "title": "康娜",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/康娜.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/康娜.webp"
+          },
+          {
+            "id": "堀北铃音",
+            "title": "堀北铃音",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/堀北铃音.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/堀北铃音.webp"
+          },
+          {
+            "id": "轻井泽惠",
+            "title": "轻井泽惠",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/轻井泽惠.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/轻井泽惠.webp"
+          },
+          {
+            "id": "绪山美波里",
+            "title": "绪山美波里",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/绪山美波里.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/绪山美波里.webp"
+          },
+          {
+            "id": "樱岛麻衣",
+            "title": "樱岛麻衣",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/樱岛麻衣.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/樱岛麻衣.webp"
+          },
+          {
+            "id": "真寻酱",
+            "title": "真寻酱",
+            "caption": "",
+            "gif_path": "media_cache/Visions/Showcase/gifs/真寻酱.gif",
+            "avatar_path": "webp_cache/Visions/Showcase/avatars/真寻酱.webp"
+          }
+        ]
+      }
     },
     "music": {
       "key": "music",
@@ -9558,7 +9704,7 @@
     "texts": {
       "key": "texts",
       "display_name": "Texts",
-      "total_count": 18,
+      "total_count": 22,
       "sort_mode": "text",
       "sections": [
         {
@@ -9566,9 +9712,41 @@
           "title": "得到头条",
           "description": "把每天值得留下的一点观察、判断与信息浓缩，整理成可以回看的文字切片。",
           "count": 18
+        },
+        {
+          "key": "video-summary",
+          "title": "视频总结",
+          "description": "把长视频里的论点、结构与关键细节压缩成文字，方便再次检索与重温。",
+          "count": 4
         }
       ],
       "items": [
+        {
+          "id": "text_18",
+          "title": "Claude Code源码泄露！首发解读51万行代码！",
+          "date": "2026-03-31",
+          "sort_date": "2026-03-31",
+          "section": "video-summary",
+          "section_title": "视频总结",
+          "tags": [
+            "\"Claude Code\"",
+            "\"源码工程\""
+          ],
+          "content": "### 💡 视频主题\n\nClaude Code的npm包意外泄露1902个源文件、51万行TypeScript代码，作者用Claude Code分析源码，揭示其工程架构设计。\n\n### ✨ 主要内容\n\n- **性能构成：60%模型+40%工程**。Claude Code表现约60%来自Opus 4.6模型本身能力，40%来自围绕模型构建的工程系统。\"Harness Engineering\"概念：将AI比作野马，工程系统是缰绳和鞍座，将不可控的AI能力转化为可靠可交付的工程成果。OpenAI和Anthropic都在倡导这一理念。\n\n- **系统提示词分层设计**。提示词由静态规则和动态参数组成。静态规则面向所有用户，共享同一缓存，节省成本；动态参数针对每个用户独立加载，实现个性化。两条设计原则：成本摊平和个性化定制。\n\n- **MCP工具的隐藏Token成本**。每个MCP工具定义消耗4000-6000 tokens。连接5个MCP，描述文件就占用12%上下文窗口。工具并非越多越好，每个都有Token成本。\n\n- **Auto模式的双AI安全架构**。主AI执行操作时，每次都经过独立的yoloClassifier（You Only Live Once）AI分类器审查。分类器有专属系统提示词，执行Allow/Soft Deny/Hard Deny三级判断：Allow直接执行，Soft Deny降级为需确认操作，Hard Deny直接阻止且无法覆盖。四层安全检查（自动闸机→员工验证→楼层授权→同事确认）使Claude Code极少出现误删文件事故。\n\n- **记忆系统的设计取舍**。记忆提取由子AI（fork agent）完成，仅限读取文件和写入记忆目录，无Bash权限。提取四类记忆：用户偏好、行为反馈、项目信息、外部资源。但核心设计原则是：只记偏好，不记代码。因为代码持续变化，记忆不自动更新，存储代码会产生误导信息。代码相关事实始终从源码实时读取。触发机制是AI完整回答且无工具调用时启动，有速率限制避免资源浪费。autoDream机制：超过24小时未整理且有新会话时，后台代理自动整理记忆文件。\n\n- **上下文压缩采用9部分结构化提取**。压缩规则包含核心请求、关键概念、相关文件代码、错误与恢复、用户消息、待办任务、当前工作、下一步指南等，确保关键信息在长对话中保留。\n\n- **搜索只用grep不用RAG**。Claude Code不使用向量数据库、embedding索引或语义搜索，仅用最基础的grep文本搜索。设计逻辑：模型能力会持续变强，保持搜索逻辑简单，让AI自主完成任务而非构建复杂规则。\n\n- **源码彩蛋：18种虚拟宠物**。代码中隐藏完整虚拟宠物系统，包含鸭子、猫、龙、水豚、仙人掌等18个物种，稀有度从Common到Legendary。注释包含\"Mulberry 32, good enough for picking ducks\"等趣味内容。还有多个future flags暗示产品演进方向。\n\n- **开源泄露加速国产替代**。52天内Claude团队发布74个版本，迭代速度极快。Claude Code本身是最佳AI编程工具且能自我迭代改进。开源后给国内外社区提供学习机会。国内Kimi、Qwen、DeepSeek等模型能力正在追赶，配合开源架构，国产Claude Code类似产品可能在一个月内出现。但Claude团队的工程能力和速度仍是壁垒，未来竞争重点是工程系统质量而非单纯模型能力。"
+        },
+        {
+          "id": "text_20",
+          "title": "《极限竞速：地平线6》全新14分钟实机演示",
+          "date": "2026-03-28",
+          "sort_date": "2026-03-28",
+          "section": "video-summary",
+          "section_title": "视频总结",
+          "tags": [
+            "\"开放世界赛车\"",
+            "\"障碍赛道\""
+          ],
+          "content": "### 💡 视频主题\n\n《极限竞速：地平线6》14分钟实机演示，展示游戏核心流程、城市设计理念、新增社交功能与季节系统等关键内容。\n\n### ✨ 主要内容\n\n- **资格赛入门：** 首先通过地平线资格赛加入地平线节，之后逐步提升等级，更快完成比赛可解锁腕带，通过职业模式获得腕带后解锁里程碑事件。\n\n- **城市设计目标：** 打造一座城市，每条道路、每个弯道和捷径都充满驾驶乐趣，探索起来令人愉悦。\n\n- **社交功能新增：** 竞速玩家选项如近距雷达；开放世界可玩内容比以往更多；新共享体验如地平线竞速赛道，无缝融入开放世界，无需加载和匹配，纯粹是玩家与朋友及在世排行榜的社交体验。\n\n- **东京码头冲刺赛：** 地平线冲刺赛可单人、合作、竞速或多人对战，共三场，一场在东京城的码头区；赛道被划分为沿途多个独立赛段，可追踪时间损失或追赶情况。\n\n- **障碍赛道机制：** 穿越游戏中最有趣的地点设置障碍赛道，包含直升机追踪、飞机等高肾上腺素元素；可破坏广告牌和集装箱起重机在最后一刻抬升障碍让玩家从下方通过；玩家自发创作的障碍赛道玩法得到官方验证和采纳。\n\n- **可重复游玩设计：** 核心理念是首次游玩简单但精通困难，必须充满乐趣；重复游玩意味着追求更高分数或更快时间；开发环境中已出现自发竞争最快成绩的现象。\n\n- **季节系统影响：** 季节对视觉和赛车性能产生重大影响，不同时节可能出现不同优势车辆类型，但不进行惩罚性限制；每个赛季呈现独特视觉风格和性能特点，需要大量额外工作，但成为让玩家每周回归的核心机制。"
+        },
         {
           "id": "text_2",
           "title": "《大国小农》：重新理解中国农村的“蓄水池”与底牌价值",
@@ -9784,6 +9962,32 @@
             "得到"
           ],
           "content": "### ✨ 主要内容\n\n今天我们关注了一个至关重要的“慢变量”——种树。随着2026年相关立法的推进，咱们国家在植树造林上的观念发生了深刻的进化：\n\n- 🌴 **打破迷思与过往误区**：极端天气增多是因为全球变暖和城市热岛效应，种树其实是在缓解高温。过去“在干旱区盲目追求高大乔木”等不科学的种植方式反而破坏了生态，现在更强调因地制宜。\n- 💡 **种树模式的三大转变**：\n  1. **从单点动作到系统工程**：先“养土”再种树，比如利用蓝藻结皮技术先改善沙漠地基。\n  2. **从依赖经验到数据驱动**：将制造业逻辑引入环保，用无人机和机器人进行精准、标准化的规模种植。\n  3. **从实验室走向民间**：简单低成本的实用治沙技术（如收集温差水汽的特制塑料袋）正在民间涌现并走向世界。\n- ⏳ **植树节的顶级“叙事”价值**：人类大脑天生难以感知跨越生命长度的缓慢变化（如沙漠化）。植树节最大的意义，就是把容易被忽视的“慢变量”，变成每年一次的“快提醒”。"
+        },
+        {
+          "id": "text_19",
+          "title": "Obsidian CLI 详细教程：官方命令行工具，激进拥抱智能体，高效 + 自动化 + 降低Token消耗。",
+          "date": "2026-03-09",
+          "sort_date": "2026-03-09",
+          "section": "video-summary",
+          "section_title": "视频总结",
+          "tags": [
+            "\"Obsidian CLI\"",
+            "\"AI智能体\""
+          ],
+          "content": "### 💡 视频主题\nObsidian 发布官方命令行工具 Obsidian CLI，让 AI 智能体（Claude Code、OpenClaw 等）和 n8n 工作流通过命令行直接操作笔记库，大幅降低 Token 消耗。\n\n### ✨ 主要内容\n\n- **工具定位**：Obsidian CLI 不是给普通用户手动敲命令使用的，而是专为 AI 智能体和工作流设计，让智能体拥有操控 Obsidian 的能力。\n\n- **Token 节省机制**：传统方式让 AI 直接读取整个笔记库，消耗大量 Token；使用 CLI 后，智能体只需执行几条命令行即可深度感知笔记库。\n\n- **视频演示流程**：\n  - 将 Obsidian CEO Steph 发布的 Obsidian skill 导入到智能体工具中（视频使用 Gemini CLI 作为演示）；\n  - 向智能体发送提示词：获取 arXiv AI 目录下最新 10 篇论文、读取信息、翻译、整理成表格；\n  - 智能体自动调用 Obsidian CLI，在 Obsidian 中创建日记，标题为\"今日AI论文\"；\n  - 日记使用已有的日记模板创建，模板包含习惯打卡、今日回顾、明日计划三个部分；\n  - CLI 创建日记时会触发 Obsidian 的模板机制，自动写入 diary 文件夹。\n\n- **Steph 的 Obsidian skill**：Obsidian CEO Steph 是著名主题皮肤 Minimal 的作者，后空降成为 CEO。其 GitHub 已发布 5 个 Obsidian skill，包括：Obsidian CLI skill、网页内容提取 skill（可将网页内容转换为干净 Markdown 格式）等。\n\n- **使用建议**：\n  - 确定性强、重复性的任务优先用 n8n 工作流和代码实现，而非智能体，否则 Token 消耗极快；\n  - 主要场景在 Obsidian 的话，推荐使用 Gemini CLI 和 open code，这两个工具免费 Token 额度充足。"
+        },
+        {
+          "id": "text_21",
+          "title": "一个视频搞懂OpenClaw！",
+          "date": "2026-02-28",
+          "sort_date": "2026-02-28",
+          "section": "video-summary",
+          "section_title": "视频总结",
+          "tags": [
+            "\"AI智能体\"",
+            "\"安全风险\""
+          ],
+          "content": "### 💡 视频主题\n\n一个视频搞清 OpenClaw 这个 60 天内 GitHub 热度碾压 Linux 的开源 AI 智能体项目，它如何通过桥接编程智能体与聊天软件让普通人也能指挥 AI 控制电脑，以及它面临的安全隐患与能力边界。\n\n### ✨ 主要内容\n\n- **诞生背景**：奥地利程序员 Peter 花一小时将 Claude Code 接入了聊天软件，出发点是出门时也能通过手机指挥家里电脑上的 AI。实际测试中，AI 在没有语音理解功能的情况下，自行编写了语音转文字模块并回复了消息，展示了自我进化的潜力。\n\n- **核心价值**：OpenClaw 做了关键的一步——把编程智能体与大众聊天软件连接。视频实测通过微信发消息让 AI 删除了 Chrome 浏览器的历史记录文件（而非逐个点浏览器设置），还清理了未明确要求的 cookie 和缓存；整理邮箱时 AI 读取了 60 多封邮件并生成分类目录供确认。\n\n- **技术架构**：底层工具包括 Terminal（执行终端命令）、Read（读取文件）、Process（获取进度）、Sessions History（调取绘图历史）等。在此之上是 **Skills 生态**——提前写好的提示词文档，教 AI 每件具体事该怎么做。GitHub 的 awesome-openclaws-skills 项目收录了 2800+ skills，Cup 平台有近 6000 个，Skills 甚至可以由 AI 自行创建。\n\n- **性能表现**：视频权衡性能与成本后接入 MiniMax M2.5 基础模型。实测下载机器学习网课视频时，AI 经历了\"搜索被拒→尝试 YT-DLP 下载到错误格式→发现本地已有课程→主动询问→最终成功获取链接\"的完整自我纠错循环，证明其具备试错和迭代能力。\n\n- **安全风险**：作者将 OpenClaw 接入飞书让同事体验，结果 API 密码、网关凭证等敏感信息被套取；换成更强的 Claude Sonnet 4.6 后 AI 照样泄露。截至视频录制，Cup 平台上已检测到 **1184 个恶意 Skills**，现有 Skills 中 **36.8%** 存在安全漏洞。一旦恶意 Skills 包含自动发送隐私信息的指令，所有配置 OpenClaw 的电脑都可能成为定时炸弹。\n\n- **能力天花板——上下文灾难**：AI 的指令在整体上下文信息中仅占约 5%，智能体的人设、可用工具列表、用户画像等占据大量篇幅。实测让 AI 找 50 张小龙虾图片并做表格确认，AI 在中途完全忘记要找的是小龙虾，最终文件夹里只有一张小龙虾。Meta 的 AI 安全高管也是因为任务太长导致 AI 遗忘了初始指令而删光了所有邮件。\n\n- **适用边界**：在上下文记忆问题解决之前，当前智能体仍是\"走一步算一步\"的新兵。让它买奶茶可能先去打车到奶茶店，发现无法支付再安装支付软件。目前 OpenClaw 最适合的任务是**简单重复、挑战不大的日常杂活**，作为 24 小时待命的私人 AI 管家称职，但难以独立完成复杂的系统工程。\n\n- **本质洞察**：OpenClaw 作者 Peter 本人评价：\"OpenClaw 不是魔法，把它拆开来每个步骤都不过如此，但有时候把现有的东西排列组合再加点新点子，神奇的事情就发生了。\"其爆发的真正原因是 AI 浪潮走到这个节点，所有条件都已就绪。"
         },
         {
           "id": "text_0",

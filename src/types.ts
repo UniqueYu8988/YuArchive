@@ -47,6 +47,20 @@ export interface YearGroup {
   items: ArchiveItem[]  // 该年份的作品列表
 }
 
+export interface VisionShowcaseEntry {
+  id: string
+  title: string
+  caption?: string
+  gif_path: string
+  avatar_path: string
+}
+
+export interface VisionShowcase {
+  title: string
+  description?: string
+  entries: VisionShowcaseEntry[]
+}
+
 /** 时间线类别（sort_mode = "timeline"） */
 export interface TimelineCategory {
   key: string           // "games" | "movies" | "animes"
@@ -54,6 +68,7 @@ export interface TimelineCategory {
   total_count: number
   sort_mode: 'timeline'
   years: YearGroup[]
+  showcase?: VisionShowcase | null
 }
 
 /** Music 类别（基于 Markdown 单文件的新版） */

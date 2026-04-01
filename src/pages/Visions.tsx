@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Clapperboard, Tv } from 'lucide-react'
-import type { TimelineCategory, ArchiveItem } from '../types'
+import type { TimelineCategory, ArchiveItem, VisionShowcase } from '../types'
 import { siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string): string {
@@ -70,6 +70,71 @@ function CountBadge({ count, unit }: { count: number; unit: string }) {
         {unit}
       </span>
     </div>
+  )
+}
+
+function VisionCharacterShowcase({ showcase }: { showcase?: VisionShowcase | null }) {
+  const entries = showcase?.entries ?? []
+  const [selectedId, setSelectedId] = useState<string>(entries[0]?.id ?? '')
+  const loopingEntries = useMemo(() => [...entries, ...entries], [entries])
+
+  useEffect(() => {
+    if (!entries.find(entry => entry.id === selectedId)) {
+      setSelectedId(entries[0]?.id ?? '')
+    }
+  }, [entries, selectedId])
+
+  const currentItem = entries.find(entry => entry.id === selectedId) ?? entries[0]
+
+  if (!currentItem) {
+    return null
+  }
+
+  return (
+    <section
+      className="animate-fade-up"
+      style={{
+        marginBottom: '1.85rem',
+        borderRadius: '28px',
+        border: '1px solid var(--glass-border)',
+        background:
+          'linear-gradient(180deg, rgba(255,255,255,0.038) 0%, rgba(255,255,255,0.016) 100%)',
+        boxShadow: '0 22px 48px rgba(0,0,0,0.08)',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          display: 'grid',
+          gap: '1rem',
+          padding: '1.1rem 1.15rem 1rem',
+        }}
+      >
+        <div className="visions-showcase-stage">
+          <img src={currentItem.gif_path} alt={currentItem.title} className="visions-showcase-gif" />
+        </div>
+
+        <div className="visions-showcase-rail">
+          <div className={`visions-showcase-track ${entries.length > 5 ? 'is-looping' : ''}`}>
+            {loopingEntries.map((entry, index) => {
+              const active = entry.id === currentItem.id
+              return (
+                <button
+                  key={`${entry.id}-${index}`}
+                  type="button"
+                  onClick={() => setSelectedId(entry.id)}
+                  className={`visions-showcase-avatar ${active ? 'is-active' : ''}`}
+                  aria-label={`切换角色：${entry.title}`}
+                  title={entry.title}
+                >
+                  <img src={entry.avatar_path} alt={entry.title} />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -307,7 +372,6 @@ export default function Visions({ data }: VisionsProps) {
     () => filteredYears.reduce((sum, yearGroup) => sum + yearGroup.items.length, 0),
     [filteredYears]
   )
-
   const filterButtons: Array<{ key: VisionFilter; label: string }> = [
     { key: 'all', label: '全部' },
     { key: 'movie', label: '电影' },
@@ -464,6 +528,7 @@ export default function Visions({ data }: VisionsProps) {
 
           <main style={{ minWidth: 0 }}>
             <div className="media-grid-container" style={{ padding: 0, maxWidth: 'none' }}>
+              <VisionCharacterShowcase showcase={data.showcase} />
               {filteredYears.map((yearGroup, idx) => (
                 <div
                   key={`${yearGroup.year}`}

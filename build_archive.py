@@ -33,6 +33,7 @@ ONEDRIVE_DATA_ROOT = Path(r"C:\Users\Yu\OneDrive\图片\Data")
 PUBLIC_ROOT = Path(r"C:\Users\Yu\AI\Archive\public")
 WEBP_CACHE_DIR = PUBLIC_ROOT / "webp_cache"
 AUDIO_CACHE_DIR = PUBLIC_ROOT / "audio_cache"
+MEDIA_CACHE_DIR = PUBLIC_ROOT / "media_cache"
 JSON_OUTPUT_PATH = Path(r"C:\Users\Yu\AI\Archive\src\data\archive_data.json")
 REPORTS_ROOT = Path(r"C:\Users\Yu\AI\Archive\reports")
 GAMES_INVENTORY_CSV_PATH = REPORTS_ROOT / "games_meta_inventory.csv"
@@ -59,6 +60,7 @@ TEXT_SECTION_DEFAULT_KEY = "headline"
 TEXT_SECTION_CONFIG_FILENAME = "sections.yaml"
 GAME_META_FILENAME = "meta.yaml"
 VISIONS_META_FILENAME = "meta.yaml"
+VISIONS_SHOWCASE_FOLDER = "角色橱窗"
 SITE_UI_CONFIG_FILENAME = "site-ui.yaml"
 SITE_LAYOUT_CONFIG_FILENAME = "site-layout.yaml"
 HOMEPAGE_CONFIG_FILENAME = "homepage.yaml"
@@ -385,6 +387,54 @@ def process_and_get_audio_path(src_audio_path: Path, output_rel_path: Path | Non
     dst_audio_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src_audio_path, dst_audio_path)
     return f"audio_cache/{rel_path.as_posix()}"
+
+
+def process_and_get_media_path(src_media_path: Path, output_rel_path: Path | None = None) -> str:
+    if not src_media_path.exists():
+        return ""
+
+    rel_path = output_rel_path or src_media_path.relative_to(ONEDRIVE_DATA_ROOT)
+    dst_media_path = MEDIA_CACHE_DIR / rel_path
+    existing_variant = find_case_variant_path(dst_media_path)
+    if existing_variant and existing_variant.name != dst_media_path.name:
+        dst_media_path = normalize_case_variant(existing_variant, dst_media_path)
+
+    if dst_media_path.exists() and dst_media_path.stat().st_size > 0:
+        if dst_media_path.stat().st_mtime >= src_media_path.stat().st_mtime:
+            return f"media_cache/{rel_path.as_posix()}"
+
+    dst_media_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_media_path, dst_media_path)
+    return f"media_cache/{rel_path.as_posix()}"
+
+
+def process_and_get_square_webp_path(src_img_path: Path, output_rel_path: Path, size: int = 320) -> str:
+    if not src_img_path.exists():
+        return ""
+
+    dst_webp_path = WEBP_CACHE_DIR / output_rel_path.with_suffix(".webp")
+    existing_variant = find_case_variant_path(dst_webp_path)
+    if existing_variant and existing_variant.name != dst_webp_path.name:
+        dst_webp_path = normalize_case_variant(existing_variant, dst_webp_path)
+
+    if dst_webp_path.exists() and dst_webp_path.stat().st_size > 0:
+        if dst_webp_path.stat().st_mtime >= src_img_path.stat().st_mtime:
+            return f"webp_cache/{output_rel_path.with_suffix('.webp').as_posix()}"
+
+    dst_webp_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with Image.open(src_img_path) as img:
+            img = img.convert("RGBA")
+            img = trim_transparent_padding(img)
+            img = flatten_alpha_to_edge_matte(img)
+            img = ImageOps.fit(img, (size, size), method=Image.Resampling.LANCZOS)
+            img.save(dst_webp_path, "WEBP", quality=WEBP_QUALITY, method=6)
+            stat = src_img_path.stat()
+            os.utime(dst_webp_path, (stat.st_atime, stat.st_mtime))
+    except Exception as e:
+        print(f"      ⚠️  [头像压制抛错] {src_img_path.name}: {e}")
+
+    return f"webp_cache/{output_rel_path.with_suffix('.webp').as_posix()}"
 
 
 # ─────────────────────────────────────────────────────────────
@@ -1459,6 +1509,8 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
 
     meta_files = []
     for period_dir in sorted([p for p in visions_root.iterdir() if p.is_dir()]):
+        if period_dir.name == VISIONS_SHOWCASE_FOLDER:
+            continue
         preferred_meta = period_dir / VISIONS_META_FILENAME
         legacy_meta = period_dir / f"{period_dir.name}.yaml"
         if preferred_meta.exists():
@@ -1493,6 +1545,100 @@ def parse_visions_meta_yamls(visions_root: Path) -> dict:
         except Exception:
             pass
     return result
+
+
+def load_visions_showcase(visions_root: Path) -> dict | None:
+    showcase_root = visions_root / VISIONS_SHOWCASE_FOLDER
+    meta_file = showcase_root / VISIONS_META_FILENAME
+    if not showcase_root.exists() or not meta_file.exists():
+        return None
+
+    showcase = {
+        "title": "角色橱窗",
+        "description": "",
+        "entries": [],
+    }
+    current_entry = None
+    parsed_entries: list[dict] = []
+
+    try:
+        with open(meta_file, "r", encoding="utf-8") as f:
+            for raw_line in f.readlines():
+                line = raw_line.rstrip("\n")
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+
+                indent = len(line) - len(line.lstrip(" "))
+                if indent == 0 and ":" in stripped and not stripped.endswith(":"):
+                    key, _, value = stripped.partition(":")
+                    key = key.strip().lower()
+                    value = unquote_yaml_value(value.strip())
+                    if key in {"title", "description"}:
+                        showcase[key] = value
+                    continue
+
+                if indent == 0 and stripped.endswith(":"):
+                    entry_title = normalize_title(unquote_yaml_value(stripped[:-1].strip()))
+                    if not entry_title:
+                        current_entry = None
+                        continue
+                    current_entry = {
+                        "id": music_cache_stem(entry_title),
+                        "title": entry_title,
+                        "gif": "",
+                        "avatar": "",
+                        "caption": "",
+                    }
+                    parsed_entries.append(current_entry)
+                    continue
+
+                if current_entry and ":" in stripped:
+                    key, _, value = stripped.partition(":")
+                    current_entry[key.strip().lower()] = unquote_yaml_value(value.strip())
+    except Exception:
+        return None
+
+    processed_entries: list[dict] = []
+    for entry in parsed_entries:
+        slug = music_cache_stem(entry["title"])
+        gif_value = str(entry.get("gif", "")).strip()
+        avatar_value = str(entry.get("avatar", "")).strip()
+
+        gif_path = showcase_root / gif_value if gif_value else None
+        if not gif_path or not gif_path.exists():
+            fallback_gif = showcase_root / f"{entry['title']}.gif"
+            gif_path = fallback_gif if fallback_gif.exists() else None
+        if not gif_path:
+            continue
+
+        avatar_path = showcase_root / avatar_value if avatar_value else gif_path
+        if not avatar_path.exists():
+            avatar_path = gif_path
+
+        gif_url = process_and_get_media_path(
+            gif_path,
+            Path("Visions") / "Showcase" / "gifs" / f"{slug}{gif_path.suffix.lower()}",
+        )
+        avatar_url = process_and_get_square_webp_path(
+            avatar_path,
+            Path("Visions") / "Showcase" / "avatars" / f"{slug}.webp",
+            size=240,
+        )
+
+        processed_entries.append({
+            "id": entry["id"],
+            "title": entry["title"],
+            "caption": entry.get("caption", ""),
+            "gif_path": gif_url,
+            "avatar_path": avatar_url,
+        })
+
+    if not processed_entries:
+        return None
+
+    showcase["entries"] = processed_entries
+    return showcase
 
 
 # ─────────────────────────────────────────────────────────────
@@ -1661,14 +1807,17 @@ def process_visions_category(root: Path, report: dict) -> dict:
     visions_root = root / "Visions"
     
     if not visions_root.exists():
-        return {"key": "visions", "display_name": "Visions", "total_count": 0, "sort_mode": "timeline", "years": []}
+        return {"key": "visions", "display_name": "Visions", "total_count": 0, "sort_mode": "timeline", "years": [], "showcase": None}
 
     year_map = {}
     meta_map = parse_visions_meta_yamls(visions_root)
+    showcase = load_visions_showcase(visions_root)
     used_meta_titles = set()
     
     for sub_folder in sorted(visions_root.iterdir()):
         if not sub_folder.is_dir(): continue
+        if sub_folder.name == VISIONS_SHOWCASE_FOLDER:
+            continue
 
         year = extract_year_from_folder(sub_folder.name) or 0
         images = scan_images_in_folder(sub_folder)
@@ -1704,7 +1853,7 @@ def process_visions_category(root: Path, report: dict) -> dict:
     return {
         "key": "visions", "display_name": "Visions",
         "total_count": sum(len(y["items"]) for y in sorted_years),
-        "sort_mode": "timeline", "years": sorted_years
+        "sort_mode": "timeline", "years": sorted_years, "showcase": showcase
     }
 
 
@@ -1853,6 +2002,8 @@ def main():
 
     PUBLIC_ROOT.mkdir(parents=True, exist_ok=True)
     WEBP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    AUDIO_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    MEDIA_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     start_time = time.time()
     site_ui = load_site_ui_config(ONEDRIVE_DATA_ROOT)
