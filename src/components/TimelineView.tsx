@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react'
 import { CircleDollarSign, Clock3, Gem, Layers3, Star } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem } from '../types'
 import { yearDescriptions, easterEggYear } from '../data/yearDescriptions'
-import { siteUi } from '../data/siteConfig'
+import { assetVersion, siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string): string {
-  return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  return assetVersion ? `${encodedPath}?v=${encodeURIComponent(assetVersion)}` : encodedPath
 }
 
 function CountBadge({ count, unit }: { count: number; unit: string }) {

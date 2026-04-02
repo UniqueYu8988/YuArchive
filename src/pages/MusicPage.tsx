@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink, Music2, Pause, Play, Sparkles } from 'lucide-react'
 import type { MusicCategory, MusicItem } from '../types'
-import { siteUi } from '../data/siteConfig'
+import { assetVersion, siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
-  return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  return assetVersion ? `${encodedPath}?v=${encodeURIComponent(assetVersion)}` : encodedPath
 }
 
 function formatTime(totalSeconds: number): string {
@@ -392,27 +393,6 @@ export default function MusicPage({ data }: Props) {
                         justifyContent: 'center',
                       }}
                     >
-                      {selectedItem.cover && (
-                        <>
-                          <img
-                            src={toImageUrl(selectedItem.cover)}
-                            alt=""
-                            aria-hidden
-                            style={{
-                              position: 'absolute',
-                              inset: '8% 6% 10% 6%',
-                              width: '88%',
-                              height: '82%',
-                              objectFit: 'cover',
-                              filter: 'blur(34px) saturate(1.05)',
-                              opacity: 0.26,
-                              transform: 'scale(1.08)',
-                              borderRadius: '28px',
-                            }}
-                          />
-                        </>
-                      )}
-
                       <div
                         style={{
                           position: 'relative',

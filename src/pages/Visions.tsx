@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Clapperboard, Tv } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem, VisionShowcase } from '../types'
-import { siteUi } from '../data/siteConfig'
+import { assetVersion, siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string): string {
-  return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  return assetVersion ? `${encodedPath}?v=${encodeURIComponent(assetVersion)}` : encodedPath
 }
 
 const VISION_YEAR_LABELS: Record<number, string> = {
@@ -111,7 +112,7 @@ function VisionCharacterShowcase({ showcase }: { showcase?: VisionShowcase | nul
         }}
       >
         <div className="visions-showcase-stage">
-          <img src={currentItem.gif_path} alt={currentItem.title} className="visions-showcase-gif" />
+          <img src={toImageUrl(currentItem.gif_path)} alt={currentItem.title} className="visions-showcase-gif" />
         </div>
 
         <div className="visions-showcase-rail">
@@ -127,7 +128,7 @@ function VisionCharacterShowcase({ showcase }: { showcase?: VisionShowcase | nul
                   aria-label={`切换角色：${entry.title}`}
                   title={entry.title}
                 >
-                  <img src={entry.avatar_path} alt={entry.title} />
+                  <img src={toImageUrl(entry.avatar_path)} alt={entry.title} />
                 </button>
               )
             })}

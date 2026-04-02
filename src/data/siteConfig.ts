@@ -2,6 +2,7 @@ import archiveDataRaw from './archive_data.json'
 import type { ArchiveData, HomepageConfig, SiteLayoutConfig, SiteUiConfig } from '../types'
 
 const archiveData = archiveDataRaw as ArchiveData
+const generatedAt = archiveData.metadata.generated_at || ''
 
 const defaultSiteUi: SiteUiConfig = {
   current_album: 'Current Album',
@@ -52,3 +53,5 @@ export const homepageConfig: HomepageConfig = {
   ...defaultHomepage,
   ...(archiveData.metadata.homepage ?? {}),
 }
+
+export const assetVersion = generatedAt

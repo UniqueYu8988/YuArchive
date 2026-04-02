@@ -2,10 +2,11 @@ import { ArrowUpRight, CircleDollarSign, Clock3, Star, Clapperboard, Tv } from '
 import { NavLink } from 'react-router-dom'
 import { useMemo, useState, type ReactNode } from 'react'
 import type { ArchiveData, ArchiveItem, MusicItem, TextItem } from '../types'
-import { homepageConfig, siteLayout, siteUi } from '../data/siteConfig'
+import { assetVersion, homepageConfig, siteLayout, siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string) {
-  return `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
+  return assetVersion ? `${encodedPath}?v=${encodeURIComponent(assetVersion)}` : encodedPath
 }
 
 function clampText(text: string, maxLength: number) {
@@ -223,7 +224,7 @@ function SectionHeader({
       {frameOrnaments && (
         <>
           <img
-            src="/icons/ornament-side-divider.png"
+            src="/icons/ornament-side-divider.webp"
             alt=""
             aria-hidden
             className="home-side-divider-ornament"
@@ -239,7 +240,7 @@ function SectionHeader({
             }}
           />
           <img
-            src="/icons/ornament-side-divider.png"
+            src="/icons/ornament-side-divider.webp"
             alt=""
             aria-hidden
             className="home-side-divider-ornament"
@@ -267,7 +268,7 @@ function SectionHeader({
           }}
         >
           <img
-            src="/icons/ornament-title-side.png"
+            src="/icons/ornament-title-side.webp"
             alt=""
             aria-hidden
             className="home-title-ornament"
@@ -295,7 +296,7 @@ function SectionHeader({
             {title}
           </h2>
           <img
-            src="/icons/ornament-title-side.png"
+            src="/icons/ornament-title-side.webp"
             alt=""
             aria-hidden
             className="home-title-ornament"
@@ -658,7 +659,7 @@ function WelcomeCard({
         >
         <div style={{ maxWidth: '940px', margin: '0 auto', width: '100%', position: 'relative', textAlign: 'center' }}>
           <img
-            src="/icons/home-title-transparent.png"
+            src="/icons/home-title-transparent.webp"
             alt={title}
             className="home-welcome-title"
             style={{
@@ -670,7 +671,7 @@ function WelcomeCard({
             }}
           />
           <img
-            src="/icons/welcome-character.png"
+            src="/icons/welcome-character.webp"
             alt=""
             aria-hidden
             style={{
@@ -721,7 +722,7 @@ function HomeSectionDivider({ flushBottom = false }: { flushBottom?: boolean }) 
       }}
     >
       <img
-        src="/icons/ornament-divider.png"
+        src="/icons/ornament-divider.webp"
         alt=""
         aria-hidden
         className="home-ornament-divider"
@@ -747,10 +748,10 @@ function OrnateSectionFrame({ children }: { children: ReactNode }) {
 
   return (
     <div style={{ position: 'relative', padding: '1.12rem 1.24rem 1.08rem 1.24rem' }}>
-      <img src="/icons/ornament-corner.png" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, top: '-3.1rem', left: '-0.45rem' }} />
-      <img src="/icons/ornament-corner.png" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, top: '-3.1rem', right: '-0.45rem', transform: 'scaleX(-1)' }} />
-      <img src="/icons/ornament-corner.png" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, bottom: '-0.35rem', left: '-0.45rem', transform: 'scaleY(-1)' }} />
-      <img src="/icons/ornament-corner.png" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, bottom: '-0.35rem', right: '-0.45rem', transform: 'scale(-1, -1)' }} />
+      <img src="/icons/ornament-corner.webp" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, top: '-3.1rem', left: '-0.45rem' }} />
+      <img src="/icons/ornament-corner.webp" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, top: '-3.1rem', right: '-0.45rem', transform: 'scaleX(-1)' }} />
+      <img src="/icons/ornament-corner.webp" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, bottom: '-0.35rem', left: '-0.45rem', transform: 'scaleY(-1)' }} />
+      <img src="/icons/ornament-corner.webp" alt="" aria-hidden className="home-ornament-corner" style={{ ...cornerBase, bottom: '-0.35rem', right: '-0.45rem', transform: 'scale(-1, -1)' }} />
       <div style={{ display: 'grid', gap: '1.08rem' }}>{children}</div>
     </div>
   )
@@ -1097,7 +1098,7 @@ export default function HomePage({ data }: HomePageProps) {
             }}
           >
             <img
-              src="/icons/bee-minecraft.gif"
+              src="/icons/bee-minecraft.webp"
               alt=""
               aria-hidden
               style={{
@@ -1113,7 +1114,7 @@ export default function HomePage({ data }: HomePageProps) {
             <SidebarStatCard label="Games" count={games.total_count} iconPath="/icons/GAMES.gif" />
             <SidebarStatCard label="Visions" count={visions.total_count} iconPath="/icons/VISIONS.gif" />
             <SidebarStatCard label="Music" count={music.total_count} iconPath="/icons/MUSIC.png" />
-            <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.gif" />
+            <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.webp" />
           </div>
 
           <div
@@ -1126,7 +1127,7 @@ export default function HomePage({ data }: HomePageProps) {
             }}
           >
             <img
-              src="/icons/minecraft-grass.png"
+              src="/icons/minecraft-grass.webp"
               alt=""
               aria-hidden
               style={{
@@ -1172,7 +1173,7 @@ export default function HomePage({ data }: HomePageProps) {
                         title="Music"
                         to="/music"
                         frameOrnaments
-                        leftImageSrc="/icons/welcome-character-left.gif"
+                        leftImageSrc="/icons/welcome-character-left.webp"
                         leftImageWidth="117px"
                         leftImageLeft="3.55rem"
                         leftImageBottom="-2.55rem"
@@ -1201,7 +1202,7 @@ export default function HomePage({ data }: HomePageProps) {
                     title="Visions"
                     to="/movies"
                     frameOrnaments
-                    rightImageSrc="/icons/visions-character.gif"
+                    rightImageSrc="/icons/visions-character.webp"
                     rightImageWidth="108px"
                     rightImageRight="-0.4rem"
                     rightImageBottom="0.8rem"
@@ -1224,7 +1225,7 @@ export default function HomePage({ data }: HomePageProps) {
                     title="Texts"
                     to="/texts"
                     frameOrnaments
-                    leftImageSrc="/icons/texts-character.gif"
+                    leftImageSrc="/icons/texts-character.webp"
                     leftImageWidth="117px"
                     leftImageLeft="3.55rem"
                     leftImageBottom="0.85rem"

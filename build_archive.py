@@ -21,7 +21,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 try:
-    from PIL import Image, ImageChops, ImageOps
+    from PIL import Image, ImageChops, ImageOps, ImageSequence
     # 屏蔽 PIL 内部的最大图片像素警告
     Image.MAX_IMAGE_PIXELS = None
 except ImportError:
@@ -43,6 +43,7 @@ GAMES_TODO_MD_PATH = REPORTS_ROOT / "games_meta_todo.md"
 STEAM_LOOKUP_CACHE_PATH = REPORTS_ROOT / "steam_lookup_cache.json"
 
 WEBP_QUALITY = 90
+ANIMATED_WEBP_QUALITY = 78
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
 TEXT_EXTENSIONS = {".md", ".txt"}
 AUDIO_EXTENSIONS = {".mp3", ".m4a", ".wav", ".ogg", ".flac", ".aac"}
@@ -389,23 +390,55 @@ def process_and_get_audio_path(src_audio_path: Path, output_rel_path: Path | Non
     return f"audio_cache/{rel_path.as_posix()}"
 
 
+def save_animated_webp(src_media_path: Path, dst_media_path: Path) -> None:
+    with Image.open(src_media_path) as img:
+        frames = []
+        durations = []
+        loop = img.info.get("loop", 0)
+
+        for frame in ImageSequence.Iterator(img):
+            frames.append(frame.convert("RGBA"))
+            durations.append(frame.info.get("duration", img.info.get("duration", 100)))
+
+        if not frames:
+            raise ValueError("GIF 中没有可导出的帧")
+
+        frames[0].save(
+            dst_media_path,
+            format="WEBP",
+            save_all=True,
+            append_images=frames[1:],
+            duration=durations,
+            loop=loop,
+            quality=ANIMATED_WEBP_QUALITY,
+            method=6,
+        )
+
+
 def process_and_get_media_path(src_media_path: Path, output_rel_path: Path | None = None) -> str:
     if not src_media_path.exists():
         return ""
 
     rel_path = output_rel_path or src_media_path.relative_to(ONEDRIVE_DATA_ROOT)
-    dst_media_path = MEDIA_CACHE_DIR / rel_path
+    should_convert_gif = src_media_path.suffix.lower() == ".gif"
+    normalized_rel_path = rel_path.with_suffix(".webp") if should_convert_gif else rel_path
+    dst_media_path = MEDIA_CACHE_DIR / normalized_rel_path
     existing_variant = find_case_variant_path(dst_media_path)
     if existing_variant and existing_variant.name != dst_media_path.name:
         dst_media_path = normalize_case_variant(existing_variant, dst_media_path)
 
     if dst_media_path.exists() and dst_media_path.stat().st_size > 0:
         if dst_media_path.stat().st_mtime >= src_media_path.stat().st_mtime:
-            return f"media_cache/{rel_path.as_posix()}"
+            return f"media_cache/{normalized_rel_path.as_posix()}"
 
     dst_media_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src_media_path, dst_media_path)
-    return f"media_cache/{rel_path.as_posix()}"
+    if should_convert_gif:
+        save_animated_webp(src_media_path, dst_media_path)
+        stat = src_media_path.stat()
+        os.utime(dst_media_path, (stat.st_atime, stat.st_mtime))
+    else:
+        shutil.copy2(src_media_path, dst_media_path)
+    return f"media_cache/{normalized_rel_path.as_posix()}"
 
 
 def process_and_get_square_webp_path(src_img_path: Path, output_rel_path: Path, size: int = 320) -> str:
