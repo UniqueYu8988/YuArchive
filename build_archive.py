@@ -14,6 +14,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import time
 from datetime import datetime
@@ -43,10 +44,13 @@ GAMES_TODO_MD_PATH = REPORTS_ROOT / "games_meta_todo.md"
 STEAM_LOOKUP_CACHE_PATH = REPORTS_ROOT / "steam_lookup_cache.json"
 
 WEBP_QUALITY = 90
-ANIMATED_WEBP_QUALITY = 78
+ANIMATED_WEBP_QUALITY = 72
+ANIMATED_WEBP_MAX_WIDTH = 640
+AUDIO_AAC_BITRATE = "192k"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
 TEXT_EXTENSIONS = {".md", ".txt"}
-AUDIO_EXTENSIONS = {".mp3", ".m4a", ".wav", ".ogg", ".flac", ".aac"}
+# 顺序有意义：优先使用更适合网页播放/体积更小的格式
+AUDIO_EXTENSIONS = (".m4a", ".aac", ".ogg", ".mp3", ".wav", ".flac")
 
 CATEGORIES = {
     "games": "Games",
@@ -371,11 +375,45 @@ def process_and_get_webp_path(src_img_path: Path, category_key: str, output_rel_
     return f"webp_cache/{rel_path.with_suffix('.webp').as_posix()}"
 
 
+_FFMPEG_BINARY: Path | None | bool = False
+
+
+def find_ffmpeg_binary() -> Path | None:
+    global _FFMPEG_BINARY
+    if _FFMPEG_BINARY is not False:
+        return _FFMPEG_BINARY or None
+
+    candidates: list[Path] = []
+    system_ffmpeg = shutil.which("ffmpeg")
+    if system_ffmpeg:
+        candidates.append(Path(system_ffmpeg))
+
+    candidates.extend(
+        [
+            Path(r"C:\Users\Yu\AppData\Local\JianyingPro\Apps\10.3.0.13901\ffmpeg.exe"),
+            Path(r"C:\Users\Yu\AppData\Local\JianyingPro\Apps\10.1.0.13849\ffmpeg.exe"),
+        ]
+    )
+
+    for candidate in candidates:
+        if candidate.exists():
+            _FFMPEG_BINARY = candidate
+            return candidate
+
+    _FFMPEG_BINARY = None
+    return None
+
+
 def process_and_get_audio_path(src_audio_path: Path, output_rel_path: Path | None = None) -> str:
     if not src_audio_path.exists():
         return ""
 
     rel_path = output_rel_path or src_audio_path.relative_to(ONEDRIVE_DATA_ROOT)
+    target_suffix = src_audio_path.suffix.lower()
+    if target_suffix in {".mp3", ".wav", ".flac"}:
+        target_suffix = ".m4a"
+
+    rel_path = rel_path.with_suffix(target_suffix)
     dst_audio_path = AUDIO_CACHE_DIR / rel_path
     existing_variant = find_case_variant_path(dst_audio_path)
     if existing_variant and existing_variant.name != dst_audio_path.name:
@@ -386,7 +424,38 @@ def process_and_get_audio_path(src_audio_path: Path, output_rel_path: Path | Non
             return f"audio_cache/{rel_path.as_posix()}"
 
     dst_audio_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src_audio_path, dst_audio_path)
+    if dst_audio_path.suffix.lower() == ".m4a" and src_audio_path.suffix.lower() in {".mp3", ".wav", ".flac"}:
+        ffmpeg_bin = find_ffmpeg_binary()
+        if ffmpeg_bin:
+            try:
+                subprocess.run(
+                    [
+                        str(ffmpeg_bin),
+                        "-y",
+                        "-i",
+                        str(src_audio_path),
+                        "-vn",
+                        "-c:a",
+                        "aac",
+                        "-b:a",
+                        AUDIO_AAC_BITRATE,
+                        str(dst_audio_path),
+                    ],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                legacy_cache_path = dst_audio_path.with_suffix(src_audio_path.suffix.lower())
+                if legacy_cache_path.exists():
+                    legacy_cache_path.unlink()
+            except subprocess.CalledProcessError:
+                shutil.copy2(src_audio_path, dst_audio_path.with_suffix(src_audio_path.suffix.lower()))
+                return f"audio_cache/{rel_path.with_suffix(src_audio_path.suffix.lower()).as_posix()}"
+        else:
+            shutil.copy2(src_audio_path, dst_audio_path.with_suffix(src_audio_path.suffix.lower()))
+            return f"audio_cache/{rel_path.with_suffix(src_audio_path.suffix.lower()).as_posix()}"
+    else:
+        shutil.copy2(src_audio_path, dst_audio_path)
     return f"audio_cache/{rel_path.as_posix()}"
 
 
@@ -395,9 +464,18 @@ def save_animated_webp(src_media_path: Path, dst_media_path: Path) -> None:
         frames = []
         durations = []
         loop = img.info.get("loop", 0)
+        resize_width = None
+        resize_height = None
+
+        if img.size[0] > ANIMATED_WEBP_MAX_WIDTH:
+            resize_width = ANIMATED_WEBP_MAX_WIDTH
+            resize_height = max(1, round(img.size[1] * (resize_width / img.size[0])))
 
         for frame in ImageSequence.Iterator(img):
-            frames.append(frame.convert("RGBA"))
+            converted = frame.convert("RGBA")
+            if resize_width and resize_height:
+                converted = converted.resize((resize_width, resize_height), Image.Resampling.LANCZOS)
+            frames.append(converted)
             durations.append(frame.info.get("duration", img.info.get("duration", 100)))
 
         if not frames:
