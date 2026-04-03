@@ -63,13 +63,16 @@ function SidebarStatCard({
   label,
   count,
   iconPath,
+  to,
 }: {
   label: string
   count: number
   iconPath: string
+  to: string
 }) {
   return (
-    <div
+    <NavLink
+      to={to}
       className="home-sidebar-card"
       style={{
         display: 'flex',
@@ -81,6 +84,8 @@ function SidebarStatCard({
         background: 'var(--home-stat-bg)',
         border: '1px solid var(--home-stat-border)',
         boxShadow: 'var(--home-stat-shadow)',
+        textDecoration: 'none',
+        color: 'inherit',
       }}
     >
       <div
@@ -133,7 +138,7 @@ function SidebarStatCard({
           {count}
         </div>
       </div>
-    </div>
+    </NavLink>
   )
 }
 
@@ -501,55 +506,63 @@ function HomeVisionCard({ item, featured = false }: { item: ArchiveItem; feature
         className="home-poster-hover"
         style={{
           position: 'absolute',
-          inset: 'auto 0 0 0',
-          padding: '1.15rem 0.9rem 0.9rem',
-          background: 'linear-gradient(180deg, rgba(8, 8, 10, 0.02) 0%, rgba(8, 8, 10, 0.36) 26%, rgba(8, 8, 10, 0.9) 100%)',
+          inset: 0,
+          background: 'linear-gradient(180deg, rgba(8, 8, 10, 0.02) 0%, rgba(8, 8, 10, 0.18) 46%, rgba(8, 8, 10, 0.86) 100%)',
           color: '#fff',
           pointerEvents: 'none',
           opacity: hovered ? 1 : 0,
-          transform: hovered ? 'translateY(0)' : 'translateY(16px)',
-          transition: 'opacity 0.3s cubic-bezier(0.2, 0, 0, 1), transform 0.35s cubic-bezier(0.2, 0, 0, 1)',
+          transition: 'opacity 0.28s cubic-bezier(0.2, 0, 0, 1)',
+          display: 'flex',
+          alignItems: 'flex-end',
         }}
       >
         <div
+          className="home-hover-fade-inner"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: displayText ? '0.45rem' : 0,
-            paddingRight: item.cinema ? '1.75rem' : 0,
+            width: '100%',
+            padding: '1.15rem 0.9rem 0.9rem',
           }}
         >
-          <h3
+          <div
             style={{
-              margin: 0,
-              fontSize: featured ? '1rem' : '0.96rem',
-              fontWeight: 700,
-              lineHeight: 1.2,
-              letterSpacing: '0.01em',
-              textShadow: '0 2px 10px rgba(0, 0, 0, 0.45)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: displayText ? '0.45rem' : 0,
+              paddingRight: item.cinema ? '1.75rem' : 0,
             }}
           >
-            {item.title}
-          </h3>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: featured ? '1rem' : '0.96rem',
+                fontWeight: 700,
+                lineHeight: 1.2,
+                letterSpacing: '0.01em',
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.45)',
+              }}
+            >
+              {item.title}
+            </h3>
+          </div>
+          {displayText && (
+            <p
+              style={{
+                margin: 0,
+                fontSize: featured ? '0.78rem' : '0.73rem',
+                lineHeight: 1.6,
+                color: 'rgba(255, 255, 255, 0.88)',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.28)',
+              }}
+            >
+              {displayText}
+            </p>
+          )}
         </div>
-        {displayText && (
-          <p
-            style={{
-              margin: 0,
-              fontSize: featured ? '0.78rem' : '0.73rem',
-              lineHeight: 1.6,
-              color: 'rgba(255, 255, 255, 0.88)',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.28)',
-            }}
-          >
-            {displayText}
-          </p>
-        )}
       </div>
 
       <div style={{
@@ -613,7 +626,7 @@ function HomePosterMosaic({
 
   return (
     <div
-      className="xl:grid"
+      className="home-mosaic-grid"
       style={{
         display: 'grid',
         gridTemplateColumns: 'minmax(0, 2fr) repeat(4, minmax(0, 1fr))',
@@ -621,11 +634,11 @@ function HomePosterMosaic({
         alignItems: 'stretch',
       }}
     >
-      <div style={{ gridColumn: '1', gridRow: '1 / span 2' }}>
+      <div className="home-mosaic-featured" style={{ gridColumn: '1', gridRow: '1 / span 2' }}>
         {renderCard(featured, true)}
       </div>
       {secondary.map(item => (
-        <div key={item.id}>
+        <div key={item.id} className="home-mosaic-secondary">
           {renderCard(item, false)}
         </div>
       ))}
@@ -764,7 +777,7 @@ function MusicFeatureCard({ item }: { item: MusicItem }) {
       className="home-glass-card home-music-feature-card"
       style={{
         display: 'grid',
-        gridTemplateColumns: '240px minmax(0, 1.2fr)',
+        gridTemplateColumns: 'minmax(180px, 220px) minmax(0, 1fr)',
         gap: '1.15rem',
         textDecoration: 'none',
         color: 'inherit',
@@ -864,6 +877,7 @@ function MusicLibraryCard({ item }: { item: MusicItem }) {
   return (
     <NavLink
       to="/music"
+      className="home-music-library-link"
       style={{
         display: 'block',
         textDecoration: 'none',
@@ -894,31 +908,25 @@ function MusicLibraryCard({ item }: { item: MusicItem }) {
           className="home-music-library-hover"
           style={{
             position: 'absolute',
-            inset: '52% 0 0 0',
+            inset: 0,
             padding: '0.85rem',
-            background: 'linear-gradient(180deg, rgba(10,10,16,0) 0%, rgba(10,10,16,0.88) 30%, rgba(10,10,16,0.92) 100%)',
+            background: 'linear-gradient(180deg, rgba(10,10,16,0) 0%, rgba(10,10,16,0.18) 42%, rgba(10,10,16,0.92) 100%)',
             color: '#fff',
+            display: 'flex',
+            alignItems: 'flex-end',
           }}
         >
           <div
+            className="home-hover-fade-inner"
             style={{
               fontSize: '0.9rem',
               lineHeight: 1.08,
               letterSpacing: '-0.03em',
               fontWeight: 800,
-              marginBottom: '0.28rem',
+              width: '100%',
             }}
           >
             {item.title}
-          </div>
-          <div
-            style={{
-              fontSize: '0.74rem',
-              lineHeight: 1.45,
-              color: 'rgba(255,255,255,0.76)',
-            }}
-          >
-            {clampText(item.description ?? '反复被点开的那张封套。', 44)}
           </div>
         </div>
       </div>
@@ -1072,7 +1080,7 @@ export default function HomePage({ data }: HomePageProps) {
   return (
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1360px', paddingTop: '0.55rem', paddingBottom: '5rem' }}>
       <div
-        className="animate-fade-up md:grid md:gap-6"
+        className="animate-fade-up md:grid md:gap-6 home-page-layout"
         style={{
           display: 'grid',
           gap: '1.15rem',
@@ -1081,6 +1089,7 @@ export default function HomePage({ data }: HomePageProps) {
         }}
       >
         <aside
+          className="home-sidebar-column"
           style={{
             position: 'sticky',
             top: '88px',
@@ -1101,20 +1110,21 @@ export default function HomePage({ data }: HomePageProps) {
               src="/icons/bee-minecraft.webp"
               alt=""
               aria-hidden
+              className="home-sidebar-decor home-sidebar-decor-top"
               style={{
-                width: '88px',
-                height: '88px',
+                width: 'clamp(72px, 7vw, 88px)',
+                height: 'clamp(72px, 7vw, 88px)',
                 objectFit: 'contain',
                 display: 'block',
               }}
             />
           </div>
 
-          <div style={{ display: 'grid', gap: '0.85rem', padding: '0 0.95rem' }}>
-            <SidebarStatCard label="Games" count={games.total_count} iconPath="/icons/GAMES.gif" />
-            <SidebarStatCard label="Visions" count={visions.total_count} iconPath="/icons/VISIONS.gif" />
-            <SidebarStatCard label="Music" count={music.total_count} iconPath="/icons/MUSIC.png" />
-            <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.webp" />
+          <div className="home-sidebar-stats" style={{ display: 'grid', gap: '0.85rem', padding: '0 0.95rem' }}>
+            <SidebarStatCard label="Games" count={games.total_count} iconPath="/icons/GAMES.gif" to="/games" />
+            <SidebarStatCard label="Visions" count={visions.total_count} iconPath="/icons/VISIONS.gif" to="/movies" />
+            <SidebarStatCard label="Music" count={music.total_count} iconPath="/icons/MUSIC.png" to="/music" />
+            <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.webp" to="/texts" />
           </div>
 
           <div
@@ -1130,8 +1140,9 @@ export default function HomePage({ data }: HomePageProps) {
               src="/icons/minecraft-grass.webp"
               alt=""
               aria-hidden
+              className="home-sidebar-decor home-sidebar-decor-bottom"
               style={{
-                width: '164px',
+                width: 'clamp(128px, 14vw, 164px)',
                 height: 'auto',
                 objectFit: 'contain',
                 display: 'block',
@@ -1140,15 +1151,23 @@ export default function HomePage({ data }: HomePageProps) {
           </div>
         </aside>
 
-        <main style={{ minWidth: 0, width: '100%', display: 'grid', gap: '1.7rem', margin: '0 auto' }}>
-          <section id="home-overview" style={{ scrollMarginTop: '108px' }}>
+        <main className="home-main-column" style={{ minWidth: 0, width: '100%', display: 'grid', gap: '1.7rem', margin: '0 auto' }}>
+          <section
+            id="home-overview"
+            className="animate-fade-up"
+            style={{ scrollMarginTop: '108px', animationDelay: '0.02s', opacity: 0, animationFillMode: 'both' }}
+          >
             <WelcomeCard
               title="Yu Archive"
             />
           </section>
 
           <OrnateSectionFrame>
-            <section id="home-games" style={{ scrollMarginTop: '108px' }}>
+            <section
+              id="home-games"
+              className="animate-fade-up"
+              style={{ scrollMarginTop: '108px', animationDelay: '0.12s', opacity: 0, animationFillMode: 'both' }}
+            >
               <div style={{ marginTop: '-3.85rem', position: 'relative', zIndex: 2 }}>
                 <div style={HOME_SECTION_BODY_STYLE}>
                   <HomeSectionShell>
@@ -1163,9 +1182,13 @@ export default function HomePage({ data }: HomePageProps) {
               </div>
             </section>
 
-            <section id="home-music" style={{ scrollMarginTop: '108px' }}>
+            <section
+              id="home-music"
+              className="animate-fade-up"
+              style={{ scrollMarginTop: '108px', animationDelay: '0.2s', opacity: 0, animationFillMode: 'both' }}
+            >
               {featuredMusic && (
-                <div style={{ ...HOME_SECTION_BODY_STYLE, display: 'grid', gap: '0.96rem' }}>
+                <div className="home-section-body" style={{ ...HOME_SECTION_BODY_STYLE, display: 'grid', gap: '0.96rem' }}>
                   <HomeSectionShell>
                     <div style={{ display: 'grid', gap: '0.96rem' }}>
                       <SectionHeader
@@ -1174,13 +1197,13 @@ export default function HomePage({ data }: HomePageProps) {
                         to="/music"
                         frameOrnaments
                         leftImageSrc="/icons/welcome-character-left.webp"
-                        leftImageWidth="117px"
-                        leftImageLeft="3.55rem"
-                        leftImageBottom="-2.55rem"
+                        leftImageWidth="clamp(86px, 9vw, 117px)"
+                        leftImageLeft="clamp(1.8rem, 4.4vw, 3.55rem)"
+                        leftImageBottom="clamp(-2.1rem, -1vw, -1.2rem)"
                       />
                       <MusicFeatureCard item={featuredMusic} />
                       <div
-                        className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"
+                        className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 home-music-library-grid"
                         style={{ display: 'grid', gap: '0.9rem' }}
                       >
                         {latestMusic.slice(1, 7).map(item => (
@@ -1194,8 +1217,12 @@ export default function HomePage({ data }: HomePageProps) {
               )}
             </section>
 
-            <section id="home-visions" style={{ scrollMarginTop: '108px' }}>
-              <div style={HOME_SECTION_BODY_STYLE}>
+            <section
+              id="home-visions"
+              className="animate-fade-up"
+              style={{ scrollMarginTop: '108px', animationDelay: '0.28s', opacity: 0, animationFillMode: 'both' }}
+            >
+              <div className="home-section-body" style={HOME_SECTION_BODY_STYLE}>
                 <HomeSectionShell>
                   <SectionHeader
                     id="home-visions-title"
@@ -1203,9 +1230,9 @@ export default function HomePage({ data }: HomePageProps) {
                     to="/movies"
                     frameOrnaments
                     rightImageSrc="/icons/visions-character.webp"
-                    rightImageWidth="108px"
-                    rightImageRight="-0.4rem"
-                    rightImageBottom="0.8rem"
+                    rightImageWidth="clamp(84px, 8vw, 108px)"
+                    rightImageRight="clamp(-0.65rem, -1vw, -0.2rem)"
+                    rightImageBottom="clamp(0.25rem, 1vw, 0.8rem)"
                     rightImageZIndex={0}
                   />
                   <HomePosterMosaic
@@ -1217,8 +1244,12 @@ export default function HomePage({ data }: HomePageProps) {
               </div>
             </section>
 
-            <section id="home-texts" style={{ scrollMarginTop: '108px' }}>
-              <div style={HOME_SECTION_BODY_STYLE}>
+            <section
+              id="home-texts"
+              className="animate-fade-up"
+              style={{ scrollMarginTop: '108px', animationDelay: '0.36s', opacity: 0, animationFillMode: 'both' }}
+            >
+              <div className="home-section-body" style={HOME_SECTION_BODY_STYLE}>
                 <HomeSectionShell>
                   <SectionHeader
                     id="home-texts-title"
@@ -1226,9 +1257,9 @@ export default function HomePage({ data }: HomePageProps) {
                     to="/texts"
                     frameOrnaments
                     leftImageSrc="/icons/texts-character.webp"
-                    leftImageWidth="117px"
-                    leftImageLeft="3.55rem"
-                    leftImageBottom="0.85rem"
+                    leftImageWidth="clamp(86px, 9vw, 117px)"
+                    leftImageLeft="clamp(1.8rem, 4.4vw, 3.55rem)"
+                    leftImageBottom="clamp(0rem, 0.8vw, 0.85rem)"
                     leftImageZIndex={0}
                   />
                   <div

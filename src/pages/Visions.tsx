@@ -112,7 +112,9 @@ function VisionCharacterShowcase({ showcase }: { showcase?: VisionShowcase | nul
         }}
       >
         <div className="visions-showcase-stage">
-          <img src={toImageUrl(currentItem.gif_path)} alt={currentItem.title} className="visions-showcase-gif" />
+          <div key={currentItem.id} className="visions-showcase-stage-frame">
+            <img src={toImageUrl(currentItem.gif_path)} alt={currentItem.title} className="visions-showcase-gif" />
+          </div>
         </div>
 
         <div className="visions-showcase-rail">
@@ -128,6 +130,7 @@ function VisionCharacterShowcase({ showcase }: { showcase?: VisionShowcase | nul
                   aria-label={`切换角色：${entry.title}`}
                   title={entry.title}
                 >
+                  <span className="visions-showcase-avatar__ring" aria-hidden />
                   <img src={toImageUrl(entry.avatar_path)} alt={entry.title} />
                 </button>
               )

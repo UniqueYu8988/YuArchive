@@ -307,7 +307,7 @@ export default function MusicPage({ data }: Props) {
                             href={directUrl || `https://open.spotify.com/search/${encodeURIComponent(track)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="music-track-link"
+                            className={`music-track-link${active ? ' is-active' : ''}`}
                             style={{
                               textAlign: 'left',
                               borderRadius: '14px',
@@ -480,6 +480,7 @@ export default function MusicPage({ data }: Props) {
                           }}
                         >
                           <span
+                            className={hasAudio ? (isPlaying ? 'music-status-dot is-live' : 'music-status-dot') : 'music-status-dot is-muted'}
                             style={{
                               width: '0.44rem',
                               height: '0.44rem',
@@ -598,6 +599,7 @@ export default function MusicPage({ data }: Props) {
                           type="button"
                           onClick={togglePlayback}
                           disabled={!hasAudio}
+                          className={hasAudio ? (isPlaying ? 'music-play-button is-playing' : 'music-play-button') : 'music-play-button is-disabled'}
                           style={{
                             border: 'none',
                             borderRadius: '999px',
@@ -725,6 +727,7 @@ export default function MusicPage({ data }: Props) {
           background: #ffffff;
           border: 2px solid #1DB954;
           box-shadow: 0 4px 12px rgba(0,0,0,0.16);
+          transition: transform 0.22s ease, box-shadow 0.22s ease;
         }
         .music-progress::-moz-range-track {
           height: 6px;
@@ -744,9 +747,17 @@ export default function MusicPage({ data }: Props) {
           border: 2px solid #1DB954;
           box-shadow: 0 4px 12px rgba(0,0,0,0.16);
         }
+        .music-progress:hover::-webkit-slider-thumb {
+          transform: scale(1.12);
+          box-shadow: 0 0 0 6px rgba(29,185,84,0.14), 0 4px 12px rgba(0,0,0,0.16);
+        }
         .music-track-link:hover {
           background: rgba(29,185,84,0.08) !important;
           color: #149244 !important;
+          transform: translateX(3px);
+        }
+        .music-track-link.is-active {
+          box-shadow: inset 0 0 0 1px rgba(29,185,84,0.12);
         }
         .music-track-link:hover .music-track-link__label {
           color: #149244 !important;
@@ -771,6 +782,52 @@ export default function MusicPage({ data }: Props) {
           100% {
             opacity: 1;
             transform: translateY(0) scale(1);
+          }
+        }
+        .music-play-button {
+          transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease, opacity 0.22s ease;
+        }
+        .music-play-button:hover:not(.is-disabled) {
+          transform: translateY(-1px) scale(1.015);
+          box-shadow: 0 18px 34px rgba(29,185,84,0.24) !important;
+          filter: brightness(1.03);
+        }
+        .music-play-button.is-playing {
+          box-shadow: 0 0 0 0 rgba(29,185,84,0.28), 0 14px 28px rgba(29,185,84,0.22) !important;
+          animation: musicPlayPulse 1.8s ease-out infinite;
+        }
+        .music-status-dot {
+          transition: box-shadow 0.22s ease, transform 0.22s ease, background-color 0.22s ease;
+        }
+        .music-status-dot.is-live {
+          animation: musicStatusPulse 1.8s ease-out infinite;
+        }
+        .music-status-dot.is-muted {
+          box-shadow: none !important;
+        }
+        @keyframes musicPlayPulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(29,185,84,0.28), 0 14px 28px rgba(29,185,84,0.22);
+          }
+          70% {
+            box-shadow: 0 0 0 12px rgba(29,185,84,0), 0 18px 36px rgba(29,185,84,0.2);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(29,185,84,0), 0 14px 28px rgba(29,185,84,0.22);
+          }
+        }
+        @keyframes musicStatusPulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(29,185,84,0.18);
+            transform: scale(1);
+          }
+          70% {
+            box-shadow: 0 0 0 6px rgba(29,185,84,0);
+            transform: scale(1.08);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(29,185,84,0);
+            transform: scale(1);
           }
         }
       `}</style>

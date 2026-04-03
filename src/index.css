@@ -13,6 +13,8 @@
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-soft: 320ms var(--motion-ease);
   --motion-slower: 460ms var(--motion-ease);
+  --surface-shadow-soft: 0 16px 34px rgba(0, 0, 0, 0.08);
+  --surface-shadow-medium: 0 22px 44px rgba(0, 0, 0, 0.12);
   /* 过渡：所有颜色属性 0.3s 丝滑切换 */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -171,20 +173,22 @@ body {
   font-weight: 500;
   transition: color var(--motion-soft), background-color var(--motion-soft), transform var(--motion-soft);
   background: transparent;
+  will-change: transform;
 }
 .nav-item svg {
-  transition: transform var(--motion-soft), opacity var(--motion-soft);
+  transition: transform var(--motion-soft), opacity var(--motion-soft), color var(--motion-soft);
 }
 .nav-item:hover {
   color: var(--text-primary);
   background: rgba(128, 128, 128, 0.08);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 .nav-item:hover svg { transform: translateY(-1px) scale(1.04); }
 .nav-item.active {
   color: var(--text-primary);
   background: rgba(128, 128, 128, 0.12);
   font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.08);
 }
 
 /* 右区：控制按钮 */
@@ -203,12 +207,14 @@ body {
   justify-content: center;
   padding: 9px;
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  transition: all var(--motion-soft);
+  will-change: transform;
 }
 .nav-control-btn:hover {
   background: rgba(128, 128, 128, 0.12);
-  transform: scale(1.08);
+  transform: translateY(-1px) scale(1.06);
   border-color: var(--text-secondary);
+  box-shadow: 0 12px 22px rgba(0,0,0,0.08);
 }
 
 /* ── 首页英雄区 ──────────────────────────── */
@@ -543,7 +549,7 @@ body {
 }
 .poster-card:hover {
   transform: translateY(-5px) scale(1.018);
-  box-shadow: 0 20px 44px rgba(0,0,0,0.18);
+  box-shadow: var(--surface-shadow-medium);
 }
 .poster-card:hover img { transform: scale(1.045); }
 
@@ -667,11 +673,15 @@ body {
   transform: translateY(0);
   transition: transform var(--motion-soft), box-shadow var(--motion-soft), filter var(--motion-soft);
   will-change: transform;
+  isolation: isolate;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .home-poster-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: var(--surface-shadow-medium) !important;
+  filter: saturate(1.02);
 }
 
 .home-poster-card:hover img {
@@ -680,13 +690,11 @@ body {
 
 .home-poster-hover {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.24s ease, transform 0.24s ease;
+  transition: opacity 0.24s ease;
 }
 
 .home-poster-card:hover .home-poster-hover {
   opacity: 1;
-  transform: translateY(0);
 }
 
 .home-poster-card .game-hover-shell {
@@ -695,8 +703,11 @@ body {
 }
 
 .home-poster-card .game-hover-overlay {
-  transform: translateY(8px);
-  transition: transform 0.28s ease;
+  opacity: 0;
+  transition: opacity 0.24s ease;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  backface-visibility: hidden;
 }
 
 .home-poster-card:hover .game-hover-shell {
@@ -704,28 +715,39 @@ body {
 }
 
 .home-poster-card:hover .game-hover-overlay {
-  transform: translateY(0);
+  opacity: 1;
 }
 
 .home-music-library-media {
   transform: translateY(0);
   transition: transform var(--motion-soft), box-shadow var(--motion-soft), filter var(--motion-soft);
   will-change: transform;
+  isolation: isolate;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .home-music-library-media:hover {
   transform: translateY(-4px);
-  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: var(--surface-shadow-medium) !important;
 }
 
 .home-music-library-hover {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.24s ease, transform 0.24s ease;
+  transition: opacity 0.24s ease;
 }
 
 .home-music-library-media:hover .home-music-library-hover {
   opacity: 1;
+}
+
+.home-hover-fade-inner {
+  transform: translateY(8px);
+  transition: transform 0.26s ease;
+}
+
+.home-poster-card:hover .home-hover-fade-inner,
+.home-music-library-media:hover .home-hover-fade-inner {
   transform: translateY(0);
 }
 
@@ -747,19 +769,19 @@ body {
 }
 
 .home-ornament-corner {
-  transition: filter 0.3s ease, opacity 0.3s ease;
+  transition: filter 0.3s ease, opacity 0.3s ease, transform var(--motion-soft);
 }
 
 .home-ornament-divider {
-  transition: filter 0.3s ease, opacity 0.3s ease;
+  transition: filter 0.3s ease, opacity 0.3s ease, transform var(--motion-soft);
 }
 
 .home-title-ornament {
-  transition: filter 0.3s ease, opacity 0.3s ease;
+  transition: filter 0.3s ease, opacity 0.3s ease, transform var(--motion-soft);
 }
 
 .home-side-divider-ornament {
-  transition: filter 0.3s ease, opacity 0.3s ease;
+  transition: filter 0.3s ease, opacity 0.3s ease, transform var(--motion-soft);
 }
 
 .visions-showcase-stage {
@@ -772,6 +794,15 @@ body {
   background: rgba(255, 255, 255, 0.028);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.1);
+}
+
+.visions-showcase-stage-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  animation: showcaseStageReveal 540ms var(--motion-ease);
+  transform-origin: center center;
 }
 
 .visions-showcase-gif {
@@ -831,6 +862,7 @@ body {
   cursor: pointer;
   flex: 0 0 auto;
   transition: transform var(--motion-soft), box-shadow var(--motion-soft), border-color var(--motion-soft), opacity var(--motion-soft);
+  position: relative;
 }
 
 .visions-showcase-avatar img {
@@ -840,15 +872,38 @@ body {
   display: block;
 }
 
+.visions-showcase-avatar__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 35%),
+    radial-gradient(circle at 50% 120%, rgba(255,255,255,0.08), transparent 54%);
+  opacity: 0;
+  transition: opacity var(--motion-soft), border-color var(--motion-soft);
+  pointer-events: none;
+}
+
 .visions-showcase-avatar:hover {
   transform: translateY(-3px);
   box-shadow: 0 18px 34px rgba(0, 0, 0, 0.14);
 }
 
 .visions-showcase-avatar.is-active {
-  border-color: rgba(255, 255, 255, 0.24);
-  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 22px 42px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.08);
   opacity: 1;
+  transform: translateY(-4px) scale(1.03);
+}
+
+.visions-showcase-avatar:hover .visions-showcase-avatar__ring,
+.visions-showcase-avatar.is-active .visions-showcase-avatar__ring {
+  opacity: 1;
+}
+
+.visions-showcase-avatar.is-active .visions-showcase-avatar__ring {
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .visions-showcase-avatar:not(.is-active) {
@@ -864,8 +919,29 @@ body {
   }
 }
 
+@keyframes showcaseStageReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
 .home-section-shell {
   transition: transform var(--motion-soft), opacity var(--motion-soft);
+}
+
+.home-section-shell:hover .home-ornament-divider {
+  transform: translateY(-1px) scale(1.015);
+}
+
+.home-section-shell:hover .home-title-ornament {
+  transform: translateY(-1px);
 }
 
 .home-glass-card {
@@ -876,16 +952,159 @@ body {
 .home-glass-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 22px 52px rgba(0, 0, 0, 0.09) !important;
+  border-color: rgba(128, 128, 128, 0.16) !important;
 }
 
 .home-sidebar-card {
   transition: transform var(--motion-soft), box-shadow var(--motion-soft), border-color var(--motion-soft), background-color var(--motion-soft);
   will-change: transform;
+  scroll-margin-top: 108px;
 }
 
 .home-sidebar-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 22px 42px rgba(0, 0, 0, 0.11);
+  border-color: rgba(128, 128, 128, 0.18) !important;
+}
+
+.home-sidebar-card:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.52);
+  outline-offset: 3px;
+}
+
+.home-page-layout {
+  align-items: start;
+}
+
+.home-main-column {
+  min-width: 0;
+}
+
+.home-section-body {
+  min-width: 0;
+}
+
+.home-mosaic-grid {
+  min-width: 0;
+}
+
+.home-music-feature-card,
+.home-music-library-grid,
+.home-glass-card,
+.home-poster-card {
+  min-width: 0;
+}
+
+.home-music-feature-card {
+  align-items: stretch;
+}
+
+.home-music-library-link {
+  min-width: 0;
+}
+
+@media (max-width: 1279px) {
+  .home-page-layout {
+    grid-template-columns: 210px minmax(0, 920px) !important;
+  }
+
+  .home-mosaic-grid {
+    grid-template-columns: minmax(0, 1.45fr) repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.72rem !important;
+  }
+
+  .home-section-body {
+    max-width: 940px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .home-page-layout {
+    grid-template-columns: 200px minmax(0, 1fr) !important;
+    gap: 0.85rem !important;
+  }
+
+  .home-section-body {
+    max-width: 100% !important;
+  }
+
+  .home-mosaic-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .home-mosaic-featured {
+    grid-column: 1 / span 2 !important;
+    grid-row: 1 / span 2 !important;
+  }
+
+  .home-music-feature-card {
+    grid-template-columns: minmax(155px, 190px) minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-page-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .home-sidebar-column {
+    position: static !important;
+    top: auto !important;
+    max-width: 480px;
+    margin: 0 auto 0.5rem;
+    width: 100%;
+  }
+
+  .home-sidebar-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 !important;
+  }
+
+  .home-main-column {
+    gap: 1.25rem !important;
+  }
+
+  .home-mosaic-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .home-mosaic-featured {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+
+  .home-music-feature-card {
+    grid-template-columns: minmax(140px, 180px) minmax(0, 1fr) !important;
+    min-height: 240px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-sidebar-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .home-mosaic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.66rem !important;
+  }
+
+  .home-mosaic-featured {
+    grid-column: 1 / -1 !important;
+  }
+
+  .home-music-feature-card {
+    grid-template-columns: 1fr !important;
+    min-height: 0 !important;
+  }
+
+  .home-music-feature-card > div:first-child {
+    max-width: 240px;
+  }
+
+  .home-music-library-grid {
+    gap: 0.72rem !important;
+  }
 }
 
 [data-theme='light'] .home-ornament-corner {
