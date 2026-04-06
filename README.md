@@ -387,9 +387,11 @@ Description: 这张原声像夜色里仍在发烫的霓虹。
 
 现在它支持：
 
+- `每天听本书`
 - `得到头条`
-- `视频总结`
-- `心得体会`
+- `睡前消息`
+- `参考信息`
+- `拾遗`
 - 栏目定义在：
   [`C:\Users\Yu\OneDrive\图片\Data\Texts\sections.yaml`](C:\Users\Yu\OneDrive\图片\Data\Texts\sections.yaml)
 
@@ -405,10 +407,16 @@ Description: 这张原声像夜色里仍在发烫的霓虹。
 例如：
 
 ```yaml
+book-reviews:
+  title: "每天听本书"
+  description: "把一本书留下一个入口、一段印象，像搭起一排可以反复回望的书架。"
+  aliases: "每天听本书,书评,book-review,book-reviews"
+  icon: "icons/texts-dedao.png"
+
 headline:
-  title: "得到头条"
+  title: "得到"
   description: "把每天值得留下的一点观察、判断与信息浓缩，整理成可以回看的文字切片。"
-  aliases: "得到头条,headline,头条"
+  aliases: "得到头条,得到,headline,头条"
 ```
 
 ### 文章归类规则
@@ -416,8 +424,16 @@ headline:
 优先级如下：
 
 1. frontmatter 里的 `section`
-2. 所在子文件夹名（例如 `得到头条` / `视频总结` / `心得体会`）
-3. 默认归到 `headline`
+2. 所在子文件夹名（例如 `每天听本书` / `得到头条` / `睡前消息` / `参考信息` / `拾遗`）
+3. 默认归到 `book-reviews`
+
+### 每天听本书的书架展示位
+
+如果你想把 `Texts` 顶部做成书架视觉，请把书封放到：
+
+`C:\Users\Yu\OneDrive\图片\Data\Texts\每天听本书\书架`
+
+支持常见图片格式，构建时会自动转成网页用的 `.webp`，并在 `Texts` 顶部展示。
 
 ### Texts 单篇文章支持字段
 

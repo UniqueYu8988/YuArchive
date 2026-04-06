@@ -107,6 +107,8 @@ export interface TextSection {
   key: string
   title: string
   description?: string
+  icon?: string
+  showcase_images?: string[]
   count: number
 }
 

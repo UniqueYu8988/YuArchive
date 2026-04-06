@@ -25,7 +25,7 @@ const defaultSiteLayout: SiteLayoutConfig = {
     云顶之弈: 1,
     '暗黑破坏神 IV': 2,
   },
-  texts_default_section_key: 'headline',
+  texts_default_section_key: 'book-reviews',
 }
 
 const defaultHomepage: HomepageConfig = {

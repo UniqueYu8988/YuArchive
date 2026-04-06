@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import type { TextsCategory } from '../types'
-import { siteUi } from '../data/siteConfig'
+import { siteLayout } from '../data/siteConfig'
 
 interface Props {
   data: TextsCategory
@@ -11,10 +11,11 @@ interface Props {
 export default function TextsPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const sections = data.sections ?? []
-  const defaultSection = sections[0]?.key ?? 'headline'
+  const defaultSection = sections.find(section => section.key === siteLayout.texts_default_section_key)?.key ?? sections[0]?.key ?? 'book-reviews'
   const [activeSection, setActiveSection] = useState(defaultSection)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+  const previousSectionRef = useRef(activeSection)
 
   useEffect(() => {
     if (!sections.length) return
@@ -34,34 +35,21 @@ export default function TextsPage({ data }: Props) {
   )
 
   useEffect(() => {
-    if (!filteredItems.some(item => item.id === expandedId)) {
+    if (previousSectionRef.current !== activeSection) {
+      previousSectionRef.current = activeSection
+      setExpandedId(filteredItems[0]?.id ?? null)
+      return
+    }
+
+    if (expandedId && !filteredItems.some(item => item.id === expandedId)) {
       setExpandedId(filteredItems[0]?.id ?? null)
     }
-  }, [filteredItems, expandedId])
+  }, [activeSection, filteredItems, expandedId])
 
   const toggleExpand = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
     setExpandedId(prev => (prev === id ? null : id))
   }
-
-  useEffect(() => {
-    if (expandedId && itemRefs.current[expandedId]) {
-      const element = itemRefs.current[expandedId]
-      if (element) {
-        setTimeout(() => {
-          const offset = 120
-          const bodyRect = document.body.getBoundingClientRect().top
-          const elementRect = element.getBoundingClientRect().top
-          const elementPosition = elementRect - bodyRect
-          const offsetPosition = elementPosition - offset
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          })
-        }, 120)
-      }
-    }
-  }, [expandedId])
 
   const formatDisplayDate = (rawDate: string, sortDate?: string) => {
     if (sortDate) return sortDate
@@ -166,7 +154,23 @@ export default function TextsPage({ data }: Props) {
                         gap: '0.6rem',
                       }}
                     >
-                      <span>{section.title}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.62rem', minWidth: 0 }}>
+                        {section.icon ? (
+                          <img
+                            src={`/${section.icon}`}
+                            alt={section.title}
+                            loading="lazy"
+                            className={section.icon.endsWith('.svg') ? 'texts-section-icon texts-section-icon--themed' : 'texts-section-icon'}
+                            style={{
+                              width: section.icon.endsWith('.svg') ? '1.45rem' : '1.8rem',
+                              height: section.icon.endsWith('.svg') ? '1.45rem' : '1.8rem',
+                              objectFit: 'contain',
+                              flexShrink: 0,
+                            }}
+                          />
+                        ) : null}
+                        <span>{section.title}</span>
+                      </span>
                       <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>{section.count}</span>
                     </button>
                   )
@@ -252,27 +256,44 @@ export default function TextsPage({ data }: Props) {
             >
               <div
                 style={{
-                  fontSize: '0.72rem',
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-secondary)',
-                  marginBottom: '0.55rem',
-                }}
-              >
-                {siteUi.selected_section}
-              </div>
-              <h2
-                style={{
-                  fontSize: 'clamp(2.3rem, 4vw, 4.2rem)',
-                  lineHeight: 0.96,
-                  letterSpacing: '-0.06em',
-                  color: 'var(--text-primary)',
-                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  gap: '0.45rem',
                   marginBottom: '0.9rem',
                 }}
               >
-                {activeSectionInfo?.title ?? '得到头条'}
-              </h2>
+                {activeSectionInfo?.icon ? (
+                  <img
+                    src={`/${activeSectionInfo.icon}`}
+                    alt={activeSectionInfo.title}
+                    loading="lazy"
+                    className={activeSectionInfo.icon.endsWith('.svg') ? 'texts-heading-icon texts-heading-icon--themed' : 'texts-heading-icon'}
+                    style={{
+                      width: activeSectionInfo.icon.endsWith('.svg')
+                        ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
+                        : 'clamp(5rem, 6.8vw, 7rem)',
+                      height: activeSectionInfo.icon.endsWith('.svg')
+                        ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
+                        : 'clamp(5rem, 6.8vw, 7rem)',
+                      objectFit: 'contain',
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : null}
+                <h2
+                  style={{
+                    fontSize: 'clamp(2.3rem, 4vw, 4.2rem)',
+                    lineHeight: 0.96,
+                    letterSpacing: '-0.06em',
+                    color: 'var(--text-primary)',
+                    fontWeight: 800,
+                    margin: 0,
+                  }}
+                >
+                  {activeSectionInfo?.title ?? '每天听本书'}
+                </h2>
+              </div>
               <p
                 style={{
                   maxWidth: '760px',
@@ -285,6 +306,147 @@ export default function TextsPage({ data }: Props) {
                 {activeSectionInfo?.description ?? '把值得留下的内容浓缩成可以再次翻阅的文字切片。'}
               </p>
             </section>
+
+            {activeSection === 'book-reviews' ? (
+              <section
+                className="animate-fade-up"
+                style={{
+                  marginBottom: '1.55rem',
+                  borderRadius: '30px',
+                  border: '1px solid var(--glass-border)',
+                  background: 'linear-gradient(145deg, rgba(196, 168, 120, 0.09), rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.02))',
+                  boxShadow: '0 24px 60px rgba(0,0,0,0.06)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: activeSectionInfo?.showcase_images?.length ? 'minmax(220px, 280px) 1fr' : '1fr',
+                    gap: '1.4rem',
+                    alignItems: 'stretch',
+                    padding: '1.4rem',
+                  }}
+                >
+                  {activeSectionInfo?.showcase_images?.length ? (
+                    <div
+                      style={{
+                        minHeight: '360px',
+                        borderRadius: '22px',
+                        overflow: 'hidden',
+                        background: 'rgba(255,255,255,0.04)',
+                        boxShadow: '0 18px 35px rgba(0,0,0,0.12)',
+                      }}
+                    >
+                      <img
+                        src={`/${activeSectionInfo.showcase_images[0]}`}
+                        alt={activeSectionInfo.title}
+                        loading="lazy"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                    </div>
+                  ) : null}
+
+                  <div style={{ display: 'grid', gap: '1rem', alignContent: 'space-between' }}>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: '0.72rem',
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color: 'var(--text-secondary)',
+                          marginBottom: '0.65rem',
+                        }}
+                      >
+                        Daily Shelf
+                      </div>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: 'clamp(1.8rem, 2.6vw, 3rem)',
+                          lineHeight: 1,
+                          letterSpacing: '-0.05em',
+                          color: 'var(--text-primary)',
+                          fontWeight: 800,
+                        }}
+                      >
+                        每天听本书
+                      </h3>
+                      <p
+                        style={{
+                          marginTop: '0.9rem',
+                          marginBottom: 0,
+                          color: 'var(--text-secondary)',
+                          fontSize: '0.96rem',
+                          lineHeight: 1.8,
+                          maxWidth: '640px',
+                        }}
+                      >
+                        把一本书变成一个入口，把一排封面排成可以反复经过的书架。这里不会追求完整的摘要，只保留那些愿意让我再次点开的判断与余味。
+                      </p>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
+                        gap: '0.9rem',
+                        alignItems: 'end',
+                      }}
+                    >
+                      {(activeSectionInfo?.showcase_images ?? []).slice(1, 6).map((imagePath, idx) => (
+                        <div
+                          key={imagePath}
+                          style={{
+                            aspectRatio: '2 / 3',
+                            borderRadius: '18px',
+                            overflow: 'hidden',
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            transform: `translateY(${idx % 2 === 0 ? '0px' : '10px'}) rotate(${idx % 2 === 0 ? '-1.2deg' : '1.2deg'})`,
+                            boxShadow: '0 14px 28px rgba(0,0,0,0.1)',
+                          }}
+                        >
+                          <img
+                            src={`/${imagePath}`}
+                            alt=""
+                            loading="lazy"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              display: 'block',
+                            }}
+                          />
+                        </div>
+                      ))}
+
+                      {!activeSectionInfo?.showcase_images?.length ? (
+                        <div
+                          style={{
+                            borderRadius: '18px',
+                            border: '1px dashed rgba(128,128,128,0.25)',
+                            minHeight: '180px',
+                            display: 'grid',
+                            placeItems: 'center',
+                            color: 'var(--text-secondary)',
+                            fontSize: '0.9rem',
+                            gridColumn: '1 / -1',
+                          }}
+                        >
+                          把书封放进「每天听本书/书架」，这里就会长出你的首页书架。
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            ) : null}
 
             <div style={{ maxWidth: '860px' }}>
               <div className="flex flex-col gap-4 md:gap-6">
@@ -403,7 +565,7 @@ export default function TextsPage({ data }: Props) {
                                 }}
                               >
                                 <ChevronUp size={16} />
-                                收起 (COLLAPSE)
+                                收起
                               </button>
                             </div>
                           </div>

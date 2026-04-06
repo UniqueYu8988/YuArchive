@@ -1147,6 +1147,30 @@ body {
   opacity: 0.88;
 }
 
+.texts-section-icon {
+  transition: filter 0.3s ease, opacity 0.3s ease, transform 0.2s ease;
+}
+
+[data-theme='light'] .texts-section-icon--themed {
+  filter: none;
+}
+
+[data-theme='dark'] .texts-section-icon--themed {
+  filter: invert(1);
+}
+
+.texts-heading-icon {
+  transition: filter 0.3s ease, opacity 0.3s ease, transform var(--motion-soft);
+}
+
+[data-theme='light'] .texts-heading-icon--themed {
+  filter: none;
+}
+
+[data-theme='dark'] .texts-heading-icon--themed {
+  filter: invert(1);
+}
+
 /* ── 分类页头部 ──────────────────────────── */
 .page-header {
   padding: 1.5rem 1rem 1rem;

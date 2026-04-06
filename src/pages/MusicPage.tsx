@@ -560,13 +560,13 @@ export default function MusicPage({ data }: Props) {
                               value={Math.min(currentTime, duration || 0)}
                               onChange={event => handleSeek(Number(event.target.value))}
                               disabled={!hasAudio}
-                              style={{
-                                width: '100%',
-                                cursor: hasAudio ? 'pointer' : 'not-allowed',
-                                opacity: hasAudio ? 1 : 0.45,
-                                background: `linear-gradient(90deg, #1DB954 0%, #1DB954 ${progressPercent}%, rgba(255,255,255,0.12) ${progressPercent}%, rgba(255,255,255,0.12) 100%)`,
-                              }}
-                            />
+                                style={{
+                                  width: '100%',
+                                  cursor: hasAudio ? 'pointer' : 'not-allowed',
+                                  opacity: hasAudio ? 1 : 0.45,
+                                  background: `linear-gradient(90deg, var(--music-progress-fill, #1DB954) 0%, var(--music-progress-fill, #1DB954) ${progressPercent}%, var(--music-progress-track, rgba(255,255,255,0.12)) ${progressPercent}%, var(--music-progress-track, rgba(255,255,255,0.12)) 100%)`,
+                                }}
+                              />
                             <div
                               style={{
                                 display: 'flex',
@@ -704,13 +704,15 @@ export default function MusicPage({ data }: Props) {
         )}
       </div>
 
-      <style>{`
-        .music-progress {
-          appearance: none;
-          -webkit-appearance: none;
-          height: 6px;
-          border-radius: 999px;
-          outline: none;
+        <style>{`
+          .music-progress {
+            --music-progress-fill: #1DB954;
+            --music-progress-track: rgba(255,255,255,0.12);
+            appearance: none;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 999px;
+            outline: none;
         }
         .music-progress::-webkit-slider-runnable-track {
           height: 6px;
@@ -747,15 +749,18 @@ export default function MusicPage({ data }: Props) {
           border: 2px solid #1DB954;
           box-shadow: 0 4px 12px rgba(0,0,0,0.16);
         }
-        .music-progress:hover::-webkit-slider-thumb {
-          transform: scale(1.12);
-          box-shadow: 0 0 0 6px rgba(29,185,84,0.14), 0 4px 12px rgba(0,0,0,0.16);
-        }
-        .music-track-link:hover {
-          background: rgba(29,185,84,0.08) !important;
-          color: #149244 !important;
-          transform: translateX(3px);
-        }
+          .music-progress:hover::-webkit-slider-thumb {
+            transform: scale(1.12);
+            box-shadow: 0 0 0 6px rgba(29,185,84,0.14), 0 4px 12px rgba(0,0,0,0.16);
+          }
+          [data-theme='light'] .music-progress {
+            --music-progress-track: rgba(15,23,42,0.14);
+          }
+          .music-track-link:hover {
+            background: rgba(29,185,84,0.08) !important;
+            color: #149244 !important;
+            transform: translateX(3px);
+          }
         .music-track-link.is-active {
           box-shadow: inset 0 0 0 1px rgba(29,185,84,0.12);
         }

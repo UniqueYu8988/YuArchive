@@ -63,6 +63,7 @@ CATEGORIES = {
 DEFAULT_TEXT_DATE = "1970-01-01"
 TEXT_SECTION_DEFAULT_KEY = "headline"
 TEXT_SECTION_CONFIG_FILENAME = "sections.yaml"
+TEXTS_SECTION_SHOWCASE_FOLDER = "书架"
 GAME_META_FILENAME = "meta.yaml"
 VISIONS_META_FILENAME = "meta.yaml"
 VISIONS_SHOWCASE_FOLDER = "角色橱窗"
@@ -768,6 +769,16 @@ def load_text_section_config(cat_root: Path) -> tuple[dict[str, dict], dict[str,
         return {}, {}
 
     return config_map, alias_map
+
+
+def resolve_text_section_folder(cat_root: Path, key: str, alias_map: dict[str, str]) -> Path | None:
+    for child in cat_root.iterdir():
+        if not child.is_dir():
+            continue
+        normalized = normalize_title(child.name)
+        if alias_map.get(normalized) == key:
+            return child
+    return None
 
 
 def parse_game_rating(value: str) -> int | None:
@@ -2048,7 +2059,7 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
     section_counts: dict[str, int] = {}
     section_titles: dict[str, str] = {}
     section_descriptions: dict[str, str] = {}
-    section_config_map, _ = load_text_section_config(cat_root)
+    section_config_map, alias_map = load_text_section_config(cat_root)
     for item in cat_root.rglob("*"):
         if item.is_file() and item.suffix.lower() in TEXT_EXTENSIONS:
             parsed = parse_markdown_with_frontmatter(item)
@@ -2080,12 +2091,23 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
     items.sort(key=lambda x: (x["sort_date"], x["title"]), reverse=True)
     section_order = list(section_config_map.keys())
     dynamic_keys = [key for key in section_counts.keys() if key not in section_order]
-    ordered_keys = [key for key in section_order if key in section_counts] + sorted(dynamic_keys)
+    ordered_keys = section_order + sorted(dynamic_keys)
     sections = [
         {
             "key": key,
             "title": section_titles.get(key, section_config_map.get(key, {}).get("title", key)),
             "description": section_descriptions.get(key, section_config_map.get(key, {}).get("description", "")),
+            "icon": section_config_map.get(key, {}).get("icon", ""),
+            "showcase_images": (
+                [
+                    convert_image_incremental(img)
+                    for img in sorted((resolve_text_section_folder(cat_root, key, alias_map) / TEXTS_SECTION_SHOWCASE_FOLDER).iterdir())
+                    if img.is_file() and img.suffix.lower() in IMAGE_EXTENSIONS
+                ]
+                if resolve_text_section_folder(cat_root, key, alias_map)
+                and (resolve_text_section_folder(cat_root, key, alias_map) / TEXTS_SECTION_SHOWCASE_FOLDER).exists()
+                else []
+            ),
             "count": section_counts.get(key, 0),
         }
         for key in ordered_keys
