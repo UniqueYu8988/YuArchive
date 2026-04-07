@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useMemo, useState, type ReactNode } from 'react'
 import type { ArchiveData, ArchiveItem, MusicItem, TextItem } from '../types'
 import { assetVersion, homepageConfig, siteLayout, siteUi } from '../data/siteConfig'
+import { useFixedSidebar } from '../hooks/useFixedSidebar'
 
 function toImageUrl(imagePath: string) {
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -1052,6 +1053,7 @@ interface HomePageProps {
 
 export default function HomePage({ data }: HomePageProps) {
   const { games, visions, music, texts } = data.categories
+  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
 
   const latestGames = selectConfiguredItems(
     collectTimelineItems(games.years),
@@ -1080,7 +1082,7 @@ export default function HomePage({ data }: HomePageProps) {
   return (
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1360px', paddingTop: '0.55rem', paddingBottom: '5rem' }}>
       <div
-        className="animate-fade-up md:grid md:gap-6 home-page-layout"
+        className="md:grid md:gap-6 home-page-layout"
         style={{
           display: 'grid',
           gap: '1.15rem',
@@ -1088,66 +1090,66 @@ export default function HomePage({ data }: HomePageProps) {
           justifyContent: 'center',
         }}
       >
-        <aside
-          className="home-sidebar-column"
-          style={{
-            position: 'sticky',
-            top: '88px',
-            alignSelf: 'start',
-            paddingTop: '0.35rem',
-          }}
-        >
+        <aside className="home-sidebar-column" ref={sidebarRef} style={{ alignSelf: 'stretch', ...sidebarWrapperStyle }}>
           <div
+            ref={sidebarContentRef}
             style={{
-              marginBottom: '0.78rem',
-              display: 'flex',
-              justifyContent: 'center',
-              pointerEvents: 'none',
-              opacity: 0.9,
+              height: 'fit-content',
+              ...sidebarContentStyle,
             }}
           >
-            <img
-              src="/icons/bee-minecraft.webp"
-              alt=""
-              aria-hidden
-              className="home-sidebar-decor home-sidebar-decor-top"
+            <div
               style={{
-                width: 'clamp(72px, 7vw, 88px)',
-                height: 'clamp(72px, 7vw, 88px)',
-                objectFit: 'contain',
-                display: 'block',
+                marginBottom: '0.78rem',
+                display: 'flex',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+                opacity: 0.9,
               }}
-            />
-          </div>
+            >
+              <img
+                src="/icons/bee-minecraft.webp"
+                alt=""
+                aria-hidden
+                className="home-sidebar-decor home-sidebar-decor-top"
+                style={{
+                  width: 'clamp(72px, 7vw, 88px)',
+                  height: 'clamp(72px, 7vw, 88px)',
+                  objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
+            </div>
 
-          <div className="home-sidebar-stats" style={{ display: 'grid', gap: '0.85rem', padding: '0 0.95rem' }}>
-            <SidebarStatCard label="Games" count={games.total_count} iconPath="/icons/GAMES.gif" to="/games" />
-            <SidebarStatCard label="Visions" count={visions.total_count} iconPath="/icons/VISIONS.gif" to="/movies" />
-            <SidebarStatCard label="Music" count={music.total_count} iconPath="/icons/MUSIC.png" to="/music" />
-            <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.webp" to="/texts" />
-          </div>
+            <div className="home-sidebar-stats" style={{ display: 'grid', gap: '0.85rem', padding: '0 0.95rem' }}>
+              <SidebarStatCard label="Games" count={games.total_count} iconPath="/icons/GAMES.gif" to="/games" />
+              <SidebarStatCard label="Visions" count={visions.total_count} iconPath="/icons/VISIONS.gif" to="/movies" />
+              <SidebarStatCard label="Music" count={music.total_count} iconPath="/icons/MUSIC.png" to="/music" />
+              <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.webp" to="/texts" />
+            </div>
 
-          <div
-            style={{
-              marginTop: '0.9rem',
-              display: 'flex',
-              justifyContent: 'center',
-              pointerEvents: 'none',
-              opacity: 0.9,
-            }}
-          >
-            <img
-              src="/icons/minecraft-grass.webp"
-              alt=""
-              aria-hidden
-              className="home-sidebar-decor home-sidebar-decor-bottom"
+            <div
               style={{
-                width: 'clamp(128px, 14vw, 164px)',
-                height: 'auto',
-                objectFit: 'contain',
-                display: 'block',
+                marginTop: '0.9rem',
+                display: 'flex',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+                opacity: 0.9,
               }}
-            />
+            >
+              <img
+                src="/icons/minecraft-grass.webp"
+                alt=""
+                aria-hidden
+                className="home-sidebar-decor home-sidebar-decor-bottom"
+                style={{
+                  width: 'clamp(128px, 14vw, 164px)',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
+            </div>
           </div>
         </aside>
 

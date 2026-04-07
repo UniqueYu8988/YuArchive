@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Clapperboard, Tv } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem, VisionShowcase } from '../types'
 import { assetVersion, siteUi } from '../data/siteConfig'
+import { useFixedSidebar } from '../hooks/useFixedSidebar'
 
 function toImageUrl(imagePath: string): string {
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -357,6 +358,7 @@ type VisionFilter = 'all' | 'movie' | 'tv'
 
 export default function Visions({ data }: VisionsProps) {
   const hasData = data && data.years.length > 0 && data.total_count > 0
+  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
   const [activeFilter, setActiveFilter] = useState<VisionFilter>('all')
 
   const filteredYears = useMemo(() => {
@@ -385,17 +387,18 @@ export default function Visions({ data }: VisionsProps) {
   return (
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem', paddingBottom: '6rem' }}>
       {hasData ? (
-        <div className="animate-fade-up md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
-          <aside
-            style={{
-              position: 'sticky',
-              top: '88px',
-              alignSelf: 'start',
-            }}
-          >
-            <div
-              style={{
-                padding: '0.2rem 1.1rem 1rem',
+          <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
+            <aside ref={sidebarRef} style={sidebarWrapperStyle}>
+              <div
+                ref={sidebarContentRef}
+                style={{
+                  height: 'fit-content',
+                  ...sidebarContentStyle,
+                }}
+              >
+              <div
+                style={{
+                  padding: '0.2rem 1.1rem 1rem',
                 marginBottom: '0.45rem',
                 textAlign: 'left',
               }}
@@ -431,54 +434,6 @@ export default function Visions({ data }: VisionsProps) {
                 }}
               >
                 共收录 <strong style={{ color: 'var(--text-primary)' }}>{filteredCount}</strong> 部精彩视界
-              </div>
-            </div>
-
-            <div
-              style={{
-                borderRadius: '24px',
-                border: '1px solid var(--glass-border)',
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
-                padding: '1.1rem',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
-                marginBottom: '1rem',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '0.72rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.16em',
-                  color: 'var(--text-secondary)',
-                  marginBottom: '0.95rem',
-                }}
-              >
-                Filter
-              </div>
-
-              <div style={{ display: 'grid', gap: '0.42rem', marginBottom: '1rem' }}>
-                {filterButtons.map(button => {
-                  const isActive = activeFilter === button.key
-                  return (
-                    <button
-                      key={button.key}
-                      onClick={() => setActiveFilter(button.key)}
-                      style={{
-                        textAlign: 'left',
-                        borderRadius: '14px',
-                        padding: '0.76rem 0.82rem',
-                        border: 'none',
-                        background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
-                        color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-                        fontSize: '0.84rem',
-                        transition: 'all 0.22s ease',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {button.label}
-                    </button>
-                  )
-                })}
               </div>
             </div>
 
@@ -526,6 +481,55 @@ export default function Visions({ data }: VisionsProps) {
                     <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>{yearGroup.items.length}</span>
                   </a>
                 ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                borderRadius: '24px',
+                border: '1px solid var(--glass-border)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
+                padding: '1.1rem',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+                marginTop: '1rem',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.16em',
+                  color: 'var(--text-secondary)',
+                  marginBottom: '0.95rem',
+                }}
+              >
+                Filter
+              </div>
+
+              <div style={{ display: 'grid', gap: '0.42rem' }}>
+                {filterButtons.map(button => {
+                  const isActive = activeFilter === button.key
+                  return (
+                    <button
+                      key={button.key}
+                      onClick={() => setActiveFilter(button.key)}
+                      style={{
+                        textAlign: 'left',
+                        borderRadius: '14px',
+                        padding: '0.76rem 0.82rem',
+                        border: 'none',
+                        background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        fontSize: '0.84rem',
+                        transition: 'all 0.22s ease',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {button.label}
+                    </button>
+                  )
+                })}
+              </div>
               </div>
             </div>
           </aside>

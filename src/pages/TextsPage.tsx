@@ -37,12 +37,12 @@ export default function TextsPage({ data }: Props) {
   useEffect(() => {
     if (previousSectionRef.current !== activeSection) {
       previousSectionRef.current = activeSection
-      setExpandedId(filteredItems[0]?.id ?? null)
+      setExpandedId(null)
       return
     }
 
     if (expandedId && !filteredItems.some(item => item.id === expandedId)) {
-      setExpandedId(filteredItems[0]?.id ?? null)
+      setExpandedId(null)
     }
   }, [activeSection, filteredItems, expandedId])
 
@@ -62,8 +62,6 @@ export default function TextsPage({ data }: Props) {
         <div className="animate-fade-up md:grid md:grid-cols-[270px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
           <aside
             style={{
-              position: 'sticky',
-              top: '88px',
               alignSelf: 'start',
             }}
           >
@@ -147,7 +145,7 @@ export default function TextsPage({ data }: Props) {
                         background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
                         color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
                         fontSize: '0.84rem',
-                        transition: 'all 0.22s ease',
+                        transition: 'background-color 0.22s ease, color 0.22s ease, transform 0.22s ease',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
@@ -224,7 +222,7 @@ export default function TextsPage({ data }: Props) {
                       background: expandedId === item.id ? 'rgba(255,255,255,0.1)' : 'transparent',
                       color: expandedId === item.id ? 'var(--text-primary)' : 'var(--text-secondary)',
                       fontSize: '0.84rem',
-                      transition: 'all 0.22s ease',
+                      transition: 'background-color 0.22s ease, color 0.22s ease, transform 0.22s ease',
                     }}
                   >
                     <div
@@ -248,64 +246,67 @@ export default function TextsPage({ data }: Props) {
           </aside>
 
           <main style={{ minWidth: 0 }}>
-            <section
-              style={{
-                padding: '0.25rem 0.1rem 0.35rem',
-                marginBottom: '1.35rem',
-              }}
-            >
-              <div
+            {activeSection !== 'book-reviews' ? (
+              <section
+                className="animate-fade-up"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  gap: '0.45rem',
-                  marginBottom: '0.9rem',
+                  padding: '0.25rem 0.1rem 0.35rem',
+                  marginBottom: '1.35rem',
                 }}
               >
-                {activeSectionInfo?.icon ? (
-                  <img
-                    src={`/${activeSectionInfo.icon}`}
-                    alt={activeSectionInfo.title}
-                    loading="lazy"
-                    className={activeSectionInfo.icon.endsWith('.svg') ? 'texts-heading-icon texts-heading-icon--themed' : 'texts-heading-icon'}
-                    style={{
-                      width: activeSectionInfo.icon.endsWith('.svg')
-                        ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
-                        : 'clamp(5rem, 6.8vw, 7rem)',
-                      height: activeSectionInfo.icon.endsWith('.svg')
-                        ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
-                        : 'clamp(5rem, 6.8vw, 7rem)',
-                      objectFit: 'contain',
-                      flexShrink: 0,
-                    }}
-                  />
-                ) : null}
-                <h2
+                <div
                   style={{
-                    fontSize: 'clamp(2.3rem, 4vw, 4.2rem)',
-                    lineHeight: 0.96,
-                    letterSpacing: '-0.06em',
-                    color: 'var(--text-primary)',
-                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '0.45rem',
+                    marginBottom: '0.9rem',
+                  }}
+                >
+                  {activeSectionInfo?.icon ? (
+                    <img
+                      src={`/${activeSectionInfo.icon}`}
+                      alt={activeSectionInfo.title}
+                      loading="lazy"
+                      className={activeSectionInfo.icon.endsWith('.svg') ? 'texts-heading-icon texts-heading-icon--themed' : 'texts-heading-icon'}
+                      style={{
+                        width: activeSectionInfo.icon.endsWith('.svg')
+                          ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
+                          : 'clamp(5rem, 6.8vw, 7rem)',
+                        height: activeSectionInfo.icon.endsWith('.svg')
+                          ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
+                          : 'clamp(5rem, 6.8vw, 7rem)',
+                        objectFit: 'contain',
+                        flexShrink: 0,
+                      }}
+                    />
+                  ) : null}
+                  <h2
+                    style={{
+                      fontSize: 'clamp(2.3rem, 4vw, 4.2rem)',
+                      lineHeight: 0.96,
+                      letterSpacing: '-0.06em',
+                      color: 'var(--text-primary)',
+                      fontWeight: 800,
+                      margin: 0,
+                    }}
+                  >
+                    {activeSectionInfo?.title ?? '每天听本书'}
+                  </h2>
+                </div>
+                <p
+                  style={{
+                    maxWidth: '760px',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.98rem',
+                    lineHeight: 1.78,
                     margin: 0,
                   }}
                 >
-                  {activeSectionInfo?.title ?? '每天听本书'}
-                </h2>
-              </div>
-              <p
-                style={{
-                  maxWidth: '760px',
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.98rem',
-                  lineHeight: 1.78,
-                  margin: 0,
-                }}
-              >
-                {activeSectionInfo?.description ?? '把值得留下的内容浓缩成可以再次翻阅的文字切片。'}
-              </p>
-            </section>
+                  {activeSectionInfo?.description ?? '把值得留下的内容浓缩成可以再次翻阅的文字切片。'}
+                </p>
+              </section>
+            ) : null}
 
             {activeSection === 'book-reviews' ? (
               <section
@@ -387,7 +388,7 @@ export default function TextsPage({ data }: Props) {
                           maxWidth: '640px',
                         }}
                       >
-                        把一本书变成一个入口，把一排封面排成可以反复经过的书架。这里不会追求完整的摘要，只保留那些愿意让我再次点开的判断与余味。
+                        把一本书留下一个入口、一段印象，像搭起一排可以反复回望的书架。
                       </p>
                     </div>
 
@@ -450,17 +451,14 @@ export default function TextsPage({ data }: Props) {
 
             <div style={{ maxWidth: '860px' }}>
               <div className="flex flex-col gap-4 md:gap-6">
-                {filteredItems.map((item, idx) => {
+                {filteredItems.map((item) => {
                   const isExpanded = expandedId === item.id
 
                   return (
                     <div
                       key={item.id}
                       ref={el => (itemRefs.current[item.id] = el)}
-                      className="animate-fade-up"
                       style={{
-                        animationDelay: `${idx * 0.05}s`,
-                        animationFillMode: 'both',
                         background: 'rgba(128,128,128,0.03)',
                         border: '1px solid var(--glass-border)',
                         borderRadius: '16px',

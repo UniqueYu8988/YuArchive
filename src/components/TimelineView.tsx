@@ -3,6 +3,20 @@ import { CircleDollarSign, Clock3, Gem, Layers3, Star } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem } from '../types'
 import { yearDescriptions, easterEggYear } from '../data/yearDescriptions'
 import { assetVersion, siteUi } from '../data/siteConfig'
+import { useFixedSidebar } from '../hooks/useFixedSidebar'
+
+const TIMELINE_SIDEBAR_ICON_MAP: Record<number, string> = {
+  2001: '/icons/games-2001.svg',
+  2010: '/icons/games-2010.svg',
+  2015: '/icons/games-2015.svg',
+  2020: '/icons/games-2020.svg',
+  2023: '/icons/games-2023.svg',
+  2024: '/icons/games-2024.svg',
+  2025: '/icons/games-2025.svg',
+  2026: '/icons/games-2026.svg',
+}
+
+const TIMELINE_SEASON_ICON = '/icons/games-season-journey.svg'
 
 function toImageUrl(imagePath: string): string {
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -631,6 +645,7 @@ interface TimelineViewProps {
 
 export default function TimelineView({ data, title, subtitle: _subtitle, showEasterEgg = false, mode = 'default' }: TimelineViewProps) {
   const hasData = data.years.length > 0 && data.total_count > 0
+  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
   const liveItems = mode === 'games'
     ? data.years.flatMap(yearGroup => yearGroup.items.filter(item => item.seasonal))
     : []
@@ -646,17 +661,18 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
   return (
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem', paddingBottom: '6rem' }}>
       {hasData ? (
-        <div className="animate-fade-up md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
-          <aside
-            style={{
-              position: 'sticky',
-              top: '88px',
-              alignSelf: 'start',
-            }}
-          >
+        <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
+          <aside ref={sidebarRef} style={sidebarWrapperStyle}>
             <div
+              ref={sidebarContentRef}
               style={{
-                padding: '0.2rem 1.1rem 1rem',
+                height: 'fit-content',
+                ...sidebarContentStyle,
+              }}
+            >
+              <div
+                style={{
+                  padding: '0.2rem 1.1rem 1rem',
                 marginBottom: '0.45rem',
                 textAlign: 'left',
               }}
@@ -695,10 +711,10 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
               </div>
             </div>
 
-            <div
-              style={{
-                borderRadius: '24px',
-                border: '1px solid var(--glass-border)',
+              <div
+                style={{
+                  borderRadius: '24px',
+                  border: '1px solid var(--glass-border)',
                 background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
                 padding: '1.1rem',
                 boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
@@ -732,7 +748,20 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                     marginBottom: '0.8rem',
                   }}
                 >
-                  <span style={{ fontSize: '0.84rem', color: 'var(--text-primary)' }}>{siteUi.season_journey}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.62rem', minWidth: 0 }}>
+                    <img
+                      src={TIMELINE_SEASON_ICON}
+                      alt={siteUi.season_journey}
+                      className="timeline-nav-icon timeline-nav-icon--themed"
+                      style={{
+                        width: '1.1rem',
+                        height: '1.1rem',
+                        objectFit: 'contain',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: '0.84rem', color: 'var(--text-primary)' }}>{siteUi.season_journey}</span>
+                  </span>
                   <span style={{ fontSize: '0.74rem' }}>{liveItems.length}</span>
                 </a>
               )}
@@ -758,7 +787,22 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                       textDecoration: 'none',
                     }}
                   >
-                    <span>{yearGroup.year === 0 ? siteUi.unclassified : yearGroup.year}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.62rem', minWidth: 0 }}>
+                      {TIMELINE_SIDEBAR_ICON_MAP[yearGroup.year] ? (
+                        <img
+                          src={TIMELINE_SIDEBAR_ICON_MAP[yearGroup.year]}
+                          alt={yearGroup.year === 0 ? siteUi.unclassified : String(yearGroup.year)}
+                          className="timeline-nav-icon timeline-nav-icon--themed"
+                          style={{
+                            width: '1.1rem',
+                            height: '1.1rem',
+                            objectFit: 'contain',
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : null}
+                      <span>{yearGroup.year === 0 ? siteUi.unclassified : yearGroup.year}</span>
+                    </span>
                     <span style={{ fontSize: '0.74rem', opacity: 0.8 }}>{yearGroup.items.length}</span>
                   </a>
                 ))}
@@ -778,11 +822,27 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                       gap: '0.6rem',
                       textDecoration: 'none',
                     }}
-                  >
-                    <span>{easterEggYear.year}</span>
+                    >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.62rem', minWidth: 0 }}>
+                      {TIMELINE_SIDEBAR_ICON_MAP[easterEggYear.year] ? (
+                        <img
+                          src={TIMELINE_SIDEBAR_ICON_MAP[easterEggYear.year]}
+                          alt={String(easterEggYear.year)}
+                          className="timeline-nav-icon timeline-nav-icon--themed"
+                          style={{
+                            width: '1.1rem',
+                            height: '1.1rem',
+                            objectFit: 'contain',
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : null}
+                      <span>{easterEggYear.year}</span>
+                    </span>
                     <span style={{ fontSize: '0.74rem', opacity: 0.5 }}>?</span>
                   </a>
                 )}
+              </div>
               </div>
             </div>
           </aside>
