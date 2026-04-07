@@ -2060,12 +2060,32 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
     section_titles: dict[str, str] = {}
     section_descriptions: dict[str, str] = {}
     section_config_map, alias_map = load_text_section_config(cat_root)
+
+    def find_text_cover(item_path: Path, section_key: str) -> str:
+        section_folder = resolve_text_section_folder(cat_root, section_key, alias_map)
+        if not section_folder:
+            return ""
+        shelf_folder = section_folder / TEXTS_SECTION_SHOWCASE_FOLDER
+        if not shelf_folder.exists():
+            return ""
+        normalized_stem = normalize_title(item_path.stem).lower()
+        for candidate in shelf_folder.iterdir():
+            if not candidate.is_file() or candidate.suffix.lower() not in IMAGE_EXTENSIONS:
+                continue
+            if normalize_title(candidate.stem).lower() == normalized_stem:
+                return process_and_get_webp_path(candidate, "texts")
+        return ""
+
     for item in cat_root.rglob("*"):
         if item.is_file() and item.suffix.lower() in TEXT_EXTENSIONS:
             parsed = parse_markdown_with_frontmatter(item)
             title = parsed["metadata"].get("title", item.stem)
-            sort_date, date_status = normalize_text_date(parsed["metadata"].get("date", DEFAULT_TEXT_DATE), item)
+            raw_date = parsed["metadata"].get("date", DEFAULT_TEXT_DATE)
+            sort_date, date_status = normalize_text_date(raw_date, item)
             section_key, section_title, section_description = resolve_text_section(item, cat_root, parsed["metadata"], default_section_key)
+            if section_key == "book-reviews" and (not str(raw_date).strip() or str(raw_date).strip() == DEFAULT_TEXT_DATE):
+                raw_date = ""
+                sort_date = ""
             section_counts[section_key] = section_counts.get(section_key, 0) + 1
             section_titles[section_key] = section_title
             section_descriptions[section_key] = section_description
@@ -2080,10 +2100,13 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
             items.append({
                 "id": f"text_{len(items)}",
                 "title": title,
-                "date": parsed["metadata"].get("date", DEFAULT_TEXT_DATE),
+                "date": raw_date,
                 "sort_date": sort_date,
                 "section": section_key,
                 "section_title": section_title,
+                "cover": find_text_cover(item, section_key),
+                "author": str(parsed["metadata"].get("author", "")).strip(),
+                "summary": str(parsed["metadata"].get("summary", "")).strip(),
                 "tags": parsed["metadata"].get("tags", []),
                 "content": parsed["content"]
             })
@@ -2100,7 +2123,7 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
             "icon": section_config_map.get(key, {}).get("icon", ""),
             "showcase_images": (
                 [
-                    convert_image_incremental(img)
+                    process_and_get_webp_path(img, "texts")
                     for img in sorted((resolve_text_section_folder(cat_root, key, alias_map) / TEXTS_SECTION_SHOWCASE_FOLDER).iterdir())
                     if img.is_file() and img.suffix.lower() in IMAGE_EXTENSIONS
                 ]

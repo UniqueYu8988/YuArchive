@@ -99,6 +99,9 @@ export interface TextItem {
   sort_date?: string
   section?: string
   section_title?: string
+  cover?: string
+  author?: string
+  summary?: string
   tags: string[]
   content: string
 }

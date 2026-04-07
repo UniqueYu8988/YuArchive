@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import type { TextsCategory } from '../types'
@@ -8,12 +8,54 @@ interface Props {
   data: TextsCategory
 }
 
+function BookishHeading({
+  level,
+  children,
+}: {
+  level: 'h1' | 'h2' | 'h3'
+  children: ReactNode
+}) {
+  const Tag = level === 'h1' ? 'h3' : level === 'h2' ? 'h4' : 'h5'
+
+  return (
+    <div className={`bookish-heading bookish-heading--${level}`}>
+      <span className="bookish-heading__rule" aria-hidden="true" />
+      <Tag className="bookish-heading__title">{children}</Tag>
+    </div>
+  )
+}
+
+const bookishMarkdownComponents = {
+  p: ({ node, ...props }: any) => <p className="text-xs md:text-base leading-relaxed md:leading-loose text-secondary mb-4 md:mb-6 tracking-normal md:tracking-wide font-light" {...props} />,
+  h1: ({ node, children, ...props }: any) => (
+    <BookishHeading level="h1">
+      <span {...props}>{children}</span>
+    </BookishHeading>
+  ),
+  h2: ({ node, children, ...props }: any) => (
+    <BookishHeading level="h2">
+      <span {...props}>{children}</span>
+    </BookishHeading>
+  ),
+  h3: ({ node, children, ...props }: any) => (
+    <BookishHeading level="h3">
+      <span {...props}>{children}</span>
+    </BookishHeading>
+  ),
+  ul: ({ node, ...props }: any) => <ul className="pl-4 md:pl-6 text-secondary mb-4 md:mb-6 leading-relaxed" {...props} />,
+  ol: ({ node, ...props }: any) => <ol className="pl-4 md:pl-6 text-secondary mb-4 md:mb-6 leading-relaxed" {...props} />,
+  li: ({ node, ...props }: any) => <li className="mb-2" {...props} />,
+  blockquote: ({ node, ...props }: any) => <blockquote className="border-l-4 border-glass-border pl-4 text-secondary italic mb-4 md:mb-6 opacity-80" {...props} />,
+}
+
 export default function TextsPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const sections = data.sections ?? []
   const defaultSection = sections.find(section => section.key === siteLayout.texts_default_section_key)?.key ?? sections[0]?.key ?? 'book-reviews'
   const [activeSection, setActiveSection] = useState(defaultSection)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [bookShelfPage, setBookShelfPage] = useState(0)
+  const [bookShelfPageSize, setBookShelfPageSize] = useState(5)
   const itemRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
   const previousSectionRef = useRef(activeSection)
 
@@ -33,11 +75,18 @@ export default function TextsPage({ data }: Props) {
     () => sections.find(section => section.key === activeSection) ?? sections[0],
     [sections, activeSection]
   )
+  const isBookShelfSection = activeSection === 'book-reviews'
+  const expandedItem = filteredItems.find(item => item.id === expandedId) ?? null
+  const totalBookShelfPages = isBookShelfSection ? Math.max(1, Math.ceil(filteredItems.length / bookShelfPageSize)) : 1
+  const visibleBookShelfItems = isBookShelfSection
+    ? filteredItems.slice(bookShelfPage * bookShelfPageSize, (bookShelfPage + 1) * bookShelfPageSize)
+    : filteredItems
 
   useEffect(() => {
     if (previousSectionRef.current !== activeSection) {
       previousSectionRef.current = activeSection
       setExpandedId(null)
+      setBookShelfPage(0)
       return
     }
 
@@ -45,6 +94,39 @@ export default function TextsPage({ data }: Props) {
       setExpandedId(null)
     }
   }, [activeSection, filteredItems, expandedId])
+
+  useEffect(() => {
+    const calculatePageSize = () => {
+      const width = window.innerWidth
+      if (width >= 1500) return 6
+      if (width >= 1200) return 5
+      if (width >= 900) return 4
+      return 3
+    }
+
+    const syncPageSize = () => {
+      setBookShelfPageSize(calculatePageSize())
+    }
+
+    syncPageSize()
+    window.addEventListener('resize', syncPageSize)
+    return () => window.removeEventListener('resize', syncPageSize)
+  }, [])
+
+  useEffect(() => {
+    if (!isBookShelfSection) return
+    setBookShelfPage(prev => Math.min(prev, Math.max(0, totalBookShelfPages - 1)))
+  }, [isBookShelfSection, totalBookShelfPages])
+
+  useEffect(() => {
+    if (!isBookShelfSection || !expandedId) return
+    const expandedIndex = filteredItems.findIndex(item => item.id === expandedId)
+    if (expandedIndex === -1) return
+    const targetPage = Math.floor(expandedIndex / bookShelfPageSize)
+    if (targetPage !== bookShelfPage) {
+      setBookShelfPage(targetPage)
+    }
+  }, [isBookShelfSection, expandedId, filteredItems, bookShelfPage, bookShelfPageSize])
 
   const toggleExpand = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
@@ -176,15 +258,16 @@ export default function TextsPage({ data }: Props) {
               </div>
             </div>
 
-            <div
-              style={{
-                borderRadius: '24px',
-                border: '1px solid var(--glass-border)',
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
-                padding: '1.1rem',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
-              }}
-            >
+            {!isBookShelfSection ? (
+              <div
+                style={{
+                  borderRadius: '24px',
+                  border: '1px solid var(--glass-border)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
+                  padding: '1.1rem',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+                }}
+              >
               <div
                 style={{
                   fontSize: '0.72rem',
@@ -242,11 +325,12 @@ export default function TextsPage({ data }: Props) {
                   </button>
                 ))}
               </div>
-            </div>
+              </div>
+            ) : null}
           </aside>
 
           <main style={{ minWidth: 0 }}>
-            {activeSection !== 'book-reviews' ? (
+            {!isBookShelfSection ? (
               <section
                 className="animate-fade-up"
                 style={{
@@ -308,148 +392,367 @@ export default function TextsPage({ data }: Props) {
               </section>
             ) : null}
 
-            {activeSection === 'book-reviews' ? (
+            {isBookShelfSection ? (
               <section
-                className="animate-fade-up"
+                className="animate-fade-up daily-shelf-shell"
                 style={{
                   marginBottom: '1.55rem',
+                  position: 'relative',
                   borderRadius: '30px',
                   border: '1px solid var(--glass-border)',
-                  background: 'linear-gradient(145deg, rgba(196, 168, 120, 0.09), rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.02))',
-                  boxShadow: '0 24px 60px rgba(0,0,0,0.06)',
                   overflow: 'hidden',
                 }}
               >
                 <div
+                  className="daily-shelf-glow"
+                  aria-hidden="true"
                   style={{
+                    position: 'absolute',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'relative',
+                    zIndex: 1,
                     display: 'grid',
-                    gridTemplateColumns: activeSectionInfo?.showcase_images?.length ? 'minmax(220px, 280px) 1fr' : '1fr',
-                    gap: '1.4rem',
-                    alignItems: 'stretch',
+                    gap: '1.25rem',
                     padding: '1.4rem',
                   }}
                 >
-                  {activeSectionInfo?.showcase_images?.length ? (
+                  <div>
                     <div
                       style={{
-                        minHeight: '360px',
-                        borderRadius: '22px',
-                        overflow: 'hidden',
-                        background: 'rgba(255,255,255,0.04)',
-                        boxShadow: '0 18px 35px rgba(0,0,0,0.12)',
+                        fontSize: '0.72rem',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: 'var(--text-secondary)',
+                        marginBottom: '0.65rem',
                       }}
                     >
-                      <img
-                        src={`/${activeSectionInfo.showcase_images[0]}`}
-                        alt={activeSectionInfo.title}
-                        loading="lazy"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          display: 'block',
-                        }}
-                      />
+                      Daily Shelf
                     </div>
-                  ) : null}
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: 'clamp(2.3rem, 4vw, 4.2rem)',
+                        lineHeight: 0.96,
+                        letterSpacing: '-0.06em',
+                        color: 'var(--text-primary)',
+                        fontWeight: 800,
+                      }}
+                    >
+                      每天听本书
+                    </h2>
+                    <p
+                      style={{
+                        marginTop: '0.9rem',
+                        marginBottom: 0,
+                        color: 'var(--text-secondary)',
+                        fontSize: '0.98rem',
+                        lineHeight: 1.78,
+                        maxWidth: '760px',
+                      }}
+                    >
+                      把一本书留下一个入口、一段印象，像搭起一排可以反复回望的书架。
+                    </p>
+                  </div>
 
-                  <div style={{ display: 'grid', gap: '1rem', alignContent: 'space-between' }}>
-                    <div>
+                  <div
+                    style={{
+                      borderRadius: '24px',
+                      border: '1px dashed rgba(128,128,128,0.22)',
+                      minHeight: '260px',
+                      padding: '1.2rem',
+                      display: 'grid',
+                      gap: '1.05rem',
+                      alignContent: 'start',
+                    }}
+                  >
+                    {filteredItems.length ? (
+                      <>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '0.8rem',
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: '0.76rem',
+                              letterSpacing: '0.14em',
+                              textTransform: 'uppercase',
+                              color: 'var(--text-secondary)',
+                            }}
+                          >
+                            Shelf Page {bookShelfPage + 1} / {totalBookShelfPages}
+                          </div>
+                          {totalBookShelfPages > 1 ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <button
+                                type="button"
+                                onClick={() => setBookShelfPage(prev => Math.max(0, prev - 1))}
+                                disabled={bookShelfPage === 0}
+                                style={{
+                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  background: bookShelfPage === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)',
+                                  color: bookShelfPage === 0 ? 'rgba(255,255,255,0.35)' : 'var(--text-primary)',
+                                  cursor: bookShelfPage === 0 ? 'default' : 'pointer',
+                                  fontSize: '0.78rem',
+                                  letterSpacing: '0.08em',
+                                  padding: '0.42rem 0.82rem',
+                                  borderRadius: '999px',
+                                }}
+                              >
+                                上一页
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setBookShelfPage(prev => Math.min(totalBookShelfPages - 1, prev + 1))}
+                                disabled={bookShelfPage >= totalBookShelfPages - 1}
+                                style={{
+                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  background: bookShelfPage >= totalBookShelfPages - 1 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)',
+                                  color: bookShelfPage >= totalBookShelfPages - 1 ? 'rgba(255,255,255,0.35)' : 'var(--text-primary)',
+                                  cursor: bookShelfPage >= totalBookShelfPages - 1 ? 'default' : 'pointer',
+                                  fontSize: '0.78rem',
+                                  letterSpacing: '0.08em',
+                                  padding: '0.42rem 0.82rem',
+                                  borderRadius: '999px',
+                                }}
+                              >
+                                下一页
+                              </button>
+                            </div>
+                          ) : null}
+                        </div>
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: `repeat(${Math.min(bookShelfPageSize, visibleBookShelfItems.length)}, minmax(0, 1fr))`,
+                            gap: '0.95rem',
+                            alignItems: 'end',
+                          }}
+                        >
+                        {visibleBookShelfItems.map((item, idx) => {
+                          const isExpanded = expandedId === item.id
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => toggleExpand(item.id)}
+                              style={{
+                                appearance: 'none',
+                                border: 'none',
+                                background: 'transparent',
+                                padding: 0,
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  aspectRatio: '2 / 3',
+                                  borderRadius: '18px',
+                                  overflow: 'hidden',
+                                  background: 'rgba(255,255,255,0.03)',
+                                  border: isExpanded ? '1px solid rgba(196, 168, 120, 0.45)' : '1px solid rgba(255,255,255,0.08)',
+                                  transform: `translateY(${idx % 3 === 1 ? '8px' : idx % 3 === 2 ? '4px' : '0px'}) rotate(${idx % 2 === 0 ? '-0.9deg' : '0.9deg'})`,
+                                  boxShadow: isExpanded ? '0 18px 36px rgba(0,0,0,0.16)' : '0 14px 28px rgba(0,0,0,0.1)',
+                                  transition: 'transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease',
+                                }}
+                              >
+                                {item.cover ? (
+                                  <img
+                                    src={`/${item.cover}`}
+                                    alt={item.title}
+                                    loading="lazy"
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                      display: 'block',
+                                    }}
+                                  />
+                                ) : (
+                                  <div
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      display: 'grid',
+                                      placeItems: 'center',
+                                      color: 'var(--text-secondary)',
+                                      fontSize: '0.82rem',
+                                      padding: '1rem',
+                                      textAlign: 'center',
+                                    }}
+                                  >
+                                    暂无封面
+                                  </div>
+                                )}
+                              </div>
+                            </button>
+                          )
+                        })}
+                        </div>
+                      </>
+                    ) : (
                       <div
                         style={{
-                          fontSize: '0.72rem',
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
+                          minHeight: '220px',
+                          display: 'grid',
+                          placeItems: 'center',
                           color: 'var(--text-secondary)',
-                          marginBottom: '0.65rem',
+                          fontSize: '0.92rem',
                         }}
                       >
-                        Daily Shelf
+                        把书封放进「每天听本书/书架」，这里就会长出你的首页书架。
                       </div>
-                      <h3
-                        style={{
-                          margin: 0,
-                          fontSize: 'clamp(1.8rem, 2.6vw, 3rem)',
-                          lineHeight: 1,
-                          letterSpacing: '-0.05em',
-                          color: 'var(--text-primary)',
-                          fontWeight: 800,
-                        }}
-                      >
-                        每天听本书
-                      </h3>
-                      <p
-                        style={{
-                          marginTop: '0.9rem',
-                          marginBottom: 0,
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.96rem',
-                          lineHeight: 1.8,
-                          maxWidth: '640px',
-                        }}
-                      >
-                        把一本书留下一个入口、一段印象，像搭起一排可以反复回望的书架。
-                      </p>
-                    </div>
+                    )}
+                  </div>
 
+                  {expandedItem ? (
                     <div
                       style={{
+                        borderTop: '1px dashed rgba(128,128,128,0.22)',
+                        paddingTop: '1.05rem',
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))',
-                        gap: '0.9rem',
-                        alignItems: 'end',
+                        gap: '1rem',
                       }}
                     >
-                      {(activeSectionInfo?.showcase_images ?? []).slice(1, 6).map((imagePath, idx) => (
-                        <div
-                          key={imagePath}
-                          style={{
-                            aspectRatio: '2 / 3',
-                            borderRadius: '18px',
-                            overflow: 'hidden',
-                            background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            transform: `translateY(${idx % 2 === 0 ? '0px' : '10px'}) rotate(${idx % 2 === 0 ? '-1.2deg' : '1.2deg'})`,
-                            boxShadow: '0 14px 28px rgba(0,0,0,0.1)',
-                          }}
-                        >
-                          <img
-                            src={`/${imagePath}`}
-                            alt=""
-                            loading="lazy"
+                      <div
+                        className="daily-shelf-detail-card"
+                        style={{
+                          position: 'relative',
+                          display: 'grid',
+                          gridTemplateColumns: expandedItem.cover ? '124px minmax(0, 1fr)' : 'minmax(0, 1fr)',
+                          gap: '1rem',
+                          alignItems: 'start',
+                          padding: '1rem 4.8rem 1rem 1rem',
+                          borderRadius: '22px',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02))',
+                        }}
+                      >
+                        {expandedItem.cover ? (
+                          <div
                             style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              display: 'block',
+                              width: '124px',
+                              aspectRatio: '2 / 3',
+                              borderRadius: '16px',
+                              overflow: 'hidden',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              background: 'rgba(255,255,255,0.03)',
+                              boxShadow: '0 14px 28px rgba(0,0,0,0.12)',
                             }}
-                          />
+                          >
+                            <img
+                              src={`/${expandedItem.cover}`}
+                              alt={expandedItem.title}
+                              loading="lazy"
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block',
+                              }}
+                            />
+                          </div>
+                        ) : null}
+                        <div style={{ minWidth: 0 }}>
+                          <h3
+                            style={{
+                              margin: 0,
+                              fontSize: '1.56rem',
+                              lineHeight: 1.1,
+                              letterSpacing: '-0.03em',
+                              color: 'var(--text-primary)',
+                              fontWeight: 800,
+                            }}
+                          >
+                            {expandedItem.title}
+                          </h3>
+                          {expandedItem.author ? (
+                            <div
+                              style={{
+                                marginTop: '0.55rem',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                padding: '0.34rem 0.72rem',
+                                borderRadius: '999px',
+                                border: '1px solid rgba(196, 168, 120, 0.18)',
+                                background: 'rgba(196, 168, 120, 0.12)',
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.82rem',
+                              }}
+                            >
+                              作者 · {expandedItem.author}
+                            </div>
+                          ) : null}
+                          {expandedItem.summary ? (
+                            <p
+                              className="daily-shelf-summary"
+                              style={{
+                                marginTop: '0.85rem',
+                                marginBottom: 0,
+                                color: 'var(--text-secondary)',
+                                fontSize: '0.96rem',
+                                lineHeight: 1.78,
+                                textWrap: 'pretty',
+                              }}
+                            >
+                              {expandedItem.summary}
+                            </p>
+                          ) : null}
                         </div>
-                      ))}
-
-                      {!activeSectionInfo?.showcase_images?.length ? (
-                        <div
+                        <button
+                          type="button"
+                          onClick={() => setExpandedId(null)}
                           style={{
-                            borderRadius: '18px',
-                            border: '1px dashed rgba(128,128,128,0.25)',
-                            minHeight: '180px',
-                            display: 'grid',
-                            placeItems: 'center',
+                            position: 'absolute',
+                            top: '0.9rem',
+                            right: '0.9rem',
+                            border: 'none',
+                            background: 'transparent',
                             color: 'var(--text-secondary)',
+                            cursor: 'pointer',
                             fontSize: '0.9rem',
-                            gridColumn: '1 / -1',
+                            letterSpacing: '0.08em',
+                            padding: '0.35rem 0.7rem',
+                            borderRadius: '999px',
+                            alignSelf: 'start',
                           }}
                         >
-                          把书封放进「每天听本书/书架」，这里就会长出你的首页书架。
-                        </div>
-                      ) : null}
+                          收起
+                        </button>
+                      </div>
+                      <div
+                        className="elegant-markdown"
+                        style={{
+                          borderRadius: '22px',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: 'linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))',
+                          padding: '1rem 1.1rem 0.55rem',
+                        }}
+                      >
+                        <ReactMarkdown
+                          components={bookishMarkdownComponents}
+                        >
+                          {expandedItem.content}
+                        </ReactMarkdown>
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
               </section>
             ) : null}
 
-            <div style={{ maxWidth: '860px' }}>
+            {!isBookShelfSection ? (
+              <div style={{ maxWidth: '860px' }}>
               <div className="flex flex-col gap-4 md:gap-6">
                 {filteredItems.map((item) => {
                   const isExpanded = expandedId === item.id
@@ -521,16 +824,7 @@ export default function TextsPage({ data }: Props) {
                           <div className="px-4 md:px-8 pb-6 md:pb-10 border-t border-glass-border text-primary">
                             <div className="elegant-markdown">
                               <ReactMarkdown
-                                components={{
-                                  p: ({ node, ...props }) => <p className="text-xs md:text-base leading-relaxed md:leading-loose text-secondary mb-4 md:mb-6 tracking-normal md:tracking-wide font-light" {...props} />,
-                                  h1: ({ node, ...props }) => <h3 className="text-lg md:text-2xl text-primary mt-6 md:mt-10 mb-4 font-semibold" {...props} />,
-                                  h2: ({ node, ...props }) => <h4 className="text-base md:text-xl text-primary mt-5 md:mt-8 mb-3 font-semibold" {...props} />,
-                                  h3: ({ node, ...props }) => <h5 className="text-sm md:text-lg text-primary mt-4 md:mt-6 mb-2 font-semibold" {...props} />,
-                                  ul: ({ node, ...props }) => <ul className="pl-4 md:pl-6 text-secondary mb-4 md:mb-6 leading-relaxed" {...props} />,
-                                  ol: ({ node, ...props }) => <ol className="pl-4 md:pl-6 text-secondary mb-4 md:mb-6 leading-relaxed" {...props} />,
-                                  li: ({ node, ...props }) => <li className="mb-2" {...props} />,
-                                  blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-glass-border pl-4 text-secondary italic mb-4 md:mb-6 opacity-80" {...props} />,
-                                }}
+                                components={bookishMarkdownComponents}
                               >
                                 {item.content}
                               </ReactMarkdown>
@@ -573,7 +867,8 @@ export default function TextsPage({ data }: Props) {
                   )
                 })}
               </div>
-            </div>
+              </div>
+            ) : null}
           </main>
         </div>
       ) : (
