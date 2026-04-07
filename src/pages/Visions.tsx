@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Clapperboard, Tv } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem, VisionShowcase } from '../types'
 import { assetVersion, siteUi } from '../data/siteConfig'
-import { useFixedSidebar } from '../hooks/useFixedSidebar'
 
 function toImageUrl(imagePath: string): string {
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -358,7 +357,6 @@ type VisionFilter = 'all' | 'movie' | 'tv'
 
 export default function Visions({ data }: VisionsProps) {
   const hasData = data && data.years.length > 0 && data.total_count > 0
-  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
   const [activeFilter, setActiveFilter] = useState<VisionFilter>('all')
 
   const filteredYears = useMemo(() => {
@@ -388,14 +386,14 @@ export default function Visions({ data }: VisionsProps) {
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem', paddingBottom: '6rem' }}>
       {hasData ? (
           <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
-            <aside ref={sidebarRef} style={sidebarWrapperStyle}>
-              <div
-                ref={sidebarContentRef}
-                style={{
-                  height: 'fit-content',
-                  ...sidebarContentStyle,
-                }}
-              >
+            <aside
+              style={{
+                alignSelf: 'start',
+                position: 'sticky',
+                top: '84px',
+                height: 'fit-content',
+              }}
+            >
               <div
                 style={{
                   padding: '0.2rem 1.1rem 1rem',
@@ -530,9 +528,8 @@ export default function Visions({ data }: VisionsProps) {
                   )
                 })}
               </div>
-              </div>
             </div>
-          </aside>
+            </aside>
 
           <main style={{ minWidth: 0 }}>
             <div className="media-grid-container" style={{ padding: 0, maxWidth: 'none' }}>

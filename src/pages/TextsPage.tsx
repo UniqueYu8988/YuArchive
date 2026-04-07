@@ -48,6 +48,78 @@ const bookishMarkdownComponents = {
   blockquote: ({ node, ...props }: any) => <blockquote className="border-l-4 border-glass-border pl-4 text-secondary italic mb-4 md:mb-6 opacity-80" {...props} />,
 }
 
+function stripMarkdown(content: string) {
+  return content
+    .replace(/^---[\s\S]*?---/, '')
+    .replace(/^#+\s*/gm, '')
+    .replace(/!\[.*?\]\(.*?\)/g, ' ')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+    .replace(/[*_`>|-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function compactExcerpt(text: string, sectionKey?: string) {
+  const normalized = text.replace(/\s+/g, ' ').trim()
+  const colonIndex = normalized.search(/[：:]/)
+  if (sectionKey === 'headline' && colonIndex >= 10 && colonIndex <= 140) {
+    return `${normalized.slice(0, colonIndex).trim()}...`
+  }
+  if (sectionKey && sectionKey !== 'headline' && colonIndex >= 4 && colonIndex <= 60) {
+    const afterColon = normalized.slice(colonIndex + 1).trim()
+    if (afterColon.length) {
+      const sentenceIndex = afterColon.search(/[。！？!?]/)
+      if (sentenceIndex >= 18 && sentenceIndex <= 120) {
+        return afterColon.slice(0, sentenceIndex + 1).trim()
+      }
+      return afterColon.length > 88 ? `${afterColon.slice(0, 88).trim()}...` : afterColon
+    }
+  }
+  const sentenceIndex = normalized.search(/[。！？!?]/)
+  if (sentenceIndex >= 18 && sentenceIndex <= 120) {
+    return normalized.slice(0, sentenceIndex + 1).trim()
+  }
+  return normalized.length > 88 ? `${normalized.slice(0, 88).trim()}...` : normalized
+}
+
+function extractExcerpt(item: { summary?: string; content: string; section?: string }) {
+  const summary = item.summary?.trim()
+  const sectionKey = item.section ?? 'headline'
+  if (summary) return compactExcerpt(summary, sectionKey)
+  const plain = stripMarkdown(item.content)
+  return compactExcerpt(plain, sectionKey)
+}
+
+function sectionEyebrow(sectionKey: string) {
+  switch (sectionKey) {
+    case 'headline':
+      return 'Daily Brief'
+    case 'bedtime-news':
+      return 'Night Watch'
+    case 'reference-info':
+      return 'Reference Desk'
+    case 'miscellany':
+      return 'Collected Fragments'
+    default:
+      return 'Selected Column'
+  }
+}
+
+function sectionVariant(sectionKey: string) {
+  switch (sectionKey) {
+    case 'headline':
+      return 'headline'
+    case 'bedtime-news':
+      return 'bedtime'
+    case 'reference-info':
+      return 'reference'
+    case 'miscellany':
+      return 'miscellany'
+    default:
+      return 'default'
+  }
+}
+
 export default function TextsPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const sections = data.sections ?? []
@@ -76,17 +148,34 @@ export default function TextsPage({ data }: Props) {
     [sections, activeSection]
   )
   const isBookShelfSection = activeSection === 'book-reviews'
+  const currentSectionVariant = sectionVariant(activeSection)
   const expandedItem = filteredItems.find(item => item.id === expandedId) ?? null
+  const featuredTextItem = !isBookShelfSection ? filteredItems[0] ?? null : null
+  const indexedTextItems = !isBookShelfSection ? filteredItems.slice(featuredTextItem ? 1 : 0) : filteredItems
   const totalBookShelfPages = isBookShelfSection ? Math.max(1, Math.ceil(filteredItems.length / bookShelfPageSize)) : 1
   const visibleBookShelfItems = isBookShelfSection
     ? filteredItems.slice(bookShelfPage * bookShelfPageSize, (bookShelfPage + 1) * bookShelfPageSize)
     : filteredItems
 
+  const bookShelfArcOffsets = useMemo(() => {
+    if (!visibleBookShelfItems.length) return []
+    const center = (visibleBookShelfItems.length - 1) / 2
+    const safeCenter = Math.max(center, 1)
+    return visibleBookShelfItems.map((_, idx) => {
+      const distance = Math.abs(idx - center) / safeCenter
+      return Math.round(distance * distance * 28)
+    })
+  }, [visibleBookShelfItems])
+
   useEffect(() => {
     if (previousSectionRef.current !== activeSection) {
       previousSectionRef.current = activeSection
-      setExpandedId(null)
       setBookShelfPage(0)
+      if (activeSection === 'book-reviews' && filteredItems.length) {
+        setExpandedId(filteredItems[0].id)
+      } else {
+        setExpandedId(null)
+      }
       return
     }
 
@@ -119,7 +208,13 @@ export default function TextsPage({ data }: Props) {
   }, [isBookShelfSection, totalBookShelfPages])
 
   useEffect(() => {
-    if (!isBookShelfSection || !expandedId) return
+    if (!isBookShelfSection) return
+    if (!expandedId && filteredItems.length) {
+      const firstVisible = filteredItems[bookShelfPage * bookShelfPageSize]
+      if (firstVisible) setExpandedId(firstVisible.id)
+      return
+    }
+    if (!expandedId) return
     const expandedIndex = filteredItems.findIndex(item => item.id === expandedId)
     if (expandedIndex === -1) return
     const targetPage = Math.floor(expandedIndex / bookShelfPageSize)
@@ -127,6 +222,13 @@ export default function TextsPage({ data }: Props) {
       setBookShelfPage(targetPage)
     }
   }, [isBookShelfSection, expandedId, filteredItems, bookShelfPage, bookShelfPageSize])
+
+  const jumpBookShelfPage = (nextPage: number) => {
+    const safePage = Math.max(0, Math.min(totalBookShelfPages - 1, nextPage))
+    const nextItem = filteredItems[safePage * bookShelfPageSize] ?? null
+    setBookShelfPage(safePage)
+    setExpandedId(nextItem?.id ?? null)
+  }
 
   const toggleExpand = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
@@ -137,6 +239,34 @@ export default function TextsPage({ data }: Props) {
     if (sortDate) return sortDate
     return rawDate
   }
+
+  const renderExpandedBody = (item: (typeof filteredItems)[number]) => (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateRows: expandedId === item.id ? '1fr' : '0fr',
+        transition: 'grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
+    >
+      <div style={{ overflow: 'hidden' }}>
+        <div className="texts-entry-expanded">
+          <div className="elegant-markdown">
+            <ReactMarkdown components={bookishMarkdownComponents}>{item.content}</ReactMarkdown>
+          </div>
+
+          <div className="texts-entry-collapse">
+            <button
+              onClick={(e) => toggleExpand(item.id, e)}
+              className="texts-entry-collapse__button"
+            >
+              <ChevronUp size={16} />
+              收起
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem', paddingBottom: '6rem' }}>
@@ -332,63 +462,43 @@ export default function TextsPage({ data }: Props) {
           <main style={{ minWidth: 0 }}>
             {!isBookShelfSection ? (
               <section
-                className="animate-fade-up"
+                className={`animate-fade-up texts-channel-hero texts-channel-hero--${currentSectionVariant}`}
                 style={{
-                  padding: '0.25rem 0.1rem 0.35rem',
                   marginBottom: '1.35rem',
+                  maxWidth: '860px',
                 }}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    gap: '0.45rem',
-                    marginBottom: '0.9rem',
-                  }}
-                >
-                  {activeSectionInfo?.icon ? (
-                    <img
-                      src={`/${activeSectionInfo.icon}`}
-                      alt={activeSectionInfo.title}
-                      loading="lazy"
-                      className={activeSectionInfo.icon.endsWith('.svg') ? 'texts-heading-icon texts-heading-icon--themed' : 'texts-heading-icon'}
-                      style={{
-                        width: activeSectionInfo.icon.endsWith('.svg')
-                          ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
-                          : 'clamp(5rem, 6.8vw, 7rem)',
-                        height: activeSectionInfo.icon.endsWith('.svg')
-                          ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
-                          : 'clamp(5rem, 6.8vw, 7rem)',
-                        objectFit: 'contain',
-                        flexShrink: 0,
-                      }}
-                    />
-                  ) : null}
-                  <h2
-                    style={{
-                      fontSize: 'clamp(2.3rem, 4vw, 4.2rem)',
-                      lineHeight: 0.96,
-                      letterSpacing: '-0.06em',
-                      color: 'var(--text-primary)',
-                      fontWeight: 800,
-                      margin: 0,
-                    }}
-                  >
-                    {activeSectionInfo?.title ?? '每天听本书'}
-                  </h2>
+                <div style={{ minWidth: 0 }}>
+                  <div className="texts-channel-hero__eyebrow">
+                    {sectionEyebrow(activeSection)}
+                  </div>
+                  <div className="texts-channel-hero__title-row">
+                    {activeSectionInfo?.icon ? (
+                      <img
+                        src={`/${activeSectionInfo.icon}`}
+                        alt={activeSectionInfo.title}
+                        loading="lazy"
+                        className={activeSectionInfo.icon.endsWith('.svg') ? 'texts-heading-icon texts-heading-icon--themed' : 'texts-heading-icon'}
+                        style={{
+                          width: activeSectionInfo.icon.endsWith('.svg')
+                            ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
+                            : 'clamp(5rem, 6.8vw, 7rem)',
+                          height: activeSectionInfo.icon.endsWith('.svg')
+                            ? 'clamp(4.1rem, 5.5vw, 5.8rem)'
+                            : 'clamp(5rem, 6.8vw, 7rem)',
+                          objectFit: 'contain',
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : null}
+                    <h2 className="texts-channel-hero__title">
+                      {activeSectionInfo?.title ?? '每天听本书'}
+                    </h2>
+                  </div>
+                  <p className="texts-channel-hero__description">
+                    {activeSectionInfo?.description ?? '把值得留下的内容浓缩成可以再次翻阅的文字切片。'}
+                  </p>
                 </div>
-                <p
-                  style={{
-                    maxWidth: '760px',
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.98rem',
-                    lineHeight: 1.78,
-                    margin: 0,
-                  }}
-                >
-                  {activeSectionInfo?.description ?? '把值得留下的内容浓缩成可以再次翻阅的文字切片。'}
-                </p>
               </section>
             ) : null}
 
@@ -460,143 +570,100 @@ export default function TextsPage({ data }: Props) {
                   </div>
 
                   <div
+                    className="daily-shelf-rail-shell"
                     style={{
-                      borderRadius: '24px',
-                      border: '1px dashed rgba(128,128,128,0.22)',
-                      minHeight: '260px',
-                      padding: '1.2rem',
+                      minHeight: '320px',
+                      padding: '1.2rem 1.2rem 0.5rem',
                       display: 'grid',
-                      gap: '1.05rem',
+                      gap: '1.15rem',
                       alignContent: 'start',
+                      position: 'relative',
                     }}
                   >
                     {filteredItems.length ? (
                       <>
+                        <div className="daily-shelf-arc-stage">
+                          <div className="daily-shelf-arc-control daily-shelf-arc-control--left">
+                            <button
+                              type="button"
+                              onClick={() => jumpBookShelfPage(bookShelfPage - 1)}
+                              disabled={bookShelfPage === 0}
+                              className="daily-shelf-turn-button"
+                              aria-label="上一页"
+                            >
+                              <span aria-hidden="true">‹</span>
+                            </button>
+                          </div>
+
+                          <div key={`daily-shelf-page-${bookShelfPage}`} className="daily-shelf-arc-books">
+                            {visibleBookShelfItems.map((item, idx) => {
+                              const isExpanded = expandedId === item.id
+                              const center = (visibleBookShelfItems.length - 1) / 2
+                              const tilt = idx < center ? -1.1 : idx > center ? 1.1 : 0
+                              return (
+                                <button
+                                  key={item.id}
+                                  type="button"
+                                  onClick={() => toggleExpand(item.id)}
+                                  className={`daily-shelf-book ${isExpanded ? 'is-active' : ''}`}
+                                  style={{
+                                    transform: `translateY(${bookShelfArcOffsets[idx] ?? 0}px) rotate(${tilt}deg) ${isExpanded ? 'scale(1.04)' : 'scale(1)'}`,
+                                  }}
+                                  aria-label={item.title}
+                                >
+                                  <div className="daily-shelf-book__media">
+                                    {item.cover ? (
+                                      <img
+                                        src={`/${item.cover}`}
+                                        alt={item.title}
+                                        loading="lazy"
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          objectFit: 'cover',
+                                          display: 'block',
+                                        }}
+                                      />
+                                    ) : (
+                                      <div className="daily-shelf-book__fallback">暂无封面</div>
+                                    )}
+                                  </div>
+                                </button>
+                              )
+                            })}
+                          </div>
+
+                          <div className="daily-shelf-arc-control daily-shelf-arc-control--right">
+                            <button
+                              type="button"
+                              onClick={() => jumpBookShelfPage(bookShelfPage + 1)}
+                              disabled={bookShelfPage >= totalBookShelfPages - 1}
+                              className="daily-shelf-turn-button"
+                              aria-label="下一页"
+                            >
+                              <span aria-hidden="true">›</span>
+                            </button>
+                          </div>
+                        </div>
                         <div
                           style={{
                             display: 'flex',
+                            justifyContent: 'center',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '0.8rem',
+                            marginTop: '-0.1rem',
                           }}
                         >
                           <div
+                            className="daily-shelf-page-indicator"
                             style={{
                               fontSize: '0.76rem',
-                              letterSpacing: '0.14em',
+                              letterSpacing: '0.18em',
                               textTransform: 'uppercase',
                               color: 'var(--text-secondary)',
                             }}
                           >
-                            Shelf Page {bookShelfPage + 1} / {totalBookShelfPages}
+                            Page {bookShelfPage + 1} / {totalBookShelfPages}
                           </div>
-                          {totalBookShelfPages > 1 ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              <button
-                                type="button"
-                                onClick={() => setBookShelfPage(prev => Math.max(0, prev - 1))}
-                                disabled={bookShelfPage === 0}
-                                style={{
-                                  border: '1px solid rgba(255,255,255,0.1)',
-                                  background: bookShelfPage === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)',
-                                  color: bookShelfPage === 0 ? 'rgba(255,255,255,0.35)' : 'var(--text-primary)',
-                                  cursor: bookShelfPage === 0 ? 'default' : 'pointer',
-                                  fontSize: '0.78rem',
-                                  letterSpacing: '0.08em',
-                                  padding: '0.42rem 0.82rem',
-                                  borderRadius: '999px',
-                                }}
-                              >
-                                上一页
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setBookShelfPage(prev => Math.min(totalBookShelfPages - 1, prev + 1))}
-                                disabled={bookShelfPage >= totalBookShelfPages - 1}
-                                style={{
-                                  border: '1px solid rgba(255,255,255,0.1)',
-                                  background: bookShelfPage >= totalBookShelfPages - 1 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)',
-                                  color: bookShelfPage >= totalBookShelfPages - 1 ? 'rgba(255,255,255,0.35)' : 'var(--text-primary)',
-                                  cursor: bookShelfPage >= totalBookShelfPages - 1 ? 'default' : 'pointer',
-                                  fontSize: '0.78rem',
-                                  letterSpacing: '0.08em',
-                                  padding: '0.42rem 0.82rem',
-                                  borderRadius: '999px',
-                                }}
-                              >
-                                下一页
-                              </button>
-                            </div>
-                          ) : null}
-                        </div>
-                        <div
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: `repeat(${Math.min(bookShelfPageSize, visibleBookShelfItems.length)}, minmax(0, 1fr))`,
-                            gap: '0.95rem',
-                            alignItems: 'end',
-                          }}
-                        >
-                        {visibleBookShelfItems.map((item, idx) => {
-                          const isExpanded = expandedId === item.id
-                          return (
-                            <button
-                              key={item.id}
-                              type="button"
-                              onClick={() => toggleExpand(item.id)}
-                              style={{
-                                appearance: 'none',
-                                border: 'none',
-                                background: 'transparent',
-                                padding: 0,
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              <div
-                                style={{
-                                  aspectRatio: '2 / 3',
-                                  borderRadius: '18px',
-                                  overflow: 'hidden',
-                                  background: 'rgba(255,255,255,0.03)',
-                                  border: isExpanded ? '1px solid rgba(196, 168, 120, 0.45)' : '1px solid rgba(255,255,255,0.08)',
-                                  transform: `translateY(${idx % 3 === 1 ? '8px' : idx % 3 === 2 ? '4px' : '0px'}) rotate(${idx % 2 === 0 ? '-0.9deg' : '0.9deg'})`,
-                                  boxShadow: isExpanded ? '0 18px 36px rgba(0,0,0,0.16)' : '0 14px 28px rgba(0,0,0,0.1)',
-                                  transition: 'transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease',
-                                }}
-                              >
-                                {item.cover ? (
-                                  <img
-                                    src={`/${item.cover}`}
-                                    alt={item.title}
-                                    loading="lazy"
-                                    style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      objectFit: 'cover',
-                                      display: 'block',
-                                    }}
-                                  />
-                                ) : (
-                                  <div
-                                    style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      display: 'grid',
-                                      placeItems: 'center',
-                                      color: 'var(--text-secondary)',
-                                      fontSize: '0.82rem',
-                                      padding: '1rem',
-                                      textAlign: 'center',
-                                    }}
-                                  >
-                                    暂无封面
-                                  </div>
-                                )}
-                              </div>
-                            </button>
-                          )
-                        })}
                         </div>
                       </>
                     ) : (
@@ -754,24 +821,39 @@ export default function TextsPage({ data }: Props) {
             {!isBookShelfSection ? (
               <div style={{ maxWidth: '860px' }}>
               <div className="flex flex-col gap-4 md:gap-6">
-                {filteredItems.map((item) => {
+                {featuredTextItem ? (
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(featuredTextItem.id)}
+                    className={`texts-featured-card texts-featured-card--${currentSectionVariant} ${expandedId === featuredTextItem.id ? 'is-active' : ''}`}
+                    style={{ width: '100%' }}
+                  >
+                    <div className="texts-featured-card__label">本期聚焦</div>
+                    <h3 className="texts-featured-card__title">{featuredTextItem.title}</h3>
+                    <p className="texts-featured-card__excerpt">{extractExcerpt(featuredTextItem)}</p>
+                    <div className="texts-featured-card__meta">
+                      <span>{formatDisplayDate(featuredTextItem.date, featuredTextItem.sort_date)}</span>
+                      {featuredTextItem.tags[0] ? <span>#{featuredTextItem.tags[0]}</span> : null}
+                    </div>
+                  </button>
+                ) : null}
+                {featuredTextItem && expandedItem?.id === featuredTextItem.id ? (
+                  <div className={`texts-entry-card texts-entry-card--${currentSectionVariant} is-expanded`}>
+                    {renderExpandedBody(featuredTextItem)}
+                  </div>
+                ) : null}
+                {indexedTextItems.map((item) => {
                   const isExpanded = expandedId === item.id
 
                   return (
                     <div
                       key={item.id}
                       ref={el => (itemRefs.current[item.id] = el)}
-                      style={{
-                        background: 'rgba(128,128,128,0.03)',
-                        border: '1px solid var(--glass-border)',
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        transition: 'border-color 0.3s',
-                      }}
+                      className={`texts-entry-card texts-entry-card--${currentSectionVariant} ${isExpanded ? 'is-expanded' : ''}`}
                     >
                       <div
                         onClick={() => toggleExpand(item.id)}
-                        className="p-4 md:p-8 cursor-pointer flex flex-col gap-3 md:gap-5 transition-colors"
+                        className="texts-entry-card__header p-4 md:p-6 cursor-pointer flex flex-col gap-2.5 md:gap-3.5 transition-colors"
                         onMouseEnter={e => {
                           ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.08)'
                         }}
@@ -788,81 +870,33 @@ export default function TextsPage({ data }: Props) {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex gap-2 flex-wrap">
-                            {item.tags.length > 0 ? item.tags.map(tag => (
-                              <span
-                                key={tag}
-                                className="text-[10px] md:text-xs px-2 py-0.5 bg-[rgba(128,128,128,0.1)] text-secondary rounded"
-                              >
-                                #{tag}
-                              </span>
-                            )) : (
-                              <span className="text-[10px] md:text-xs text-secondary opacity-60">
-                                无标签
-                              </span>
-                            )}
-                          </div>
+                        <p className="texts-entry-card__excerpt">
+                          {extractExcerpt(item)}
+                        </p>
 
+                        <div className="texts-entry-card__meta">
                           <span
-                            className="font-geek tracking-wider font-bold text-[10px] md:text-sm text-secondary opacity-85"
+                            className="texts-entry-card__meta-date"
                             title={formatDisplayDate(item.date, item.sort_date)}
                           >
                             {formatDisplayDate(item.date, item.sort_date)}
                           </span>
+                          {item.tags.length > 0 ? item.tags.map(tag => (
+                            <span
+                              key={tag}
+                              className="texts-entry-card__meta-tag"
+                            >
+                              #{tag}
+                            </span>
+                          )) : (
+                            <span className="texts-entry-card__meta-empty">
+                              无标签
+                            </span>
+                          )}
                         </div>
                       </div>
 
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateRows: isExpanded ? '1fr' : '0fr',
-                          transition: 'grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-                        }}
-                      >
-                        <div style={{ overflow: 'hidden' }}>
-                          <div className="px-4 md:px-8 pb-6 md:pb-10 border-t border-glass-border text-primary">
-                            <div className="elegant-markdown">
-                              <ReactMarkdown
-                                components={bookishMarkdownComponents}
-                              >
-                                {item.content}
-                              </ReactMarkdown>
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px dashed rgba(128,128,128,0.2)' }}>
-                              <button
-                                onClick={(e) => toggleExpand(item.id, e)}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '0.5rem',
-                                  color: 'var(--text-secondary)',
-                                  fontSize: '0.9rem',
-                                  letterSpacing: '0.1em',
-                                  cursor: 'pointer',
-                                  padding: '0.5rem 1rem',
-                                  borderRadius: '20px',
-                                  transition: 'all 0.2s ease',
-                                }}
-                                onMouseEnter={e => {
-                                  ;(e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'
-                                  ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.08)'
-                                }}
-                                onMouseLeave={e => {
-                                  ;(e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'
-                                  ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                                }}
-                              >
-                                <ChevronUp size={16} />
-                                收起
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      {renderExpandedBody(item)}
                     </div>
                   )
                 })}

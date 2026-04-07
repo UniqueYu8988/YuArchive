@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom'
 import { useMemo, useState, type ReactNode } from 'react'
 import type { ArchiveData, ArchiveItem, MusicItem, TextItem } from '../types'
 import { assetVersion, homepageConfig, siteLayout, siteUi } from '../data/siteConfig'
-import { useFixedSidebar } from '../hooks/useFixedSidebar'
 
 function toImageUrl(imagePath: string) {
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -1053,7 +1052,6 @@ interface HomePageProps {
 
 export default function HomePage({ data }: HomePageProps) {
   const { games, visions, music, texts } = data.categories
-  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
 
   const latestGames = selectConfiguredItems(
     collectTimelineItems(games.years),
@@ -1090,12 +1088,18 @@ export default function HomePage({ data }: HomePageProps) {
           justifyContent: 'center',
         }}
       >
-        <aside className="home-sidebar-column" ref={sidebarRef} style={{ alignSelf: 'stretch', ...sidebarWrapperStyle }}>
+        <aside
+          className="home-sidebar-column"
+          style={{
+            alignSelf: 'start',
+            position: 'sticky',
+            top: '84px',
+            height: 'fit-content',
+          }}
+        >
           <div
-            ref={sidebarContentRef}
             style={{
               height: 'fit-content',
-              ...sidebarContentStyle,
             }}
           >
             <div

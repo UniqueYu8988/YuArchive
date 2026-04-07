@@ -3,7 +3,6 @@ import { CircleDollarSign, Clock3, Gem, Layers3, Star } from 'lucide-react'
 import type { TimelineCategory, ArchiveItem } from '../types'
 import { yearDescriptions, easterEggYear } from '../data/yearDescriptions'
 import { assetVersion, siteUi } from '../data/siteConfig'
-import { useFixedSidebar } from '../hooks/useFixedSidebar'
 
 const TIMELINE_SIDEBAR_ICON_MAP: Record<number, string> = {
   2001: '/icons/games-2001.svg',
@@ -645,7 +644,6 @@ interface TimelineViewProps {
 
 export default function TimelineView({ data, title, subtitle: _subtitle, showEasterEgg = false, mode = 'default' }: TimelineViewProps) {
   const hasData = data.years.length > 0 && data.total_count > 0
-  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
   const liveItems = mode === 'games'
     ? data.years.flatMap(yearGroup => yearGroup.items.filter(item => item.seasonal))
     : []
@@ -662,14 +660,14 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem', paddingBottom: '6rem' }}>
       {hasData ? (
         <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
-          <aside ref={sidebarRef} style={sidebarWrapperStyle}>
-            <div
-              ref={sidebarContentRef}
-              style={{
-                height: 'fit-content',
-                ...sidebarContentStyle,
-              }}
-            >
+          <aside
+            style={{
+              alignSelf: 'start',
+              position: 'sticky',
+              top: '84px',
+              height: 'fit-content',
+            }}
+          >
               <div
                 style={{
                   padding: '0.2rem 1.1rem 1rem',
@@ -842,7 +840,6 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
                     <span style={{ fontSize: '0.74rem', opacity: 0.5 }}>?</span>
                   </a>
                 )}
-              </div>
               </div>
             </div>
           </aside>

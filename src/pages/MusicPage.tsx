@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink, Music2, Pause, Play, Sparkles } from 'lucide-react'
 import type { MusicCategory, MusicItem } from '../types'
 import { assetVersion, siteUi } from '../data/siteConfig'
-import { useFixedSidebar } from '../hooks/useFixedSidebar'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
@@ -112,7 +111,6 @@ interface Props {
 
 export default function MusicPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
-  const { sidebarRef, sidebarContentRef, sidebarWrapperStyle, sidebarContentStyle } = useFixedSidebar<HTMLElement>(84)
   const [selectedId, setSelectedId] = useState<string | null>(data.items[0]?.id ?? null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -218,14 +216,14 @@ export default function MusicPage({ data }: Props) {
             }}
           >
               <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
-                <aside ref={sidebarRef} style={sidebarWrapperStyle}>
-                  <div
-                    ref={sidebarContentRef}
-                    style={{
-                      height: 'fit-content',
-                      ...sidebarContentStyle,
-                    }}
-                  >
+                <aside
+                  style={{
+                    alignSelf: 'start',
+                    position: 'sticky',
+                    top: '84px',
+                    height: 'fit-content',
+                  }}
+                >
                   <div
                     style={{
                       padding: '0.2rem 1.1rem 1rem',
@@ -368,9 +366,8 @@ export default function MusicPage({ data }: Props) {
                       </div>
                     )}
                   </div>
-                  </div>
                 </div>
-              </aside>
+                </aside>
 
               <main style={{ minWidth: 0 }}>
                 <section
