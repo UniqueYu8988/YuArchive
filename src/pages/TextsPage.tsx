@@ -90,21 +90,6 @@ function extractExcerpt(item: { summary?: string; content: string; section?: str
   return compactExcerpt(plain, sectionKey)
 }
 
-function sectionEyebrow(sectionKey: string) {
-  switch (sectionKey) {
-    case 'headline':
-      return 'Daily Brief'
-    case 'bedtime-news':
-      return 'Night Watch'
-    case 'reference-info':
-      return 'Reference Desk'
-    case 'miscellany':
-      return 'Collected Fragments'
-    default:
-      return 'Selected Column'
-  }
-}
-
 function sectionVariant(sectionKey: string) {
   switch (sectionKey) {
     case 'headline':
@@ -469,9 +454,6 @@ export default function TextsPage({ data }: Props) {
                 }}
               >
                 <div style={{ minWidth: 0 }}>
-                  <div className="texts-channel-hero__eyebrow">
-                    {sectionEyebrow(activeSection)}
-                  </div>
                   <div className="texts-channel-hero__title-row">
                     {activeSectionInfo?.icon ? (
                       <img

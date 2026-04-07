@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-04-08T02:33:31.471623",
+    "generated_at": "2026-04-08T02:50:35.595625",
     "version": "3.0.0",
     "source_root": "C:\\Users\\Yu\\OneDrive\\图片\\Data",
     "site_ui": {
@@ -9613,7 +9613,7 @@
             "webp_cache/Texts/每天听本书/书架/埃隆·马斯克传.webp",
             "webp_cache/Texts/每天听本书/书架/基地.webp",
             "webp_cache/Texts/每天听本书/书架/奥本海默传.webp",
-            "webp_cache/Texts/每天听本书/书架/如果没有今天，明天会不会有昨天.webp",
+            "webp_cache/Texts/每天听本书/书架/如果没有今天，明天会不会有昨天？.webp",
             "webp_cache/Texts/每天听本书/书架/富国陷阱.webp",
             "webp_cache/Texts/每天听本书/书架/富爸爸穷爸爸.webp",
             "webp_cache/Texts/每天听本书/书架/怦然心动的人生整理魔法.webp",
@@ -10914,7 +10914,7 @@
           "sort_date": "",
           "section": "book-reviews",
           "section_title": "每天听本书",
-          "cover": "",
+          "cover": "webp_cache/Texts/每天听本书/书架/如果没有今天，明天会不会有昨天？.webp",
           "author": "伊夫·博萨尔特",
           "summary": "本书由瑞士国家学术基金奖得主、哲学博士伊夫·博萨尔特所著。作者以“四两拨千斤”的思想实验为切入点，将深奥的哲学问题具象化。书中精选55个知名思想实验，涵盖公平、艺术、人工智能等多元主题。它颠覆了日常认知，带领我们在想象的极端场景中测试理论的边界，帮助我们以全新的视角审视生活中的本质问题。",
           "tags": [],
