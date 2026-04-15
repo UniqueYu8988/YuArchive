@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-04-09T02:16:57.516550",
+  "site_ui": {
+    "current_album": "Current Album",
+    "selected_section": "Selected Section",
+    "unclassified": "未分类",
+    "unknown": "未知",
+    "unrated": "未评分",
+    "season_journey": "赛季旅程",
+    "season_special": "SEASON / 赛季专区"
+  },
+  "site_layout": {
+    "home_latest_games_count": 9,
+    "home_latest_visions_count": 9,
+    "home_latest_music_count": 7,
+    "home_latest_texts_count": 4,
+    "games_season_target_year": 2026,
+    "games_season_priority": {
+      "英雄联盟": 0,
+      "云顶之弈": 1,
+      "暗黑破坏神 IV": 2
+    },
+    "texts_default_section_key": "book-reviews"
+  },
+  "homepage": {
+    "games": [
+      "英雄联盟",
+      "我的世界",
+      "云顶之弈",
+      "暗黑破坏神 IV",
+      "光与影：33号远征队",
+      "Episode Aegis",
+      "最终幻想 VII：重制版",
+      "空洞骑士：丝之歌",
+      "极限竞速：地平线 5"
+    ],
+    "visions": [
+      "双城之战2",
+      "双城之战",
+      "赛博朋克 边缘行者",
+      "猫猫的奇幻漂流",
+      "罗小黑战记2",
+      "罗小黑战记",
+      "孤独摇滚 (下)",
+      "瑞克与莫蒂",
+      "头号玩家"
+    ],
+    "music": [
+      "Clair Obscur Expedition 33",
+      "Hollow Knight",
+      "Hades II",
+      "FINAL FANTASY VII",
+      "Minecraft",
+      "PERSONA 3",
+      "PERSONA 5"
+    ],
+    "texts": [
+      "黄仁勋GTC大会：全面迎接“Token经济学”时代",
+      "现象级AI应用“龙虾”（OpenClaw）：平民化的超级私人助理",
+      "真正的休息不是停下，而是“换一种方式动起来”",
+      "心源性猝死的真相：打破致命误解与科学预防指南"
+    ]
+  }
+}

@@ -1,8 +1,8 @@
-import archiveDataRaw from './archive_data.json'
-import type { ArchiveData, HomepageConfig, SiteLayoutConfig, SiteUiConfig } from '../types'
+import siteConfigRaw from './site_config.json'
+import type { HomepageConfig, SiteConfigData, SiteLayoutConfig, SiteUiConfig } from '../types'
 
-const archiveData = archiveDataRaw as ArchiveData
-const generatedAt = archiveData.metadata.generated_at || ''
+const siteConfig = siteConfigRaw as SiteConfigData
+const generatedAt = siteConfig.generated_at || ''
 
 const defaultSiteUi: SiteUiConfig = {
   current_album: 'Current Album',
@@ -37,21 +37,21 @@ const defaultHomepage: HomepageConfig = {
 
 export const siteUi: SiteUiConfig = {
   ...defaultSiteUi,
-  ...(archiveData.metadata.site_ui ?? {}),
+  ...(siteConfig.site_ui ?? {}),
 }
 
 export const siteLayout: SiteLayoutConfig = {
   ...defaultSiteLayout,
-  ...(archiveData.metadata.site_layout ?? {}),
+  ...(siteConfig.site_layout ?? {}),
   games_season_priority: {
     ...defaultSiteLayout.games_season_priority,
-    ...(archiveData.metadata.site_layout?.games_season_priority ?? {}),
+    ...(siteConfig.site_layout?.games_season_priority ?? {}),
   },
 }
 
 export const homepageConfig: HomepageConfig = {
   ...defaultHomepage,
-  ...(archiveData.metadata.homepage ?? {}),
+  ...(siteConfig.homepage ?? {}),
 }
 
 export const assetVersion = generatedAt

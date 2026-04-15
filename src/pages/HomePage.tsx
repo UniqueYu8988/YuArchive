@@ -1,8 +1,9 @@
 import { ArrowUpRight, CircleDollarSign, Clock3, Star, Clapperboard, Tv } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useMemo, useState, type ReactNode } from 'react'
-import type { ArchiveData, ArchiveItem, MusicItem, TextItem } from '../types'
-import { assetVersion, homepageConfig, siteLayout, siteUi } from '../data/siteConfig'
+import type { ArchiveItem, HomePageData, MusicItem, TextItem } from '../types'
+import { assetVersion, siteUi } from '../data/siteConfig'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 function toImageUrl(imagePath: string) {
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
@@ -12,51 +13,6 @@ function toImageUrl(imagePath: string) {
 function clampText(text: string, maxLength: number) {
   if (text.length <= maxLength) return text
   return `${text.slice(0, maxLength).trim()}...`
-}
-
-function collectTimelineItems(years: Array<{ items: ArchiveItem[] }>) {
-  return years.flatMap(year => year.items)
-}
-
-function selectConfiguredItems<T extends { id: string; title: string }>(
-  items: T[],
-  configuredTitles: string[],
-  count: number,
-) {
-  const selected: T[] = []
-  const usedIds = new Set<string>()
-
-  for (const title of configuredTitles) {
-    const match = items.find(item => item.title === title && !usedIds.has(item.id))
-    if (!match) continue
-    selected.push(match)
-    usedIds.add(match.id)
-    if (selected.length >= count) {
-      return selected
-    }
-  }
-
-  for (const item of items) {
-    if (usedIds.has(item.id)) continue
-    selected.push(item)
-    usedIds.add(item.id)
-    if (selected.length >= count) {
-      break
-    }
-  }
-
-  return selected
-}
-
-function extractPlainText(text: string, maxLength: number) {
-  const normalized = text
-    .replace(/^#+\s*/gm, '')
-    .replace(/[*_`>#-]/g, ' ')
-    .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  return clampText(normalized, maxLength)
 }
 
 function SidebarStatCard({
@@ -157,6 +113,7 @@ function SectionHeader({
   rightImageRight,
   rightImageBottom,
   rightImageZIndex,
+  compact = false,
 }: {
   id: string
   title: string
@@ -172,6 +129,7 @@ function SectionHeader({
   rightImageRight?: string
   rightImageBottom?: string
   rightImageZIndex?: number
+  compact?: boolean
 }) {
   return (
     <div
@@ -180,17 +138,17 @@ function SectionHeader({
         width: '100%',
         maxWidth: '1020px',
         margin: '0 auto',
-        paddingLeft: '0.1rem',
+        paddingLeft: compact ? 0 : '0.1rem',
         position: 'relative',
         display: 'flex',
-        alignItems: 'end',
-        justifyContent: 'center',
-        gap: '1rem',
-        marginBottom: '0.95rem',
-        scrollMarginTop: '108px',
+        alignItems: compact ? 'center' : 'end',
+        justifyContent: compact ? 'space-between' : 'center',
+        gap: compact ? '0.75rem' : '1rem',
+        marginBottom: compact ? '0.82rem' : '0.95rem',
+        scrollMarginTop: compact ? '96px' : '108px',
       }}
     >
-      {leftImageSrc && (
+      {!compact && leftImageSrc && (
         <img
           src={leftImageSrc}
           alt=""
@@ -208,7 +166,7 @@ function SectionHeader({
           }}
         />
       )}
-      {rightImageSrc && (
+      {!compact && rightImageSrc && (
         <img
           src={rightImageSrc}
           alt=""
@@ -226,7 +184,7 @@ function SectionHeader({
           }}
         />
       )}
-      {frameOrnaments && (
+      {!compact && frameOrnaments && (
         <>
           <img
             src="/icons/ornament-side-divider.webp"
@@ -262,35 +220,37 @@ function SectionHeader({
           />
         </>
       )}
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: compact ? 'left' : 'center', minWidth: 0 }}>
         <div
           style={{
             display: 'inline-flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            gap: '0.9rem',
+            alignItems: compact ? 'center' : 'flex-end',
+            justifyContent: compact ? 'flex-start' : 'center',
+            gap: compact ? '0.5rem' : '0.9rem',
             maxWidth: '100%',
           }}
         >
-          <img
-            src="/icons/ornament-title-side.webp"
-            alt=""
-            aria-hidden
-            className="home-title-ornament"
-            style={{
-              width: '84px',
-              height: 'auto',
-              objectFit: 'contain',
-              transform: 'scaleX(-1)',
-              flexShrink: 0,
-              marginBottom: '0.16rem',
-            }}
-          />
+          {!compact ? (
+            <img
+              src="/icons/ornament-title-side.webp"
+              alt=""
+              aria-hidden
+              className="home-title-ornament"
+              style={{
+                width: '84px',
+                height: 'auto',
+                objectFit: 'contain',
+                transform: 'scaleX(-1)',
+                flexShrink: 0,
+                marginBottom: '0.16rem',
+              }}
+            />
+          ) : null}
           <h2
             className="home-section-title"
             style={{
               margin: 0,
-              fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
+              fontSize: compact ? 'clamp(1.5rem, 7vw, 1.9rem)' : 'clamp(1.8rem, 3vw, 2.5rem)',
               lineHeight: 0.98,
               letterSpacing: '0.04em',
               color: 'var(--text-primary)',
@@ -300,36 +260,39 @@ function SectionHeader({
           >
             {title}
           </h2>
-          <img
-            src="/icons/ornament-title-side.webp"
-            alt=""
-            aria-hidden
-            className="home-title-ornament"
-            style={{
-              width: '84px',
-              height: 'auto',
-              objectFit: 'contain',
-              flexShrink: 0,
-              marginBottom: '0.16rem',
-            }}
-          />
+          {!compact ? (
+            <img
+              src="/icons/ornament-title-side.webp"
+              alt=""
+              aria-hidden
+              className="home-title-ornament"
+              style={{
+                width: '84px',
+                height: 'auto',
+                objectFit: 'contain',
+                flexShrink: 0,
+                marginBottom: '0.16rem',
+              }}
+            />
+          ) : null}
         </div>
       </div>
 
       <NavLink
         to={to}
         style={{
-          position: 'absolute',
-          right: 0,
-          bottom: 0,
+          position: compact ? 'static' : 'absolute',
+          right: compact ? undefined : 0,
+          bottom: compact ? undefined : 0,
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.45rem',
           textDecoration: 'none',
           color: 'var(--text-secondary)',
-          fontSize: '0.82rem',
+          fontSize: compact ? '0.76rem' : '0.82rem',
           fontWeight: 600,
           flexShrink: 0,
+          whiteSpace: 'nowrap',
         }}
       >
         查看全部
@@ -687,6 +650,7 @@ function WelcomeCard({
             src="/icons/welcome-character.webp"
             alt=""
             aria-hidden
+            className="home-welcome-character"
             style={{
               position: 'absolute',
               right: '2.4rem',
@@ -980,7 +944,7 @@ function TextFeatureCard({ item }: { item: TextItem }) {
           marginBottom: '1rem',
         }}
       >
-        {extractPlainText(item.content, 150)}
+        {item.excerpt?.trim() || item.summary?.trim() || '把值得留下的内容浓缩成可以再次翻阅的文字切片。'}
       </div>
       <div
         style={{
@@ -1047,35 +1011,19 @@ function TextListCard({ item }: { item: TextItem }) {
 }
 
 interface HomePageProps {
-  data: ArchiveData
+  data: HomePageData
 }
 
 export default function HomePage({ data }: HomePageProps) {
-  const { games, visions, music, texts } = data.categories
-
-  const latestGames = selectConfiguredItems(
-    collectTimelineItems(games.years),
-    homepageConfig.games,
-    siteLayout.home_latest_games_count,
-  )
-  const latestVisions = selectConfiguredItems(
-    collectTimelineItems(visions.years),
-    homepageConfig.visions,
-    siteLayout.home_latest_visions_count,
-  )
-  const latestMusic = selectConfiguredItems(
-    music.items,
-    homepageConfig.music,
-    siteLayout.home_latest_music_count,
-  )
-  const latestTexts = selectConfiguredItems(
-    texts.items,
-    homepageConfig.texts,
-    siteLayout.home_latest_texts_count,
-  )
+  const { counts, latestGames, latestVisions, latestMusic, latestTexts } = data
+  const isMobileLayout = useIsMobile()
 
   const featuredMusic = latestMusic[0]
   const featuredText = latestTexts[0]
+  const gamesToShow = isMobileLayout ? latestGames.slice(0, 5) : latestGames
+  const visionsToShow = isMobileLayout ? latestVisions.slice(0, 5) : latestVisions
+  const musicLibraryToShow = isMobileLayout ? latestMusic.slice(1, 5) : latestMusic.slice(1)
+  const textsToShow = isMobileLayout ? latestTexts.slice(1, 3) : latestTexts.slice(1)
 
   return (
     <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1360px', paddingTop: '0.55rem', paddingBottom: '5rem' }}>
@@ -1084,19 +1032,20 @@ export default function HomePage({ data }: HomePageProps) {
         style={{
           display: 'grid',
           gap: '1.15rem',
-          gridTemplateColumns: '230px minmax(0, 1040px)',
+          gridTemplateColumns: isMobileLayout ? 'minmax(0, 1fr)' : '230px minmax(0, 1040px)',
           justifyContent: 'center',
         }}
       >
-        <aside
-          className="home-sidebar-column"
-          style={{
-            alignSelf: 'start',
-            position: 'sticky',
-            top: '84px',
-            height: 'fit-content',
-          }}
-        >
+        {!isMobileLayout ? (
+          <aside
+            className="home-sidebar-column"
+            style={{
+              alignSelf: 'start',
+              position: 'sticky',
+              top: '18px',
+              height: 'fit-content',
+            }}
+          >
           <div
             style={{
               height: 'fit-content',
@@ -1125,11 +1074,11 @@ export default function HomePage({ data }: HomePageProps) {
               />
             </div>
 
-            <div className="home-sidebar-stats" style={{ display: 'grid', gap: '0.85rem', padding: '0 0.95rem' }}>
-              <SidebarStatCard label="Games" count={games.total_count} iconPath="/icons/GAMES.gif" to="/games" />
-              <SidebarStatCard label="Visions" count={visions.total_count} iconPath="/icons/VISIONS.gif" to="/movies" />
-              <SidebarStatCard label="Music" count={music.total_count} iconPath="/icons/MUSIC.png" to="/music" />
-              <SidebarStatCard label="Texts" count={texts.total_count} iconPath="/icons/TEXTS.webp" to="/texts" />
+              <div className="home-sidebar-stats" style={{ display: 'grid', gap: '0.85rem', padding: '0 0.95rem' }}>
+              <SidebarStatCard label="Games" count={counts.games} iconPath="/icons/GAMES.gif" to="/games" />
+              <SidebarStatCard label="Visions" count={counts.visions} iconPath="/icons/VISIONS.gif" to="/movies" />
+              <SidebarStatCard label="Music" count={counts.music} iconPath="/icons/MUSIC.png" to="/music" />
+              <SidebarStatCard label="Texts" count={counts.texts} iconPath="/icons/TEXTS.webp" to="/texts" />
             </div>
 
             <div
@@ -1156,6 +1105,7 @@ export default function HomePage({ data }: HomePageProps) {
             </div>
           </div>
         </aside>
+        ) : null}
 
         <main className="home-main-column" style={{ minWidth: 0, width: '100%', display: 'grid', gap: '1.7rem', margin: '0 auto' }}>
           <section
@@ -1168,6 +1118,20 @@ export default function HomePage({ data }: HomePageProps) {
             />
           </section>
 
+          {isMobileLayout ? (
+            <section
+              className="home-mobile-stat-section animate-fade-up"
+              style={{ animationDelay: '0.08s', opacity: 0, animationFillMode: 'both' }}
+            >
+              <div className="home-mobile-stat-grid">
+                <SidebarStatCard label="Games" count={counts.games} iconPath="/icons/GAMES.gif" to="/games" />
+                <SidebarStatCard label="Visions" count={counts.visions} iconPath="/icons/VISIONS.gif" to="/movies" />
+                <SidebarStatCard label="Music" count={counts.music} iconPath="/icons/MUSIC.png" to="/music" />
+                <SidebarStatCard label="Texts" count={counts.texts} iconPath="/icons/TEXTS.webp" to="/texts" />
+              </div>
+            </section>
+          ) : null}
+
           <OrnateSectionFrame>
             <section
               id="home-games"
@@ -1177,9 +1141,9 @@ export default function HomePage({ data }: HomePageProps) {
               <div style={{ marginTop: '-3.85rem', position: 'relative', zIndex: 2 }}>
                 <div style={HOME_SECTION_BODY_STYLE}>
                   <HomeSectionShell>
-                    <SectionHeader id="home-games-title" title="Games" to="/games" />
+                    <SectionHeader id="home-games-title" title="Games" to="/games" compact={isMobileLayout} />
                     <HomePosterMosaic
-                      items={latestGames.slice(0, siteLayout.home_latest_games_count)}
+                      items={gamesToShow}
                       renderCard={(item, featured) => <HomeGameCard key={item.id} item={item} featured={featured} />}
                     />
                     <HomeSectionDivider />
@@ -1201,18 +1165,19 @@ export default function HomePage({ data }: HomePageProps) {
                         id="home-music-title"
                         title="Music"
                         to="/music"
-                        frameOrnaments
+                        frameOrnaments={!isMobileLayout}
                         leftImageSrc="/icons/welcome-character-left.webp"
                         leftImageWidth="clamp(86px, 9vw, 117px)"
                         leftImageLeft="clamp(1.8rem, 4.4vw, 3.55rem)"
                         leftImageBottom="clamp(-2.1rem, -1vw, -1.2rem)"
+                        compact={isMobileLayout}
                       />
                       <MusicFeatureCard item={featuredMusic} />
                       <div
                         className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 home-music-library-grid"
                         style={{ display: 'grid', gap: '0.9rem' }}
                       >
-                        {latestMusic.slice(1, 7).map(item => (
+                        {musicLibraryToShow.map(item => (
                           <MusicLibraryCard key={item.id} item={item} />
                         ))}
                       </div>
@@ -1234,15 +1199,16 @@ export default function HomePage({ data }: HomePageProps) {
                     id="home-visions-title"
                     title="Visions"
                     to="/movies"
-                    frameOrnaments
+                    frameOrnaments={!isMobileLayout}
                     rightImageSrc="/icons/visions-character.webp"
                     rightImageWidth="clamp(84px, 8vw, 108px)"
                     rightImageRight="clamp(-0.65rem, -1vw, -0.2rem)"
                     rightImageBottom="clamp(0.25rem, 1vw, 0.8rem)"
                     rightImageZIndex={0}
+                    compact={isMobileLayout}
                   />
                   <HomePosterMosaic
-                    items={latestVisions.slice(0, siteLayout.home_latest_visions_count)}
+                    items={visionsToShow}
                     renderCard={(item, featured) => <HomeVisionCard key={item.id} item={item} featured={featured} />}
                   />
                   <HomeSectionDivider />
@@ -1261,12 +1227,13 @@ export default function HomePage({ data }: HomePageProps) {
                     id="home-texts-title"
                     title="Texts"
                     to="/texts"
-                    frameOrnaments
+                    frameOrnaments={!isMobileLayout}
                     leftImageSrc="/icons/texts-character.webp"
                     leftImageWidth="clamp(86px, 9vw, 117px)"
                     leftImageLeft="clamp(1.8rem, 4.4vw, 3.55rem)"
                     leftImageBottom="clamp(0rem, 0.8vw, 0.85rem)"
                     leftImageZIndex={0}
+                    compact={isMobileLayout}
                   />
                   <div
                     className="xl:grid xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:gap-4"
@@ -1274,7 +1241,7 @@ export default function HomePage({ data }: HomePageProps) {
                   >
                     {featuredText && <TextFeatureCard item={featuredText} />}
                     <div style={{ display: 'grid', gap: '1.08rem' }}>
-                      {latestTexts.slice(1, 4).map(item => (
+                      {textsToShow.map(item => (
                         <TextListCard key={item.id} item={item} />
                       ))}
                     </div>

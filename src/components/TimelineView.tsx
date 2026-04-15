@@ -664,7 +664,7 @@ export default function TimelineView({ data, title, subtitle: _subtitle, showEas
             style={{
               alignSelf: 'start',
               position: 'sticky',
-              top: '84px',
+              top: '18px',
               height: 'fit-content',
             }}
           >

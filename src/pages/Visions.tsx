@@ -390,7 +390,7 @@ export default function Visions({ data }: VisionsProps) {
               style={{
                 alignSelf: 'start',
                 position: 'sticky',
-                top: '84px',
+                top: '18px',
                 height: 'fit-content',
               }}
             >

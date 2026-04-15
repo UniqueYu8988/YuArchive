@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink, Music2, Pause, Play, Sparkles } from 'lucide-react'
 import type { MusicCategory, MusicItem } from '../types'
 import { assetVersion, siteUi } from '../data/siteConfig'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
@@ -112,10 +113,20 @@ interface Props {
 export default function MusicPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const [selectedId, setSelectedId] = useState<string | null>(data.items[0]?.id ?? null)
+  const [showMobileTrackIndex, setShowMobileTrackIndex] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const hasMountedFeatureRef = useRef(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [animateFeatureSwap, setAnimateFeatureSwap] = useState(false)
+  const isMobileLayout = useIsMobile()
+
+  useEffect(() => {
+    if (!isMobileLayout) {
+      setShowMobileTrackIndex(false)
+    }
+  }, [isMobileLayout])
 
   useEffect(() => {
     if (!data.items.length) {
@@ -182,6 +193,18 @@ export default function MusicPage({ data }: Props) {
     }
   }, [audioUrl])
 
+  useEffect(() => {
+    if (!selectedItem?.id) return
+    if (!hasMountedFeatureRef.current) {
+      hasMountedFeatureRef.current = true
+      return
+    }
+
+    setAnimateFeatureSwap(true)
+    const timeoutId = window.setTimeout(() => setAnimateFeatureSwap(false), 360)
+    return () => window.clearTimeout(timeoutId)
+  }, [selectedItem?.id])
+
   const togglePlayback = async () => {
     const audio = audioRef.current
     if (!audio || !hasAudio) return
@@ -205,6 +228,114 @@ export default function MusicPage({ data }: Props) {
     setCurrentTime(nextValue)
   }
 
+  const trackLinks = (
+    <div style={{ display: 'grid', gap: '0.38rem' }}>
+      {tracks.length > 0 ? (
+        tracks.map((track, index) => {
+          const active = track === featuredTrack || (!featuredTrack && index === 0)
+          return (
+            <a
+              key={`${selectedItem?.id}_${index}`}
+              href={directUrl || `https://open.spotify.com/search/${encodeURIComponent(track)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`music-track-link${active ? ' is-active' : ''}`}
+              style={{
+                textAlign: 'left',
+                borderRadius: '14px',
+                padding: '0.76rem 0.82rem',
+                cursor: 'pointer',
+                background: active ? 'rgba(29,185,84,0.12)' : 'transparent',
+                color: active ? '#149244' : 'var(--text-secondary)',
+                fontSize: '0.84rem',
+                transition: 'all 0.22s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                textDecoration: 'none',
+              }}
+            >
+              <Music2 size={14} />
+              <span
+                className="music-track-link__label"
+                style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textDecoration: active ? 'none' : undefined,
+                }}
+              >
+                {track}
+              </span>
+              <span
+                className="music-track-link__arrow"
+                style={{
+                  marginLeft: 'auto',
+                  color: '#1DB954',
+                  opacity: active ? 1 : 0,
+                  transform: active ? 'translateX(0)' : 'translateX(-6px)',
+                  transition: 'all 0.22s ease',
+                  fontSize: '0.8rem',
+                }}
+              >
+                ↗
+              </span>
+            </a>
+          )
+        })
+      ) : (
+        <div
+          style={{
+            color: 'var(--text-secondary)',
+            fontSize: '0.82rem',
+            padding: '0.6rem 0.2rem',
+          }}
+        >
+          这张音册暂时还没有可展示的单曲列表。
+        </div>
+      )}
+    </div>
+  )
+
+  const trackPanel = (
+    <div
+      className="music-track-panel"
+      style={{
+        borderRadius: '24px',
+        border: '1px solid var(--glass-border)',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
+        padding: '1.1rem',
+        boxShadow: '0 16px 40px rgba(0,0,0,0.05)',
+      }}
+    >
+      <div
+        style={{
+          padding: '0.9rem',
+          borderRadius: '18px',
+          background: 'rgba(255,255,255,0.04)',
+          marginBottom: '1rem',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '0.72rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.16em',
+            color: 'var(--text-secondary)',
+            marginBottom: '0.45rem',
+          }}
+        >
+          {siteUi.current_album}
+        </div>
+        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+          {selectedItem?.title}
+        </div>
+      </div>
+      {trackLinks}
+    </div>
+  )
+
   return (
     <div style={{ paddingBottom: '6rem' }}>
       <div className="mx-auto px-4 md:px-8" style={{ maxWidth: '1460px', paddingTop: '0.9rem' }}>
@@ -215,15 +346,23 @@ export default function MusicPage({ data }: Props) {
               gap: '1.5rem',
             }}
           >
-              <div className="md:grid md:grid-cols-[250px_1fr] md:gap-6" style={{ display: 'grid', gap: '1.5rem' }}>
-                <aside
-                  style={{
-                    alignSelf: 'start',
-                    position: 'sticky',
-                    top: '84px',
-                    height: 'fit-content',
-                  }}
-                >
+              <div
+                className="music-page-layout"
+                style={{
+                  display: 'grid',
+                  gap: '1.5rem',
+                  gridTemplateColumns: isMobileLayout ? 'minmax(0, 1fr)' : '250px minmax(0, 1fr)',
+                }}
+              >
+                {!isMobileLayout ? (
+                  <aside
+                    style={{
+                      alignSelf: 'start',
+                      position: 'sticky',
+                      top: '18px',
+                      height: 'fit-content',
+                    }}
+                  >
                   <div
                     style={{
                       padding: '0.2rem 1.1rem 1rem',
@@ -299,77 +438,62 @@ export default function MusicPage({ data }: Props) {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gap: '0.38rem' }}>
-                    {tracks.length > 0 ? (
-                      tracks.map((track, index) => {
-                        const active = track === featuredTrack || (!featuredTrack && index === 0)
-                        return (
-                          <a
-                            key={`${selectedItem.id}_${index}`}
-                            href={directUrl || `https://open.spotify.com/search/${encodeURIComponent(track)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={`music-track-link${active ? ' is-active' : ''}`}
-                            style={{
-                              textAlign: 'left',
-                              borderRadius: '14px',
-                              padding: '0.76rem 0.82rem',
-                              cursor: 'pointer',
-                              background: active ? 'rgba(29,185,84,0.12)' : 'transparent',
-                              color: active ? '#149244' : 'var(--text-secondary)',
-                              fontSize: '0.84rem',
-                              transition: 'all 0.22s ease',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.6rem',
-                              textDecoration: 'none',
-                            }}
-                          >
-                            <Music2 size={14} />
-                            <span
-                              className="music-track-link__label"
-                              style={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 1,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                textDecoration: active ? 'none' : undefined,
-                              }}
-                            >
-                              {track}
-                            </span>
-                            <span
-                              className="music-track-link__arrow"
-                              style={{
-                                marginLeft: 'auto',
-                                color: '#1DB954',
-                                opacity: active ? 1 : 0,
-                                transform: active ? 'translateX(0)' : 'translateX(-6px)',
-                                transition: 'all 0.22s ease',
-                                fontSize: '0.8rem',
-                              }}
-                            >
-                              ↗
-                            </span>
-                          </a>
-                        )
-                      })
-                    ) : (
-                      <div
-                        style={{
-                          color: 'var(--text-secondary)',
-                          fontSize: '0.82rem',
-                          padding: '0.6rem 0.2rem',
-                        }}
-                      >
-                        这张音册暂时还没有可展示的单曲列表。
-                      </div>
-                    )}
-                  </div>
+                  {trackLinks}
                 </div>
                 </aside>
+                ) : null}
 
               <main style={{ minWidth: 0 }}>
+                {isMobileLayout ? (
+                  <section className="music-mobile-intro">
+                    <div className="music-mobile-intro__eyebrow">{data.display_name}</div>
+                    <div className="music-mobile-intro__header">
+                      <h1 className="music-mobile-intro__title">律动共鸣</h1>
+                      <div className="music-mobile-intro__count">
+                        共收录 <strong style={{ color: 'var(--text-primary)' }}>{data.total_count}</strong> 张声音切片
+                      </div>
+                    </div>
+                  </section>
+                ) : null}
+
+                {isMobileLayout ? (
+                  <section className="music-mobile-album-rail-section">
+                    <div className="music-mobile-album-rail__header">
+                      <span>Quick Select</span>
+                      <span>{data.items.length} 张</span>
+                    </div>
+                    <div className="music-mobile-album-rail" aria-label="Music quick album selector">
+                      {data.items.map(item => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setSelectedId(item.id)}
+                          className={`music-mobile-album-chip${item.id === selectedItem.id ? ' is-active' : ''}`}
+                          aria-label={item.title}
+                        >
+                          {item.cover ? (
+                            <img
+                              src={toImageUrl(item.cover)}
+                              alt={item.title}
+                              loading="lazy"
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block',
+                              }}
+                            />
+                          ) : (
+                            <div className="music-mobile-album-chip__fallback">
+                              <Music2 size={18} />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+
                 <section
                   style={{
                     position: 'relative',
@@ -382,8 +506,7 @@ export default function MusicPage({ data }: Props) {
                   }}
                 >
                   <div
-                    key={selectedItem.id}
-                    className="music-feature-panel md:grid md:grid-cols-[300px_1fr] md:gap-8"
+                    className={`music-feature-panel md:grid md:grid-cols-[300px_1fr] md:gap-8${animateFeatureSwap ? ' music-feature-panel--swap' : ''}`}
                     style={{ display: 'grid', gap: '1.5rem' }}
                   >
                     <div
@@ -648,6 +771,22 @@ export default function MusicPage({ data }: Props) {
                   </div>
                 </section>
 
+                {isMobileLayout ? (
+                  <section style={{ marginTop: '1rem' }}>
+                    <div className={`music-mobile-track-index${showMobileTrackIndex ? ' is-open' : ''}`}>
+                      <button
+                        type="button"
+                        className="music-mobile-track-index__toggle"
+                        onClick={() => setShowMobileTrackIndex(open => !open)}
+                      >
+                        <span>Track Index</span>
+                        <span style={{ opacity: 0.72 }}>{showMobileTrackIndex ? '收起' : `${tracks.length || 0} 首`}</span>
+                      </button>
+                      {showMobileTrackIndex ? trackPanel : null}
+                    </div>
+                  </section>
+                ) : null}
+
                 <section style={{ marginTop: '2.1rem' }}>
                   <div className="year-header" style={{ marginBottom: '1rem' }}>
                     <div>
@@ -668,7 +807,7 @@ export default function MusicPage({ data }: Props) {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                      gridTemplateColumns: isMobileLayout ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fill, minmax(160px, 1fr))',
                       gap: '1rem',
                     }}
                   >
@@ -777,7 +916,7 @@ export default function MusicPage({ data }: Props) {
           opacity: 1 !important;
           transform: translateY(0) !important;
         }
-        .music-feature-panel {
+        .music-feature-panel--swap {
           animation: musicFeatureSwap 340ms cubic-bezier(0.22, 1, 0.36, 1);
           transform-origin: center top;
         }

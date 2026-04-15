@@ -102,6 +102,7 @@ export interface TextItem {
   cover?: string
   author?: string
   summary?: string
+  excerpt?: string
   tags: string[]
   content: string
 }
@@ -151,6 +152,26 @@ export interface HomepageConfig {
   visions: string[]
   music: string[]
   texts: string[]
+}
+
+export interface SiteConfigData {
+  generated_at: string
+  site_ui: SiteUiConfig
+  site_layout: SiteLayoutConfig
+  homepage: HomepageConfig
+}
+
+export interface HomePageData {
+  counts: {
+    games: number
+    visions: number
+    music: number
+    texts: number
+  }
+  latestGames: ArchiveItem[]
+  latestVisions: ArchiveItem[]
+  latestMusic: MusicItem[]
+  latestTexts: TextItem[]
 }
 
 /** 整个 archive_data.json 的顶层结构 */

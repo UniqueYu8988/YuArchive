@@ -1,21 +1,19 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
+import { lazy, Suspense, useState, useEffect, useRef } from 'react'
 import {
   Gamepad2, Clapperboard, Music, Feather,
-  Sun, Moon, Volume2, VolumeX, ArrowUp
+  Sun, Moon, Volume2, VolumeX, ArrowUp, Ellipsis
 } from 'lucide-react'
-import type { ArchiveData } from './types'
+import type { HomePageData, MusicCategory, TextsCategory, TimelineCategory } from './types'
+import { useIsMobile } from './hooks/useIsMobile'
+import { useJsonData } from './hooks/useJsonData'
 
-// 页面组件
-import GamesPage  from './pages/GamesPage'
-import Visions    from './pages/Visions'
-import MusicPage  from './pages/MusicPage'
-import TextsPage  from './pages/TextsPage'
-import HomePage   from './pages/HomePage'
-
-// 导入 JSON 数据（Vite 内联为 ES module）
-import archiveDataRaw from './data/archive_data.json'
-const archiveData = archiveDataRaw as ArchiveData
+const MOBILE_NOTICE_STORAGE_KEY = 'yu-archive-mobile-notice-dismissed-v1'
+const HomePage = lazy(() => import('./pages/HomePage'))
+const GamesPage = lazy(() => import('./pages/GamesPage'))
+const Visions = lazy(() => import('./pages/Visions'))
+const MusicPage = lazy(() => import('./pages/MusicPage'))
+const TextsPage = lazy(() => import('./pages/TextsPage'))
 
 // ── Navbar ───────────────────────────────────────────────────
 interface NavbarProps {
@@ -23,9 +21,11 @@ interface NavbarProps {
   toggleTheme: () => void
   isMuted: boolean
   toggleMute: () => void
+  isMobile: boolean
 }
 
-function Navbar({ theme, toggleTheme, isMuted, toggleMute }: NavbarProps) {
+function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarProps) {
+  const [showMobileUtilities, setShowMobileUtilities] = useState(false)
   // 路由链接配置：图标 + 文字 + 路径
   const navItems = [
     { name: '溯游', path: '/games',  icon: <Gamepad2    size={16} /> },
@@ -33,6 +33,116 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute }: NavbarProps) {
     { name: '律动', path: '/music',  icon: <Music       size={16} /> },
     { name: '灵犀', path: '/texts',  icon: <Feather     size={16} /> },
   ]
+
+  const muteButton = (
+    <button
+      onClick={toggleMute}
+      className="nav-control-btn"
+      title={isMuted ? '播放背景音乐' : '静音'}
+    >
+      {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
+    </button>
+  )
+
+  const themeButton = (
+    <button
+      onClick={toggleTheme}
+      className="nav-control-btn"
+      title={theme === 'light' ? '切换为极客黑' : '切换为明亮版'}
+    >
+      {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
+    </button>
+  )
+
+  const githubButton = (
+    <a
+      href="https://github.com/UniqueYu8988"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="nav-control-btn"
+      title="Yu 的 GitHub 宇宙"
+    >
+      <svg
+        width="17"
+        height="17"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+    </a>
+  )
+
+  const spotifyButton = (
+    <a
+      href="https://open.spotify.com/playlist/3dYRKji8hGTIJHbT4BSK8H?si=2de89ff7b41e4516"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="nav-control-btn"
+      title="Yu 的 Spotify 歌单"
+    >
+      <svg
+        width="17"
+        height="17"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.623.623 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 1 1-.277-1.215c3.809-.87 7.077-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.223-2.72a.78.78 0 0 1-1.072.257c-2.687-1.652-6.786-2.13-9.965-1.166a.78.78 0 0 1-.43-1.498c3.633-1.102 8.147-.568 11.21 1.335a.78.78 0 0 1 .257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 1 1-.543-1.793c3.527-1.07 9.393-.863 13.098 1.332a.937.937 0 0 1-.938 1.62z"/>
+      </svg>
+    </a>
+  )
+
+  if (isMobile) {
+    return (
+      <nav className="navbar navbar--mobile">
+        <div className="nav-container nav-container--mobile">
+          <div className="nav-mobile-brand-row">
+            <NavLink to="/" className="nav-logo nav-logo--mobile">
+              <img src="/favicon.png" alt="Yu" className="nav-avatar" />
+              <span className="nav-title nav-title--mobile">Archive</span>
+            </NavLink>
+
+            <div className="nav-controls nav-controls--mobile">
+              {muteButton}
+              {themeButton}
+              <button
+                type="button"
+                onClick={() => setShowMobileUtilities(open => !open)}
+                className={`nav-control-btn${showMobileUtilities ? ' is-active' : ''}`}
+                title="更多入口"
+                aria-expanded={showMobileUtilities}
+                aria-label="展开更多入口"
+              >
+                <Ellipsis size={17} />
+              </button>
+            </div>
+          </div>
+
+          {showMobileUtilities ? (
+            <div className="nav-mobile-utility-menu">
+              {githubButton}
+              {spotifyButton}
+            </div>
+          ) : null}
+
+          <div className="nav-links nav-links--mobile">
+            {navItems.map(item => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => `nav-item nav-item--mobile ${isActive ? 'active' : ''}`}
+              >
+                <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
+                <span>{item.name}</span>
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      </nav>
+    )
+  }
 
   return (
     <nav className="navbar">
@@ -61,68 +171,147 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute }: NavbarProps) {
 
         {/* ── 右区：控制按钮 ── */}
         <div className="nav-controls">
-          {/* 静音切换 */}
-          <button
-            onClick={toggleMute}
-            className="nav-control-btn"
-            title={isMuted ? '播放背景音乐' : '静音'}
-          >
-            {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
-          </button>
-
-          {/* 昼夜切换 */}
-          <button
-            onClick={toggleTheme}
-            className="nav-control-btn"
-            title={theme === 'light' ? '切换为极客黑' : '切换为明亮版'}
-          >
-            {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
-          </button>
-
-          {/* Github 极客名片 */}
-          <a
-            href="https://github.com/UniqueYu8988"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nav-control-btn"
-            title="Yu 的 GitHub 宇宙"
-          >
-            {/* GitHub 官方极简黑白 SVG */}
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-            </svg>
-          </a>
-
-          {/* Spotify 专属入口 */}
-          <a
-            href="https://open.spotify.com/playlist/3dYRKji8hGTIJHbT4BSK8H?si=2de89ff7b41e4516"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nav-control-btn"
-            title="Yu 的 Spotify 歌单"
-          >
-            {/* Spotify 官方 Logo SVG 极简黑白版 */}
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.623.623 0 0 1-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 1 1-.277-1.215c3.809-.87 7.077-.496 9.712 1.115a.623.623 0 0 1 .207.857zm1.223-2.72a.78.78 0 0 1-1.072.257c-2.687-1.652-6.786-2.13-9.965-1.166a.78.78 0 0 1-.43-1.498c3.633-1.102 8.147-.568 11.21 1.335a.78.78 0 0 1 .257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 1 1-.543-1.793c3.527-1.07 9.393-.863 13.098 1.332a.937.937 0 0 1-.938 1.62z"/>
-            </svg>
-          </a>
+          {muteButton}
+          {themeButton}
+          {githubButton}
+          {spotifyButton}
         </div>
 
       </div>
     </nav>
   )
+}
+
+function MobileViewportNotice({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="mobile-viewport-notice" role="status" aria-live="polite">
+      <div className="mobile-viewport-notice__eyebrow">Mobile Viewing Note</div>
+      <div className="mobile-viewport-notice__body">
+        当前移动端已提供轻量浏览，完整展陈与最佳排版仍建议在电脑端查看。
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="mobile-viewport-notice__dismiss"
+        aria-label="关闭移动端提示"
+      >
+        知道了
+      </button>
+    </div>
+  )
+}
+
+function RouteStateCard({
+  title,
+  message,
+}: {
+  title: string
+  message: string
+}) {
+  return (
+    <div
+      style={{
+        maxWidth: '880px',
+        margin: '2.2rem auto 0',
+        padding: '1.2rem 1.35rem',
+        borderRadius: '24px',
+        border: '1px solid var(--glass-border)',
+        background: 'var(--glass)',
+        boxShadow: '0 16px 36px rgba(0,0,0,0.06)',
+      }}
+    >
+      <div
+        style={{
+          fontSize: '0.72rem',
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--text-secondary)',
+          marginBottom: '0.55rem',
+        }}
+      >
+        {title}
+      </div>
+      <div
+        style={{
+          fontSize: '0.98rem',
+          lineHeight: 1.6,
+          color: 'var(--text-primary)',
+        }}
+      >
+        {message}
+      </div>
+    </div>
+  )
+}
+
+function HomeRoute() {
+  const { data, error } = useJsonData<HomePageData>('/data/home.json')
+
+  if (error) {
+    return <RouteStateCard title="Home" message="首页数据暂时没有整理好，请稍后再试。" />
+  }
+
+  if (!data) {
+    return <RouteStateCard title="Home" message="正在整理首页馆藏..." />
+  }
+
+  return <HomePage data={data} />
+}
+
+function GamesRoute() {
+  const { data, error } = useJsonData<TimelineCategory>('/data/games.json')
+
+  if (error) {
+    return <RouteStateCard title="Games" message="游戏馆藏暂时没有装载成功，请稍后再试。" />
+  }
+
+  if (!data) {
+    return <RouteStateCard title="Games" message="正在展开时间线..." />
+  }
+
+  return <GamesPage data={data} />
+}
+
+function VisionsRoute() {
+  const { data, error } = useJsonData<TimelineCategory>('/data/visions.json')
+
+  if (error) {
+    return <RouteStateCard title="Visions" message="光影档案暂时没有装载成功，请稍后再试。" />
+  }
+
+  if (!data) {
+    return <RouteStateCard title="Visions" message="正在点亮光影馆藏..." />
+  }
+
+  return <Visions data={data} />
+}
+
+function MusicRoute() {
+  const { data, error } = useJsonData<MusicCategory>('/data/music.json')
+
+  if (error) {
+    return <RouteStateCard title="Music" message="音乐馆藏暂时没有装载成功，请稍后再试。" />
+  }
+
+  if (!data) {
+    return <RouteStateCard title="Music" message="正在装载唱片架..." />
+  }
+
+  return <MusicPage data={data} />
+}
+
+function TextsRoute() {
+  const { data, error } = useJsonData<TextsCategory>('/data/texts.json')
+
+  if (error) {
+    return <RouteStateCard title="Texts" message="文本档案暂时没有装载成功，请稍后再试。" />
+  }
+
+  if (!data) {
+    return <RouteStateCard title="Texts" message="正在翻开文稿目录..." />
+  }
+
+  return <TextsPage data={data} />
 }
 
 // ── App 主体 ─────────────────────────────────────────────────
@@ -133,7 +322,9 @@ export default function App() {
   )
   const [isMuted, setIsMuted] = useState(true)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [showMobileViewportNotice, setShowMobileViewportNotice] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const isMobileViewport = useIsMobile()
 
   // 主题切换：修改 <html> 的 data-theme 属性，触发 CSS 变量全局切换
   // 这是实现"丝滑无闪烁"昼夜切换的核心机制
@@ -156,11 +347,30 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    if (!isMobileViewport) {
+      setShowMobileViewportNotice(false)
+      return
+    }
+
+    const dismissed = localStorage.getItem(MOBILE_NOTICE_STORAGE_KEY) === '1'
+    setShowMobileViewportNotice(!dismissed)
+  }, [isMobileViewport])
+
   const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light')
+
+  const dismissMobileViewportNotice = () => {
+    localStorage.setItem(MOBILE_NOTICE_STORAGE_KEY, '1')
+    setShowMobileViewportNotice(false)
+  }
 
   const toggleMute = () => {
     if (audioRef.current) {
       if (isMuted) {
+        if (!audioRef.current.src) {
+          audioRef.current.src = '/bgm.mp3'
+          audioRef.current.load()
+        }
         audioRef.current.play().catch(() => {})
         setIsMuted(false)
       } else {
@@ -173,22 +383,29 @@ export default function App() {
   return (
     <BrowserRouter>
       {/* 背景音乐（静音启动） */}
-      <audio ref={audioRef} src="/bgm.mp3" loop />
+      <audio ref={audioRef} loop preload="none" />
 
       <Navbar
         theme={theme}
         toggleTheme={toggleTheme}
         isMuted={isMuted}
         toggleMute={toggleMute}
+        isMobile={isMobileViewport}
       />
 
-      <Routes>
-        <Route path="/"       element={<HomePage  data={archiveData} />} />
-        <Route path="/games"  element={<GamesPage data={archiveData.categories.games}   />} />
-        <Route path="/movies" element={<Visions   data={archiveData.categories.visions} />} />
-        <Route path="/music"  element={<MusicPage data={archiveData.categories.music}   />} />
-        <Route path="/texts"  element={<TextsPage data={archiveData.categories.texts}   />} />
-      </Routes>
+      {isMobileViewport && showMobileViewportNotice ? (
+        <MobileViewportNotice onDismiss={dismissMobileViewportNotice} />
+      ) : null}
+
+      <Suspense fallback={<RouteStateCard title="Archive" message="正在开启档案馆..." />}>
+        <Routes>
+          <Route path="/"       element={<HomeRoute />} />
+          <Route path="/games"  element={<GamesRoute />} />
+          <Route path="/movies" element={<VisionsRoute />} />
+          <Route path="/music"  element={<MusicRoute />} />
+          <Route path="/texts"  element={<TextsRoute />} />
+        </Routes>
+      </Suspense>
 
       {/* 返回顶部按钮 */}
       {showScrollTop && (

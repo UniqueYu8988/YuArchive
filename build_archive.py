@@ -35,7 +35,9 @@ PUBLIC_ROOT = Path(r"C:\Users\Yu\AI\Archive\public")
 WEBP_CACHE_DIR = PUBLIC_ROOT / "webp_cache"
 AUDIO_CACHE_DIR = PUBLIC_ROOT / "audio_cache"
 MEDIA_CACHE_DIR = PUBLIC_ROOT / "media_cache"
+PUBLIC_DATA_DIR = PUBLIC_ROOT / "data"
 JSON_OUTPUT_PATH = Path(r"C:\Users\Yu\AI\Archive\src\data\archive_data.json")
+SITE_CONFIG_OUTPUT_PATH = Path(r"C:\Users\Yu\AI\Archive\src\data\site_config.json")
 REPORTS_ROOT = Path(r"C:\Users\Yu\AI\Archive\reports")
 GAMES_INVENTORY_CSV_PATH = REPORTS_ROOT / "games_meta_inventory.csv"
 GAMES_MISSING_ENGLISH_CSV_PATH = REPORTS_ROOT / "games_missing_english.csv"
@@ -126,6 +128,15 @@ DEFAULT_HOMEPAGE_CONFIG = {
     "music": [],
     "texts": [],
 }
+
+CATEGORY_JSON_OUTPUT_PATHS = {
+    "games": PUBLIC_DATA_DIR / "games.json",
+    "visions": PUBLIC_DATA_DIR / "visions.json",
+    "music": PUBLIC_DATA_DIR / "music.json",
+    "texts": PUBLIC_DATA_DIR / "texts.json",
+}
+HOME_JSON_OUTPUT_PATH = PUBLIC_DATA_DIR / "home.json"
+LEGACY_TEXTS_BODY_OUTPUT_DIR = PUBLIC_DATA_DIR / "texts"
 GAME_TITLE_ALIASES = {
     "哈迪斯": "Hades",
     "哈迪斯2": "Hades II",
@@ -162,6 +173,139 @@ def human_size(bytes_: int) -> str:
         if bytes_ < 1024: return f"{bytes_:.1f} {unit}"
         bytes_ /= 1024
     return f"{bytes_:.1f} GB"
+
+
+def select_configured_items(items: list[dict], configured_titles: list[str], count: int) -> list[dict]:
+    selected: list[dict] = []
+    used_ids: set[str] = set()
+
+    for title in configured_titles:
+        match = next(
+            (item for item in items if item.get("title") == title and item.get("id") not in used_ids),
+            None,
+        )
+        if not match:
+            continue
+        selected.append(match)
+        used_ids.add(str(match.get("id")))
+        if len(selected) >= count:
+            return selected
+
+    for item in items:
+        item_id = str(item.get("id"))
+        if item_id in used_ids:
+            continue
+        selected.append(item)
+        used_ids.add(item_id)
+        if len(selected) >= count:
+            break
+
+    return selected
+
+
+def collect_timeline_items(years: list[dict]) -> list[dict]:
+    items: list[dict] = []
+    for year in years:
+        items.extend(year.get("items", []))
+    return items
+
+
+def strip_markdown_text(content: str) -> str:
+    return (
+        content
+        .replace("---", " ")
+        .replace("`", " ")
+    )
+
+
+def normalize_excerpt_source(content: str) -> str:
+    normalized = re.sub(r"^---[\s\S]*?---", " ", content)
+    normalized = re.sub(r"^#+\s*", " ", normalized, flags=re.MULTILINE)
+    normalized = re.sub(r"!\[.*?\]\(.*?\)", " ", normalized)
+    normalized = re.sub(r"\[(.*?)\]\((.*?)\)", r"\1", normalized)
+    normalized = re.sub(r"[*_`>|-]", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized)
+    return normalized.strip()
+
+
+def compact_text_excerpt(text: str, section_key: str) -> str:
+    normalized = re.sub(r"\s+", " ", text).strip()
+    if not normalized:
+        return ""
+
+    colon_match = re.search(r"[：:]", normalized)
+    colon_index = colon_match.start() if colon_match else -1
+
+    if section_key == "headline" and 10 <= colon_index <= 140:
+        return f"{normalized[:colon_index].strip()}..."
+
+    if section_key != "headline" and 4 <= colon_index <= 60:
+        after_colon = normalized[colon_index + 1 :].strip()
+        if after_colon:
+            sentence_match = re.search(r"[。！？!?]", after_colon)
+            sentence_index = sentence_match.start() if sentence_match else -1
+            if 18 <= sentence_index <= 120:
+                return after_colon[: sentence_index + 1].strip()
+            if len(after_colon) > 88:
+                return f"{after_colon[:88].strip()}..."
+            return after_colon
+
+    sentence_match = re.search(r"[。！？!?]", normalized)
+    sentence_index = sentence_match.start() if sentence_match else -1
+    if 18 <= sentence_index <= 120:
+        return normalized[: sentence_index + 1].strip()
+
+    if len(normalized) > 88:
+        return f"{normalized[:88].strip()}..."
+
+    return normalized
+
+
+def build_text_excerpt(summary: str, content: str, section_key: str) -> str:
+    if summary.strip():
+        return compact_text_excerpt(summary.strip(), section_key)
+    return compact_text_excerpt(normalize_excerpt_source(content), section_key)
+
+
+def build_homepage_payload(categories: dict, homepage_config: dict, site_layout: dict) -> dict:
+    games = categories["games"]
+    visions = categories["visions"]
+    music = categories["music"]
+    texts = categories["texts"]
+
+    latest_games = select_configured_items(
+        collect_timeline_items(games.get("years", [])),
+        homepage_config.get("games", []),
+        int(site_layout.get("home_latest_games_count", DEFAULT_SITE_LAYOUT["home_latest_games_count"])),
+    )
+    latest_visions = select_configured_items(
+        collect_timeline_items(visions.get("years", [])),
+        homepage_config.get("visions", []),
+        int(site_layout.get("home_latest_visions_count", DEFAULT_SITE_LAYOUT["home_latest_visions_count"])),
+    )
+    latest_music = select_configured_items(
+        music.get("items", []),
+        homepage_config.get("music", []),
+        int(site_layout.get("home_latest_music_count", DEFAULT_SITE_LAYOUT["home_latest_music_count"])),
+    )
+    latest_texts = select_configured_items(
+        texts.get("items", []),
+        homepage_config.get("texts", []),
+        int(site_layout.get("home_latest_texts_count", DEFAULT_SITE_LAYOUT["home_latest_texts_count"])),
+    )
+
+    return {
+        "counts": {
+            "games": int(games.get("total_count", 0)),
+            "visions": int(visions.get("total_count", 0)),
+            "music": int(music.get("total_count", 0)),
+            "texts": int(texts.get("total_count", 0)),
+        },
+        "latestGames": latest_games,
+        "latestVisions": latest_visions,
+        "latestMusic": latest_music,
+        "latestTexts": latest_texts,
+    }
 
 
 def trim_transparent_padding(img: Image.Image) -> Image.Image:
@@ -2097,8 +2241,9 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
                     "normalized_date": sort_date,
                     "status": date_status,
                 })
+            item_id = f"text_{len(items)}"
             items.append({
-                "id": f"text_{len(items)}",
+                "id": item_id,
                 "title": title,
                 "date": raw_date,
                 "sort_date": sort_date,
@@ -2107,8 +2252,13 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
                 "cover": find_text_cover(item, section_key),
                 "author": str(parsed["metadata"].get("author", "")).strip(),
                 "summary": str(parsed["metadata"].get("summary", "")).strip(),
+                "excerpt": build_text_excerpt(
+                    str(parsed["metadata"].get("summary", "")).strip(),
+                    parsed["content"],
+                    section_key,
+                ),
                 "tags": parsed["metadata"].get("tags", []),
-                "content": parsed["content"]
+                "content": parsed["content"],
             })
 
     items.sort(key=lambda x: (x["sort_date"], x["title"]), reverse=True)
@@ -2160,6 +2310,7 @@ def main():
     WEBP_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     AUDIO_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     MEDIA_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    PUBLIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     start_time = time.time()
     site_ui = load_site_ui_config(ONEDRIVE_DATA_ROOT)
@@ -2175,6 +2326,12 @@ def main():
     }
 
     # 1. Pipeline 全部交由四大函数驱动
+    categories = {
+        "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report, site_layout),
+        "visions": process_visions_category(ONEDRIVE_DATA_ROOT, report),
+        "music":   process_music_category(ONEDRIVE_DATA_ROOT, report),
+        "texts":   process_texts_category(ONEDRIVE_DATA_ROOT, report, site_layout),
+    }
     data = {
         "metadata": {
             "generated_at": datetime.now().isoformat(),
@@ -2185,19 +2342,31 @@ def main():
             "homepage": homepage_config,
             "validation": report,
         },
-        "categories": {
-            "games":   process_timeline_category(ONEDRIVE_DATA_ROOT, "games", report, site_layout),
-            "visions": process_visions_category(ONEDRIVE_DATA_ROOT, report),
-            "music":   process_music_category(ONEDRIVE_DATA_ROOT, report),
-            "texts":   process_texts_category(ONEDRIVE_DATA_ROOT, report, site_layout),
-        }
+        "categories": categories,
     }
+    site_config = {
+        "generated_at": data["metadata"]["generated_at"],
+        "site_ui": site_ui,
+        "site_layout": site_layout,
+        "homepage": homepage_config,
+    }
+    home_payload = build_homepage_payload(categories, homepage_config, site_layout)
 
     # 2. 将最终注入好的纯净态数据写入目标点
     JSON_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     try:
+        if LEGACY_TEXTS_BODY_OUTPUT_DIR.exists():
+            shutil.rmtree(LEGACY_TEXTS_BODY_OUTPUT_DIR)
+
         with open(JSON_OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+        with open(SITE_CONFIG_OUTPUT_PATH, "w", encoding="utf-8") as f:
+            json.dump(site_config, f, ensure_ascii=False, indent=2)
+        with open(HOME_JSON_OUTPUT_PATH, "w", encoding="utf-8") as f:
+            json.dump(home_payload, f, ensure_ascii=False, indent=2)
+        for category_key, output_path in CATEGORY_JSON_OUTPUT_PATHS.items():
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(categories[category_key], f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"❌ [致命] 写入 {JSON_OUTPUT_PATH.name} 全盘失败：{e}")
         sys.exit(1)
