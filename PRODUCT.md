@@ -1,0 +1,68 @@
+# PRODUCT.md
+
+本文件只记录 YuArchive 当前产品事实和边界，不记录新功能设想。
+
+## 产品一句话说明
+
+YuArchive 是一个个人数字收藏馆，用网页方式展示用户长期整理的游戏、影视、音乐、文本收藏。
+
+## 核心用途
+
+- 汇总并展示个人收藏记录；
+- 按游戏、影视、音乐、文本四类组织内容；
+- 通过 OneDrive 源目录维护原始素材和 Markdown/YAML 元数据；
+- 由本地构建脚本生成前端可读取的数据和媒体缓存。
+
+## 四类收藏
+
+| 分类 | 当前含义 | 主要源数据 |
+|---|---|---|
+| 游戏 | 游戏、平台、评分、游玩时间、完成状态、DLC、长期赛季内容 | `C:\Users\Yu\OneDrive\图片\Data\Games` |
+| 影视 | 电影、剧集、动画、观影标记、短摘、角色橱窗 | `C:\Users\Yu\OneDrive\图片\Data\Visions` |
+| 音乐 | 专辑、代表曲、曲目、封面、音频 | `C:\Users\Yu\OneDrive\图片\Data\Music` |
+| 文本 | 书籍笔记、得到头条、睡前消息、参考信息、拾遗等文本档案 | `C:\Users\Yu\OneDrive\图片\Data\Texts` |
+
+## 当前真实功能
+
+- React 前端展示首页和四个分类页面；
+- 前端读取 `public\data\home.json`、`games.json`、`visions.json`、`music.json`、`texts.json`；
+- `build_archive.py` 从 OneDrive 源目录读取素材和 Markdown/YAML，生成 JSON、WebP、音频缓存和报告；
+- 页面提供主题切换、背景音乐入口、移动端提示等轻量交互；
+- `README.md` 已记录旧工作流的日常维护方式。
+
+## 当前阶段目标
+
+当前目标是把长期依赖历史对话的老项目迁移到新的 V2 工作流文档体系，先建立事实、架构、状态、验收和稳定化计划基线。
+
+本阶段不是：
+
+- 重新设计产品；
+- 扩展新功能；
+- 重构前端；
+- 重写构建脚本；
+- 清理或迁移真实收藏数据。
+
+## 不可破坏的行为
+
+- OneDrive 源数据不能丢失、覆盖或被误清理；
+- 四类收藏仍应能被 `build_archive.py` 读取；
+- 前端仍应从 `public\data` 读取生成后的分类数据；
+- 派生缓存不能被误认为唯一数据源；
+- 发布脚本不能被误运行；
+- 真实个人数据、秘密配置和大型媒体不应被无意上传到 GitHub。
+
+## 核心数据边界
+
+| 数据 | 用途 | 是否真实个人数据 | 是否允许删除 |
+|---|---|---|---|
+| `C:\Users\Yu\OneDrive\图片\Data` | 收藏源数据和源配置 | 是 | 否 |
+| `C:\Users\Yu\AI\Archive\public\data` | 前端运行读取的生成 JSON | 是，派生副本 | 仅受控重生成 |
+| `C:\Users\Yu\AI\Archive\src\data` | 生成聚合数据和站点配置 | 是，派生副本 | 仅受控重生成 |
+| `C:\Users\Yu\AI\Archive\public\webp_cache` | 图片转码缓存 | 派生副本 | 源数据完整时可重生成 |
+| `C:\Users\Yu\AI\Archive\public\audio_cache` | 音频缓存 | 派生副本 | 源数据完整时可重生成 |
+| `C:\Users\Yu\AI\Archive\dist` | 构建产物 | 否 | 可重生成 |
+| `C:\Users\Yu\AI\Archive\node_modules` | npm 依赖 | 否 | 可重装 |
+
+## 当前完成标准
+
+当前阶段完成标准是：新工作流文档能让一个新对话在不依赖历史上下文的情况下，准确识别项目根目录、真实数据目录、启动/构建/生成方式、禁止事项和下一步。
