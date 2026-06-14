@@ -10,6 +10,13 @@ dist-ssr
 # Python caching
 __pycache__/
 
+# Generated aggregate data
+src/data/archive_data.json
+
+# Local-only legacy generated/archive artifacts
+docs/history/legacy-generated/public_archive_data_legacy.json
+reports/history/legacy-game-assist/
+
 # AI Brain
 /brain
 .gemini

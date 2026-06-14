@@ -2336,7 +2336,7 @@ def main():
         "metadata": {
             "generated_at": datetime.now().isoformat(),
             "version": "3.0.0",
-            "source_root": str(ONEDRIVE_DATA_ROOT),
+            "source_root": "external-source-archive",
             "site_ui": site_ui,
             "site_layout": site_layout,
             "homepage": homepage_config,
