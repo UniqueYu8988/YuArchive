@@ -2,11 +2,11 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-06-14
+最后更新：2026-06-15
 
 ## 当前阶段
 
-老项目底层工作流改造：从长期依赖历史对话，迁移到 V2 文档化工作流。阶段 3：代码风险审计第一轮已完成，只读建立代码风险地图。
+老项目底层工作流改造已完成本地提交，当前进入系统级底层升级的保护性第一步：建立源侧只读结构检查。
 
 ## 已完成
 
@@ -39,6 +39,8 @@
 - 已运行 `python -X utf8 build_archive.py`，生成脚本成功完成；运行前后 OneDrive Data 中 YAML/YML/MD 文件哈希变化数量为 0。
 - 已运行 `node scripts/check-public-data-shape.mjs` 和 `node scripts/check-generated-data-privacy.mjs`，均通过。
 - 已按用户确认修正文档风险表述：公开展示用的收藏标题、分类、评分和描述不按高敏感信息处理，主要保护对象是密钥、token、账号凭据、本机路径、OneDrive 真实源路径、误改源数据、误发布和误推送。
+- 已建立 `docs/tasks/protect-source-data-shape.md` 和 `scripts/check-source-data-shape.mjs`，用于只读检查 OneDrive Data 源目录、四个板块、顶层 YAML、Markdown frontmatter、文本栏目和首页引用形状。
+- 已运行 `node scripts/check-source-data-shape.mjs`：Global、Games、Visions、Music、Texts 均通过。此前 Homepage/Games 存在 1 个近似匹配警告，已确认为脚本未把 `Game-Live` 单独 YAML 文件名纳入候选标题；检查脚本已补充该通用规则，当前检查通过。
 
 ## 当前可正常使用的事实
 
@@ -50,6 +52,7 @@
 - 公开网页继续依赖 `public\data\*.json`，当前未发现生产前端直接读取 `src\data\archive_data.json`。
 - `scripts/check-public-data-shape.mjs` 只读取上述派生 JSON 并检查顶层结构、必要字段和集合数量，不修改数据。
 - `scripts/check-generated-data-privacy.mjs` 只读取指定派生 JSON 并检查本机路径、旧源路径和明显秘密字段风险，不修改数据。
+- `scripts/check-source-data-shape.mjs` 只读取 OneDrive Data 源目录结构、YAML 和 Markdown frontmatter，输出目录/文件/缺失数量和解析摘要，不修改源数据、不运行生成脚本。
 - `build_archive.py` 从 OneDrive Data 生成 JSON、WebP、音频缓存、媒体缓存和报告；当前已将聚合 metadata 的 source root 脱敏为非敏感固定标识。
 - `build_archive.py` 不是纯只读生成器，运行时可能反写 OneDrive 游戏源 `meta.yaml`。
 
@@ -76,11 +79,12 @@
 | 仓库或发布泄露本机路径/秘密值 | 可能暴露本机环境、源目录或账号凭据 | 已建立只读隐私检查，`metadata.source_root` 已脱敏 |
 | `build_archive.py` 风险集中 | 读源、写派生、写缓存、写 reports、联网补全和源 YAML 写回集中在单脚本 | 后续先做只读结构检查或写入点清单，不直接改主流程 |
 | 前端运行时 JSON 无结构验证 | fetch 成功但字段形状错误时，页面组件可能运行时报错 | 已建立只读 JSON 结构检查，后续可继续补充纯函数保护 |
+| 源侧维护规则缺少自动体检 | 用户改源文件后可能到生成阶段才发现结构问题 | 已建立源侧只读结构检查，当前检查通过 |
 | 生成脚本高风险 | 运行会写派生数据、缓存和 reports，并可能反写 OneDrive 游戏 YAML | 本轮受控运行后 OneDrive YAML/YML/MD 哈希无变化；后续仍默认禁止运行 |
 
 ## 当前下一步
 
-只建议做一件事：进行本轮变更验收和 Git 边界整理，确认派生输出变更范围后再考虑提交。
+只建议做一件事：继续补充源侧 schema/check 的小型只读规则，例如更细的 Music 封面/音频匹配检查或 Texts 日期规则检查。
 
 ## 暂时不做
 
@@ -97,7 +101,7 @@
 - 不进入代码改造；
 - 不做代码修改；
 - 不开始代码修复；
-- 不进入维护自动化开发。
+- 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
 
 ## 当前验证状态
@@ -107,7 +111,7 @@
 - 自动测试：未发现独立测试脚本，本轮未运行。
 - 构建：本轮未运行 `npm run build`。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-14，只读引用检查、README 收敛、旧生成物归档、辅助文件收束、最终文档一致性检查、代码风险审计第一轮、public/data 只读结构检查、生成数据隐私检查、仓库边界方案 A、metadata source root 脱敏、受控数据生成和 Markdown 状态更新。
+- 最近一次验证日期：2026-06-15，已运行源侧只读结构检查；Global、Games、Visions、Music、Texts、Homepage 均通过。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
@@ -116,4 +120,4 @@
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
 
-长期方向是未来可以逐步改进维护体验和自动化能力，但下一步只建议做本轮变更验收和 Git 边界整理；不做前端重构，不手改派生 JSON，不再次运行 `build_archive.py`，不开始自动化开发，也不执行发布或推送。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前底层升级应继续从只读检查、schema、预览和差异报告开始；不做前端重构，不手改派生 JSON，不再次运行 `build_archive.py`，不自动改写 OneDrive Data，也不执行发布或推送。

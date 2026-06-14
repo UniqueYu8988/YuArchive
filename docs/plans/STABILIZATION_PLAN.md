@@ -1,6 +1,6 @@
 # STABILIZATION_PLAN.md
 
-YuArchive 老项目稳定化计划。本计划记录阶段和边界，当前已进入阶段 3：代码风险审计。
+YuArchive 老项目稳定化计划。本计划记录阶段和边界，当前已进入系统级底层升级的保护性阶段。
 
 ## 当前情况
 
@@ -25,6 +25,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - 仓库边界方案 A 已执行：`src/data/archive_data.json` 已退出 Git 跟踪，本地文件仍保留，`.gitignore` 已加入对应忽略规则。
 - `metadata.source_root` 脱敏/相对化方案已完成只读设计，记录在 `docs/tasks/sanitize-generated-source-root.md`。
 - 已完成一次受控高风险生成脚本小改：`build_archive.py` 仅修改 `metadata.source_root` 生成值，并受控运行数据生成；OneDrive Data 中 YAML/YML/MD 文件未发生哈希变化。
+- Vibe Coding 底层改造已完成本地提交，未执行 push。
+- 系统级底层升级已从保护性任务开始：`scripts/check-source-data-shape.mjs` 只读检查 OneDrive Data 源侧结构，不运行生成脚本、不写源数据。
 
 ## 稳定化目标
 
@@ -132,6 +134,26 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 下一步应做本轮变更验收和 Git 边界整理，不直接进入功能开发。
 
+## 系统级底层升级：保护性阶段
+
+状态：已开始。
+
+### 目标
+
+- 先建立源侧只读检查、schema、预览和差异报告；
+- 让用户在运行 `build_archive.py` 之前发现目录、YAML、Markdown frontmatter 和首页引用形状问题；
+- 不自动改写 OneDrive Data，不替代用户对收藏内容、评分、分类、笔记和媒体选择的判断。
+
+### 完成标准
+
+- [x] 建立 `docs/tasks/protect-source-data-shape.md`。
+- [x] 建立 `scripts/check-source-data-shape.mjs`。
+- [x] 检查 OneDrive Data 根目录、四个板块、顶层 YAML、Texts sections、Markdown frontmatter 和 homepage 引用形状。
+- [x] 验证脚本不需要新增依赖，不运行 `build_archive.py`，不写任何源数据。
+- [x] 核对 Homepage/Games 近似匹配警告：原因是检查脚本未把 `Game-Live` 单独 YAML 文件名纳入候选标题，已补充通用匹配规则。
+
+第一批升级任务继续限定为只读检查、schema、预览和差异报告，不进入自动改源数据。
+
 ## 阶段 4：核心数据与构建验收
 
 ### 目标
@@ -204,6 +226,6 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 做本轮变更验收和 Git 边界整理；
+1. 继续补充源侧 schema/check 的小型只读规则；
 2. 不手改派生 JSON、不进入 `build_archive.py` 主流程大改；再次运行 `build_archive.py` 前必须得到明确授权且说明验收目的；
-3. 当前仍不进入维护自动化开发。
+3. 当前仍不进入自动改源数据的维护自动化开发。
