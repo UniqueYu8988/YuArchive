@@ -55,6 +55,24 @@ C:\Users\Yu\OneDrive\图片\Data
 → React 前端读取并展示
 ```
 
+用户手动维护的源数据位于 `C:\Users\Yu\OneDrive\图片\Data`，其中包含 `Games`、`Visions`、`Music`、`Texts` 以及顶层 `homepage.yaml`、`site-layout.yaml`、`site-ui.yaml`。
+
+在明确授权下运行 `build_archive.py` 后，脚本会生成或更新：
+
+- `public\data\*.json`
+- `src\data\archive_data.json`
+- `src\data\site_config.json`
+- `public\webp_cache`
+- `public\audio_cache`
+- `public\media_cache`
+- `reports`
+
+`public\data` 和 `src\data` 是派生 JSON，不应手动修改它们来维护收藏内容。`public\webp_cache`、`public\audio_cache`、`public\media_cache` 是派生缓存，源数据完整时可以重建，但图片、音频和媒体的生成成本不同。`reports` 是扫描和辅助报告，可能过期，不是权威任务清单。
+
+收藏标题、分类、评分和展示描述属于网页展示资产，不按高敏感信息处理。仓库和发布边界主要保护密钥、token、账号凭据、本机绝对路径、OneDrive 真实源目录路径，以及避免误改 OneDrive 源数据或误运行生成、发布、推送流程。
+
+当前前端主要读取 `public\data\*.json`。旧 `public/archive_data.json` 已作为历史生成物归档到 `docs/history/legacy-generated/public_archive_data_legacy.json`，当前前端数据入口以 `public/data/*.json` 为准。
+
 `build_archive.py` 还会写入 `reports`，并可能通过 Steam 接口补全游戏元数据缓存。
 
 重要风险：脚本中存在写回游戏 `meta.yaml` 模板的逻辑，因此运行前必须确认 OneDrive 源数据已备份。
@@ -88,6 +106,8 @@ C:\Users\Yu\OneDrive\图片\Data
 | 报告 | `reports` | 游戏元数据辅助报告和缓存 | 建议备份 |
 | 构建产物 | `dist` | Vite 输出 | 可排除 |
 | 依赖 | `node_modules` | npm 安装结果 | 可排除 |
+
+旧 `public/archive_data.json` 已作为历史生成物归档到 `docs/history/legacy-generated/public_archive_data_legacy.json`，当前前端数据入口以 `public/data/*.json` 为准。
 
 ## 7. 外部服务和配置
 
@@ -123,7 +143,7 @@ C:\Users\Yu\OneDrive\图片\Data
 - `build_archive.py` 同时负责读取源数据、转码媒体、生成 JSON、写报告、联网补全，风险集中；
 - 源数据位于项目外部，仅备份项目目录不足以恢复完整馆藏；
 - 生成数据和媒体缓存已进入项目目录，需要持续区分“源”和“派生”；
-- 旧 Markdown 和历史上下文尚未收束，本轮只建立计划，不进入清理。
+- 旧 Markdown 和历史上下文正在分阶段收束。
 
 ## 10. 最近核对
 

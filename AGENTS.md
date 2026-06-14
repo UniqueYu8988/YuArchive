@@ -55,12 +55,15 @@ YuArchive 是一个个人数字收藏馆，用来展示和管理游戏、影视�
 
 - 修改 `build_archive.py` 的数据流；
 - 修改 OneDrive 源数据结构；
+- 自动修改 OneDrive 源数据；
 - 迁移、导入、导出或清理收藏数据；
 - 改变 GitHub 发布流程；
 - 引入数据库、后端、登录、云存储或新依赖；
 - 删除或重生成大量缓存、媒体或 JSON。
 
 ## 4. 个人数据安全红线
+
+`C:\Users\Yu\OneDrive\图片\Data` 是 YuArchive 的真实收藏源数据。AI 默认只能只读分析目录结构、文件类型和职责，不得自动修改、整理、迁移、导入、导出或清理其中任何内容。
 
 绝对不要在未经明确许可时修改：
 
@@ -73,7 +76,13 @@ YuArchive 是一个个人数字收藏馆，用来展示和管理游戏、影视�
 
 不要把 OneDrive 源数据全文复制进 Markdown。文档里只记录目录、类型、职责、风险和备份要求。
 
-不要展示或提交密码、密钥、令牌、账号凭据、隐私正文或未公开个人数据。
+游戏、影视、音乐、文本的标题、分类、评分和展示描述是网页展示资产，不按高敏感信息处理。仍需保护密码、密钥、令牌、账号凭据、本机绝对路径、OneDrive 真实源目录路径、隐私正文和未公开个人数据。
+
+`reports` 只能作为扫描结果、辅助参考或历史记录，不是权威任务清单，也不能替代 OneDrive 源数据。
+
+修改源数据、运行数据生成脚本、运行发布脚本都必须得到用户明确授权。
+
+AI 可以提出维护自动化建议，但不能直接执行会写入 OneDrive Data 的自动化。任何自动修改 OneDrive Data 的任务都必须判定为大型或高风险任务，并且先具备备份、计划、差异预览和用户明确确认。
 
 ## 5. 高风险命令
 
@@ -92,8 +101,8 @@ git push
 
 原因：
 
-- `build_archive.py` 会读取 OneDrive 源数据，写入 `src\data`、`public\data`、`public\webp_cache`、`public\audio_cache`、`public\media_cache`、`reports`，并可能写回游戏 `meta.yaml`；
-- `一键发布到云端.bat` 会构建、暂存、提交并推送；
+- `build_archive.py` 是高风险数据生成命令。它会读取 OneDrive 源数据，写入 `src\data`、`public\data`、`public\webp_cache`、`public\audio_cache`、`public\media_cache`、`reports`，并可能反写 OneDrive 游戏源 `meta.yaml`；
+- `一键发布到云端.bat` 是极高风险命令。它会先运行 `build_archive.py` 生成数据，再执行 Git 暂存、提交并推送；
 - `npm run dev` 和 `npm run preview` 会启动服务，本轮工作流接管阶段默认不启动；
 - Git 写操作会改变工作区状态。
 
@@ -111,8 +120,9 @@ git log -1 --oneline --decorate
 - 优先最小、可验证、可回退的改动；
 - 不顺手重构；
 - 不把派生缓存当成唯一数据源；
-- 不把真实个人数据上传到 GitHub；
+- 不把密钥、token、账号凭据、本机绝对路径或 OneDrive 真实源目录路径上传到 GitHub；
 - 不修改生成文件，除非任务明确要求并允许运行对应生成流程；
+- 不让自动化替代用户对收藏内容、评分、笔记、分类和媒体选择的判断；
 - 不新增依赖，除非有单独计划和许可；
 - 不删除旧上下文文件，除非已有备份和明确任务。
 
