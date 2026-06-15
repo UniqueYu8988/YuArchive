@@ -27,6 +27,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - 已完成一次受控高风险生成脚本小改：`build_archive.py` 仅修改 `metadata.source_root` 生成值，并受控运行数据生成；OneDrive Data 中 YAML/YML/MD 文件未发生哈希变化。
 - Vibe Coding 底层改造已完成本地提交，未执行 push。
 - 系统级底层升级已从保护性任务开始：`scripts/check-source-data-shape.mjs` 只读检查 OneDrive Data 源侧结构，不运行生成脚本、不写源数据。
+- 第二个保护性任务已建立：`scripts/check-music-media-shape.mjs` 只读检查 Music Markdown、Covers 和 Songs 的基础匹配关系，不读取音频内容、不写源数据。
 
 ## 稳定化目标
 
@@ -151,6 +152,9 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 检查 OneDrive Data 根目录、四个板块、顶层 YAML、Texts sections、Markdown frontmatter 和 homepage 引用形状。
 - [x] 验证脚本不需要新增依赖，不运行 `build_archive.py`，不写任何源数据。
 - [x] 核对 Homepage/Games 近似匹配警告：原因是检查脚本未把 `Game-Live` 单独 YAML 文件名纳入候选标题，已补充通用匹配规则。
+- [x] 建立 `docs/tasks/protect-music-media-shape.md`。
+- [x] 建立 `scripts/check-music-media-shape.mjs`。
+- [x] 检查 Music Markdown、Covers 封面和 Songs 音频之间的基础匹配关系，当前通过且无 warning。
 
 第一批升级任务继续限定为只读检查、schema、预览和差异报告，不进入自动改源数据。
 
