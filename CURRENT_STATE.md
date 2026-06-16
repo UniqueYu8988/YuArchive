@@ -2,11 +2,11 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-06-15
+最后更新：2026-06-16
 
 ## 当前阶段
 
-老项目底层工作流改造已完成本地提交，当前进入系统级底层升级的保护性第一步：建立源侧只读结构检查。
+老项目底层工作流改造和第一批保护性检查已完成本地提交，当前进入 ArchiveData-v2 文件规则设计阶段。
 
 ## 已完成
 
@@ -43,6 +43,39 @@
 - 已运行 `node scripts/check-source-data-shape.mjs`：Global、Games、Visions、Music、Texts 均通过。此前 Homepage/Games 存在 1 个近似匹配警告，已确认为脚本未把 `Game-Live` 单独 YAML 文件名纳入候选标题；检查脚本已补充该通用规则，当前检查通过。
 - 已建立 `docs/tasks/protect-music-media-shape.md` 和 `scripts/check-music-media-shape.mjs`，用于只读检查 Music Markdown、Covers 封面和 Songs 音频之间的基础匹配关系。
 - 已运行 `node scripts/check-music-media-shape.mjs`：33 个 Music Markdown、33 个封面文件、33 个音频文件均匹配通过，无 warning。本轮未读取音频内容，未修改源数据。
+- 已提交 `499f084 Add source data shape check` 和 `8e31161 Add music media shape check`，本地领先远端，未 push。
+- 已进入 ArchiveData-v2 文件规则设计阶段，新建 `docs/design/archive-data-v2.md`，只设计规则，不迁移数据，不创建 `ArchiveData-v2` 目录。
+- 已进入 ArchiveData-v2 阶段 2：只读迁移审计。已新建 `docs/tasks/archive-data-v2-migration-audit.md` 和 `scripts/audit-archive-data-v2-migration.mjs`。
+- 已运行 `node scripts/audit-archive-data-v2-migration.mjs`：旧 Data 四个 board 共 774 个源文件，解析错误 0，人工确认计数 218；本轮只输出统计、字段名和数量，不输出条目标题清单，不写迁移结果。
+- 已进入 ArchiveData-v2 阶段 3：migration dry-run。已新建 `docs/tasks/archive-data-v2-migration-dry-run.md` 和 `scripts/dry-run-archive-data-v2-migration.mjs`。
+- 已运行 `node scripts/dry-run-archive-data-v2-migration.mjs`：共考虑 778 个源文件，checksum 文件 778 个，checksum 错误 0，计划条目 559 个，未映射文件 0，忽略系统文件 1，人工确认计数 223，写入动作 0；本轮未创建 `ArchiveData-v2` 目录，未修改 OneDrive Data 或生成数据。
+- 已进入 ArchiveData-v2 阶段 4 的前置设计：新建 `docs/tasks/archive-data-v2-music-pilot-boundary.md`，定义 Music v2 试点迁移边界、允许/禁止范围、目标结构、验收标准和回退方式；本轮仍未创建 `ArchiveData-v2` 目录，未迁移数据。
+- 已建立 Music v2 试点迁移 planner：新建 `docs/tasks/archive-data-v2-music-pilot-planner.md` 和 `scripts/plan-archive-data-v2-music-pilot.mjs`。
+- 已运行 `node scripts/plan-archive-data-v2-music-pilot.mjs`：计划 Music album 条目 33 个，目标目录 33 个，目标角色 132 个（`entry_yaml`、`content_md`、`cover`、`audio` 各 33 个），ID 冲突 0，缺失封面 0，缺失音频 0，人工确认 0，写入动作 0；本轮未创建 `ArchiveData-v2` 目录，未复制文件。
+- 已建立 Music v2 写入型试点迁移任务设计：新建 `docs/tasks/archive-data-v2-music-pilot-write-design.md`，明确未来若获授权只能创建局部 `ArchiveData-v2` 输出、必须做源哈希基线、manifest、回退删除和验收检查；本轮未执行写入。
+- 用户已授权 Music v2 写入型试点迁移。已新建 `scripts/migrate-archive-data-v2-music-pilot.mjs` 并受控运行，创建新的 Music-only `ArchiveData-v2` 试点输出。
+- 写入型试点迁移结果：源基线文件 99 个，运行后源变更 0、源缺失 0；创建 Music album 目录 33 个、`entry.yaml` 33 个、`content.md` 33 个、封面 33 个、音频 33 个、manifest 记录 99 条、unmapped 0。未运行 `build_archive.py`，未运行发布脚本。
+- 首次迁移尝试因 Markdown checksum 校验口径不正确而停止；已按回退方案删除部分试点输出，修正为 Markdown 转换记录与媒体逐字节复制校验后重新运行成功。
+- 已建立 `docs/tasks/protect-archive-data-v2-music-shape.md` 和 `scripts/check-archive-data-v2-music-shape.mjs`，用于只读检查生成后的 v2 Music 试点输出。
+- 已运行 `node scripts/check-archive-data-v2-music-shape.mjs`：v2 Music 输出通过，33 个 entry 目录、33 个 `entry.yaml`、33 个 `content.md`、33 个封面、33 个音频、99 条 manifest、0 个 unmapped、隐私/路径规则命中 0。
+- 已完成 Music v2 试点输出验收与 Git 边界整理：新建 `docs/tasks/archive-data-v2-music-pilot-acceptance.md`，确认生成的 `ArchiveData-v2` 试点输出位于项目 Git 工作树外，当前不会被普通项目提交包含。
+- 当前建议：`ArchiveData-v2` 试点输出先作为本地/OneDrive 迁移产物保留，不复制进项目仓库；后续如需版本化，应单独设计数据仓库或 Git/LFS/忽略策略。
+- 已完成 v2 Music 生成器试点设计：新建 `docs/tasks/archive-data-v2-music-generator-pilot-design.md`，定义生成器应读取 v2 Music album 输出，写入隔离临时 preview `music.json`，并只用计数方式对比当前 `public/data/music.json`。
+- 已实现 v2 Music preview 生成器：新建 `scripts/generate-archive-data-v2-music-preview.mjs`，读取 `ArchiveData-v2/entries/music/album`，只写系统临时目录 preview `music.json`，不修改当前 `public/data/music.json`。
+- 已运行 `node scripts/generate-archive-data-v2-music-preview.mjs`：preview 条目 33，当前 live Music 条目 33，顶层 key 匹配，item 字段集合匹配，必需字段缺失 0，content/cover/audio 均为 33，隐私/路径规则命中 0；未运行 `build_archive.py`。
+- 已确认 preview 与当前 live Music 的 ID overlap 为 0、顺序差异 33；这不阻塞隔离 preview，但后续若要替换 live Music 数据，需要单独设计 ID 兼容/映射和媒体 URL 策略。
+- 已完成 v2 Music live 替换前的 ID 兼容和媒体 URL 策略设计：新建 `docs/tasks/archive-data-v2-music-live-compat-strategy.md`。
+- 当前策略结论：不直接替换 `public/data/music.json`；下一步应先做只读 v2-to-live 兼容映射，优先证明 33/33 条目可映射，并在第一版 live-compatible preview 中复用当前 live ID、`webp_cache` 和 `audio_cache` 路径。
+- 已实现只读 Music v2-to-live 兼容映射脚本：新建 `docs/tasks/archive-data-v2-music-live-compat-mapper.md` 和 `scripts/map-archive-data-v2-music-live-compat.mjs`。
+- 已运行 `node scripts/map-archive-data-v2-music-live-compat.mjs`：v2 条目 33、live 条目 33、映射成功 33、未映射 v2 0、未映射 live 0、歧义 0、重复候选 0，可复用 live ID 33、可复用 live cover 路径 33、可复用 live audio 路径 33，写入动作 0。
+- 已实现 live-compatible v2 Music preview 生成器：新建 `docs/tasks/archive-data-v2-music-live-compatible-preview.md` 和 `scripts/generate-archive-data-v2-music-live-compatible-preview.mjs`。
+- 已运行 `node scripts/generate-archive-data-v2-music-live-compatible-preview.mjs`：v2 条目 33、live 条目 33、映射成功 33、preview 条目 33，复用 live ID 33、live cover 路径 33、live audio 路径 33，必需字段缺失 0，顺序差异 0，隐私/路径规则命中 0；未修改 `public/data/music.json`，未运行 `build_archive.py`。
+- 已完成 Music v2 替换 live 数据前的最终验收与提交边界设计：新建 `docs/tasks/archive-data-v2-music-live-replacement-gate.md`。
+- 当前结论：仍不替换 `public/data/music.json`；如后续替换，必须单独授权，只替换 Music JSON，并运行 v2 输出检查、映射检查、live-compatible preview、public data shape 和 diff 审查。
+- 用户已授权执行 Music v2 live-compatible JSON 替换，范围限定为只修改 `public/data/music.json`，不运行 `build_archive.py`，不 push。
+- 已完成 Music v2 live-compatible JSON 替换：`public/data/music.json` 已由 live-compatible preview 替换，仍为 33 条，字段集合不变，cover 继续使用 `webp_cache`，audio 继续使用 `audio_cache`。
+- 已建立替换验收记录：新建 `docs/tasks/archive-data-v2-music-live-replacement-acceptance.md`。替换后 `node scripts/check-public-data-shape.mjs`、`node scripts/check-generated-data-privacy.mjs` 和 live-compatible preview generator 均通过；diff 为 33 行新增、33 行删除。
+- 已建立仓库范围变更 review 和 Git 提交计划：新建 `docs/tasks/archive-data-v2-change-review-and-commit-plan.md`，记录当前变更分组、验证结果和建议提交拆分；本轮未执行 Git 写操作。
 
 ## 当前可正常使用的事实
 
@@ -58,18 +91,24 @@
 - `scripts/check-music-media-shape.mjs` 只读取 Music 源目录、Markdown frontmatter 和媒体文件名，按 `build_archive.py` 的封面/音频匹配约定做存在性检查，不读取音频二进制内容，不修改源数据。
 - `build_archive.py` 从 OneDrive Data 生成 JSON、WebP、音频缓存、媒体缓存和报告；当前已将聚合 metadata 的 source root 脱敏为非敏感固定标识。
 - `build_archive.py` 不是纯只读生成器，运行时可能反写 OneDrive 游戏源 `meta.yaml`。
+- ArchiveData-v2 当前只是设计文档，目标是未来支持 Archive Studio 管理前端；旧 OneDrive Data 仍是迁移来源和回退备份。
+- `scripts/audit-archive-data-v2-migration.mjs` 是只读迁移审计脚本，只统计旧条目、文件、字段键和可能的 v2 kind 映射，不创建 `ArchiveData-v2` 目录，不写 manifest、checksum 或迁移结果。
+- `scripts/dry-run-archive-data-v2-migration.mjs` 是只读迁移 dry-run 脚本，只在内存中规划 v2 目标角色并计算 checksum 覆盖，不输出 checksum 明细，不创建 `ArchiveData-v2` 目录，不写 manifest、checksum 或迁移结果。
+- `scripts/plan-archive-data-v2-music-pilot.mjs` 是只读 Music v2 试点迁移 planner，只在内存中规划 `music/album` 目标目录和文件角色，不创建 `ArchiveData-v2` 目录，不写 `entry.yaml`、`content.md`、manifest、checksum 或迁移结果。
+- `scripts/migrate-archive-data-v2-music-pilot.mjs` 是受控写入型 Music-only 迁移脚本，只创建新的 `ArchiveData-v2` Music 试点输出，不修改旧 OneDrive Data，不运行 `build_archive.py`。
+- `scripts/check-archive-data-v2-music-shape.mjs` 是只读 v2 Music 输出检查脚本，检查生成后的 entry 目录、manifest、unmapped 和隐私/路径规则，不修改 v2 输出。
+- `scripts/generate-archive-data-v2-music-preview.mjs` 是隔离 preview 生成器，只写系统临时目录，不修改当前 live `public/data/music.json`。
+- `scripts/generate-archive-data-v2-music-live-compatible-preview.mjs` 是 live-compatible 隔离 preview 生成器，只写系统临时目录，复用 live ID 和 public media path，不修改当前 live `public/data/music.json`。
+- `ArchiveData-v2` 试点输出当前位于项目仓库外，不属于本项目 Git 工作树。
 
 ## Git 状态
 
-只读检查结果：
+最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master`
-- 已修改：`.gitignore`、`AGENTS.md`、`ARCHITECTURE.md`、`CURRENT_STATE.md`、`PRODUCT.md`、`README.md`、`build_archive.py`、`docs/BASELINE_ACCEPTANCE.md`、`docs/plans/STABILIZATION_PLAN.md`、`public/data/home.json`、`public/data/texts.json`、`src/data/site_config.json`
-- 已删除：`.vite-dev.err.log`、`.vite-dev.log`、`.vite-preview.err.log`、`.vite-preview.log`、`public/archive_data.json`、`reports/games_assist_batch_01.csv`、`reports/games_assist_batch_02.csv`、`reports/games_assist_manifest.md`、`reports/games_meta_todo.latest.csv`、`src/data/archive_data.json`
-- 未跟踪：`docs/history/`、`docs/tasks/code-risk-audit.md`、`docs/tasks/protect-generated-data-privacy.md`、`docs/tasks/protect-public-data-shape.md`、`docs/tasks/repository-privacy-boundary.md`、`docs/tasks/sanitize-generated-source-root.md`、`reports/README.md`、`reports/history/`、`scripts/`
-
-本轮未执行 `git add`、`git commit`、`git push`。
+- 当前状态：`master...origin/master [ahead 2]`
+- 工作区在 ArchiveData-v2 设计前为干净；本轮新增设计文档、只读迁移审计、migration dry-run 脚本、Music 试点边界文档、Music 试点 planner、Music 写入型迁移脚本、v2 Music 输出检查脚本、试点验收记录、preview 生成器和 live-compatible preview 生成器，并更新状态文档。
+- 本轮未执行 `git add`、`git commit`、`git push`。当前等待用户确认是否按提交计划分批提交。
 
 ## 当前主要风险
 
@@ -85,10 +124,14 @@
 | 源侧维护规则缺少自动体检 | 用户改源文件后可能到生成阶段才发现结构问题 | 已建立源侧只读结构检查，当前检查通过 |
 | Music 媒体匹配依赖文件名约定 | 封面或音频命名不一致可能导致页面缺图/缺音频 | 已建立只读 Music 媒体匹配检查，当前通过 |
 | 生成脚本高风险 | 运行会写派生数据、缓存和 reports，并可能反写 OneDrive 游戏 YAML | 本轮受控运行后 OneDrive YAML/YML/MD 哈希无变化；后续仍默认禁止运行 |
+| ArchiveData-v2 迁移范围大 | 如果直接迁移或自动整理，可能误改源数据或丢失历史字段 | 当前已完成 Music-only 写入试点和隔离 preview 生成器；下一步必须先处理 ID 兼容/媒体 URL 策略，不替换 live 数据 |
+| v2 Music live 替换已发生但未提交/未发布 | 当前工作区包含 `public/data/music.json` 替换，需要审查后再提交 | 已完成 shape/privacy/preview 验收；下一步做仓库变更 review 和提交计划，不 push |
+| v2 Music ID 与 live Music ID 不兼容 | 直接使用 raw v2 preview 替换 `public/data/music.json` 可能导致选择状态、首页引用或未来链接不稳定 | 已实现 live-compatible preview，证明可复用 33 个 live ID；禁止用 raw v2 preview 直接替换 |
+| v2 Music 媒体路径不是 live 公共路径 | 当前 preview 使用 `v2-preview` 路径，部署环境不会直接服务这些外部源文件 | live-compatible preview 已复用 33 个 `webp_cache` 和 33 个 `audio_cache` 路径；v2-native 媒体 serving 以后再设计 |
 
 ## 当前下一步
 
-只建议做一件事：继续补充源侧 schema/check 的小型只读规则，例如 Texts 日期/frontmatter 规则检查，或先提交 Music 媒体匹配检查。
+只建议做一件事：等待用户确认后，按 `docs/tasks/archive-data-v2-change-review-and-commit-plan.md` 分批执行本地 Git commit；不要 push，不运行发布脚本。
 
 ## 暂时不做
 
@@ -107,6 +150,9 @@
 - 不开始代码修复；
 - 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
+- 不批量创建完整 `ArchiveData-v2` 四板块数据；
+- 不继续迁移 Games、Visions、Texts 或 config；
+- 不进入 Archive Studio 前端开发。
 
 ## 当前验证状态
 
@@ -115,13 +161,13 @@
 - 自动测试：未发现独立测试脚本，本轮未运行。
 - 构建：本轮未运行 `npm run build`。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-15，已运行源侧只读结构检查和 Music 媒体匹配检查；两者均通过。
+- 最近一次验证日期：2026-06-16，已只读核对旧 Data 结构和 `build_archive.py` 四板块解析逻辑，完成 ArchiveData-v2 文件规则设计文档，并运行 ArchiveData-v2 只读迁移审计、migration dry-run、Music v2 试点 planner、Music-only 写入型试点迁移、v2 Music 输出检查、Git 边界验收和 v2 Music preview 生成。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
 
-这是个人数字收藏馆老项目工作流迁移阶段。优先保护 `C:\Users\Yu\OneDrive\图片\Data`，不要运行生成、构建、发布或 Git 写命令。README 已收敛为人类入口；AI 第一入口是 `AGENTS.md`。旧 `public/archive_data.json` 已归档，当前前端数据入口是 `public\data\*.json`。
+这是个人数字收藏馆老项目工作流迁移阶段。优先保护 OneDrive Data 源目录，不要运行生成、构建、发布或 Git 写命令。README 已收敛为人类入口；AI 第一入口是 `AGENTS.md`。旧 `public/archive_data.json` 已归档，当前前端数据入口是 `public\data\*.json`。
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前底层升级应继续从只读检查、schema、预览和差异报告开始；不做前端重构，不手改派生 JSON，不再次运行 `build_archive.py`，不自动改写 OneDrive Data，也不执行发布或推送。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换和仓库范围变更 review 计划。下一步是等待用户确认后按计划本地提交，不做前端重构，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data，也不执行发布或推送。
