@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前进入 Archive Studio v0 写入事务 sandbox 前置设计阶段。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前进入 Archive Studio v0 写入事务 sandbox 阶段。
 
 ## 已完成
 
@@ -85,6 +85,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 已拆分 Archive Studio v0 preview core 模块：新建 `docs/tasks/archive-studio-v0-preview-core-module.md` 和 `scripts/archive-studio-v0-music-preview-core.mjs`，CLI sandbox 继续只写系统临时目录。
 - 已建立 Archive Studio v0 preview core 自检：新建 `docs/tasks/archive-studio-v0-preview-core-check.md` 和 `scripts/check-archive-studio-v0-preview-core.mjs`，覆盖合法 payload、无效 id、非法媒体扩展名、缺少标题、keep-existing 更新和安全断言；同时让无效 id 的 preview target 固定使用安全占位目录。
 - 已建立 Archive Studio v0 写入事务设计：新建 `docs/tasks/archive-studio-v0-write-transaction-design.md`，定义 create/update、diff preview、backup manifest、write manifest、rollback、失败分类和后续 sandbox 路线；本轮仍未写真实 ArchiveData-v2 输出。
+- 已建立 Archive Studio v0 transaction sandbox：新建 `docs/tasks/archive-studio-v0-transaction-sandbox.md` 和 `scripts/archive-studio-v0-music-transaction-sandbox.mjs`，只写系统临时目录，模拟 create / update / rollback，不写真实 ArchiveData-v2 输出。
 
 ## 当前可正常使用的事实
 
@@ -117,7 +118,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 当前分支：`master`
 - 当前状态：`master...origin/master`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- 当前工作区因 Archive Studio v0 写入事务设计和状态文档更新而存在新的未提交变更。
+- 当前工作区因 Archive Studio v0 transaction sandbox 和状态文档更新而存在新的未提交变更。
 
 ## 当前主要风险
 
@@ -140,7 +141,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：提交并推送 Archive Studio v0 写入事务设计；下一步进入 transaction sandbox，仍不接 UI，不写真实 ArchiveData-v2 输出，不运行发布脚本，不运行 `build_archive.py`。
+只建议做一件事：提交并推送 Archive Studio v0 transaction sandbox；下一步增加失败场景自检，仍不接 UI，不写真实 ArchiveData-v2 输出，不运行发布脚本，不运行 `build_archive.py`。
 
 ## 暂时不做
 
@@ -179,4 +180,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检和写入事务设计。下一步是进入 Archive Studio v0 transaction sandbox，不做前端实现，不写真实 ArchiveData-v2 输出，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计和 transaction sandbox。下一步是为 transaction sandbox 增加失败场景自检，不做前端实现，不写真实 ArchiveData-v2 输出，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
