@@ -50,6 +50,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 `music/album` payload schema 和 preview 输出格式已建立，任务记录为 `docs/tasks/archive-studio-v0-music-payload-schema.md`；下一步可做只写系统临时目录的 CLI sandbox preview 脚本。
 - Archive Studio v0 CLI sandbox preview 原型已建立，任务记录为 `docs/tasks/archive-studio-v0-cli-sandbox-preview.md`，样例 payload 为 `docs/examples/archive-studio-v0-music-album-payload.sample.json`，脚本为 `scripts/archive-studio-v0-music-preview-sandbox.mjs`；脚本读取项目内样例，只写系统临时目录，不写真实 ArchiveData-v2 输出。
 - Archive Studio v0 变更范围 review 和 Git 提交计划已建立，任务记录为 `docs/tasks/archive-studio-v0-change-review-and-commit-plan.md`；下一步等待用户确认后做 1 个本地 commit，不 push。
+- Archive Studio v0 preview core 模块已拆分，任务记录为 `docs/tasks/archive-studio-v0-preview-core-module.md`，模块为 `scripts/archive-studio-v0-music-preview-core.mjs`；CLI sandbox 行为保持不变。
 
 ## 稳定化目标
 
@@ -183,7 +184,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 CLI sandbox preview 原型已扩展为读取项目内样例 payload，等待验证和本地提交。
+状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 preview core 模块已拆分，等待验证和本地提交。
 
 ### 目标
 
@@ -277,7 +278,9 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 实现只写系统临时目录的 CLI sandbox preview 脚本。
 - [x] 将 CLI sandbox preview 扩展为读取项目内样例 payload。
 - [x] 运行 CLI sandbox preview 验证并整理提交计划。
-- [ ] 用户确认后提交 Archive Studio v0 设计和 sandbox preview 原型。
+- [x] 用户确认后提交 Archive Studio v0 设计和 sandbox preview 原型。
+- [x] 拆分 Archive Studio v0 preview core 模块。
+- [ ] 验证并提交 Archive Studio v0 preview core 模块拆分。
 
 ## 阶段 4：核心数据与构建验收
 
@@ -351,7 +354,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 验证并提交 Archive Studio v0 设计、项目内样例 payload 和 sandbox preview 原型；
+1. 验证并提交 Archive Studio v0 preview core 模块拆分；
 2. 不直接实现前端，不运行发布脚本，不运行 `build_archive.py`；
 3. 不批量迁移四个 board，不手改派生 JSON、不进入 `build_archive.py` 主流程大改；再次运行 `build_archive.py` 前必须得到明确授权且说明验收目的；
 4. 当前仍不进入 Archive Studio 前端开发或自动改源数据的维护自动化开发。
