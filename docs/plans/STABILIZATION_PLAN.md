@@ -44,7 +44,12 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - live-compatible v2 Music preview 生成器已完成，任务记录为 `docs/tasks/archive-data-v2-music-live-compatible-preview.md`，脚本为 `scripts/generate-archive-data-v2-music-live-compatible-preview.mjs`；当前可生成复用 live ID 和 public media path 的隔离 preview JSON。
 - Music v2 live replacement gate 已完成，任务记录为 `docs/tasks/archive-data-v2-music-live-replacement-gate.md`；正式替换 `public/data/music.json` 前需要用户单独授权。
 - 用户已授权并完成 Music v2 live-compatible JSON 替换，只修改 `public/data/music.json`，任务记录为 `docs/tasks/archive-data-v2-music-live-replacement-acceptance.md`；替换后 shape/privacy/preview 检查通过。
-- ArchiveData-v2 当前变更范围 review 和 Git 提交计划已建立，任务记录为 `docs/tasks/archive-data-v2-change-review-and-commit-plan.md`；下一步等待用户确认后再执行本地 commit，不 push。
+- ArchiveData-v2 当前变更范围 review 和 Git 提交计划已建立，任务记录为 `docs/tasks/archive-data-v2-change-review-and-commit-plan.md`；已按计划完成本地 commit 并 push 到远端。
+- Archive Studio v0 边界设计已建立，任务记录为 `docs/tasks/archive-studio-v0-boundary-design.md`；当前只设计本地文件管理边界，不实现前端、不自动改旧 OneDrive Data。
+- Archive Studio v0 技术入口设计已建立，任务记录为 `docs/tasks/archive-studio-v0-entry-design.md`；推荐先做 CLI 写入流程原型，再进入本地 Node 服务 + React 页面。
+- Archive Studio v0 `music/album` payload schema 和 preview 输出格式已建立，任务记录为 `docs/tasks/archive-studio-v0-music-payload-schema.md`；下一步可做只写系统临时目录的 CLI sandbox preview 脚本。
+- Archive Studio v0 CLI sandbox preview 原型已建立，任务记录为 `docs/tasks/archive-studio-v0-cli-sandbox-preview.md`，脚本为 `scripts/archive-studio-v0-music-preview-sandbox.mjs`；脚本只写系统临时目录，不写真实 ArchiveData-v2 输出。
+- Archive Studio v0 变更范围 review 和 Git 提交计划已建立，任务记录为 `docs/tasks/archive-studio-v0-change-review-and-commit-plan.md`；下一步等待用户确认后做 1 个本地 commit，不 push。
 
 ## 稳定化目标
 
@@ -178,7 +183,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：阶段 5 v2 Music live-compatible replacement 已完成，仓库范围变更 review 和提交计划已建立，等待用户确认后本地提交。
+状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 CLI sandbox preview 原型和提交计划已建立，等待用户确认本地 commit。
 
 ### 目标
 
@@ -264,7 +269,14 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 仅修改 `public/data/music.json`，替换后 33 条、字段集合不变、cover/audio 仍使用 live cache 路径。
 - [x] 替换后 `check-public-data-shape`、`check-generated-data-privacy` 和 live-compatible preview generator 均通过。
 - [x] 做仓库范围变更 review 和 Git 提交计划。
-- [ ] 用户确认后按提交计划执行本地 commit。
+- [x] 用户确认后按提交计划执行本地 commit。
+- [x] 用户确认后 push 到远端。
+- [x] 建立 Archive Studio v0 边界设计。
+- [x] 做 Archive Studio v0 技术入口设计。
+- [x] 设计 `music/album` payload schema 和 preview 输出格式。
+- [x] 实现只写系统临时目录的 CLI sandbox preview 脚本。
+- [x] 运行 CLI sandbox preview 验证并整理提交计划。
+- [ ] 用户确认后提交 Archive Studio v0 设计和 sandbox preview 原型。
 
 ## 阶段 4：核心数据与构建验收
 
@@ -338,7 +350,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 等待用户确认后，按 `docs/tasks/archive-data-v2-change-review-and-commit-plan.md` 执行分批本地 commit；
-2. 不 push，不运行发布脚本，不运行 `build_archive.py`；
+1. 等待用户确认后提交 Archive Studio v0 设计和 sandbox preview 原型；
+2. 不直接实现前端，不运行发布脚本，不运行 `build_archive.py`；
 3. 不批量迁移四个 board，不手改派生 JSON、不进入 `build_archive.py` 主流程大改；再次运行 `build_archive.py` 前必须得到明确授权且说明验收目的；
 4. 当前仍不进入 Archive Studio 前端开发或自动改源数据的维护自动化开发。
