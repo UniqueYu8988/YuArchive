@@ -1,0 +1,36 @@
+{
+  "mode": "create",
+  "board": "music",
+  "kind": "album",
+  "id": "archive-studio-sandbox-album",
+  "fields": {
+    "title": "Archive Studio Sandbox Album",
+    "date": "2026",
+    "description": "Sandbox preview payload for Archive Studio v0.",
+    "track_title": "Sandbox Track",
+    "url": "https://example.com",
+    "note": "",
+    "legacy": {}
+  },
+  "content": {
+    "markdown": "Sandbox content preview. This text is only written to the preview summary."
+  },
+  "assets": {
+    "cover": {
+      "source": "selected-file",
+      "originalName": "cover.jpg",
+      "extension": ".jpg"
+    },
+    "audio": {
+      "source": "selected-file",
+      "originalName": "audio.mp3",
+      "extension": ".mp3"
+    }
+  },
+  "options": {
+    "allowOverwriteEntry": false,
+    "allowOverwriteAssets": false,
+    "runCheckAfterWrite": true,
+    "backupBeforeOverwrite": true
+  }
+}

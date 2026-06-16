@@ -1,7 +1,16 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..');
+const DEFAULT_PAYLOAD_FILE = path.join(
+  PROJECT_ROOT,
+  'docs',
+  'examples',
+  'archive-studio-v0-music-album-payload.sample.json',
+);
 const OUTPUT_DIR = path.join(os.tmpdir(), 'yuarchive-archive-studio-v0-sandbox');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'music-album-preview.json');
 
@@ -16,43 +25,6 @@ const allowedOperations = new Set([
   'run_check',
 ]);
 
-const samplePayload = {
-  mode: 'create',
-  board: 'music',
-  kind: 'album',
-  id: 'archive-studio-sandbox-album',
-  fields: {
-    title: 'Archive Studio Sandbox Album',
-    date: '2026',
-    description: 'Sandbox preview payload for Archive Studio v0.',
-    track_title: 'Sandbox Track',
-    url: 'https://example.com',
-    note: '',
-    legacy: {},
-  },
-  content: {
-    markdown: 'Sandbox content preview. This text is only written to the preview summary.',
-  },
-  assets: {
-    cover: {
-      source: 'selected-file',
-      originalName: 'cover.jpg',
-      extension: '.jpg',
-    },
-    audio: {
-      source: 'selected-file',
-      originalName: 'audio.mp3',
-      extension: '.mp3',
-    },
-  },
-  options: {
-    allowOverwriteEntry: false,
-    allowOverwriteAssets: false,
-    runCheckAfterWrite: true,
-    backupBeforeOverwrite: true,
-  },
-};
-
 function normalizeRelativePath(...segments) {
   const joined = path.posix.join(...segments);
   if (joined.startsWith('../') || joined.includes('/../') || path.posix.isAbsolute(joined)) {
@@ -64,6 +36,28 @@ function normalizeRelativePath(...segments) {
 function countLines(value) {
   if (!value) return 0;
   return String(value).split(/\r\n|\r|\n/).length;
+}
+
+function resolveProjectPayloadPath(inputPath = DEFAULT_PAYLOAD_FILE) {
+  const resolved = path.resolve(PROJECT_ROOT, inputPath);
+  const relative = path.relative(PROJECT_ROOT, resolved);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error('Payload file must be inside the project directory');
+  }
+  if (!relative.endsWith('.json')) {
+    throw new Error('Payload file must be a JSON file');
+  }
+  return resolved;
+}
+
+async function readPayload() {
+  const payloadFile = resolveProjectPayloadPath(process.argv[2] || DEFAULT_PAYLOAD_FILE);
+  const payloadText = await readFile(payloadFile, 'utf8');
+  const payload = JSON.parse(payloadText);
+  return {
+    payload,
+    payloadLabel: path.relative(PROJECT_ROOT, payloadFile).split(path.sep).join('/'),
+  };
 }
 
 function validatePayload(payload) {
@@ -213,13 +207,15 @@ function assertPreviewSafe(preview) {
   }
 }
 
-const preview = buildPreview(samplePayload);
+const { payload, payloadLabel } = await readPayload();
+const preview = buildPreview(payload);
 assertPreviewSafe(preview);
 
 await mkdir(OUTPUT_DIR, { recursive: true });
 await writeFile(OUTPUT_FILE, `${JSON.stringify(preview, null, 2)}\n`, 'utf8');
 
 console.log('[PASS] Archive Studio v0 music sandbox preview');
+console.log(`  payload: ${payloadLabel}`);
 console.log('  output: system-temp/yuarchive-archive-studio-v0-sandbox/music-album-preview.json');
 console.log(`  ok: ${preview.ok}`);
 console.log(`  mode: ${preview.mode}`);

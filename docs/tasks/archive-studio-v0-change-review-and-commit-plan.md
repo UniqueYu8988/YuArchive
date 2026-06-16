@@ -22,6 +22,7 @@
 - `docs/tasks/archive-studio-v0-entry-design.md`
 - `docs/tasks/archive-studio-v0-music-payload-schema.md`
 - `docs/tasks/archive-studio-v0-cli-sandbox-preview.md`
+- `docs/examples/archive-studio-v0-music-album-payload.sample.json`
 - `scripts/archive-studio-v0-music-preview-sandbox.mjs`
 
 ## 3. 验证结果
@@ -72,6 +73,7 @@ Add Archive Studio v0 sandbox preview design
 - `docs/tasks/archive-studio-v0-entry-design.md`
 - `docs/tasks/archive-studio-v0-music-payload-schema.md`
 - `docs/tasks/archive-studio-v0-cli-sandbox-preview.md`
+- `docs/examples/archive-studio-v0-music-album-payload.sample.json`
 - `scripts/archive-studio-v0-music-preview-sandbox.mjs`
 
 ## 6. 不建议本轮提交的内容

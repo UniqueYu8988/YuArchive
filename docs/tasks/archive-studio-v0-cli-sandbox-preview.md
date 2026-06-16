@@ -16,7 +16,7 @@ Archive Studio v0 已完成边界设计、技术入口设计、`music/album` pay
 ## 3. 本次范围
 
 - 新增 `scripts/archive-studio-v0-music-preview-sandbox.mjs`。
-- 脚本内置一个示例 `music/album` payload。
+- 脚本读取项目内示例 `music/album` payload。
 - 只在系统临时目录生成 preview JSON。
 - 输出 preview 摘要和临时输出位置标签。
 - 校验 id、字段、素材扩展名、相对路径和 operation allowlist。
@@ -38,13 +38,14 @@ Archive Studio v0 已完成边界设计、技术入口设计、`music/album` pay
 
 脚本运行后：
 
-1. 构造一个示例 `music/album` create payload。
+1. 读取 `docs/examples/archive-studio-v0-music-album-payload.sample.json`。
 2. 校验 payload 的 board、kind、mode、id、字段和素材扩展名。
 3. 生成保存前 preview。
 4. 确认 preview 中只包含相对路径。
 5. 确认 operations 只包含允许类型。
 6. 写入系统临时目录下的 preview JSON。
-7. 控制台只输出计数、状态和系统临时目录标签，不输出本机完整路径。
+7. 控制台只输出 payload 相对路径、计数、状态和系统临时目录标签，不输出本机完整路径。
+8. 可选传入项目内 JSON 路径进行验证，但禁止读取项目外 payload。
 
 ## 6. 验收标准
 
@@ -54,11 +55,12 @@ Archive Studio v0 已完成边界设计、技术入口设计、`music/album` pay
 - [x] preview 中所有目标路径都是相对路径。
 - [x] preview operations 不包含删除、改名、Git、生成或发布操作。
 - [x] preview 不包含本机完整路径、token、secret 或账号凭据。
+- [x] 默认样例 payload 位于 `docs/examples/archive-studio-v0-music-album-payload.sample.json`。
 
 ## 7. 回退方式
 
-删除 `scripts/archive-studio-v0-music-preview-sandbox.mjs` 和本任务文档即可回退。脚本生成的 preview 位于系统临时目录，可直接删除，不影响项目仓库和真实数据。
+删除 `scripts/archive-studio-v0-music-preview-sandbox.mjs`、`docs/examples/archive-studio-v0-music-album-payload.sample.json` 和本任务文档即可回退。脚本生成的 preview 位于系统临时目录，可直接删除，不影响项目仓库和真实数据。
 
 ## 8. 下一步建议
 
-下一步只建议把 sandbox preview 从内置示例扩展为读取项目内样例 JSON 文件，仍只写系统临时目录，不接 UI、不写真实 ArchiveData-v2。
+下一步只建议为 payload schema 增加只读校验脚本或把 sandbox preview 拆分为可复用纯函数模块，仍不接 UI、不写真实 ArchiveData-v2。
