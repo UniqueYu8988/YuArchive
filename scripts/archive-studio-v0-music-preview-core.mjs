@@ -11,7 +11,23 @@ export const allowedOperations = new Set([
   'run_check',
 ]);
 
+const entryIdPattern = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/;
+
 export function normalizeRelativePath(...segments) {
+  for (const segment of segments) {
+    const value = String(segment);
+    if (
+      value === '..' ||
+      value.startsWith('../') ||
+      value.endsWith('/..') ||
+      value.includes('/../') ||
+      path.win32.isAbsolute(value) ||
+      path.posix.isAbsolute(value)
+    ) {
+      throw new Error(`Unsafe relative path generated for ${segments.join('/')}`);
+    }
+  }
+
   const joined = path.posix.join(...segments);
   if (joined.startsWith('../') || joined.includes('/../') || path.posix.isAbsolute(joined)) {
     throw new Error(`Unsafe relative path generated for ${segments.join('/')}`);
@@ -40,7 +56,7 @@ export function validatePayload(payload) {
     errors.push({ code: 'invalid_kind', message: 'kind must be album', path: 'kind' });
   }
 
-  if (!/^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/.test(payload.id || '')) {
+  if (!entryIdPattern.test(payload.id || '')) {
     errors.push({ code: 'invalid_entry_id', message: 'entry id must be a lowercase slug', path: 'id' });
   }
 
@@ -67,7 +83,8 @@ export function validatePayload(payload) {
 
 export function buildMusicAlbumPreview(payload) {
   const { errors, warnings } = validatePayload(payload);
-  const entryRelativeDir = normalizeRelativePath('entries', 'music', 'album', payload.id || 'invalid-id');
+  const safeEntryId = entryIdPattern.test(payload.id || '') ? payload.id : 'invalid-id';
+  const entryRelativeDir = normalizeRelativePath('entries', 'music', 'album', safeEntryId);
   const coverExtension = payload.assets?.cover?.extension?.toLowerCase() || '.jpg';
   const audioExtension = payload.assets?.audio?.extension?.toLowerCase() || '.mp3';
 
