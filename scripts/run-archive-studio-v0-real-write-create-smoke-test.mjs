@@ -2,6 +2,27 @@ import { pathToFileURL } from 'node:url';
 import { DEFAULT_PAYLOAD_FILE } from './check-archive-studio-v0-real-write-gate.mjs';
 import { buildSmokeTestPlan } from './plan-archive-studio-v0-real-write-create-smoke-test.mjs';
 
+const EXECUTION_GATES = [
+  'current_task_user_authorized_execute',
+  'execute_flag_present',
+  'entry_id_matches_payload',
+  'preflight_ready',
+  'target_entry_missing',
+  'write_scope_allowlisted',
+];
+
+const EXECUTION_PHASES = [
+  'preflight',
+  'plan',
+  'stage',
+  'apply_create',
+  'write_transaction_manifest',
+  'post_write_checks',
+  'rollback_created_files',
+  'post_rollback_checks',
+  'summary',
+];
+
 function parseArgs(argv) {
   const result = {
     execute: false,
@@ -41,6 +62,14 @@ function printRunnerSummary(plan, options, blockedReasons) {
   console.log(`  rollbackDeletes: ${plan.rollbackPlan.deleteCreatedFiles}`);
   console.log(`  rollbackRestores: ${plan.rollbackPlan.restoreBackups}`);
   console.log(`  postWriteChecks: ${plan.postWriteChecks.length}`);
+  console.log(`  executionGates: ${EXECUTION_GATES.length}`);
+  for (const gate of EXECUTION_GATES) {
+    console.log(`    - ${gate}`);
+  }
+  console.log(`  executionPhases: ${EXECUTION_PHASES.length}`);
+  for (const phase of EXECUTION_PHASES) {
+    console.log(`    - ${phase}`);
+  }
   console.log(`  readyToRequestWrite: ${plan.readyToRequestWrite}`);
   console.log(`  blockedReasons: ${blocked ? blockedReasons.join(', ') : 'none'}`);
   console.log('  executeImplemented: false');
@@ -68,6 +97,8 @@ export async function runSmokeTestPlanMode(argv = []) {
     plan,
     options,
     blockedReasons,
+    executionGates: EXECUTION_GATES,
+    executionPhases: EXECUTION_PHASES,
     ok: blockedReasons.length === 0,
   };
 }
