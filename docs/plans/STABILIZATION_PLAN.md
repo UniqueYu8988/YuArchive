@@ -61,6 +61,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 真实 v2 写入 dry-run manifest 已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-dry-run-manifest.md`，脚本为 `scripts/dry-run-archive-studio-v0-real-write-manifest.mjs`；当前只读输出 backup/write/rollback manifest 草案，不执行真实写入。
 - Archive Studio v0 real write dry-run manifest 场景自检已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-dry-run-manifest-check.md`，脚本为 `scripts/check-archive-studio-v0-real-write-dry-run-manifest.mjs`；当前确认 blocked 场景不计划写入或备份。
 - Archive Studio v0 真实 v2 Music create 写入试点执行前检查清单已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-preflight.md`；当前只定义授权文本、单 entry create 范围、只读检查顺序、阻断条件和成功标准，不执行真实写入。
+- Archive Studio v0 真实 v2 Music create 写入试点 preflight checker 已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-preflight-checker.md`，脚本为 `scripts/check-archive-studio-v0-real-write-create-preflight.mjs`；当前只读复用 gate checker 和 dry-run manifest，不执行真实写入。
 
 ## 稳定化目标
 
@@ -194,7 +195,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 真实 v2 Music create 写入试点执行前检查清单已建立。
+状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 真实 v2 Music create 写入试点 preflight checker 已建立。
 
 ### 目标
 
@@ -301,7 +302,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 设计真实 v2 Music 写入 dry-run manifest。
 - [x] 增加真实 v2 Music 写入 dry-run manifest blocked 场景自检。
 - [x] 设计真实 v2 Music create 写入试点执行前检查清单。
-- [ ] 实现真实 v2 Music create 写入试点 preflight checker。
+- [x] 实现真实 v2 Music create 写入试点 preflight checker。
+- [ ] 设计真实 v2 Music create smoke test 执行任务边界。
 
 ## 阶段 4：核心数据与构建验收
 
@@ -375,7 +377,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 实现真实 v2 Music create 写入试点 preflight checker；
+1. 设计真实 v2 Music create smoke test 执行任务边界；
 2. 不直接实现前端，不运行发布脚本，不运行 `build_archive.py`；
 3. 不批量迁移四个 board，不手改派生 JSON、不进入 `build_archive.py` 主流程大改；再次运行 `build_archive.py` 前必须得到明确授权且说明验收目的；
 4. 当前仍不进入 Archive Studio 前端开发或自动改源数据的维护自动化开发。
