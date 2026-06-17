@@ -56,6 +56,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 transaction sandbox 已建立，任务记录为 `docs/tasks/archive-studio-v0-transaction-sandbox.md`，脚本为 `scripts/archive-studio-v0-music-transaction-sandbox.mjs`；当前只写系统临时目录，模拟 create / update / rollback。
 - Archive Studio v0 transaction sandbox 失败场景自检已建立，任务记录为 `docs/tasks/archive-studio-v0-transaction-sandbox-check.md`，脚本为 `scripts/check-archive-studio-v0-transaction-sandbox.mjs`；当前只写系统临时目录，不写真实 ArchiveData-v2 输出。
 - Archive Studio v0 真实 v2 写入 approval gate 设计已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-approval-gate.md`；当前只定义进入真实 v2 Music 写入前的 gates，不执行真实写入。
+- Archive Studio v0 真实 v2 写入只读 gate checker 已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-gate-checker.md`，脚本为 `scripts/check-archive-studio-v0-real-write-gate.mjs`；当前只读输出 gate 摘要，不执行真实写入。
 
 ## 稳定化目标
 
@@ -189,7 +190,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 真实 v2 写入 approval gate 设计已建立。
+状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，Archive Studio v0 真实 v2 写入只读 gate checker 已建立。
 
 ### 目标
 
@@ -291,7 +292,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 实现只写系统临时目录的 Archive Studio v0 transaction sandbox。
 - [x] 增加 Archive Studio v0 transaction sandbox 失败场景自检。
 - [x] 设计真实 ArchiveData-v2 写入 approval gate。
-- [ ] 实现只读真实 v2 Music 写入 gate checker。
+- [x] 实现只读真实 v2 Music 写入 gate checker。
+- [ ] 增加真实 v2 Music 写入 gate checker 的 update payload 和 blocked 场景自检。
 
 ## 阶段 4：核心数据与构建验收
 
@@ -365,7 +367,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 实现只读真实 v2 Music 写入 gate checker；
+1. 增加真实 v2 Music 写入 gate checker 的 update payload 和 blocked 场景自检；
 2. 不直接实现前端，不运行发布脚本，不运行 `build_archive.py`；
 3. 不批量迁移四个 board，不手改派生 JSON、不进入 `build_archive.py` 主流程大改；再次运行 `build_archive.py` 前必须得到明确授权且说明验收目的；
 4. 当前仍不进入 Archive Studio 前端开发或自动改源数据的维护自动化开发。
