@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前进入 Archive Studio v0 真实 v2 写入 gate checker 自检阶段。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前进入 Archive Studio v0 真实 v2 写入 dry-run manifest 前置阶段。
 
 ## 已完成
 
@@ -89,6 +89,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 已建立 Archive Studio v0 transaction sandbox 失败场景自检：新建 `docs/tasks/archive-studio-v0-transaction-sandbox-check.md` 和 `scripts/check-archive-studio-v0-transaction-sandbox.mjs`，覆盖 invalid payload、路径逃逸、backup 源缺失和 rollback manifest 不匹配；相关 sandbox 脚本共享系统临时目录，需顺序运行。
 - 已建立 Archive Studio v0 真实 v2 写入 approval gate 设计：新建 `docs/tasks/archive-studio-v0-real-write-approval-gate.md`，明确真实写入必须单独授权、只允许 `music/album` 单 entry、必须经过 payload/diff/backup/write/rollback gate；下一步仍只做只读 gate checker，不直接写真实 v2 数据。
 - 已建立 Archive Studio v0 真实 v2 写入只读 gate checker：新建 `docs/tasks/archive-studio-v0-real-write-gate-checker.md` 和 `scripts/check-archive-studio-v0-real-write-gate.mjs`，默认读取项目内样例 payload 和真实 v2 Music 当前状态，只输出 gate 摘要，不写真实 v2 数据。
+- 已建立 Archive Studio v0 real write gate 场景自检：新建 `docs/tasks/archive-studio-v0-real-write-gate-scenarios.md`、`docs/examples/archive-studio-v0-music-album-update.sample.json` 和 `scripts/check-archive-studio-v0-real-write-gate-scenarios.mjs`，覆盖 create/update 允许场景和 blocked 场景，仍只读真实 v2 状态。
 
 ## 当前可正常使用的事实
 
@@ -121,7 +122,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 当前分支：`master`
 - 当前状态：`master...origin/master`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- 当前工作区因 Archive Studio v0 真实 v2 写入 gate checker 和状态文档更新而存在新的未提交变更。
+- 当前工作区因 Archive Studio v0 real write gate 场景自检和状态文档更新而存在新的未提交变更。
 
 ## 当前主要风险
 
@@ -144,7 +145,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：提交并推送 Archive Studio v0 真实 v2 写入只读 gate checker；下一步增加 update payload 和 blocked 场景自检，仍不接 UI，不写真实 ArchiveData-v2 输出，不运行发布脚本，不运行 `build_archive.py`。
+只建议做一件事：提交并推送 Archive Studio v0 real write gate 场景自检；下一步设计真实 v2 Music 写入 dry-run manifest，仍不接 UI，不写真实 ArchiveData-v2 输出，不运行发布脚本，不运行 `build_archive.py`。
 
 ## 暂时不做
 
@@ -183,4 +184,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计和只读 gate checker。下一步是为 gate checker 增加 update payload 和 blocked 场景自检，不做前端实现，不写真实 ArchiveData-v2 输出，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计、只读 gate checker 和 gate 场景自检。下一步是设计真实 v2 Music 写入 dry-run manifest，不做前端实现，不写真实 ArchiveData-v2 输出，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。

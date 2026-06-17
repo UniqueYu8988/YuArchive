@@ -1,0 +1,36 @@
+{
+  "mode": "update",
+  "board": "music",
+  "kind": "album",
+  "id": "arcane",
+  "fields": {
+    "title": "Archive Studio Existing Album Update",
+    "date": "2026",
+    "description": "Sandbox update payload for Archive Studio v0.",
+    "track_title": "Sandbox Update Track",
+    "url": "https://example.com",
+    "note": "",
+    "legacy": {}
+  },
+  "content": {
+    "markdown": "Sandbox update content preview. This text is only used for gate checking."
+  },
+  "assets": {
+    "cover": {
+      "source": "selected-file",
+      "originalName": "cover.jpg",
+      "extension": ".jpg"
+    },
+    "audio": {
+      "source": "selected-file",
+      "originalName": "audio.mp3",
+      "extension": ".mp3"
+    }
+  },
+  "options": {
+    "allowOverwriteEntry": true,
+    "allowOverwriteAssets": true,
+    "runCheckAfterWrite": true,
+    "backupBeforeOverwrite": true
+  }
+}

@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   assertPreviewSafe,
   buildMusicAlbumPreview,
@@ -16,7 +16,7 @@ const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
 const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
 const V2_MUSIC_ROOT = path.join(V2_ROOT, 'entries', 'music', 'album');
 const V2_MIGRATION_ROOT = path.join(V2_ROOT, 'migration');
-const DEFAULT_PAYLOAD_FILE = path.join(
+export const DEFAULT_PAYLOAD_FILE = path.join(
   PROJECT_ROOT,
   'docs',
   'examples',
@@ -68,7 +68,7 @@ async function existsDir(dirPath) {
   }
 }
 
-async function readJson(filePath) {
+export async function readJson(filePath) {
   const text = await readFile(filePath, 'utf8');
   return JSON.parse(text);
 }
@@ -126,10 +126,7 @@ function countBy(items, key) {
   return counts;
 }
 
-async function main() {
-  const payloadFile = resolveProjectJsonPath(process.argv[2] || DEFAULT_PAYLOAD_FILE);
-  const payloadLabel = path.relative(PROJECT_ROOT, payloadFile).split(path.sep).join('/');
-  const payload = await readJson(payloadFile);
+export async function evaluateGate(payload, payloadLabel = 'inline-payload') {
   const preview = buildMusicAlbumPreview(payload);
   assertPreviewSafe(preview);
 
@@ -155,25 +152,59 @@ async function main() {
   const backupRequired = diff.some((item) => item.requiresBackup);
   const allowedToRequestWrite = blocked.length === 0;
 
-  console.log(`[${allowedToRequestWrite ? 'PASS' : 'WARN'}] Archive Studio v0 real write gate`);
-  console.log(`  payload: ${payloadLabel}`);
-  console.log(`  mode: ${payload.mode}`);
-  console.log(`  board: ${payload.board}`);
-  console.log(`  kind: ${payload.kind}`);
-  console.log(`  targetEntryId: ${preview.target.entryId}`);
-  console.log(`  archiveDataV2Exists: ${v2Exists}`);
-  console.log(`  musicAlbumRootExists: ${v2MusicExists}`);
-  console.log(`  migrationRootExists: ${migrationExists}`);
-  console.log(`  albumEntryDirs: ${entryDirs.length}`);
-  console.log(`  targetEntryExists: ${targetEntryExists}`);
-  console.log(`  targetFilesExisting: ${targetState.filter((item) => item.exists).length}`);
-  console.log(`  operations: ${JSON.stringify(operationCounts)}`);
-  console.log(`  backupRequired: ${backupRequired}`);
-  console.log(`  blockedReasons: ${blocked.length ? blocked.join(', ') : 'none'}`);
-  console.log(`  allowedToRequestWrite: ${allowedToRequestWrite}`);
+  return {
+    payloadLabel,
+    mode: payload.mode,
+    board: payload.board,
+    kind: payload.kind,
+    targetEntryId: preview.target.entryId,
+    archiveDataV2Exists: v2Exists,
+    musicAlbumRootExists: v2MusicExists,
+    migrationRootExists: migrationExists,
+    albumEntryDirs: entryDirs.length,
+    targetEntryExists,
+    targetFilesExisting: targetState.filter((item) => item.exists).length,
+    operations: operationCounts,
+    backupRequired,
+    blockedReasons: blocked,
+    allowedToRequestWrite,
+  };
+}
+
+export async function evaluateGateFromProjectJson(inputPath = DEFAULT_PAYLOAD_FILE) {
+  const payloadFile = resolveProjectJsonPath(inputPath);
+  const payloadLabel = path.relative(PROJECT_ROOT, payloadFile).split(path.sep).join('/');
+  const payload = await readJson(payloadFile);
+  return evaluateGate(payload, payloadLabel);
+}
+
+function printGateResult(result) {
+  console.log(`[${result.allowedToRequestWrite ? 'PASS' : 'WARN'}] Archive Studio v0 real write gate`);
+  console.log(`  payload: ${result.payloadLabel}`);
+  console.log(`  mode: ${result.mode}`);
+  console.log(`  board: ${result.board}`);
+  console.log(`  kind: ${result.kind}`);
+  console.log(`  targetEntryId: ${result.targetEntryId}`);
+  console.log(`  archiveDataV2Exists: ${result.archiveDataV2Exists}`);
+  console.log(`  musicAlbumRootExists: ${result.musicAlbumRootExists}`);
+  console.log(`  migrationRootExists: ${result.migrationRootExists}`);
+  console.log(`  albumEntryDirs: ${result.albumEntryDirs}`);
+  console.log(`  targetEntryExists: ${result.targetEntryExists}`);
+  console.log(`  targetFilesExisting: ${result.targetFilesExisting}`);
+  console.log(`  operations: ${JSON.stringify(result.operations)}`);
+  console.log(`  backupRequired: ${result.backupRequired}`);
+  console.log(`  blockedReasons: ${result.blockedReasons.length ? result.blockedReasons.join(', ') : 'none'}`);
+  console.log(`  allowedToRequestWrite: ${result.allowedToRequestWrite}`);
   console.log('  writeScope: none');
-  console.log(`Result: archive studio v0 real write gate ${allowedToRequestWrite ? 'passed' : 'needs review'}`);
+  console.log(`Result: archive studio v0 real write gate ${result.allowedToRequestWrite ? 'passed' : 'needs review'}`);
+}
+
+async function main() {
+  const result = await evaluateGateFromProjectJson(process.argv[2] || DEFAULT_PAYLOAD_FILE);
+  printGateResult(result);
   process.exitCode = 0;
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
