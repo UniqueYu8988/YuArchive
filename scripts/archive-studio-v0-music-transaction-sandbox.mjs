@@ -1,45 +1,46 @@
-import { copyFile, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   assertPreviewSafe,
   buildMusicAlbumPreview,
   normalizeRelativePath,
 } from './archive-studio-v0-music-preview-core.mjs';
 
-const SANDBOX_LABEL = 'system-temp/yuarchive-archive-studio-v0-transaction-sandbox';
-const SANDBOX_ROOT = path.join(os.tmpdir(), 'yuarchive-archive-studio-v0-transaction-sandbox');
-const WRITE_ROOT = path.join(SANDBOX_ROOT, 'ArchiveData-v2');
-const STAGING_ROOT = path.join(SANDBOX_ROOT, 'staging');
-const BACKUP_ROOT = path.join(SANDBOX_ROOT, 'backups');
-const MANIFEST_ROOT = path.join(SANDBOX_ROOT, 'manifests');
-const MUSIC_SCOPE = 'entries/music/album';
+export const SANDBOX_LABEL = 'system-temp/yuarchive-archive-studio-v0-transaction-sandbox';
+export const SANDBOX_ROOT = path.join(os.tmpdir(), 'yuarchive-archive-studio-v0-transaction-sandbox');
+export const WRITE_ROOT = path.join(SANDBOX_ROOT, 'ArchiveData-v2');
+export const STAGING_ROOT = path.join(SANDBOX_ROOT, 'staging');
+export const BACKUP_ROOT = path.join(SANDBOX_ROOT, 'backups');
+export const MANIFEST_ROOT = path.join(SANDBOX_ROOT, 'manifests');
+export const MUSIC_SCOPE = 'entries/music/album';
 
-function clone(value) {
+export function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function assertInside(root, target) {
+export function assertInside(root, target) {
   const relative = path.relative(root, target);
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
     throw new Error('Sandbox path escaped its root');
   }
 }
 
-function resolveSandboxPath(root, relativePath) {
+export function resolveSandboxPath(root, relativePath) {
   normalizeRelativePath(relativePath);
   const resolved = path.join(root, ...relativePath.split('/'));
   assertInside(root, resolved);
   return resolved;
 }
 
-function sha256Buffer(buffer) {
+export function sha256Buffer(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
 }
 
-async function fileInfo(filePath) {
+export async function fileInfo(filePath) {
   if (!existsSync(filePath)) return null;
   const buffer = await readFile(filePath);
   return {
@@ -48,7 +49,7 @@ async function fileInfo(filePath) {
   };
 }
 
-function stringifyYaml(payload) {
+export function stringifyYaml(payload) {
   const fields = payload.fields || {};
   const lines = [
     `id: ${payload.id}`,
@@ -65,7 +66,7 @@ function stringifyYaml(payload) {
   return `${lines.join('\n')}\n`;
 }
 
-function targetFilesFromPreview(preview) {
+export function targetFilesFromPreview(preview) {
   return [
     { role: 'entry_yaml', relativePath: preview.target.entryYaml, kind: 'text', content: stringifyYaml(preview.__payload) },
     { role: 'content_md', relativePath: preview.target.contentMd, kind: 'text', content: `${preview.__payload.content?.markdown || ''}\n` },
@@ -74,7 +75,7 @@ function targetFilesFromPreview(preview) {
   ];
 }
 
-async function buildDiffPreview(preview) {
+export async function buildDiffPreview(preview) {
   const files = targetFilesFromPreview(preview);
   const diff = [];
 
@@ -103,7 +104,7 @@ async function buildDiffPreview(preview) {
   return diff;
 }
 
-function buildConfirmation(diff) {
+export function buildConfirmation(diff) {
   const reasons = new Set();
   if (diff.some((item) => item.operation === 'create')) reasons.add('create_entry');
   if (diff.some((item) => item.operation === 'overwrite')) reasons.add('overwrite_files');
@@ -116,13 +117,13 @@ function buildConfirmation(diff) {
   };
 }
 
-async function writeJson(relativePath, value) {
+export async function writeJson(relativePath, value) {
   const targetPath = resolveSandboxPath(SANDBOX_ROOT, relativePath);
   await mkdir(path.dirname(targetPath), { recursive: true });
   await writeFile(targetPath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
 }
 
-async function prepareBackup(transactionId, diff) {
+export async function prepareBackup(transactionId, diff) {
   const items = [];
 
   for (const item of diff.filter((entry) => entry.requiresBackup)) {
@@ -149,7 +150,7 @@ async function prepareBackup(transactionId, diff) {
   };
 }
 
-async function writeStaging(transactionId, preview) {
+export async function writeStaging(transactionId, preview) {
   const files = targetFilesFromPreview(preview);
   const items = [];
 
@@ -171,7 +172,7 @@ async function writeStaging(transactionId, preview) {
   return items;
 }
 
-async function applyWrite(transactionId, mode, diff, stagingItems) {
+export async function applyWrite(transactionId, mode, diff, stagingItems) {
   const items = [];
 
   for (const stagingItem of stagingItems) {
@@ -206,7 +207,11 @@ async function applyWrite(transactionId, mode, diff, stagingItems) {
   };
 }
 
-async function rollbackTransaction(writeManifest, backupManifest) {
+export async function rollbackTransaction(writeManifest, backupManifest) {
+  if (writeManifest.transactionId !== backupManifest.transactionId) {
+    throw new Error('Rollback manifest transaction id mismatch');
+  }
+
   const restored = [];
   const deleted = [];
 
@@ -243,7 +248,7 @@ async function rollbackTransaction(writeManifest, backupManifest) {
   };
 }
 
-async function seedExistingAlbum(payload) {
+export async function seedExistingAlbum(payload) {
   const preview = buildPreparedPreview(payload);
   const files = targetFilesFromPreview(preview);
   for (const file of files) {
@@ -253,14 +258,14 @@ async function seedExistingAlbum(payload) {
   }
 }
 
-function buildPreparedPreview(payload) {
+export function buildPreparedPreview(payload) {
   const preview = buildMusicAlbumPreview(payload);
   preview.__payload = payload;
   assertPreviewSafe(preview);
   return preview;
 }
 
-async function runTransaction({ transactionId, payload }) {
+export async function runTransaction({ transactionId, payload }) {
   const preview = buildPreparedPreview(payload);
   const diff = await buildDiffPreview(preview);
   const confirmation = buildConfirmation(diff);
@@ -304,7 +309,7 @@ async function runTransaction({ transactionId, payload }) {
   };
 }
 
-const createPayload = {
+export const createPayload = {
   mode: 'create',
   board: 'music',
   kind: 'album',
@@ -327,7 +332,7 @@ const createPayload = {
   },
 };
 
-const updatePayload = clone(createPayload);
+export const updatePayload = clone(createPayload);
 updatePayload.mode = 'update';
 updatePayload.id = 'archive-studio-transaction-update';
 updatePayload.fields.title = 'Archive Studio Transaction Update';
@@ -336,22 +341,36 @@ updatePayload.content.markdown = 'Sandbox update transaction content.';
 updatePayload.assets.cover.extension = '.png';
 updatePayload.assets.audio.extension = '.m4a';
 
-await rm(SANDBOX_ROOT, { recursive: true, force: true });
-await mkdir(WRITE_ROOT, { recursive: true });
-await mkdir(STAGING_ROOT, { recursive: true });
-await mkdir(BACKUP_ROOT, { recursive: true });
-await mkdir(MANIFEST_ROOT, { recursive: true });
-await seedExistingAlbum(updatePayload);
-
-const results = [
-  await runTransaction({ transactionId: 'tx-create-sandbox', payload: createPayload }),
-  await runTransaction({ transactionId: 'tx-update-sandbox', payload: updatePayload }),
-];
-
-console.log('[PASS] Archive Studio v0 music transaction sandbox');
-console.log(`  sandbox: ${SANDBOX_LABEL}`);
-for (const result of results) {
-  console.log(`  ${result.mode}: diff=${result.diffItems}, create=${result.creates}, overwrite=${result.overwrites}, backup=${result.backups}, write=${result.writes}, rollbackDeleted=${result.rollback.deleted}, rollbackRestored=${result.rollback.restored}`);
+export async function resetSandbox() {
+  await rm(SANDBOX_ROOT, { recursive: true, force: true });
+  await mkdir(WRITE_ROOT, { recursive: true });
+  await mkdir(STAGING_ROOT, { recursive: true });
+  await mkdir(BACKUP_ROOT, { recursive: true });
+  await mkdir(MANIFEST_ROOT, { recursive: true });
 }
-console.log('  writeScope: system-temp-only');
-console.log('Result: archive studio v0 transaction sandbox passed');
+
+export async function runHappyPathSandbox() {
+  await resetSandbox();
+  await seedExistingAlbum(updatePayload);
+
+  return [
+    await runTransaction({ transactionId: 'tx-create-sandbox', payload: createPayload }),
+    await runTransaction({ transactionId: 'tx-update-sandbox', payload: updatePayload }),
+  ];
+}
+
+async function main() {
+  const results = await runHappyPathSandbox();
+
+  console.log('[PASS] Archive Studio v0 music transaction sandbox');
+  console.log(`  sandbox: ${SANDBOX_LABEL}`);
+  for (const result of results) {
+    console.log(`  ${result.mode}: diff=${result.diffItems}, create=${result.creates}, overwrite=${result.overwrites}, backup=${result.backups}, write=${result.writes}, rollbackDeleted=${result.rollback.deleted}, rollbackRestored=${result.rollback.restored}`);
+  }
+  console.log('  writeScope: system-temp-only');
+  console.log('Result: archive studio v0 transaction sandbox passed');
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

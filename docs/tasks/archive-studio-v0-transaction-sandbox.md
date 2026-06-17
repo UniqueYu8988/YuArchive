@@ -60,6 +60,8 @@ node scripts/archive-studio-v0-music-transaction-sandbox.mjs
 
 ## 5. 验收方式
 
+注意：transaction sandbox 会清理并重建同一个系统临时 sandbox 根目录；如同时运行自检脚本，应按顺序运行，不要并行运行。
+
 运行：
 
 ```powershell
