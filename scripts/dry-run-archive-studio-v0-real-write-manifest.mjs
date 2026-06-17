@@ -1,13 +1,15 @@
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   DEFAULT_PAYLOAD_FILE,
   evaluateGateFromProjectJson,
 } from './check-archive-studio-v0-real-write-gate.mjs';
 
-function buildDryRunManifest(gate) {
+export function buildDryRunManifest(gate) {
   const transactionId = `dry-run-${gate.mode}-${gate.targetEntryId}`;
+  const allowedOperations = gate.allowedToRequestWrite ? new Set(['create', 'overwrite']) : new Set();
   const writeItems = gate.diff
-    .filter((item) => item.operation === 'create' || item.operation === 'overwrite')
+    .filter((item) => allowedOperations.has(item.operation))
     .map((item) => ({
       role: item.role,
       operation: item.operation,
@@ -17,7 +19,7 @@ function buildDryRunManifest(gate) {
     }));
 
   const backupItems = gate.diff
-    .filter((item) => item.requiresBackup)
+    .filter((item) => gate.allowedToRequestWrite && item.requiresBackup)
     .map((item) => ({
       role: item.role,
       targetRelativePath: item.relativePath,
@@ -29,6 +31,7 @@ function buildDryRunManifest(gate) {
     transactionId,
     dryRun: true,
     allowedToRequestWrite: gate.allowedToRequestWrite,
+    status: gate.allowedToRequestWrite ? 'passed' : 'needs_review',
     blockedReasons: gate.blockedReasons,
     mode: gate.mode,
     board: gate.board,
@@ -92,7 +95,13 @@ function printManifestSummary(manifest, payloadLabel) {
   console.log(`Result: archive studio v0 real write dry-run manifest ${manifest.allowedToRequestWrite ? 'passed' : 'needs review'}`);
 }
 
-const inputPath = process.argv[2] || DEFAULT_PAYLOAD_FILE;
-const gate = await evaluateGateFromProjectJson(inputPath);
-const manifest = buildDryRunManifest(gate);
-printManifestSummary(manifest, gate.payloadLabel);
+async function main() {
+  const inputPath = process.argv[2] || DEFAULT_PAYLOAD_FILE;
+  const gate = await evaluateGateFromProjectJson(inputPath);
+  const manifest = buildDryRunManifest(gate);
+  printManifestSummary(manifest, gate.payloadLabel);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
