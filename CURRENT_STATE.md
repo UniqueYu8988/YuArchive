@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前进入 Archive Studio v0 真实 v2 Music create smoke test 执行边界设计阶段。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前进入 Archive Studio v0 真实 v2 Music create smoke test runner 计划阶段。
 
 ## 已完成
 
@@ -94,6 +94,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 已建立 Archive Studio v0 real write dry-run manifest 场景自检：新建 `docs/tasks/archive-studio-v0-real-write-dry-run-manifest-check.md` 和 `scripts/check-archive-studio-v0-real-write-dry-run-manifest.mjs`，确认 blocked 场景只输出 `needs_review` 草案，不计划写入或备份。
 - 已建立 Archive Studio v0 真实 v2 Music create 写入试点执行前检查清单：新建 `docs/tasks/archive-studio-v0-real-write-create-preflight.md`，明确授权文本、单 entry create 范围、执行前只读检查、阻断条件、成功标准和回退边界；本轮仍未执行真实写入。
 - 已建立 Archive Studio v0 真实 v2 Music create 写入试点 preflight checker：新建 `docs/tasks/archive-studio-v0-real-write-create-preflight-checker.md` 和 `scripts/check-archive-studio-v0-real-write-create-preflight.mjs`，只读复用 gate checker 和 dry-run manifest，确认默认 create 样例可请求进入真实写入任务；本轮仍未执行真实写入。
+- 已建立 Archive Studio v0 真实 v2 Music create smoke test 执行边界：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-boundary.md`，明确第一轮真实写入的授权文本、允许范围、禁止范围、写入后验收、rollback 边界和成功标准；本轮仍未执行真实写入。
 
 ## 当前可正常使用的事实
 
@@ -126,7 +127,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 当前分支：`master`
 - 当前状态：`master...origin/master`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- 当前工作区因 Archive Studio v0 real write create preflight checker 和状态文档更新而存在新的未提交变更。
+- 当前工作区因 Archive Studio v0 real write create smoke test 边界文档和状态文档更新而存在新的未提交变更。
 
 ## 当前主要风险
 
@@ -149,7 +150,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：设计真实 v2 Music create smoke test 的执行任务边界；仍不接 UI，不写真实 ArchiveData-v2 输出，不运行发布脚本，不运行 `build_archive.py`，进入真实写入前仍需单独明确授权。
+只建议做一件事：实现真实 v2 Music create smoke test runner 的只读/计划模式，或在用户单独授权后执行一次受控真实 create + rollback smoke test；仍不接 UI，不修改 `public/data`，不运行发布脚本，不运行 `build_archive.py`。
 
 ## 暂时不做
 
@@ -187,4 +188,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计、只读 gate checker、gate 场景自检、dry-run manifest、dry-run manifest 场景自检、真实 create 写入试点执行前检查清单和 preflight checker。下一步是设计真实 v2 Music create smoke test 执行任务边界，不做前端实现，不写真实 ArchiveData-v2 输出，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计、只读 gate checker、gate 场景自检、dry-run manifest、dry-run manifest 场景自检、真实 create 写入试点执行前检查清单、preflight checker 和 smoke test 执行边界。下一步是实现真实 v2 Music create smoke test runner 的只读/计划模式，或在用户单独授权后执行一次受控真实 create + rollback smoke test；不做前端实现，不修改 `public/data`，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
