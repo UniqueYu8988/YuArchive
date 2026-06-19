@@ -68,7 +68,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 真实 v2 Music create + rollback smoke test runner 默认计划模式已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner.md`，脚本为 `scripts/run-archive-studio-v0-real-write-create-smoke-test.mjs`；当前默认只输出计划，传入 `--execute` 时明确阻断，不执行真实写入。
 - Archive Studio v0 真实 v2 Music create + rollback smoke test runner 执行结构摘要已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner-execution-structure.md`；当前 runner 只输出执行 gate 和执行阶段，不执行真实写入。
 - Archive Studio v0 真实 v2 Music create + rollback smoke test 文件写入算法已设计，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-write-algorithm.md`；当前只定义 staging、allowlist、apply create、manifest、rollback 和失败处理规则，不执行真实写入。
-- Archive Studio v0 UI / 表单流程设计已开始，设计文档为 `docs/design/archive-studio-v0-music-album-flow.md`；第一版只围绕 `music/album` 新建流程，不编辑已有条目，不启用真实写入。
+- Archive Studio v0 UI / 表单流程设计和验收标准已确认，设计文档为 `docs/design/archive-studio-v0-music-album-flow.md`。
+- Archive Studio v0 只读页面壳已完成，任务记录为 `docs/tasks/archive-studio-v0-read-only-shell.md`；当前已有独立 `/studio` 入口、Music Album 表单、素材选择、浏览器内校验和相对路径预览，真实保存仍禁用。
 
 ## 稳定化目标
 
@@ -202,7 +203,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：阶段 5 v2 Music live-compatible replacement 已完成并推送，当前暂停底层 gate / runner / manifest / rollback 扩展，转入 Archive Studio v0 UI / 表单流程设计。
+状态：阶段 5 v2 Music live-compatible replacement 已完成并推送；Archive Studio v0 UI 设计和只读页面壳已完成，当前进入本地只读 API 阶段。
 
 ### 目标
 
@@ -318,9 +319,12 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 设计真实 v2 Music create + rollback smoke test 的文件写入算法。
 - [x] 暂停继续扩展底层 gate / runner / manifest / rollback 机制，转向 UI / 表单流程设计。
 - [x] 设计 Archive Studio v0 `music/album` 新建流程。
-- [ ] 确认 UI / 表单流程设计。
-- [ ] 实现 Archive Studio v0 只读页面壳。
+- [x] 确认 UI / 表单流程设计。
+- [x] 实现 Archive Studio v0 只读页面壳。
+- [x] 实现 `music/album` 表单、素材选择、dirty/reset 状态和浏览器内校验。
+- [x] 实现 entry id 建议、相对目标路径和文件角色预览。
 - [ ] 实现 preview / preflight API。
+- [ ] 完成前后端只读联调和浏览器验收。
 - [ ] 再决定是否接入真实 create + rollback smoke test。
 - [ ] 最后启用 v0 保存能力。
 
@@ -396,8 +400,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 确认 Archive Studio v0 `music/album` UI / 表单流程设计；
-2. 下一步再实现只读页面壳，不启用真实写入；
-3. 后续再实现 preview / preflight API；
+1. 实现只监听本机的 Archive Studio Node 服务；
+2. 先提供 profiles、preview、preflight 和 Music v2 shape check API；
+3. 完成前后端只读联调，确认不写 ArchiveData-v2；
 4. 再决定是否接入真实 create + rollback smoke test；
 5. 最后才启用 v0 保存能力。

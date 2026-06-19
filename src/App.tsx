@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
 import { lazy, Suspense, useState, useEffect, useRef } from 'react'
 import {
   Gamepad2, Clapperboard, Music, Feather,
-  Sun, Moon, Volume2, VolumeX, ArrowUp, Ellipsis
+  Sun, Moon, Volume2, VolumeX, ArrowUp, Ellipsis, Wrench
 } from 'lucide-react'
 import type { HomePageData, MusicCategory, TextsCategory, TimelineCategory } from './types'
 import { useIsMobile } from './hooks/useIsMobile'
@@ -14,6 +14,7 @@ const GamesPage = lazy(() => import('./pages/GamesPage'))
 const Visions = lazy(() => import('./pages/Visions'))
 const MusicPage = lazy(() => import('./pages/MusicPage'))
 const TextsPage = lazy(() => import('./pages/TextsPage'))
+const ArchiveStudioPage = lazy(() => import('./pages/ArchiveStudioPage'))
 
 // ── Navbar ───────────────────────────────────────────────────
 interface NavbarProps {
@@ -94,6 +95,17 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
     </a>
   )
 
+  const studioButton = (
+    <NavLink
+      to="/studio"
+      className={({ isActive }) => `nav-control-btn${isActive ? ' is-active' : ''}`}
+      title="Archive Studio"
+      aria-label="打开 Archive Studio"
+    >
+      <Wrench size={17} />
+    </NavLink>
+  )
+
   if (isMobile) {
     return (
       <nav className="navbar navbar--mobile">
@@ -122,6 +134,7 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
 
           {showMobileUtilities ? (
             <div className="nav-mobile-utility-menu">
+              {studioButton}
               {githubButton}
               {spotifyButton}
             </div>
@@ -173,6 +186,7 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
         <div className="nav-controls">
           {muteButton}
           {themeButton}
+          {studioButton}
           {githubButton}
           {spotifyButton}
         </div>
@@ -183,6 +197,12 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
 }
 
 function MobileViewportNotice({ onDismiss }: { onDismiss: () => void }) {
+  const location = useLocation()
+
+  if (location.pathname === '/studio') {
+    return null
+  }
+
   return (
     <div className="mobile-viewport-notice" role="status" aria-live="polite">
       <div className="mobile-viewport-notice__eyebrow">Mobile Viewing Note</div>
@@ -404,6 +424,7 @@ export default function App() {
           <Route path="/movies" element={<VisionsRoute />} />
           <Route path="/music"  element={<MusicRoute />} />
           <Route path="/texts"  element={<TextsRoute />} />
+          <Route path="/studio" element={<ArchiveStudioPage />} />
         </Routes>
       </Suspense>
 

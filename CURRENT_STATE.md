@@ -2,11 +2,11 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-06-17
+最后更新：2026-06-19
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前已暂停继续扩展底层 gate / runner / manifest / rollback 机制，进入 Archive Studio v0 UI / 表单流程设计阶段。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 UI 流程设计和只读页面壳已完成，当前准备进入本地只读 preview / preflight API 阶段。
 
 ## 已完成
 
@@ -101,6 +101,12 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 已为 smoke test runner 增加真实执行结构摘要：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner-execution-structure.md`，runner 输出执行 gate 和执行阶段列表；`executeImplemented` 仍为 false。
 - 已完成 Archive Studio v0 真实 v2 Music create + rollback smoke test 文件写入算法设计：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-write-algorithm.md`，定义 staging、allowlist、apply create、manifest、rollback 和失败处理规则；本轮仍未执行真实写入。
 - 已进入 Archive Studio v0 UI / 表单流程设计阶段：新建 `docs/design/archive-studio-v0-music-album-flow.md`，第一版只聚焦 `music/album` 新建流程，不编辑已有条目，不做 AI 自动化，不启用真实写入。
+- 已确认 Archive Studio v0 UI 流程和完成验收标准，并提交设计阶段文档。
+- 已建立 Archive Studio v0 独立 `/studio` 入口、只读页面壳和 Music Album 表单，任务记录为 `docs/tasks/archive-studio-v0-read-only-shell.md`。
+- 当前页面固定为 `music / album / create`，支持 title、date/year、url、note、entry id、cover、audio 和 Markdown 输入。
+- 当前页面可在浏览器内生成 entry id 建议、目标相对路径和文件角色预览；缺少必需素材时会阻断 preview。
+- `Create entry` 当前始终禁用；尚未连接 Node API，尚未写 ArchiveData-v2。
+- `npm run build` 已通过；桌面和 390px 移动视口浏览器验收通过，控制台错误为 0。
 
 ## 当前可正常使用的事实
 
@@ -156,42 +162,37 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：确认 Archive Studio v0 `music/album` UI / 表单流程设计；随后实现只读页面壳，不启用真实写入。
+只建议做一件事：实现 Archive Studio v0 本地只读 Node 服务，先提供 profiles、preview、preflight 和 Music v2 shape check API，不启用真实 create。
 
 ## 暂时不做
 
-- 不改代码；
 - 不改 `build_archive.py`；
 - 不进入 `build_archive.py` 改造；
 - 不改 OneDrive 源数据；
 - 不改 `public\data`、`src\data` 或派生缓存；
-- 不运行构建脚本；
-- 不启动开发服务器；
 - 不运行发布脚本；
 - 不执行一键发布；
 - 不进入真实写入改造；
-- 不做代码修改；
-- 不开始代码修复；
 - 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
 - 不批量创建完整 `ArchiveData-v2` 四板块数据；
 - 不继续迁移 Games、Visions、Texts 或 config；
-- 不进入 Archive Studio 前端开发；当前只做 schema、preview 和写入事务前置设计。
+- 不启用 Archive Studio 真实保存；当前只继续本地只读 API 和联调。
 
 ## 当前验证状态
 
-- 项目能否启动：本轮未启动，因用户要求默认不要启动。
-- 核心人工验收：本轮未进行页面验收。
-- 自动测试：未发现独立测试脚本，本轮未运行。
-- 构建：本轮未运行 `npm run build`。
+- 项目能否启动：已受控启动本地 Vite 服务，仅用于 Archive Studio 页面验收。
+- 核心人工验收：已完成 `/studio` 桌面和 390px 移动视口验收；无横向溢出，保存按钮禁用，控制台错误为 0。
+- 自动测试：已验证 title 到 entry id / 相对路径预览，以及缺少 cover / audio 时的阻断提示。
+- 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-16，已只读核对旧 Data 结构和 `build_archive.py` 四板块解析逻辑，完成 ArchiveData-v2 文件规则设计文档，并运行 ArchiveData-v2 只读迁移审计、migration dry-run、Music v2 试点 planner、Music-only 写入型试点迁移、v2 Music 输出检查、Git 边界验收、v2 Music preview、live-compatible preview、公开 JSON shape/privacy 检查和远端同步验收。
+- 最近一次验证日期：2026-06-19，已完成 Archive Studio v0 只读页面壳构建和浏览器验收；未写 ArchiveData-v2。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
 
 这是个人数字收藏馆老项目工作流迁移阶段。优先保护 OneDrive Data 源目录，不要运行生成、构建、发布或 Git 写命令。README 已收敛为人类入口；AI 第一入口是 `AGENTS.md`。旧 `public/archive_data.json` 已归档，当前前端数据入口是 `public\data\*.json`。
 
-`reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
+`reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计、只读 gate checker、gate 场景自检、dry-run manifest、dry-run manifest 场景自检、真实 create 写入试点执行前检查清单、preflight checker、smoke test 执行边界、只读计划模式、显式执行 gate、默认计划模式 runner、执行结构摘要、文件写入算法设计和 `music/album` UI / 表单流程设计。下一步是确认 UI 流程设计并实现只读页面壳；不启用真实写入，不修改 `public/data`，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 和 Archive Studio v0；Music v2 试点、live-compatible 替换、写入前置机制、`music/album` UI 流程设计、独立 `/studio` 入口、只读页面壳、表单校验和浏览器内预览均已完成。下一步是实现本地只读 preview / preflight API 并做前后端联调；真实 create、发布和旧 OneDrive Data 修改仍保持关闭。
