@@ -139,6 +139,8 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 - 首次真实复制遇到 OneDrive 同步恢复生成配置的竞态；迁移器已加入稳定等待、回退复核和仅允许 checksum 完全一致残留的显式恢复模式，最终迁移成功。
 - 已建立 Texts v2 live-compatible 隔离 preview：v2 132、live 132、mapped 132，unmapped / ambiguous 0，复用 live id 132 和封面 public path 54。
 - Texts preview 与当前 live `texts.json` 深度结构相等，item 字段差异 0、条目和栏目顺序差异 0、隐私命中 0；因此未执行无意义的 public JSON 重写。
+- 已建立 Archive Studio Texts 流程设计和 preview core，支持 article、book_note、series_note 的最小字段、section-kind 约束、日期规则、book cover 和安全相对路径预览。
+- Texts preview core 自检通过：三个 kind 合法场景通过，非法 id、空正文、section-kind 不匹配、非法日期和缺 book cover 正确阻断；写入动作 0。
 
 ## 当前可正常使用的事实
 
@@ -169,9 +171,9 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master [ahead 11]`。
+- 当前状态：`master...origin/master [ahead 12]`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- Archive Studio v0 与 Texts 审计、规则、迁移和 live-compatible preview 已形成 11 个本地未推送提交，工作区干净。
+- Archive Studio v0 与 Texts 数据链、preview core 已形成 12 个本地未推送提交，工作区干净。
 
 ## 当前主要风险
 
@@ -194,7 +196,7 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 
 ## 当前下一步
 
-下一步设计并实现 Archive Studio Texts 新建流程，先支持三个 kind 的表单、preview 和 preflight，再接受控 create。
+下一步接入 Archive Studio Texts 的 preflight、受控 create API 和中文页面；不提供编辑、删除或发布。
 
 ## 暂时不做
 
