@@ -68,6 +68,14 @@ export function validatePayload(payload) {
     warnings.push({ code: 'content_empty', message: 'content.md is empty', path: 'content.markdown' });
   }
 
+  if (!payload.assets?.cover) {
+    errors.push({ code: 'missing_cover', message: 'cover is required', path: 'assets.cover' });
+  }
+
+  if (!payload.assets?.audio) {
+    errors.push({ code: 'missing_audio', message: 'audio is required', path: 'assets.audio' });
+  }
+
   const coverExtension = payload.assets?.cover?.extension?.toLowerCase();
   if (coverExtension && !allowedCoverExtensions.has(coverExtension)) {
     errors.push({ code: 'invalid_cover_extension', message: 'cover extension is not allowed', path: 'assets.cover.extension' });

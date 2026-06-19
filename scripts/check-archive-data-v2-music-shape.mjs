@@ -1,10 +1,10 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const SOURCE_ROOT = 'C:\\Users\\Yu\\OneDrive\\图片\\Data';
+const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
 const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
-const V2_MUSIC_ROOT = path.join(V2_ROOT, 'entries', 'music', 'album');
-const V2_MIGRATION_ROOT = path.join(V2_ROOT, 'migration');
 
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.flac', '.m4a', '.ogg', '.aac']);
@@ -62,14 +62,20 @@ function scanPrivacy(filePath) {
   return hits;
 }
 
-function main() {
+export function evaluateMusicV2Shape({
+  v2Root = V2_ROOT,
+  expectedMinimumEntries = 33,
+  requireMigrationBaseline = true,
+} = {}) {
+  const v2MusicRoot = path.join(v2Root, 'entries', 'music', 'album');
+  const v2MigrationRoot = path.join(v2Root, 'migration');
   const fatal = [];
-  if (!existsDir(V2_ROOT)) fatal.push('ArchiveData-v2 missing');
-  if (!existsDir(V2_MUSIC_ROOT)) fatal.push('Music album directory missing');
-  if (!existsDir(V2_MIGRATION_ROOT)) fatal.push('migration directory missing');
+  if (!existsDir(v2Root)) fatal.push('ArchiveData-v2 missing');
+  if (!existsDir(v2MusicRoot)) fatal.push('Music album directory missing');
+  if (requireMigrationBaseline && !existsDir(v2MigrationRoot)) fatal.push('migration directory missing');
 
-  const entryDirs = existsDir(V2_MUSIC_ROOT)
-    ? listDirSafe(V2_MUSIC_ROOT).filter(entry => entry.isDirectory())
+  const entryDirs = existsDir(v2MusicRoot)
+    ? listDirSafe(v2MusicRoot).filter(entry => entry.isDirectory())
     : [];
 
   let entryYamlFiles = 0;
@@ -79,7 +85,7 @@ function main() {
   let malformedEntryDirs = 0;
 
   for (const entry of entryDirs) {
-    const entryDir = path.join(V2_MUSIC_ROOT, entry.name);
+    const entryDir = path.join(v2MusicRoot, entry.name);
     const entryYaml = existsFile(path.join(entryDir, 'entry.yaml')) ? 1 : 0;
     const content = existsFile(path.join(entryDir, 'content.md')) ? 1 : 0;
     const covers = countFiles(entryDir, name => name.startsWith('cover.') && IMAGE_EXTENSIONS.has(path.extname(name).toLowerCase()));
@@ -92,9 +98,9 @@ function main() {
     if (entryYaml !== 1 || content !== 1 || covers !== 1 || audio !== 1) malformedEntryDirs += 1;
   }
 
-  const manifestPath = path.join(V2_MIGRATION_ROOT, 'migration-manifest.json');
-  const unmappedPath = path.join(V2_MIGRATION_ROOT, 'unmapped-files.json');
-  const legacyReportPath = path.join(V2_MIGRATION_ROOT, 'legacy-field-report.md');
+  const manifestPath = path.join(v2MigrationRoot, 'migration-manifest.json');
+  const unmappedPath = path.join(v2MigrationRoot, 'unmapped-files.json');
+  const legacyReportPath = path.join(v2MigrationRoot, 'legacy-field-report.md');
   const manifest = readJsonSafe(manifestPath);
   const unmapped = readJsonSafe(unmappedPath);
 
@@ -107,36 +113,67 @@ function main() {
   ];
 
   const failures = fatal.length
-    + (entryDirs.length === 33 ? 0 : 1)
-    + (entryYamlFiles === 33 ? 0 : 1)
-    + (contentFiles === 33 ? 0 : 1)
-    + (coverFiles === 33 ? 0 : 1)
-    + (audioFiles === 33 ? 0 : 1)
+    + (entryDirs.length >= expectedMinimumEntries ? 0 : 1)
+    + (entryYamlFiles === entryDirs.length ? 0 : 1)
+    + (contentFiles === entryDirs.length ? 0 : 1)
+    + (coverFiles === entryDirs.length ? 0 : 1)
+    + (audioFiles === entryDirs.length ? 0 : 1)
     + malformedEntryDirs
-    + (existsFile(manifestPath) && !manifest.error && manifestRecords === 99 ? 0 : 1)
-    + (existsFile(unmappedPath) && !unmapped.error && unmappedFiles === 0 ? 0 : 1)
-    + (existsFile(legacyReportPath) ? 0 : 1)
+    + (requireMigrationBaseline && !(existsFile(manifestPath) && !manifest.error && manifestRecords === 99) ? 1 : 0)
+    + (requireMigrationBaseline && !(existsFile(unmappedPath) && !unmapped.error && unmappedFiles === 0) ? 1 : 0)
+    + (requireMigrationBaseline && !existsFile(legacyReportPath) ? 1 : 0)
     + privacyHits.length;
 
-  console.log(`[${failures ? 'FAIL' : 'PASS'}] ArchiveData-v2 Music shape`);
-  console.log(`  archiveDataV2Exists: ${existsDir(V2_ROOT)}`);
-  console.log(`  albumEntryDirs: ${entryDirs.length}`);
-  console.log(`  entryYamlFiles: ${entryYamlFiles}`);
-  console.log(`  contentFiles: ${contentFiles}`);
-  console.log(`  coverFiles: ${coverFiles}`);
-  console.log(`  audioFiles: ${audioFiles}`);
-  console.log(`  malformedEntryDirs: ${malformedEntryDirs}`);
-  console.log(`  manifestExists: ${existsFile(manifestPath)}`);
-  console.log(`  manifestParseError: ${manifest.error}`);
-  console.log(`  manifestRecords: ${manifestRecords}`);
-  console.log(`  unmappedExists: ${existsFile(unmappedPath)}`);
-  console.log(`  unmappedParseError: ${unmapped.error}`);
-  console.log(`  unmappedFiles: ${unmappedFiles}`);
-  console.log(`  legacyFieldReportExists: ${existsFile(legacyReportPath)}`);
-  console.log(`  privacyRuleHits: ${privacyHits.length}`);
-  console.log(`  privacyRules: ${privacyHits.length ? [...new Set(privacyHits)].join(', ') : 'none'}`);
-  console.log(`Result: archive data v2 music shape check ${failures ? 'failed' : 'passed'}`);
-  process.exitCode = failures ? 1 : 0;
+  return {
+    ok: failures === 0,
+    failures,
+    archiveDataV2Exists: existsDir(v2Root),
+    expectedMinimumEntries,
+    albumEntryDirs: entryDirs.length,
+    entryYamlFiles,
+    contentFiles,
+    coverFiles,
+    audioFiles,
+    malformedEntryDirs,
+    manifestExists: existsFile(manifestPath),
+    manifestParseError: manifest.error,
+    manifestRecords,
+    unmappedExists: existsFile(unmappedPath),
+    unmappedParseError: unmapped.error,
+    unmappedFiles,
+    legacyFieldReportExists: existsFile(legacyReportPath),
+    privacyRuleHits: privacyHits.length,
+    privacyRules: privacyHits.length ? [...new Set(privacyHits)] : [],
+  };
 }
 
-main();
+function printResult(result) {
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Music shape`);
+  console.log(`  archiveDataV2Exists: ${result.archiveDataV2Exists}`);
+  console.log(`  albumEntryDirs: ${result.albumEntryDirs}`);
+  console.log(`  entryYamlFiles: ${result.entryYamlFiles}`);
+  console.log(`  contentFiles: ${result.contentFiles}`);
+  console.log(`  coverFiles: ${result.coverFiles}`);
+  console.log(`  audioFiles: ${result.audioFiles}`);
+  console.log(`  malformedEntryDirs: ${result.malformedEntryDirs}`);
+  console.log(`  manifestExists: ${result.manifestExists}`);
+  console.log(`  manifestParseError: ${result.manifestParseError}`);
+  console.log(`  manifestRecords: ${result.manifestRecords}`);
+  console.log(`  unmappedExists: ${result.unmappedExists}`);
+  console.log(`  unmappedParseError: ${result.unmappedParseError}`);
+  console.log(`  unmappedFiles: ${result.unmappedFiles}`);
+  console.log(`  legacyFieldReportExists: ${result.legacyFieldReportExists}`);
+  console.log(`  privacyRuleHits: ${result.privacyRuleHits}`);
+  console.log(`  privacyRules: ${result.privacyRules.length ? result.privacyRules.join(', ') : 'none'}`);
+  console.log(`Result: archive data v2 music shape check ${result.ok ? 'passed' : 'failed'}`);
+}
+
+function main() {
+  const result = evaluateMusicV2Shape();
+  printResult(result);
+  process.exitCode = result.ok ? 0 : 1;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

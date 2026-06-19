@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   AlertCircle,
   CheckCircle2,
@@ -29,6 +29,67 @@ type PreviewOperation = {
   relativePath: string
   status: 'ready' | 'pending'
 }
+
+type ApiIssue = {
+  code: string
+  message: string
+  path?: string
+}
+
+type ApiPreview = {
+  ok: boolean
+  target: {
+    entryId: string
+    entryRelativeDir: string
+    entryYaml: string
+    contentMd: string
+    cover: string
+    audio: string
+  }
+  operations: Array<{
+    type: string
+    role?: string
+    relativePath: string
+    willOverwrite: boolean
+    requiresBackup: boolean
+  }>
+  warnings: ApiIssue[]
+  errors: ApiIssue[]
+  writeEnabled: false
+  writeScope: 'none'
+}
+
+type ApiPreflight = {
+  ok: boolean
+  entryId: string
+  targetEntryExists: boolean
+  targetFilesExisting: number
+  blockedReasons: string[]
+  scope: string
+  dryRun: {
+    status: string
+    writeItems: number
+    backupItems: number
+    rollbackDeletes: number
+    rollbackRestores: number
+  }
+  writeEnabled: false
+  writeScope: 'none'
+}
+
+type MusicCheckResult = {
+  ok: boolean
+  albumEntryDirs: number
+  entryYamlFiles: number
+  contentFiles: number
+  coverFiles: number
+  audioFiles: number
+  malformedEntryDirs: number
+  privacyRuleHits: number
+  writeScope: 'none'
+}
+
+type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
 
 const initialForm: FormState = {
   title: '',
@@ -73,11 +134,37 @@ export default function ArchiveStudioPage() {
   const [form, setForm] = useState<FormState>(initialForm)
   const [isDirty, setIsDirty] = useState(false)
   const [previewRequested, setPreviewRequested] = useState(false)
+  const [serviceStatus, setServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+  const [previewStatus, setPreviewStatus] = useState<RequestStatus>('idle')
+  const [previewResult, setPreviewResult] = useState<ApiPreview | null>(null)
+  const [preflightStatus, setPreflightStatus] = useState<RequestStatus>('idle')
+  const [preflightResult, setPreflightResult] = useState<ApiPreflight | null>(null)
+  const [musicCheckStatus, setMusicCheckStatus] = useState<RequestStatus>('idle')
+  const [musicCheckResult, setMusicCheckResult] = useState<MusicCheckResult | null>(null)
+  const [requestError, setRequestError] = useState('')
 
   const coverExtension = getExtension(form.cover)
   const audioExtension = getExtension(form.audio)
   const suggestedEntryId = useMemo(() => slugifyTitle(form.title), [form.title])
   const effectiveEntryId = form.entryId || suggestedEntryId
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    fetch('/api/studio/profiles', { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error('Local service did not accept the profile request.')
+        const result = await response.json() as { writeEnabled?: boolean }
+        if (result.writeEnabled !== false) throw new Error('Unexpected write capability reported by local service.')
+        setServiceStatus('online')
+      })
+      .catch(error => {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        setServiceStatus('offline')
+      })
+
+    return () => controller.abort()
+  }, [])
 
   const validation = useMemo(() => {
     const errors: string[] = []
@@ -112,32 +199,149 @@ export default function ArchiveStudioPage() {
     ]
   }, [audioExtension, coverExtension, effectiveEntryId, form.audio, form.cover])
 
+  const buildPayload = () => ({
+    mode: 'create',
+    board: 'music',
+    kind: 'album',
+    id: effectiveEntryId,
+    fields: {
+      title: form.title.trim(),
+      date: form.date.trim(),
+      url: form.url.trim(),
+      note: form.note,
+      legacy: {},
+    },
+    content: {
+      markdown: form.content,
+    },
+    assets: {
+      ...(form.cover ? {
+        cover: {
+          source: 'selected-file',
+          originalName: form.cover.name,
+          extension: `.${coverExtension}`,
+        },
+      } : {}),
+      ...(form.audio ? {
+        audio: {
+          source: 'selected-file',
+          originalName: form.audio.name,
+          extension: `.${audioExtension}`,
+        },
+      } : {}),
+    },
+    options: {
+      allowOverwriteEntry: false,
+      allowOverwriteAssets: false,
+      runCheckAfterWrite: true,
+      backupBeforeOverwrite: true,
+    },
+  })
+
+  const postJson = async <T,>(pathname: string, body: unknown): Promise<T> => {
+    const response = await fetch(pathname, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const result = await response.json() as T
+    if (!response.ok && response.status >= 500) {
+      throw new Error('Local Archive Studio service failed to process the request.')
+    }
+    return result
+  }
+
   const updateField = (field: keyof Omit<FormState, 'cover' | 'audio'>, value: string) => {
     setForm(current => ({ ...current, [field]: value }))
     setIsDirty(true)
     setPreviewRequested(false)
+    setPreviewStatus('idle')
+    setPreviewResult(null)
+    setPreflightStatus('idle')
+    setPreflightResult(null)
+    setRequestError('')
   }
 
   const updateFile = (field: 'cover' | 'audio', file: File | null) => {
     setForm(current => ({ ...current, [field]: file }))
     setIsDirty(true)
     setPreviewRequested(false)
+    setPreviewStatus('idle')
+    setPreviewResult(null)
+    setPreflightStatus('idle')
+    setPreflightResult(null)
+    setRequestError('')
   }
 
   const resetForm = () => {
     setForm(initialForm)
     setIsDirty(false)
     setPreviewRequested(false)
+    setPreviewStatus('idle')
+    setPreviewResult(null)
+    setPreflightStatus('idle')
+    setPreflightResult(null)
+    setRequestError('')
   }
 
-  const generatePreview = () => {
+  const generatePreview = async () => {
     if (!form.entryId) {
       setForm(current => ({ ...current, entryId: suggestedEntryId }))
     }
     setPreviewRequested(true)
+    setPreviewStatus('loading')
+    setPreflightStatus('idle')
+    setPreflightResult(null)
+    setRequestError('')
+
+    try {
+      const result = await postJson<ApiPreview>('/api/studio/music/album/preview', buildPayload())
+      setPreviewResult(result)
+      setPreviewStatus(result.ok ? 'success' : 'error')
+      setServiceStatus('online')
+    } catch (error) {
+      setPreviewResult(null)
+      setPreviewStatus('error')
+      setServiceStatus('offline')
+      setRequestError(error instanceof Error ? error.message : 'Preview request failed.')
+    }
   }
 
-  const previewReady = previewRequested && validation.length === 0
+  const runPreflight = async () => {
+    setPreflightStatus('loading')
+    setPreflightResult(null)
+    setRequestError('')
+
+    try {
+      const result = await postJson<ApiPreflight>('/api/studio/music/album/preflight', buildPayload())
+      setPreflightResult(result)
+      setPreflightStatus(result.ok ? 'success' : 'error')
+      setServiceStatus('online')
+    } catch (error) {
+      setPreflightStatus('error')
+      setServiceStatus('offline')
+      setRequestError(error instanceof Error ? error.message : 'Preflight request failed.')
+    }
+  }
+
+  const runMusicCheck = async () => {
+    setMusicCheckStatus('loading')
+    setMusicCheckResult(null)
+    setRequestError('')
+
+    try {
+      const result = await postJson<MusicCheckResult>('/api/studio/checks/music-v2', {})
+      setMusicCheckResult(result)
+      setMusicCheckStatus(result.ok ? 'success' : 'error')
+      setServiceStatus('online')
+    } catch (error) {
+      setMusicCheckStatus('error')
+      setServiceStatus('offline')
+      setRequestError(error instanceof Error ? error.message : 'Music v2 check failed.')
+    }
+  }
+
+  const previewReady = previewRequested && previewResult?.ok === true && validation.length === 0
 
   return (
     <main className="studio-shell">
@@ -147,7 +351,10 @@ export default function ArchiveStudioPage() {
           <h1>Archive Studio</h1>
         </div>
         <div className="studio-status-cluster">
-          <span className="studio-status studio-status--safe"><ShieldCheck size={15} /> Read-only UI</span>
+          <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}>
+            <ShieldCheck size={15} />
+            {serviceStatus === 'checking' ? 'Checking local API' : serviceStatus === 'online' ? 'Local API online' : 'Local API offline'}
+          </span>
           <span className="studio-status">No publish</span>
           <span className="studio-status">No source writes</span>
         </div>
@@ -168,7 +375,7 @@ export default function ArchiveStudioPage() {
         </div>
         <div className="studio-context-state">
           <span className={`studio-state-dot${isDirty ? ' is-dirty' : ''}`} />
-          {previewReady ? 'Preview ready' : isDirty ? 'Unsaved draft' : 'Pristine'}
+          {preflightResult?.ok ? 'Preflight passed' : previewReady ? 'Preview ready' : isDirty ? 'Unsaved draft' : 'Pristine'}
         </div>
       </section>
 
@@ -328,22 +535,65 @@ export default function ArchiveStudioPage() {
                 <SearchCheck size={17} />
                 <strong>Target conflict</strong>
               </div>
-              <span>Waiting for local preflight API</span>
+              <span>
+                {preflightStatus === 'loading'
+                  ? 'Checking ArchiveData-v2 target...'
+                  : preflightResult
+                    ? preflightResult.targetEntryExists
+                      ? 'Conflict: target entry already exists'
+                      : 'No target entry conflict detected'
+                    : 'Run preflight after preview'}
+              </span>
             </div>
 
-            {previewRequested ? (
-              <div className={`studio-validation${validation.length ? ' has-errors' : ' is-valid'}`}>
+            <div className="studio-check-block studio-check-block--action">
+              <div>
+                <ShieldCheck size={17} />
+                <strong>Music v2 structure</strong>
+              </div>
+              <button type="button" onClick={runMusicCheck} disabled={musicCheckStatus === 'loading' || serviceStatus === 'offline'}>
+                {musicCheckStatus === 'loading' ? 'Checking...' : 'Run check'}
+              </button>
+              {musicCheckResult ? (
+                <span>
+                  {musicCheckResult.ok ? 'Passed' : 'Needs review'} · {musicCheckResult.albumEntryDirs} entries · {musicCheckResult.malformedEntryDirs} malformed
+                </span>
+              ) : null}
+            </div>
+
+            {preflightResult ? (
+              <div className={`studio-validation${preflightResult.ok ? ' is-valid' : ' has-errors'}`}>
                 <div>
-                  {validation.length ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
-                  <strong>{validation.length ? 'Preview blocked' : 'Local preview ready'}</strong>
+                  {preflightResult.ok ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                  <strong>{preflightResult.ok ? 'Preflight passed' : 'Preflight blocked'}</strong>
                 </div>
-                {validation.length ? (
+                <p>
+                  Target files: {preflightResult.targetFilesExisting} · planned writes: {preflightResult.dryRun.writeItems} · write scope: none
+                </p>
+                {preflightResult.blockedReasons.length ? (
                   <ul>
-                    {validation.map(error => <li key={error}>{error}</li>)}
+                    {preflightResult.blockedReasons.map(reason => <li key={reason}>{reason}</li>)}
                   </ul>
-                ) : (
-                  <p>All browser-side checks passed. No files were written.</p>
-                )}
+                ) : null}
+              </div>
+            ) : null}
+
+            {previewRequested ? (
+              <div className={`studio-validation${previewReady ? ' is-valid' : ' has-errors'}`}>
+                <div>
+                  {previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                  <strong>
+                    {previewStatus === 'loading' ? 'Generating preview' : previewReady ? 'API preview ready' : 'Preview blocked'}
+                  </strong>
+                </div>
+                {requestError ? <p>{requestError}</p> : null}
+                {previewStatus !== 'loading' && (previewResult?.errors.length || validation.length) ? (
+                  <ul>
+                    {(previewResult?.errors.map(error => error.message) ?? validation).map(error => <li key={error}>{error}</li>)}
+                  </ul>
+                ) : null}
+                {previewReady ? <p>Preview API passed. No files were written.</p> : null}
+                {previewResult?.warnings.map(warning => <p key={warning.code}>{warning.message}</p>)}
               </div>
             ) : (
               <div className="studio-preview-placeholder">
@@ -364,7 +614,15 @@ export default function ArchiveStudioPage() {
             <RefreshCcw size={16} /> Reset
           </button>
           <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}>
-            <SearchCheck size={16} /> Generate preview
+            <SearchCheck size={16} /> {previewStatus === 'loading' ? 'Generating...' : 'Generate preview'}
+          </button>
+          <button
+            className="studio-button studio-button--secondary"
+            type="button"
+            onClick={runPreflight}
+            disabled={!previewReady || preflightStatus === 'loading'}
+          >
+            <ShieldCheck size={16} /> {preflightStatus === 'loading' ? 'Checking...' : 'Run preflight'}
           </button>
           <button className="studio-button studio-button--primary" type="button" disabled>
             Create entry
