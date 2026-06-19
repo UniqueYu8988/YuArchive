@@ -75,6 +75,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 smoke runner 已实现并通过系统临时沙箱和真实 ArchiveData-v2 create / check / rollback 验证；真实执行写入后为 34 个 entry，rollback 后恢复 33 个，旧 OneDrive Data 未变化。
 - Archive Studio v0 受控 create API 和前端保存已接入；临时目录 API 集成测试覆盖成功创建、一次性 token、冲突阻断、故障 rollback、Music v2 检查和无发布路由。
 - 用户已通过 Archive Studio 页面完成一次保留真实条目的 create，Music v2 从 33 条增至 34 条，结构检查通过；页面已补充中文界面和明确的创建成功摘要。
+- Texts 板块升级已开始；专用只读审计确认 132 个 Markdown、5 个栏目和 54 张书架图片结构完整，当前 live 数量一致，旧 OneDrive Data 未修改。
 
 ## 稳定化目标
 
@@ -413,4 +414,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Archive Studio v0 Music Album 新建闭环已经完成。本计划不自动进入编辑、删除、其他 board、生成或发布功能；下一步需建立独立目标。
+设计并确认 Texts v2 文件规则，重点冻结稳定 ID、section 到 kind、日期、封面和 legacy 字段策略。规则确认前不迁移、不写 ArchiveData-v2、不接 Studio。

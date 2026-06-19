@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 Music Album 新建闭环已完成：UI、preview、preflight、真实 create + rollback smoke test、受控 create API、前端保存、故障回退和一次保留真实条目的端到端验收均已通过。
+ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完成。当前已进入 Texts 板块升级，第 1 阶段只读审计完成，下一步是冻结 Texts v2 文件与字段规则。
 
 ## 已完成
 
@@ -125,6 +125,9 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - Studio 页面已接入真实保存：编辑后旧 preflight 立即失效，preview 和 preflight 通过后才解锁 Create，保存后显示 Music v2 检查结果；失败时显示阶段与 rollback 状态。
 - 用户已通过 Studio 页面完成一次真实保留创建：Music v2 从 33 条增至 34 条，四个条目文件齐全，transaction 三个记录文件齐全，malformed 0，隐私规则命中 0。
 - Studio 页面已完成中文化；创建成功后会显示醒目的结果摘要，明确条目相对目录、文件数、Music v2 总数、结构检查、旧源数据状态和发布状态。
+- 已建立 `docs/tasks/archive-data-v2-texts-audit.md` 和 `scripts/audit-archive-data-v2-texts.mjs`，只读审计旧 Texts、栏目配置、frontmatter、日期、封面、live 数量和稳定 ID 条件。
+- Texts 审计结果：132 个 Markdown 均可解析且正文非空，5 个栏目引用无误，54 张书架图片全部匹配，当前 live 为 132 条；候选 kind 为 article 15、book_note 54、series_note 63。
+- Texts 当前需要规则化的点：2 组同名标题不能直接生成唯一 id；旧 `source_id` 仅 3 个且均不符合 v2 slug；54 个 book_note 无日期符合当前历史规则，不应自动补日期。
 
 ## 当前可正常使用的事实
 
@@ -155,9 +158,9 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master [ahead 6]`。
+- 当前状态：`master...origin/master [ahead 7]`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- Archive Studio v0 受控 create API、前端保存、中文界面和验收记录已形成 6 个本地未推送提交，工作区干净。
+- Archive Studio v0 与 Texts 只读审计已形成 7 个本地未推送提交，工作区干净。
 
 ## 当前主要风险
 
@@ -180,7 +183,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-Archive Studio v0 Music Album 新建目标已完成。下一步应另立任务，不在本轮扩展编辑、删除、其他 board、数据生成或发布能力。
+只推进 Texts v2 规则设计：确定稳定 ID、section 到 kind、日期、封面和 legacy 字段策略；不迁移、不写 ArchiveData-v2、不接 Studio。
 
 ## 暂时不做
 
@@ -213,4 +216,4 @@ Archive Studio v0 Music Album 新建目标已完成。下一步应另立任务�
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线的 Archive Studio v0 Music Album 新建闭环已经完成；发布和旧 OneDrive Data 修改仍保持关闭。后续升级必须作为新任务重新确定范围。
+长期方向是逐步把 Texts、Visions、Games 接入 ArchiveData-v2 和 Archive Studio。当前只推进 Texts，发布和旧 OneDrive Data 修改仍保持关闭。
