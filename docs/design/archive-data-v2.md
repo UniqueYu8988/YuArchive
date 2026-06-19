@@ -405,6 +405,8 @@ tags:
 
 - 用于栏目/系列文本，避免把栏目逻辑埋在目录名和 `sections.yaml` 别名中。
 
+Texts 的审计后正式规则已拆分到 `docs/design/archive-data-v2-texts.md`，其中冻结了五个 section 到三个 kind 的映射、稳定 ID、日期、封面、legacy、迁移验收和 live-compatible 输出规则。后续 Texts 实现以该专用文档为准。
+
 ## 8. 文件命名与媒体规则
 
 ### entry-id 生成原则
@@ -512,4 +514,3 @@ v0 的理想试点是 `music/album`：字段少、媒体规则清楚、现有 33
 - Music：根目录 Markdown 表示专辑/原声条目，`Covers` 保存封面，`Songs` 保存音频；当前 33 个 Markdown、33 个封面、33 个音频匹配通过。
 - Texts：按栏目目录组织 Markdown，`sections.yaml` 定义栏目、描述和别名；部分栏目含展示图片目录。
 - 顶层配置：`homepage.yaml` 做首页优先条目编排；`site-layout.yaml` 做首页数量、游戏赛季挂载年份和文本默认栏目；`site-ui.yaml` 做全站 fallback 文案。
-
