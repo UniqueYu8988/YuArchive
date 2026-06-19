@@ -14,6 +14,13 @@ import {
   ARCHIVE_SOURCE_ROOT,
   createMusicAlbumEntry,
 } from './archive-studio-v0-music-create-core.mjs';
+import {
+  assertTextsPreviewSafe,
+  buildTextsPreview,
+} from './archive-studio-v0-texts-preview-core.mjs';
+import { evaluateTextsWriteGate } from './check-archive-studio-v0-texts-write-gate.mjs';
+import { createTextEntry } from './archive-studio-v0-texts-create-core.mjs';
+import { evaluateTextsV2Shape } from './check-archive-data-v2-texts-shape.mjs';
 
 const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4176;
@@ -123,6 +130,19 @@ function buildProfilesResponse(writeEnabled) {
           publish: false,
         },
       },
+      ...['article', 'book_note', 'series_note'].map(kind => ({
+        board: 'texts',
+        kind,
+        modes: ['create'],
+        capabilities: {
+          preview: true,
+          preflight: true,
+          check: true,
+          create: writeEnabled,
+          update: false,
+          publish: false,
+        },
+      })),
     ],
   };
 }
@@ -174,6 +194,67 @@ function requireFormFile(form, name) {
   return value;
 }
 
+function optionalFormFile(form, name) {
+  const value = form.get(name);
+  if (!value) return null;
+  if (typeof value === 'string' || typeof value.arrayBuffer !== 'function') {
+    const error = new Error(`${name} must be a file`);
+    error.statusCode = 400;
+    error.code = 'multipart_file_invalid';
+    throw error;
+  }
+  return value;
+}
+
+function issuePreflightToken(context, payload) {
+  const token = crypto.randomUUID();
+  const tokenRecord = {
+    token,
+    fingerprint: payloadFingerprint(payload),
+    entryId: payload.id,
+    board: payload.board,
+    expiresAt: Date.now() + PREFLIGHT_TOKEN_TTL_MS,
+  };
+  context.preflightTokens.set(token, tokenRecord);
+  return tokenRecord;
+}
+
+function consumePreflightToken(context, token, payload) {
+  const tokenRecord = context.preflightTokens.get(token);
+  context.preflightTokens.delete(token);
+  return Boolean(
+    tokenRecord
+    && tokenRecord.expiresAt >= Date.now()
+    && tokenRecord.entryId === payload.id
+    && tokenRecord.board === payload.board
+    && tokenRecord.fingerprint === payloadFingerprint(payload)
+  );
+}
+
+function buildTextsPreflightResponse(gate, tokenRecord = null) {
+  return {
+    ok: gate.allowedToRequestWrite,
+    entryId: gate.target.entryId,
+    targetEntryExists: gate.targetEntryExists,
+    targetFilesExisting: gate.targetFilesExisting,
+    blockedReasons: gate.blockedReasons,
+    scope: gate.target.entryRelativeDir,
+    operations: gate.operations,
+    dryRun: {
+      status: gate.allowedToRequestWrite ? 'ready' : 'blocked',
+      writeItems: gate.operations.length,
+      backupItems: 0,
+      rollbackDeletes: gate.operations.length,
+      rollbackRestores: 0,
+    },
+    baseline: gate.baseline,
+    writeEnabled: Boolean(tokenRecord),
+    writeScope: tokenRecord ? gate.target.entryRelativeDir : 'none',
+    preflightToken: tokenRecord?.token || null,
+    preflightExpiresAt: tokenRecord?.expiresAt || null,
+  };
+}
+
 async function routeRequest(request, response, context) {
   if (!isLocalHostHeader(request.headers.host)) {
     sendError(response, 403, 'local_host_required', 'Archive Studio API only accepts local requests');
@@ -207,14 +288,7 @@ async function routeRequest(request, response, context) {
     });
     let tokenRecord = null;
     if (gate.allowedToRequestWrite && context.writeEnabled) {
-      const token = crypto.randomUUID();
-      tokenRecord = {
-        token,
-        fingerprint: payloadFingerprint(payload),
-        entryId: payload.id,
-        expiresAt: Date.now() + PREFLIGHT_TOKEN_TTL_MS,
-      };
-      context.preflightTokens.set(token, tokenRecord);
+      tokenRecord = issuePreflightToken(context, payload);
     }
     sendJson(response, gate.allowedToRequestWrite ? 200 : 409, buildPreflightResponse(gate, tokenRecord));
     return;
@@ -240,14 +314,7 @@ async function routeRequest(request, response, context) {
       throw error;
     }
 
-    const tokenRecord = context.preflightTokens.get(token);
-    context.preflightTokens.delete(token);
-    if (
-      !tokenRecord
-      || tokenRecord.expiresAt < Date.now()
-      || tokenRecord.entryId !== payload.id
-      || tokenRecord.fingerprint !== payloadFingerprint(payload)
-    ) {
+    if (!consumePreflightToken(context, token, payload)) {
       sendError(response, 403, 'preflight_token_invalid', 'Preflight token is invalid or expired');
       return;
     }
@@ -289,6 +356,116 @@ async function routeRequest(request, response, context) {
     return;
   }
 
+  if (request.method === 'POST' && url.pathname === '/api/studio/texts/preview') {
+    const payload = await readJsonBody(request);
+    const preview = buildTextsPreview(payload);
+    assertTextsPreviewSafe(preview);
+    sendJson(response, preview.ok ? 200 : 422, {
+      ...preview,
+      writeEnabled: context.writeEnabled,
+      writeScope: 'none',
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/texts/preflight') {
+    const payload = await readJsonBody(request);
+    const gate = evaluateTextsWriteGate(payload, {
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumTextsEntries,
+      expectedMinimumKinds: context.expectedMinimumTextsKinds,
+      requireMigrationBaseline: context.requireTextsMigrationBaseline,
+    });
+    const tokenRecord = gate.allowedToRequestWrite && context.writeEnabled
+      ? issuePreflightToken(context, payload)
+      : null;
+    sendJson(response, gate.allowedToRequestWrite ? 200 : 409, buildTextsPreflightResponse(gate, tokenRecord));
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/texts/create') {
+    if (!context.writeEnabled) {
+      sendError(response, 403, 'create_disabled', 'Archive Studio create is disabled');
+      return;
+    }
+    const form = await readMultipartForm(request);
+    const payloadText = requireFormText(form, 'payload');
+    const token = requireFormText(form, 'preflightToken');
+    const coverFile = optionalFormFile(form, 'cover');
+    let payload;
+    try {
+      payload = JSON.parse(payloadText);
+    } catch {
+      const error = new Error('payload must be valid JSON');
+      error.statusCode = 400;
+      error.code = 'invalid_payload_json';
+      throw error;
+    }
+    if (!consumePreflightToken(context, token, payload)) {
+      sendError(response, 403, 'preflight_token_invalid', 'Preflight token is invalid or expired');
+      return;
+    }
+    const gate = evaluateTextsWriteGate(payload, {
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumTextsEntries,
+      expectedMinimumKinds: context.expectedMinimumTextsKinds,
+      requireMigrationBaseline: context.requireTextsMigrationBaseline,
+    });
+    if (!gate.allowedToRequestWrite) {
+      sendJson(response, 409, buildTextsPreflightResponse(gate));
+      return;
+    }
+    if (payload.kind === 'book_note') {
+      if (!coverFile) {
+        sendError(response, 422, 'cover_file_missing', 'Book note cover file is required');
+        return;
+      }
+      if (coverFile.name !== payload.assets?.cover?.originalName) {
+        sendError(response, 422, 'asset_name_mismatch', 'Selected cover no longer matches preview');
+        return;
+      }
+    } else if (coverFile) {
+      sendError(response, 422, 'unexpected_cover_file', 'Cover is not supported for this text kind');
+      return;
+    }
+    const result = await createTextEntry({
+      payload,
+      coverBuffer: coverFile ? Buffer.from(await coverFile.arrayBuffer()) : null,
+      v2Root: context.v2Root,
+      sourceRoot: context.sourceRoot,
+      expectedMinimumEntries: context.expectedMinimumTextsEntries,
+      expectedMinimumKinds: context.expectedMinimumTextsKinds,
+      requireMigrationBaseline: context.requireTextsMigrationBaseline,
+    });
+    sendJson(response, 201, {
+      ...result,
+      check: evaluateTextsV2Shape({
+        v2Root: context.v2Root,
+        expectedMinimumEntries: result.textsEntries,
+        expectedMinimumKinds: context.expectedMinimumTextsKinds,
+        requireMigrationBaseline: context.requireTextsMigrationBaseline,
+      }),
+      publishTriggered: false,
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/checks/texts-v2') {
+    await readJsonBody(request);
+    const result = evaluateTextsV2Shape({
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumTextsEntries,
+      expectedMinimumKinds: context.expectedMinimumTextsKinds,
+      requireMigrationBaseline: context.requireTextsMigrationBaseline,
+    });
+    sendJson(response, result.ok ? 200 : 422, {
+      ...result,
+      writeEnabled: false,
+      writeScope: 'none',
+    });
+    return;
+  }
+
   if (request.method === 'POST' && url.pathname === '/api/studio/checks/music-v2') {
     await readJsonBody(request);
     const result = evaluateMusicV2Shape({
@@ -312,19 +489,25 @@ export function createArchiveStudioServer({
   sourceRoot = ARCHIVE_SOURCE_ROOT,
   writeEnabled = true,
   expectedMinimumEntries = 33,
+  expectedMinimumTextsEntries = 132,
+  expectedMinimumTextsKinds,
   requireMigrationBaseline = true,
+  requireTextsMigrationBaseline = requireMigrationBaseline,
 } = {}) {
   const context = {
     v2Root,
     sourceRoot,
     writeEnabled,
     expectedMinimumEntries,
+    expectedMinimumTextsEntries,
+    expectedMinimumTextsKinds,
     requireMigrationBaseline,
+    requireTextsMigrationBaseline,
     preflightTokens: new Map(),
   };
   return http.createServer((request, response) => {
     routeRequest(request, response, context).catch((error) => {
-      if (error.code === 'create_transaction_failed') {
+      if (error.rollback) {
         sendJson(response, 500, {
           ok: false,
           error: {
@@ -353,7 +536,7 @@ export function startArchiveStudioServer({ port = DEFAULT_PORT } = {}) {
     console.log(`  host: ${HOST}`);
     console.log(`  port: ${port}`);
     console.log('  writeEnabled: true');
-    console.log('  writeScope: music/album/create');
+    console.log('  writeScope: music/album/create, texts/*/create');
   });
   return server;
 }

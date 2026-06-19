@@ -141,6 +141,8 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 - Texts preview 与当前 live `texts.json` 深度结构相等，item 字段差异 0、条目和栏目顺序差异 0、隐私命中 0；因此未执行无意义的 public JSON 重写。
 - 已建立 Archive Studio Texts 流程设计和 preview core，支持 article、book_note、series_note 的最小字段、section-kind 约束、日期规则、book cover 和安全相对路径预览。
 - Texts preview core 自检通过：三个 kind 合法场景通过，非法 id、空正文、section-kind 不匹配、非法日期和缺 book cover 正确阻断；写入动作 0。
+- 已接入 Archive Studio Texts 受控 API：profiles、preview、preflight、create 和 Texts v2 check；token 绑定 payload 且一次性使用，不提供 update、delete 或 publish。
+- Texts API 临时目录集成测试通过：article create、book cover 阻断、token 重放、目标冲突、故障 rollback、源目录不变和无发布路由均通过。
 
 ## 当前可正常使用的事实
 
@@ -171,9 +173,9 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master [ahead 12]`。
+- 当前状态：`master...origin/master [ahead 13]`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- Archive Studio v0 与 Texts 数据链、preview core 已形成 12 个本地未推送提交，工作区干净。
+- Archive Studio v0 与 Texts 数据链、preview core 和受控 API 已形成 13 个本地未推送提交，工作区干净。
 
 ## 当前主要风险
 
@@ -196,7 +198,7 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 
 ## 当前下一步
 
-下一步接入 Archive Studio Texts 的 preflight、受控 create API 和中文页面；不提供编辑、删除或发布。
+下一步实现 Archive Studio Texts 中文页面和 board/kind 切换，接入现有 preview、preflight、create 和检查接口。
 
 ## 暂时不做
 

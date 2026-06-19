@@ -3,22 +3,22 @@ import {
   mkdir,
   mkdtemp,
   readFile,
-  readdir,
   rm,
   rmdir,
-  stat,
   writeFile,
 } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  assertPreviewSafe,
-  buildMusicAlbumPreview,
-} from './archive-studio-v0-music-preview-core.mjs';
-import { evaluateMusicV2Shape } from './check-archive-data-v2-music-shape.mjs';
-
-export const ARCHIVE_SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
-export const ARCHIVE_DATA_V2_ROOT = path.join(path.dirname(ARCHIVE_SOURCE_ROOT), 'ArchiveData-v2');
+  ARCHIVE_DATA_V2_ROOT,
+  ARCHIVE_SOURCE_ROOT,
+} from './archive-data-v2-texts-core.mjs';
+import {
+  assertTextsPreviewSafe,
+  buildTextsPreview,
+} from './archive-studio-v0-texts-preview-core.mjs';
+import { evaluateTextsV2Shape } from './check-archive-data-v2-texts-shape.mjs';
+import { snapshotFileMetadata } from './archive-studio-v0-music-create-core.mjs';
 
 function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
@@ -26,10 +26,11 @@ function sha256(buffer) {
 
 async function exists(target) {
   try {
-    await stat(target);
+    await readFile(target);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error.code !== 'EISDIR') return false;
+    return true;
   }
 }
 
@@ -39,61 +40,30 @@ function resolveInside(root, relativePath) {
     || path.isAbsolute(relativePath)
     || relativePath.includes('..')
     || relativePath.includes('\\')
-  ) {
-    throw new Error('unsafe_relative_path');
-  }
+  ) throw new Error('unsafe_relative_path');
   const resolved = path.resolve(root, ...relativePath.split('/'));
   const relative = path.relative(root, resolved);
   if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('path_escaped_root');
   return resolved;
 }
 
-export async function snapshotFileMetadata(root) {
-  const records = [];
-  if (!(await exists(root))) return { files: 0, digest: sha256(Buffer.from('[]')) };
-
-  async function visit(directory) {
-    const entries = await readdir(directory, { withFileTypes: true });
-    entries.sort((left, right) => left.name.localeCompare(right.name));
-    for (const entry of entries) {
-      const absolute = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        await visit(absolute);
-      } else if (entry.isFile()) {
-        const fileStat = await stat(absolute);
-        records.push([
-          path.relative(root, absolute).split(path.sep).join('/'),
-          fileStat.size,
-          Math.trunc(fileStat.mtimeMs),
-        ]);
-      }
-    }
-  }
-
-  await visit(root);
-  return {
-    files: records.length,
-    digest: sha256(Buffer.from(JSON.stringify(records))),
-  };
+function yamlString(value) {
+  return JSON.stringify(String(value ?? ''));
 }
 
-function yamlScalar(value) {
-  return JSON.stringify(String(value));
-}
-
-export function serializeMusicAlbumEntryYaml(payload) {
-  const fields = payload.fields || {};
+function serializeNewTextEntry(payload, preview) {
+  const fields = preview.normalized.fields;
   const lines = [
-    `id: ${yamlScalar(payload.id)}`,
-    'board: music',
-    'kind: album',
-    `title: ${yamlScalar(fields.title)}`,
+    `id: ${yamlString(payload.id)}`,
+    'board: texts',
+    `kind: ${payload.kind}`,
+    `title: ${yamlString(fields.title)}`,
+    `section: ${fields.section}`,
   ];
-  for (const key of ['date', 'url', 'note', 'description', 'track_title']) {
-    if (fields[key] !== undefined && fields[key] !== '') {
-      lines.push(`${key}: ${yamlScalar(fields[key])}`);
-    }
-  }
+  if (fields.date) lines.push(`date: ${yamlString(fields.date)}`);
+  if (fields.author) lines.push(`author: ${yamlString(fields.author)}`);
+  if (fields.summary) lines.push(`summary: ${yamlString(fields.summary)}`);
+  lines.push(`tags: [${fields.tags.map(yamlString).join(', ')}]`);
   lines.push('legacy: {}');
   return `${lines.join('\n')}\n`;
 }
@@ -121,33 +91,36 @@ function assertManifestSafe(value) {
     /Data backup/i,
     /\b(password|secret|api_key|apikey|access_token|refresh_token|SESSDATA)\b/i,
   ];
-  if (blocked.some((rule) => rule.test(serialized))) throw new Error('transaction_manifest_privacy_violation');
+  if (blocked.some(rule => rule.test(serialized))) throw new Error('transaction_manifest_privacy_violation');
 }
 
-export async function createMusicAlbumEntry({
+export async function createTextEntry({
   payload,
-  coverBuffer,
-  audioBuffer,
+  coverBuffer = null,
   v2Root = ARCHIVE_DATA_V2_ROOT,
   sourceRoot = ARCHIVE_SOURCE_ROOT,
-  expectedMinimumEntries = 33,
+  expectedMinimumEntries = 132,
+  expectedMinimumKinds,
   requireMigrationBaseline = true,
 }) {
-  if (!Buffer.isBuffer(coverBuffer) || !coverBuffer.byteLength) throw new Error('cover_bytes_required');
-  if (!Buffer.isBuffer(audioBuffer) || !audioBuffer.byteLength) throw new Error('audio_bytes_required');
+  const preview = buildTextsPreview(payload);
+  assertTextsPreviewSafe(preview);
+  if (!preview.ok) throw new Error(`payload_invalid:${preview.errors.map(item => item.code).join(',')}`);
+  if (payload.kind === 'book_note' && (!Buffer.isBuffer(coverBuffer) || !coverBuffer.byteLength)) {
+    throw new Error('cover_bytes_required');
+  }
+  if (payload.kind !== 'book_note' && coverBuffer) throw new Error('unexpected_cover_bytes');
 
-  const preview = buildMusicAlbumPreview(payload);
-  assertPreviewSafe(preview);
-  if (!preview.ok) throw new Error(`payload_invalid:${preview.errors.map((item) => item.code).join(',')}`);
-
-  const baselineShape = evaluateMusicV2Shape({
+  const baselineShape = evaluateTextsV2Shape({
     v2Root,
     expectedMinimumEntries,
+    ...(expectedMinimumKinds ? { expectedMinimumKinds } : {}),
     requireMigrationBaseline,
   });
-  if (!baselineShape.ok) throw new Error('baseline_music_shape_failed');
-
+  if (!baselineShape.ok) throw new Error('baseline_texts_shape_failed');
   const targetEntryDir = resolveInside(v2Root, preview.target.entryRelativeDir);
+  const targetKindDir = path.dirname(targetEntryDir);
+  const targetKindDirExisted = await exists(targetKindDir);
   if (await exists(targetEntryDir)) throw new Error('target_entry_exists');
 
   const transactionId = `create-${payload.id}-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
@@ -155,20 +128,27 @@ export async function createMusicAlbumEntry({
   const transactionDir = resolveInside(v2Root, transactionRelativeDir);
   const transactionsRoot = path.dirname(transactionDir);
   const studioMigrationRoot = path.dirname(transactionsRoot);
-  const migrationRoot = path.dirname(studioMigrationRoot);
   const transactionsRootExisted = await exists(transactionsRoot);
   const studioMigrationRootExisted = await exists(studioMigrationRoot);
-  const migrationRootExisted = await exists(migrationRoot);
-  if (await exists(transactionDir)) throw new Error('transaction_dir_exists');
-
   const sourceBefore = await snapshotFileMetadata(sourceRoot);
-  const stageRoot = await mkdtemp(path.join(os.tmpdir(), 'archive-studio-v0-create-'));
+  const stageRoot = await mkdtemp(path.join(os.tmpdir(), 'archive-studio-v0-text-create-'));
   const items = [
-    { role: 'entry_yaml', relativePath: preview.target.entryYaml, content: Buffer.from(serializeMusicAlbumEntryYaml(payload), 'utf8') },
-    { role: 'content_md', relativePath: preview.target.contentMd, content: Buffer.from(payload.content?.markdown || '', 'utf8') },
-    { role: 'cover', relativePath: preview.target.cover, content: coverBuffer },
-    { role: 'audio', relativePath: preview.target.audio, content: audioBuffer },
-  ].map((item) => ({
+    {
+      role: 'entry_yaml',
+      relativePath: preview.target.entryYaml,
+      content: Buffer.from(serializeNewTextEntry(payload, preview), 'utf8'),
+    },
+    {
+      role: 'content_md',
+      relativePath: preview.target.contentMd,
+      content: Buffer.from(`${preview.normalized.content.markdown.trim()}\n`, 'utf8'),
+    },
+    ...(preview.target.cover ? [{
+      role: 'cover',
+      relativePath: preview.target.cover,
+      content: coverBuffer,
+    }] : []),
+  ].map(item => ({
     ...item,
     bytes: item.content.byteLength,
     sha256: sha256(item.content),
@@ -183,8 +163,8 @@ export async function createMusicAlbumEntry({
       await writeFile(staged, item.content, { flag: 'wx' });
       await verifyFile(staged, item);
     }
-
     stage = 'entry-write';
+    await mkdir(targetKindDir, { recursive: true });
     await mkdir(targetEntryDir, { recursive: false });
     for (const item of items) {
       const target = resolveInside(v2Root, item.relativePath);
@@ -202,40 +182,38 @@ export async function createMusicAlbumEntry({
       bytes,
       sha256: checksum,
     }));
-    const previewManifest = {
-      transactionId,
-      mode: 'create',
-      board: 'music',
-      kind: 'album',
-      entryId: payload.id,
-      scope: preview.target.entryRelativeDir,
-      files: manifestItems.map(({ role, relativePath, bytes }) => ({ role, relativePath, bytes })),
+    const manifests = {
+      'preview.json': {
+        transactionId,
+        mode: 'create',
+        board: 'texts',
+        kind: payload.kind,
+        entryId: payload.id,
+        scope: preview.target.entryRelativeDir,
+        files: manifestItems.map(({ role, relativePath, bytes }) => ({ role, relativePath, bytes })),
+      },
+      'write.json': { transactionId, createdFiles: manifestItems },
+      'rollback.json': {
+        transactionId,
+        deleteCreatedFiles: [...manifestItems].reverse().map(item => item.relativePath),
+        removeEmptyEntryDirectory: preview.target.entryRelativeDir,
+      },
     };
-    const writeManifest = { transactionId, createdFiles: manifestItems };
-    const rollbackManifest = {
-      transactionId,
-      deleteCreatedFiles: [...manifestItems].reverse().map((item) => item.relativePath),
-      removeEmptyEntryDirectory: preview.target.entryRelativeDir,
-    };
-    assertManifestSafe({ previewManifest, writeManifest, rollbackManifest });
-    for (const [name, value] of [
-      ['preview.json', previewManifest],
-      ['write.json', writeManifest],
-      ['rollback.json', rollbackManifest],
-    ]) {
+    assertManifestSafe(manifests);
+    for (const [name, value] of Object.entries(manifests)) {
       const target = path.join(transactionDir, name);
       await writeFile(target, `${JSON.stringify(value, null, 2)}\n`, { flag: 'wx' });
       createdFiles.push(target);
     }
 
     stage = 'post-write-check';
-    const postWriteShape = evaluateMusicV2Shape({
+    const postWriteShape = evaluateTextsV2Shape({
       v2Root,
-      expectedMinimumEntries: baselineShape.albumEntryDirs + 1,
+      expectedMinimumEntries: baselineShape.totalEntries + 1,
+      ...(expectedMinimumKinds ? { expectedMinimumKinds } : {}),
       requireMigrationBaseline,
     });
-    if (!postWriteShape.ok) throw new Error('post_write_music_shape_failed');
-
+    if (!postWriteShape.ok) throw new Error('post_write_texts_shape_failed');
     stage = 'source-boundary-check';
     const sourceAfter = await snapshotFileMetadata(sourceRoot);
     const sourceUnchanged = sourceBefore.files === sourceAfter.files && sourceBefore.digest === sourceAfter.digest;
@@ -249,14 +227,15 @@ export async function createMusicAlbumEntry({
       transactionId,
       createdEntryFiles: items.length,
       createdTransactionFiles: 3,
-      musicEntries: postWriteShape.albumEntryDirs,
+      textsEntries: postWriteShape.totalEntries,
+      kindCounts: postWriteShape.kindCounts,
       sourceFilesChecked: sourceBefore.files,
       sourceUnchanged,
       writeScope: preview.target.entryRelativeDir,
     };
   } catch (error) {
     const rollbackErrors = [];
-    const rollbackStep = async (operation) => {
+    const rollbackStep = async operation => {
       try {
         await operation();
       } catch (rollbackError) {
@@ -264,17 +243,14 @@ export async function createMusicAlbumEntry({
         rollbackErrors.push(rollbackError instanceof Error ? rollbackError.message : 'unknown_rollback_error');
       }
     };
-    for (const target of [...createdFiles].reverse()) {
-      await rollbackStep(() => rm(target, { force: true }));
-    }
+    for (const target of [...createdFiles].reverse()) await rollbackStep(() => rm(target, { force: true }));
     await rollbackStep(() => removeIfEmpty(targetEntryDir));
+    if (!targetKindDirExisted) await rollbackStep(() => removeIfEmpty(targetKindDir));
     await rollbackStep(() => rm(transactionDir, { recursive: true, force: true }));
     if (!transactionsRootExisted) await rollbackStep(() => removeIfEmpty(transactionsRoot));
     if (!studioMigrationRootExisted) await rollbackStep(() => removeIfEmpty(studioMigrationRoot));
-    if (!migrationRootExisted) await rollbackStep(() => removeIfEmpty(migrationRoot));
-
-    const wrapped = new Error(`Create failed during ${stage}; rollback ${rollbackErrors.length ? 'needs review' : 'completed'}`);
-    wrapped.code = 'create_transaction_failed';
+    const wrapped = new Error(`Text create failed during ${stage}; rollback ${rollbackErrors.length ? 'needs review' : 'completed'}`);
+    wrapped.code = 'texts_create_transaction_failed';
     wrapped.statusCode = 500;
     wrapped.stage = stage;
     wrapped.rollback = {
@@ -286,5 +262,8 @@ export async function createMusicAlbumEntry({
     throw wrapped;
   } finally {
     await rm(stageRoot, { recursive: true, force: true });
+    if (!success) {
+      // Rollback is completed in catch so its status can be returned to the UI.
+    }
   }
 }

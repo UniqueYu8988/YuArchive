@@ -1,7 +1,7 @@
 # Archive Studio Texts 新建流程
 
 创建日期：2026-06-20
-状态：preview 设计和 core 已实现，真实 create 尚未接入
+状态：preview core 和受控 API 已实现，中文页面尚未接入
 
 ## 1. 定位
 

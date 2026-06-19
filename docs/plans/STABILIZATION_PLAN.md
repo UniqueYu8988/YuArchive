@@ -81,6 +81,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Texts v2 已受控迁移并通过：132 个条目、54 个封面、187 条 manifest、0 unmapped、0 隐私命中；旧 Texts 187 个源文件 checksum 未变化，Music v2 未受影响。
 - Texts v2 live-compatible 隔离 preview 已通过：132/132 映射、0 歧义、字段与顺序差异 0，并与当前 live JSON 深度相等；未修改 public 数据。
 - Archive Studio Texts 流程和 preview core 已建立，三个 kind 的字段、section、日期、封面和路径安全自检通过；真实 create 尚未接入。
+- Archive Studio Texts 受控 API 已完成并通过临时目录集成测试；一次性 token、create-only、故障 rollback、源边界和无发布路由均通过。
 
 ## 稳定化目标
 
@@ -419,4 +420,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-接入 Archive Studio Texts preflight、一次性 token、create-only API 和中文页面；保存后运行 Texts v2 shape check，不提供编辑、删除或发布。
+实现 Archive Studio Texts 中文页面和 board/kind 切换，接入已完成的 preview、preflight、create 和 Texts v2 check。
