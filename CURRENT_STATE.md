@@ -130,6 +130,9 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 - Texts 当前需要规则化的点：2 组同名标题不能直接生成唯一 id；旧 `source_id` 仅 3 个且均不符合 v2 slug；54 个 book_note 无日期符合当前历史规则，不应自动补日期。
 - 已建立 `docs/design/archive-data-v2-texts.md`：固定五个 section 到 article / book_note / series_note 的映射，迁移 id 使用源相对路径短哈希，新建 id 使用日期加随机短 id；book_note 日期可空且封面必需。
 - Texts v2 规则明确 frontmatter 拆入 `entry.yaml`、正文原样进入 `content.md`、54 张书架图逐字节复制，旧 `source_id` / `summary_provider` 只保留到 legacy。
+- 已建立共享 `scripts/archive-data-v2-texts-core.mjs`、只读 planner 和 Texts v2 shape checker；迁移器、planner 和后续生成器可复用同一套 section、kind、ID 和封面映射规则。
+- Texts planner 已通过：132 个条目、319 个目标、187 个 manifest 源记录，duplicate id / target、缺封面、孤儿图片和日期策略错误均为 0，写入动作 0。
+- Texts shape checker 系统临时目录自检通过：三个 kind 的合法结构通过，缺少 book_note cover 时正确阻断；真实 v2 Texts 尚未创建。
 
 ## 当前可正常使用的事实
 
@@ -160,9 +163,9 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master [ahead 8]`。
+- 当前状态：`master...origin/master [ahead 9]`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- Archive Studio v0、Texts 审计与 Texts v2 规则已形成 8 个本地未推送提交，工作区干净。
+- Archive Studio v0、Texts 审计、规则和迁移保护工具已形成 9 个本地未推送提交，工作区干净。
 
 ## 当前主要风险
 
@@ -185,7 +188,7 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 
 ## 当前下一步
 
-下一步建立 Texts v2 shape checker 和只读迁移 planner；仍不迁移、不写 ArchiveData-v2、不接 Studio。
+下一步受控执行 Texts v2 迁移：先建立源数据前后基线和回退清单，只创建 ArchiveData-v2 Texts、栏目配置和 Texts 专用 migration 报告。
 
 ## 暂时不做
 
