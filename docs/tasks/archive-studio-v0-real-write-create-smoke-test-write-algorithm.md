@@ -231,3 +231,17 @@ node scripts/check-archive-data-v2-music-shape.mjs
 下一步只建议在 runner 中加入写入算法的 dry-run execution manifest 输出，继续保持 `executeImplemented: false`。
 
 不得在下一步直接启用真实写入。
+
+## 15. 2026-06-19 实现状态
+
+本算法已在 `scripts/run-archive-studio-v0-real-write-create-smoke-test.mjs` 中实现，并通过系统临时沙箱自检：
+
+- create entry：1；
+- post-write shape check：通过；
+- rollback entry：0；
+- residual files：0；
+- injected partial write rollback：通过；
+- source metadata：未变化；
+- 错误授权：阻断。
+
+真实 ArchiveData-v2 尚未执行。常驻保存 API 仍未启用。

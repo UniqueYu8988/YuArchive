@@ -70,6 +70,9 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 真实 v2 Music create + rollback smoke test 文件写入算法已设计，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-write-algorithm.md`；当前只定义 staging、allowlist、apply create、manifest、rollback 和失败处理规则，不执行真实写入。
 - Archive Studio v0 UI / 表单流程设计和验收标准已确认，设计文档为 `docs/design/archive-studio-v0-music-album-flow.md`。
 - Archive Studio v0 只读页面壳已完成，任务记录为 `docs/tasks/archive-studio-v0-read-only-shell.md`；当前已有独立 `/studio` 入口、Music Album 表单、素材选择、浏览器内校验和相对路径预览，真实保存仍禁用。
+- Archive Studio v0 本地只读 API 和前后端联调已完成，任务记录为 `docs/tasks/archive-studio-v0-read-only-api.md`；profiles、preview、preflight 和 Music v2 check 已接入，服务只监听本机，真实保存仍禁用。
+- Archive Studio v0 真实写入前统一只读验收已完成，任务记录为 `docs/tasks/archive-studio-v0-real-write-readiness-audit.md`；15 / 15 检查通过，OneDrive Data 778 个文件元数据快照前后一致。
+- Archive Studio v0 smoke runner 已实现并通过系统临时沙箱 create / check / rollback 自检；真实 ArchiveData-v2 smoke test 尚待外部目录写权限。
 
 ## 稳定化目标
 
@@ -203,7 +206,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：阶段 5 v2 Music live-compatible replacement 已完成并推送；Archive Studio v0 UI 设计和只读页面壳已完成，当前进入本地只读 API 阶段。
+状态：Archive Studio v0 UI、只读 API、联调、readiness audit 和 smoke runner 隔离验证已完成；当前等待受控真实 ArchiveData-v2 smoke test。
 
 ### 目标
 
@@ -323,8 +326,13 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 实现 Archive Studio v0 只读页面壳。
 - [x] 实现 `music/album` 表单、素材选择、dirty/reset 状态和浏览器内校验。
 - [x] 实现 entry id 建议、相对目标路径和文件角色预览。
-- [ ] 实现 preview / preflight API。
-- [ ] 完成前后端只读联调和浏览器验收。
+- [x] 实现 preview / preflight API。
+- [x] 实现 profiles 和 Music v2 shape check API。
+- [x] 完成前后端只读联调和浏览器验收。
+- [x] 完成真实写入前 allowlist、冲突、manifest / rollback、隐私和源数据边界验收。
+- [x] 实现受控 create + rollback smoke runner。
+- [x] 在系统临时沙箱验证 create / check / rollback 且无残留。
+- [ ] 在真实 ArchiveData-v2 执行 create + rollback smoke test。
 - [ ] 再决定是否接入真实 create + rollback smoke test。
 - [ ] 最后启用 v0 保存能力。
 
@@ -400,8 +408,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 实现只监听本机的 Archive Studio Node 服务；
-2. 先提供 profiles、preview、preflight 和 Music v2 shape check API；
-3. 完成前后端只读联调，确认不写 ArchiveData-v2；
-4. 再决定是否接入真实 create + rollback smoke test；
+1. 实现受控 Music Album create + rollback smoke test；
+2. 只使用测试 entry id 和测试素材；
+3. 写入后运行 Music v2 shape check，再立即 rollback；
+4. 确认回退后恢复 33 个 entry 且 OneDrive Data 未变化；
 5. 最后才启用 v0 保存能力。

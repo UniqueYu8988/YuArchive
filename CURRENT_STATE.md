@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 UI 流程设计和只读页面壳已完成，当前准备进入本地只读 preview / preflight API 阶段。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 UI、本地只读 API、前后端联调、真实写入前验收和 smoke runner 隔离验证已完成；真实 ArchiveData-v2 smoke test 尚待具备外部目录写权限的受控执行环境。
 
 ## 已完成
 
@@ -107,6 +107,17 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 当前页面可在浏览器内生成 entry id 建议、目标相对路径和文件角色预览；缺少必需素材时会阻断 preview。
 - `Create entry` 当前始终禁用；尚未连接 Node API，尚未写 ArchiveData-v2。
 - `npm run build` 已通过；桌面和 390px 移动视口浏览器验收通过，控制台错误为 0。
+- 已建立 Archive Studio v0 本地只读 Node API，任务记录为 `docs/tasks/archive-studio-v0-read-only-api.md`，服务只监听 `127.0.0.1`。
+- 已提供 profiles、Music Album preview、preflight 和 Music v2 shape check 四个 API；没有 create、update、delete、Git、构建或发布接口。
+- Studio 页面已接入本地 API：可显示服务状态、preview 错误、目标冲突、dry-run preflight 摘要和 Music v2 检查结果。
+- API 自检、静态无写入标记检查和 TypeScript 检查均通过；所有 API 响应保持 `writeEnabled: false` / `writeScope: none`。
+- 前后端联调确认当前 Music v2 为 33 entries / 0 malformed，缺少 cover / audio 时 preview 正确阻断，`Create entry` 仍禁用。
+- 已建立真实写入前统一只读审计，任务记录为 `docs/tasks/archive-studio-v0-real-write-readiness-audit.md`，脚本为 `scripts/check-archive-studio-v0-real-write-readiness.mjs`。
+- readiness audit 15 / 15 通过：allowlist、已有目标冲突阻断、manifest / rollback、隐私规则和 runner 禁写状态均符合预期。
+- 审计前后 OneDrive Data 778 个文件的元数据计数和摘要一致；本轮未写源数据。
+- smoke runner 已实现 staging、allowlist、create、transaction manifest、post-write check 和 rollback，并继续要求 `--execute`、精确 entry id、授权短语和 preflight gates。
+- 新增 `scripts/check-archive-studio-v0-real-write-smoke-runner.mjs`；系统临时沙箱 create 1 个 entry、rollback 后 0 个 entry、残留文件和目录 0，错误授权被阻断，注入部分写入失败也能完整 rollback。
+- Music v2 shape checker 已从固定 33 条升级为“至少保留迁移基线，并要求 entry / YAML / Markdown / cover / audio 计数一致”，以支持合法新增第 34 个条目。
 
 ## 当前可正常使用的事实
 
@@ -162,7 +173,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：实现 Archive Studio v0 本地只读 Node 服务，先提供 profiles、preview、preflight 和 Music v2 shape check API，不启用真实 create。
+只建议做一件事：在具备 ArchiveData-v2 外部目录写权限的受控环境中执行真实 Music Album create + rollback smoke test；执行后必须恢复到 33 个 Music v2 entries。
 
 ## 暂时不做
 
@@ -177,7 +188,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 不进入数据生成或发布验收。
 - 不批量创建完整 `ArchiveData-v2` 四板块数据；
 - 不继续迁移 Games、Visions、Texts 或 config；
-- 不启用 Archive Studio 真实保存；当前只继续本地只读 API 和联调。
+- 不启用 Archive Studio 常驻真实保存；下一步只允许受控 smoke test 写入并立即 rollback。
 
 ## 当前验证状态
 
@@ -195,4 +206,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 和 Archive Studio v0；Music v2 试点、live-compatible 替换、写入前置机制、`music/album` UI 流程设计、独立 `/studio` 入口、只读页面壳、表单校验和浏览器内预览均已完成。下一步是实现本地只读 preview / preflight API 并做前后端联调；真实 create、发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 和 Archive Studio v0；Music v2 试点、`music/album` UI、只读 Node API、前后端联调和真实写入前验收均已完成。下一步是受控 create + rollback smoke test；常驻 create、发布和旧 OneDrive Data 修改仍保持关闭。

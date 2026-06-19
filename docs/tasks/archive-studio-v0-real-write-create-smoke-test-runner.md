@@ -104,4 +104,26 @@ node scripts/check-archive-studio-v0-real-write-create-preflight.mjs
 - 命令包含 `--execute`；
 - 命令指定的 entry id 与 payload id 一致。
 
-真实执行实现完成前，runner 必须继续保持 `executeImplemented: false`。
+## 9. 2026-06-19 实现更新
+
+runner 已加入受控 create + rollback 实现：
+
+- 默认仍为计划模式；
+- 真实执行必须同时提供 `--execute`、精确 entry id 和固定授权短语；
+- CLI 的真实目标固定为 ArchiveData-v2，不接受任意输出根目录；
+- staging 先写系统临时目录并校验 checksum；
+- entry 和 transaction 文件受 allowlist 限制；
+- 写入后运行 Music v2 shape check；
+- smoke test 必须自动 rollback；
+- rollback 后核对 v2 文件元数据摘要和 OneDrive Data 元数据摘要；
+- 输出不包含完整本机路径或正文。
+
+新增隔离自检：
+
+```powershell
+node scripts/check-archive-studio-v0-real-write-smoke-runner.mjs
+```
+
+当前自检结果：计划模式通过、错误授权被阻断、临时沙箱 create 1 个 entry、rollback 后 0 个 entry、残留文件和目录 0；注入部分写入失败后也能完整 rollback。
+
+真实 ArchiveData-v2 smoke test 尚未执行；执行前仍需当前运行环境具备外部 v2 目录写权限。
