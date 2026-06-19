@@ -78,6 +78,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Texts 板块升级已开始；专用只读审计确认 132 个 Markdown、5 个栏目和 54 张书架图片结构完整，当前 live 数量一致，旧 OneDrive Data 未修改。
 - Texts v2 专用规则已形成：固定 section-kind 映射、稳定 ID、日期、封面、legacy、迁移验收和 live-compatible 输出边界；当前尚未迁移。
 - Texts 只读 planner 和 v2 shape checker 已建立：132 个条目、319 个目标、187 个源记录，0 冲突、0 缺失封面、0 日期策略错误；临时目录 shape 自检通过。
+- Texts v2 已受控迁移并通过：132 个条目、54 个封面、187 条 manifest、0 unmapped、0 隐私命中；旧 Texts 187 个源文件 checksum 未变化，Music v2 未受影响。
 
 ## 稳定化目标
 
@@ -416,4 +417,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-受控执行 Texts v2 迁移。运行前后核对旧 OneDrive Data，写入范围只允许 ArchiveData-v2 Texts、`config/texts-sections.yaml` 和 `migration/texts/`。
+实现 Texts v2 live-compatible 隔离 preview，验证 132/132 映射、section、顺序、live id 和书架 public cover path；不修改 `public/data/texts.json`。

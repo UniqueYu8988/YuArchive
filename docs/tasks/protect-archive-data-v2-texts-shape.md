@@ -1,7 +1,7 @@
 # 任务：保护 ArchiveData-v2 Texts 结构
 
 创建日期：2026-06-20
-状态：检查器和自检已完成，等待真实迁移输出
+状态：已完成并通过真实迁移输出
 
 ## 1. 目标
 
@@ -46,3 +46,13 @@ node scripts/check-archive-data-v2-texts-shape.mjs
 - book_note 单封面规则通过；
 - 删除 book_note cover 后检查正确失败；
 - 自检只写系统临时目录并已清理。
+
+## 6. 真实输出结果
+
+- total entries 132；
+- entry YAML 132、content 132、cover 54；
+- article 15、book_note 54、series_note 63；
+- malformed、invalid id、section-kind mismatch、日期策略错误均为 0；
+- 栏目配置 5 个且 kind 全部匹配；
+- manifest 187、unmapped 0、legacy report 存在；
+- privacy hit 0。
