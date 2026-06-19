@@ -2,11 +2,11 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-06-19
+最后更新：2026-06-20
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 UI、本地只读 API、前后端联调、真实写入前验收和 smoke runner 隔离验证已完成；真实 ArchiveData-v2 smoke test 尚待具备外部目录写权限的受控执行环境。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 已完成 UI、preview、preflight、真实 create + rollback smoke test、受控 create API、前端保存接入和临时目录端到端 API 验证；最终仍待浏览器可视化复核，并使用用户确认的真实素材保留一个正式新条目。
 
 ## 已完成
 
@@ -97,27 +97,32 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 已建立 Archive Studio v0 真实 v2 Music create smoke test 执行边界：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-boundary.md`，明确第一轮真实写入的授权文本、允许范围、禁止范围、写入后验收、rollback 边界和成功标准；本轮仍未执行真实写入。
 - 已建立 Archive Studio v0 真实 v2 Music create smoke test runner 的只读计划模式：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-plan-runner.md` 和 `scripts/plan-archive-studio-v0-real-write-create-smoke-test.mjs`，输出计划写入文件、transaction manifest、rollback 计数和写入后检查命令；本轮仍未执行真实写入。
 - 已建立 Archive Studio v0 真实 v2 Music create smoke test 显式执行 gate：新建 `docs/tasks/archive-studio-v0-real-write-create-execute-gate.md`，明确未来真实执行必须同时具备用户授权、`--execute` 参数和指定 entry id；本轮仍未执行真实写入。
-- 已建立 Archive Studio v0 真实 v2 Music create + rollback smoke test runner 的默认计划模式：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner.md` 和 `scripts/run-archive-studio-v0-real-write-create-smoke-test.mjs`，默认只输出计划摘要；传入 `--execute` 时本轮明确阻断，仍不执行真实写入。
-- 已为 smoke test runner 增加真实执行结构摘要：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner-execution-structure.md`，runner 输出执行 gate 和执行阶段列表；`executeImplemented` 仍为 false。
-- 已完成 Archive Studio v0 真实 v2 Music create + rollback smoke test 文件写入算法设计：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-write-algorithm.md`，定义 staging、allowlist、apply create、manifest、rollback 和失败处理规则；本轮仍未执行真实写入。
-- 已进入 Archive Studio v0 UI / 表单流程设计阶段：新建 `docs/design/archive-studio-v0-music-album-flow.md`，第一版只聚焦 `music/album` 新建流程，不编辑已有条目，不做 AI 自动化，不启用真实写入。
+- 已建立 Archive Studio v0 真实 v2 Music create + rollback smoke test runner：默认只输出计划；真实执行必须同时提供 `--execute`、精确 entry id 和授权短语。
+- 已为 smoke test runner 实现 staging、allowlist、transaction manifests、写后检查和自动 rollback。
+- 已完成 Archive Studio v0 真实 v2 Music create + rollback 文件写入算法设计并通过真实 smoke test。
+- 已完成 Archive Studio v0 UI / 表单流程设计：`docs/design/archive-studio-v0-music-album-flow.md` 第一版只聚焦 `music/album` 新建，不编辑已有条目，不做 AI 自动化。
 - 已确认 Archive Studio v0 UI 流程和完成验收标准，并提交设计阶段文档。
 - 已建立 Archive Studio v0 独立 `/studio` 入口、只读页面壳和 Music Album 表单，任务记录为 `docs/tasks/archive-studio-v0-read-only-shell.md`。
 - 当前页面固定为 `music / album / create`，支持 title、date/year、url、note、entry id、cover、audio 和 Markdown 输入。
 - 当前页面可在浏览器内生成 entry id 建议、目标相对路径和文件角色预览；缺少必需素材时会阻断 preview。
-- `Create entry` 当前始终禁用；尚未连接 Node API，尚未写 ArchiveData-v2。
+- `Create entry` 只在 preview 和 preflight 通过且一次性 token 有效时解锁。
 - `npm run build` 已通过；桌面和 390px 移动视口浏览器验收通过，控制台错误为 0。
-- 已建立 Archive Studio v0 本地只读 Node API，任务记录为 `docs/tasks/archive-studio-v0-read-only-api.md`，服务只监听 `127.0.0.1`。
-- 已提供 profiles、Music Album preview、preflight 和 Music v2 shape check 四个 API；没有 create、update、delete、Git、构建或发布接口。
+- Archive Studio v0 Node API 源自只读阶段，当前已扩展受控 create；服务仍只监听 `127.0.0.1`。
+- 当前提供 profiles、Music Album preview、preflight、create 和 Music v2 shape check；没有 update、delete、Git、构建或发布接口。
 - Studio 页面已接入本地 API：可显示服务状态、preview 错误、目标冲突、dry-run preflight 摘要和 Music v2 检查结果。
-- API 自检、静态无写入标记检查和 TypeScript 检查均通过；所有 API 响应保持 `writeEnabled: false` / `writeScope: none`。
-- 前后端联调确认当前 Music v2 为 33 entries / 0 malformed，缺少 cover / audio 时 preview 正确阻断，`Create entry` 仍禁用。
+- API 临时目录集成测试、TypeScript 检查和生产构建均通过；create 只开放固定 `music/album/create` 范围。
+- 前后端逻辑确认缺少 cover / audio 时 preview 正确阻断，preflight 未通过时 `Create entry` 保持禁用。
 - 已建立真实写入前统一只读审计，任务记录为 `docs/tasks/archive-studio-v0-real-write-readiness-audit.md`，脚本为 `scripts/check-archive-studio-v0-real-write-readiness.mjs`。
 - readiness audit 15 / 15 通过：allowlist、已有目标冲突阻断、manifest / rollback、隐私规则和 runner 禁写状态均符合预期。
 - 审计前后 OneDrive Data 778 个文件的元数据计数和摘要一致；本轮未写源数据。
 - smoke runner 已实现 staging、allowlist、create、transaction manifest、post-write check 和 rollback，并继续要求 `--execute`、精确 entry id、授权短语和 preflight gates。
 - 新增 `scripts/check-archive-studio-v0-real-write-smoke-runner.mjs`；系统临时沙箱 create 1 个 entry、rollback 后 0 个 entry、残留文件和目录 0，错误授权被阻断，注入部分写入失败也能完整 rollback。
 - Music v2 shape checker 已从固定 33 条升级为“至少保留迁移基线，并要求 entry / YAML / Markdown / cover / audio 计数一致”，以支持合法新增第 34 个条目。
+- 已在真实 ArchiveData-v2 完成 Music Album create + rollback smoke test：写入后 34 个 entry，rollback 后恢复 33 个；4 个 entry 文件和 3 个 transaction 文件无残留，旧 OneDrive Data 778 个文件元数据摘要未变化。
+- 已建立 `scripts/archive-studio-v0-music-create-core.mjs` 和受控 `POST /api/studio/music/album/create`：只允许新建单个 Music Album，不覆盖已有条目，不提供发布接口。
+- create API 使用绑定 payload 的短时一次性 preflight token，接收 cover / audio multipart 素材，写后检查 Music v2 和旧源只读边界。
+- 已扩展 `scripts/check-archive-studio-v0-server.mjs`：在系统临时目录验证成功 create、transaction manifests、token 重放阻断、目标冲突阻断、故障回退、源目录不变和无 publish 路由。
+- Studio 页面已接入真实保存：编辑后旧 preflight 立即失效，preview 和 preflight 通过后才解锁 Create，保存后显示 Music v2 检查结果；失败时显示阶段与 rollback 状态。
 
 ## 当前可正常使用的事实
 
@@ -148,9 +153,9 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master`。
+- 当前状态：`master...origin/master [ahead 5]`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- 当前工作区因 Archive Studio v0 music/album UI 流程设计和状态文档更新而存在新的未提交变更。
+- Archive Studio v0 受控 create API、前端保存和状态文档已形成第 5 个本地未推送提交，工作区干净。
 
 ## 当前主要风险
 
@@ -173,7 +178,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：在具备 ArchiveData-v2 外部目录写权限的受控环境中执行真实 Music Album create + rollback smoke test；执行后必须恢复到 33 个 Music v2 entries。
+只建议做一件事：使用用户确认的真实 Music Album 标题、封面、音频和 Markdown 内容完成一次保留新条目的验收；执行前先补做浏览器可视化复核。
 
 ## 暂时不做
 
@@ -183,12 +188,12 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 不改 `public\data`、`src\data` 或派生缓存；
 - 不运行发布脚本；
 - 不执行一键发布；
-- 不进入真实写入改造；
+- 不扩展到已有条目编辑、删除或其他 board；
 - 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
 - 不批量创建完整 `ArchiveData-v2` 四板块数据；
 - 不继续迁移 Games、Visions、Texts 或 config；
-- 不启用 Archive Studio 常驻真实保存；下一步只允许受控 smoke test 写入并立即 rollback。
+- 不提供 Git 或发布入口；Archive Studio 保存只限受控 Music Album create。
 
 ## 当前验证状态
 
@@ -197,7 +202,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 自动测试：已验证 title 到 entry id / 相对路径预览，以及缺少 cover / audio 时的阻断提示。
 - 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-19，已完成 Archive Studio v0 只读页面壳构建和浏览器验收；未写 ArchiveData-v2。
+- 最近一次验证日期：2026-06-20，受控 create API 临时目录集成测试和生产构建通过；当前应用内 Browser 插件缺少其声明的控制脚本，因此保存接入后的桌面/移动可视化复核尚未完成。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
@@ -206,4 +211,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 和 Archive Studio v0；Music v2 试点、`music/album` UI、只读 Node API、前后端联调和真实写入前验收均已完成。下一步是受控 create + rollback smoke test；常驻 create、发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 和 Archive Studio v0；Music v2 试点、`music/album` UI、受控 Node API、真实 create + rollback smoke test 和保存接入均已完成。下一步是浏览器复核和一次保留正式新条目的完整验收；发布和旧 OneDrive Data 修改仍保持关闭。

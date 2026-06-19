@@ -1,7 +1,7 @@
 # Archive Studio v0 Music Album Flow
 
 创建日期：2026-06-18
-状态：设计草案
+状态：设计已落地，最终验收待完成
 
 ## 1. v0 定位
 
@@ -48,7 +48,7 @@ ArchiveData-v2 是新写入目标。旧 OneDrive Data 仍作为只读迁移来�
 → 显示结果
 ```
 
-本轮只是设计，不实现保存。
+当前已实现受控保存；保存仍限定为本地 `music/album/create`，不提供发布能力。
 
 第一版的理想体验：
 
@@ -265,7 +265,7 @@ preview 不显示：
 | `Reset` | 启用 | 清空当前未保存输入 |
 | `Generate preview` | 启用 | 生成写入预览，不写文件 |
 | `Run preflight` | 启用 | 调用 preflight 能力，不写文件 |
-| `Create entry` | 后续启用 | 只在 preflight 通过后可用，本轮不实现 |
+| `Create entry` | 启用 | 只在 preview 和 preflight 通过且一次性 token 有效时可用 |
 | `Cancel` | 启用 | 返回初始状态或离开表单 |
 
 第一版 UI 可以先实现前三个按钮，`Create entry` 显示为 disabled，并说明保存能力尚未启用。
@@ -301,7 +301,7 @@ preview 不显示：
 | `GET /api/studio/profiles` | 无 | 可用 board/kind、能力开关 | 只读 | 启用 | 否 |
 | `POST /api/studio/music/album/preview` | 表单 payload | target、summary、operations、warnings、errors | 只读 | 启用 | 否 |
 | `POST /api/studio/music/album/preflight` | 表单 payload / preview id | preflight 结果、阻断规则 | 只读 | 启用 | 否 |
-| `POST /api/studio/music/album/create` | confirmed payload、preview token | 创建结果、manifest 摘要、检查结果 | 写 ArchiveData-v2 | 后续 | 是 |
+| `POST /api/studio/music/album/create` | confirmed payload、preflight token、cover、audio | 创建结果、manifest 摘要、检查结果 | 写 ArchiveData-v2 | 启用 | 是 |
 | `POST /api/studio/checks/music-v2` | 无或检查 profile | v2 Music shape 检查摘要 | 只读 | 启用 | 否 |
 
 API 边界：
@@ -346,9 +346,7 @@ v0 第一版不做：
 - 编辑已有条目；
 - 批量导入；
 - 多板块支持；
-- 真实写入实现；
-- React 页面实现；
-- Node API 实现。
+- Git、构建或发布操作入口。
 
 ## 12. 后续实施顺序
 
@@ -389,4 +387,4 @@ Archive Studio v0 只有在以下条件全部满足后，才视为完成：
 - 通过一次受控 create + check + rollback smoke test；
 - 通过一次保留新条目的完整 create 验收。
 
-当前设计阶段只确认上述验收标准，不代表真实保存已经启用。
+当前 preview、preflight、受控 create 和写后检查已经实现。最终完成仍需浏览器可视化复核，并使用用户确认的真实素材保留一个新条目。

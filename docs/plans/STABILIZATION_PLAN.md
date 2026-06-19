@@ -65,14 +65,15 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 真实 v2 Music create smoke test 执行边界已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-boundary.md`；当前只定义第一轮真实写入的授权文本、允许范围、禁止范围、验收和 rollback 边界，不执行真实写入。
 - Archive Studio v0 真实 v2 Music create smoke test runner 只读计划模式已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-plan-runner.md`，脚本为 `scripts/plan-archive-studio-v0-real-write-create-smoke-test.mjs`；当前只输出计划写入文件、transaction manifest、rollback 计数和写入后检查命令，不执行真实写入。
 - Archive Studio v0 真实 v2 Music create smoke test 显式执行 gate 已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-execute-gate.md`；当前只定义用户授权、`--execute` 参数和 entry id 三重 gate，不执行真实写入。
-- Archive Studio v0 真实 v2 Music create + rollback smoke test runner 默认计划模式已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner.md`，脚本为 `scripts/run-archive-studio-v0-real-write-create-smoke-test.mjs`；当前默认只输出计划，传入 `--execute` 时明确阻断，不执行真实写入。
-- Archive Studio v0 真实 v2 Music create + rollback smoke test runner 执行结构摘要已建立，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner-execution-structure.md`；当前 runner 只输出执行 gate 和执行阶段，不执行真实写入。
-- Archive Studio v0 真实 v2 Music create + rollback smoke test 文件写入算法已设计，任务记录为 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-write-algorithm.md`；当前只定义 staging、allowlist、apply create、manifest、rollback 和失败处理规则，不执行真实写入。
+- Archive Studio v0 真实 v2 Music create + rollback smoke test runner 已建立；默认计划模式不写数据，真实执行要求 `--execute`、精确 entry id 和授权短语。
+- Archive Studio v0 smoke runner 已实现 staging、allowlist、apply create、transaction manifests、写后检查和 rollback。
+- Archive Studio v0 真实 v2 Music create + rollback 文件写入算法已落地并通过真实 smoke test。
 - Archive Studio v0 UI / 表单流程设计和验收标准已确认，设计文档为 `docs/design/archive-studio-v0-music-album-flow.md`。
-- Archive Studio v0 只读页面壳已完成，任务记录为 `docs/tasks/archive-studio-v0-read-only-shell.md`；当前已有独立 `/studio` 入口、Music Album 表单、素材选择、浏览器内校验和相对路径预览，真实保存仍禁用。
-- Archive Studio v0 本地只读 API 和前后端联调已完成，任务记录为 `docs/tasks/archive-studio-v0-read-only-api.md`；profiles、preview、preflight 和 Music v2 check 已接入，服务只监听本机，真实保存仍禁用。
+- Archive Studio v0 页面壳已完成，当前已有独立 `/studio` 入口、Music Album 表单、素材选择、浏览器内校验、相对路径预览和受控保存。
+- Archive Studio v0 本地 API 已完成 profiles、preview、preflight、create 和 Music v2 check；服务只监听本机，不提供发布能力。
 - Archive Studio v0 真实写入前统一只读验收已完成，任务记录为 `docs/tasks/archive-studio-v0-real-write-readiness-audit.md`；15 / 15 检查通过，OneDrive Data 778 个文件元数据快照前后一致。
-- Archive Studio v0 smoke runner 已实现并通过系统临时沙箱 create / check / rollback 自检；真实 ArchiveData-v2 smoke test 尚待外部目录写权限。
+- Archive Studio v0 smoke runner 已实现并通过系统临时沙箱和真实 ArchiveData-v2 create / check / rollback 验证；真实执行写入后为 34 个 entry，rollback 后恢复 33 个，旧 OneDrive Data 未变化。
+- Archive Studio v0 受控 create API 和前端保存已接入；临时目录 API 集成测试覆盖成功创建、一次性 token、冲突阻断、故障 rollback、Music v2 检查和无发布路由。
 
 ## 稳定化目标
 
@@ -332,9 +333,11 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - [x] 完成真实写入前 allowlist、冲突、manifest / rollback、隐私和源数据边界验收。
 - [x] 实现受控 create + rollback smoke runner。
 - [x] 在系统临时沙箱验证 create / check / rollback 且无残留。
-- [ ] 在真实 ArchiveData-v2 执行 create + rollback smoke test。
-- [ ] 再决定是否接入真实 create + rollback smoke test。
-- [ ] 最后启用 v0 保存能力。
+- [x] 在真实 ArchiveData-v2 执行 create + rollback smoke test。
+- [x] 接入受控 Music Album create API。
+- [x] 接入 v0 前端保存和写后 Music v2 检查。
+- [ ] 完成保存接入后的桌面和移动浏览器复核。
+- [ ] 使用用户确认的真实素材保留一个新条目，完成最终 create 验收。
 
 ## 阶段 4：核心数据与构建验收
 
@@ -408,8 +411,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-1. 实现受控 Music Album create + rollback smoke test；
-2. 只使用测试 entry id 和测试素材；
-3. 写入后运行 Music v2 shape check，再立即 rollback；
-4. 确认回退后恢复 33 个 entry 且 OneDrive Data 未变化；
-5. 最后才启用 v0 保存能力。
+1. 恢复可用的应用内浏览器验收环境，复核保存接入后的桌面和移动 UI；
+2. 用户确认一个真实 Music Album 的标题、封面、音频和 Markdown 内容；
+3. 通过 Archive Studio 完成一次保留新条目的 create，并确认 Music v2 shape check 通过；
+4. 不运行 `build_archive.py`，不修改旧 OneDrive Data，不提供发布操作。

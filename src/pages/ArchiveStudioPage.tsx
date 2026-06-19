@@ -55,7 +55,7 @@ type ApiPreview = {
   }>
   warnings: ApiIssue[]
   errors: ApiIssue[]
-  writeEnabled: false
+  writeEnabled: boolean
   writeScope: 'none'
 }
 
@@ -73,8 +73,10 @@ type ApiPreflight = {
     rollbackDeletes: number
     rollbackRestores: number
   }
-  writeEnabled: false
-  writeScope: 'none'
+  writeEnabled: boolean
+  writeScope: string
+  preflightToken: string | null
+  preflightExpiresAt: number | null
 }
 
 type MusicCheckResult = {
@@ -87,6 +89,35 @@ type MusicCheckResult = {
   malformedEntryDirs: number
   privacyRuleHits: number
   writeScope: 'none'
+}
+
+type ApiCreateResult = {
+  ok: boolean
+  entryId: string
+  entryRelativeDir: string
+  transactionId: string
+  createdEntryFiles: number
+  createdTransactionFiles: number
+  musicEntries: number
+  sourceFilesChecked: number
+  sourceUnchanged: boolean
+  writeScope: string
+  check: MusicCheckResult
+  publishTriggered: false
+}
+
+type ApiErrorResult = {
+  ok: false
+  error?: {
+    code?: string
+    message?: string
+    stage?: string
+    rollback?: {
+      attempted: boolean
+      completed: boolean
+      errorCount: number
+    }
+  }
 }
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
@@ -132,15 +163,19 @@ function slugifyTitle(title: string) {
 
 export default function ArchiveStudioPage() {
   const [form, setForm] = useState<FormState>(initialForm)
+  const [fileInputVersion, setFileInputVersion] = useState(0)
   const [isDirty, setIsDirty] = useState(false)
   const [previewRequested, setPreviewRequested] = useState(false)
   const [serviceStatus, setServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+  const [createAvailable, setCreateAvailable] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<RequestStatus>('idle')
   const [previewResult, setPreviewResult] = useState<ApiPreview | null>(null)
   const [preflightStatus, setPreflightStatus] = useState<RequestStatus>('idle')
   const [preflightResult, setPreflightResult] = useState<ApiPreflight | null>(null)
   const [musicCheckStatus, setMusicCheckStatus] = useState<RequestStatus>('idle')
   const [musicCheckResult, setMusicCheckResult] = useState<MusicCheckResult | null>(null)
+  const [createStatus, setCreateStatus] = useState<RequestStatus>('idle')
+  const [createResult, setCreateResult] = useState<ApiCreateResult | null>(null)
   const [requestError, setRequestError] = useState('')
 
   const coverExtension = getExtension(form.cover)
@@ -154,8 +189,16 @@ export default function ArchiveStudioPage() {
     fetch('/api/studio/profiles', { signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error('Local service did not accept the profile request.')
-        const result = await response.json() as { writeEnabled?: boolean }
-        if (result.writeEnabled !== false) throw new Error('Unexpected write capability reported by local service.')
+        const result = await response.json() as {
+          localOnly?: boolean
+          writeEnabled?: boolean
+          profiles?: Array<{ capabilities?: { create?: boolean; publish?: boolean } }>
+        }
+        const capabilities = result.profiles?.[0]?.capabilities
+        if (result.localOnly !== true || capabilities?.publish !== false) {
+          throw new Error('Local service reported an unsafe capability profile.')
+        }
+        setCreateAvailable(result.writeEnabled === true && capabilities.create === true)
         setServiceStatus('online')
       })
       .catch(error => {
@@ -195,7 +238,11 @@ export default function ArchiveStudioPage() {
         relativePath: `${entryRoot}/audio.${audioExtension || 'ext'}`,
         status: form.audio ? 'ready' : 'pending',
       },
-      { role: 'Transaction manifest', relativePath: `.studio/transactions/${effectiveEntryId}.json`, status: 'pending' },
+      {
+        role: 'Transaction manifest',
+        relativePath: 'migration/archive-studio-v0/transactions/[transaction-id]/',
+        status: 'pending',
+      },
     ]
   }, [audioExtension, coverExtension, effectiveEntryId, form.audio, form.cover])
 
@@ -259,6 +306,8 @@ export default function ArchiveStudioPage() {
     setPreviewResult(null)
     setPreflightStatus('idle')
     setPreflightResult(null)
+    setCreateStatus('idle')
+    setCreateResult(null)
     setRequestError('')
   }
 
@@ -270,17 +319,24 @@ export default function ArchiveStudioPage() {
     setPreviewResult(null)
     setPreflightStatus('idle')
     setPreflightResult(null)
+    setCreateStatus('idle')
+    setCreateResult(null)
     setRequestError('')
   }
 
   const resetForm = () => {
     setForm(initialForm)
+    setFileInputVersion(current => current + 1)
     setIsDirty(false)
     setPreviewRequested(false)
     setPreviewStatus('idle')
     setPreviewResult(null)
     setPreflightStatus('idle')
     setPreflightResult(null)
+    setMusicCheckStatus('idle')
+    setMusicCheckResult(null)
+    setCreateStatus('idle')
+    setCreateResult(null)
     setRequestError('')
   }
 
@@ -292,6 +348,8 @@ export default function ArchiveStudioPage() {
     setPreviewStatus('loading')
     setPreflightStatus('idle')
     setPreflightResult(null)
+    setCreateStatus('idle')
+    setCreateResult(null)
     setRequestError('')
 
     try {
@@ -341,7 +399,61 @@ export default function ArchiveStudioPage() {
     }
   }
 
+  const createEntry = async () => {
+    if (!form.cover || !form.audio || !preflightResult?.preflightToken) return
+
+    setCreateStatus('loading')
+    setCreateResult(null)
+    setRequestError('')
+
+    const body = new FormData()
+    body.set('payload', JSON.stringify(buildPayload()))
+    body.set('preflightToken', preflightResult.preflightToken)
+    body.set('cover', form.cover)
+    body.set('audio', form.audio)
+
+    try {
+      const response = await fetch('/api/studio/music/album/create', {
+        method: 'POST',
+        body,
+      })
+      const result = await response.json() as ApiCreateResult | ApiErrorResult
+      if (!response.ok || !result.ok) {
+        const details = 'error' in result ? result.error : undefined
+        const rollback = details?.rollback
+          ? ` Rollback ${details.rollback.completed ? 'completed' : 'needs review'}.`
+          : ''
+        const message = details?.message || 'Archive Studio could not create the entry.'
+        throw new Error(`${message}${rollback}`)
+      }
+
+      setCreateResult(result)
+      setCreateStatus('success')
+      setIsDirty(false)
+      setMusicCheckResult(result.check)
+      setMusicCheckStatus(result.check.ok ? 'success' : 'error')
+      setServiceStatus('online')
+    } catch (error) {
+      setCreateStatus('error')
+      setRequestError(error instanceof Error ? error.message : 'Create request failed.')
+    } finally {
+      setPreflightResult(current => current ? {
+        ...current,
+        writeEnabled: false,
+        preflightToken: null,
+        preflightExpiresAt: null,
+      } : current)
+    }
+  }
+
   const previewReady = previewRequested && previewResult?.ok === true && validation.length === 0
+  const createReady = previewReady
+    && preflightResult?.ok === true
+    && preflightResult.writeEnabled
+    && Boolean(preflightResult.preflightToken)
+    && createAvailable
+    && createStatus !== 'loading'
+    && createStatus !== 'success'
 
   return (
     <main className="studio-shell">
@@ -375,7 +487,15 @@ export default function ArchiveStudioPage() {
         </div>
         <div className="studio-context-state">
           <span className={`studio-state-dot${isDirty ? ' is-dirty' : ''}`} />
-          {preflightResult?.ok ? 'Preflight passed' : previewReady ? 'Preview ready' : isDirty ? 'Unsaved draft' : 'Pristine'}
+          {createStatus === 'success'
+            ? 'Entry created'
+            : preflightResult?.ok
+              ? 'Preflight passed'
+              : previewReady
+                ? 'Preview ready'
+                : isDirty
+                  ? 'Unsaved draft'
+                  : 'Pristine'}
         </div>
       </section>
 
@@ -447,13 +567,14 @@ export default function ArchiveStudioPage() {
                 <span>02</span>
                 <h2>Assets</h2>
               </div>
-              <p>Files stay in the browser until a future create API is enabled.</p>
+              <p>Files remain local until preview and preflight both pass.</p>
             </div>
 
             <div className="studio-asset-grid">
               <label className={`studio-asset-picker${form.cover ? ' has-file' : ''}`}>
                 <input
                   type="file"
+                  key={`cover-${fileInputVersion}`}
                   accept=".jpg,.jpeg,.png,.webp"
                   onChange={event => updateFile('cover', event.target.files?.[0] ?? null)}
                 />
@@ -466,6 +587,7 @@ export default function ArchiveStudioPage() {
               <label className={`studio-asset-picker${form.audio ? ' has-file' : ''}`}>
                 <input
                   type="file"
+                  key={`audio-${fileInputVersion}`}
                   accept=".mp3,.wav,.flac,.m4a,.ogg,.aac"
                   onChange={event => updateFile('audio', event.target.files?.[0] ?? null)}
                 />
@@ -483,7 +605,7 @@ export default function ArchiveStudioPage() {
                 <span>03</span>
                 <h2>Markdown content</h2>
               </div>
-              <p>Stored later as content.md without automatic rewriting.</p>
+              <p>Saved as content.md without automatic rewriting.</p>
             </div>
 
             <label className="studio-field studio-field--wide">
@@ -568,13 +690,29 @@ export default function ArchiveStudioPage() {
                   <strong>{preflightResult.ok ? 'Preflight passed' : 'Preflight blocked'}</strong>
                 </div>
                 <p>
-                  Target files: {preflightResult.targetFilesExisting} · planned writes: {preflightResult.dryRun.writeItems} · write scope: none
+                  Target files: {preflightResult.targetFilesExisting} · planned writes: {preflightResult.dryRun.writeItems} · write scope: {preflightResult.writeScope}
                 </p>
                 {preflightResult.blockedReasons.length ? (
                   <ul>
                     {preflightResult.blockedReasons.map(reason => <li key={reason}>{reason}</li>)}
                   </ul>
                 ) : null}
+              </div>
+            ) : null}
+
+            {createStatus !== 'idle' ? (
+              <div className={`studio-validation${createStatus === 'success' ? ' is-valid' : createStatus === 'error' ? ' has-errors' : ''}`}>
+                <div>
+                  {createStatus === 'success' ? <CheckCircle2 size={18} /> : createStatus === 'error' ? <AlertCircle size={18} /> : <Sparkles size={18} />}
+                  <strong>
+                    {createStatus === 'loading' ? 'Creating entry' : createStatus === 'success' ? 'Entry created' : 'Create failed'}
+                  </strong>
+                </div>
+                {createResult ? (
+                  <p>
+                    {createResult.entryRelativeDir} · {createResult.createdEntryFiles} entry files · Music v2 check {createResult.check.ok ? 'passed' : 'failed'} · source unchanged
+                  </p>
+                ) : requestError ? <p>{requestError}</p> : null}
               </div>
             ) : null}
 
@@ -606,8 +744,8 @@ export default function ArchiveStudioPage() {
 
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
-          <span>{isDirty ? 'Draft changed' : 'No draft changes'}</span>
-          <small>Real write capability is disabled in this version.</small>
+          <span>{createStatus === 'success' ? 'Entry saved' : isDirty ? 'Draft changed' : 'No draft changes'}</span>
+          <small>{createAvailable ? 'Create writes only to ArchiveData-v2. Publishing is unavailable.' : 'Local create service is unavailable.'}</small>
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={resetForm}>
@@ -624,8 +762,13 @@ export default function ArchiveStudioPage() {
           >
             <ShieldCheck size={16} /> {preflightStatus === 'loading' ? 'Checking...' : 'Run preflight'}
           </button>
-          <button className="studio-button studio-button--primary" type="button" disabled>
-            Create entry
+          <button
+            className="studio-button studio-button--primary"
+            type="button"
+            onClick={createEntry}
+            disabled={!createReady}
+          >
+            {createStatus === 'loading' ? 'Creating...' : createStatus === 'success' ? 'Entry created' : 'Create entry'}
           </button>
         </div>
       </footer>

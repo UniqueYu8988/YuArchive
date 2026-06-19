@@ -42,10 +42,10 @@ function assertInside(root, target) {
   }
 }
 
-function resolveV2Relative(relativePath) {
+function resolveV2Relative(relativePath, v2Root = V2_ROOT) {
   normalizeRelativePath(relativePath);
-  const resolved = path.join(V2_ROOT, ...relativePath.split('/'));
-  assertInside(V2_ROOT, resolved);
+  const resolved = path.join(v2Root, ...relativePath.split('/'));
+  assertInside(v2Root, resolved);
   return resolved;
 }
 
@@ -73,15 +73,15 @@ export async function readJson(filePath) {
   return JSON.parse(text);
 }
 
-async function listEntryDirs() {
-  if (!(await existsDir(V2_MUSIC_ROOT))) return [];
-  return (await readdir(V2_MUSIC_ROOT, { withFileTypes: true }))
+async function listEntryDirs(v2MusicRoot = V2_MUSIC_ROOT) {
+  if (!(await existsDir(v2MusicRoot))) return [];
+  return (await readdir(v2MusicRoot, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
 }
 
-async function buildTargetState(preview) {
+async function buildTargetState(preview, v2Root = V2_ROOT) {
   const files = [
     ['entry_yaml', preview.target.entryYaml],
     ['content_md', preview.target.contentMd],
@@ -91,7 +91,7 @@ async function buildTargetState(preview) {
 
   const state = [];
   for (const [role, relativePath] of files) {
-    const targetPath = resolveV2Relative(relativePath);
+    const targetPath = resolveV2Relative(relativePath, v2Root);
     const info = await fileInfo(targetPath);
     state.push({
       role,
@@ -126,24 +126,29 @@ function countBy(items, key) {
   return counts;
 }
 
-export async function evaluateGate(payload, payloadLabel = 'inline-payload') {
+export async function evaluateGate(payload, payloadLabel = 'inline-payload', {
+  v2Root = V2_ROOT,
+  requireMigrationRoot = true,
+} = {}) {
   const preview = buildMusicAlbumPreview(payload);
   assertPreviewSafe(preview);
 
-  const v2Exists = await existsDir(V2_ROOT);
-  const v2MusicExists = await existsDir(V2_MUSIC_ROOT);
-  const migrationExists = await existsDir(V2_MIGRATION_ROOT);
-  const entryDirs = await listEntryDirs();
-  const targetEntryDir = resolveV2Relative(preview.target.entryRelativeDir);
+  const v2MusicRoot = path.join(v2Root, 'entries', 'music', 'album');
+  const v2MigrationRoot = path.join(v2Root, 'migration');
+  const v2Exists = await existsDir(v2Root);
+  const v2MusicExists = await existsDir(v2MusicRoot);
+  const migrationExists = await existsDir(v2MigrationRoot);
+  const entryDirs = await listEntryDirs(v2MusicRoot);
+  const targetEntryDir = resolveV2Relative(preview.target.entryRelativeDir, v2Root);
   const targetEntryExists = await existsDir(targetEntryDir);
-  const targetState = await buildTargetState(preview);
+  const targetState = await buildTargetState(preview, v2Root);
   const diff = buildDiff(payload, preview, targetState);
   const operationCounts = countBy(diff, 'operation');
   const blocked = [
     ...preview.errors.map((error) => error.code),
     !v2Exists ? 'v2_root_missing' : null,
     !v2MusicExists ? 'v2_music_root_missing' : null,
-    !migrationExists ? 'v2_migration_root_missing' : null,
+    requireMigrationRoot && !migrationExists ? 'v2_migration_root_missing' : null,
     payload.mode === 'create' && targetEntryExists ? 'create_target_exists' : null,
     payload.mode === 'update' && !targetEntryExists ? 'update_target_missing' : null,
     ...diff.filter((item) => item.blocked).map((item) => `${item.role}_blocked`),

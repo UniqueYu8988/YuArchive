@@ -70,3 +70,7 @@
 ## 8. 下一步建议
 
 下一步进入真实写入前验收，复核 allowlist、冲突阻断、manifest / rollback、隐私规则和旧 OneDrive Data 只读边界；仍不立即启用 create。
+
+## 9. 后续状态
+
+本任务记录的是只读 API 阶段。2026-06-20 已在通过真实 create + rollback smoke test 后，按 `docs/tasks/archive-studio-v0-create-api.md` 将本地服务扩展为受控 `music/album/create`；本任务原有“无 create 接口”结论不再代表当前运行状态。

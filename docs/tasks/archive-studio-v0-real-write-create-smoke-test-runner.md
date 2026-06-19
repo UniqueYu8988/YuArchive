@@ -126,4 +126,15 @@ node scripts/check-archive-studio-v0-real-write-smoke-runner.mjs
 
 当前自检结果：计划模式通过、错误授权被阻断、临时沙箱 create 1 个 entry、rollback 后 0 个 entry、残留文件和目录 0；注入部分写入失败后也能完整 rollback。
 
-真实 ArchiveData-v2 smoke test 尚未执行；执行前仍需当前运行环境具备外部 v2 目录写权限。
+## 10. 2026-06-19 真实执行结果
+
+已在授权范围内对真实 ArchiveData-v2 执行 create + rollback smoke test：
+
+- 写入后 Music entries 从 33 增至 34；
+- rollback 后恢复为 33；
+- 创建的 4 个 entry 文件和 3 个 transaction 文件均无残留；
+- 旧 OneDrive Data 778 个源文件元数据摘要前后一致；
+- rollback 后 ArchiveData-v2 元数据摘要恢复；
+- Music v2 shape check 通过。
+
+该结果证明受控写入和回退链路可用，不等同于已经保留正式新条目。
