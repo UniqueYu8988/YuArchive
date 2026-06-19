@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前已完成 Archive Studio v0 真实 v2 Music create + rollback smoke test 的文件写入算法设计。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成，当前已暂停继续扩展底层 gate / runner / manifest / rollback 机制，进入 Archive Studio v0 UI / 表单流程设计阶段。
 
 ## 已完成
 
@@ -100,6 +100,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 已建立 Archive Studio v0 真实 v2 Music create + rollback smoke test runner 的默认计划模式：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner.md` 和 `scripts/run-archive-studio-v0-real-write-create-smoke-test.mjs`，默认只输出计划摘要；传入 `--execute` 时本轮明确阻断，仍不执行真实写入。
 - 已为 smoke test runner 增加真实执行结构摘要：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-runner-execution-structure.md`，runner 输出执行 gate 和执行阶段列表；`executeImplemented` 仍为 false。
 - 已完成 Archive Studio v0 真实 v2 Music create + rollback smoke test 文件写入算法设计：新建 `docs/tasks/archive-studio-v0-real-write-create-smoke-test-write-algorithm.md`，定义 staging、allowlist、apply create、manifest、rollback 和失败处理规则；本轮仍未执行真实写入。
+- 已进入 Archive Studio v0 UI / 表单流程设计阶段：新建 `docs/design/archive-studio-v0-music-album-flow.md`，第一版只聚焦 `music/album` 新建流程，不编辑已有条目，不做 AI 自动化，不启用真实写入。
 
 ## 当前可正常使用的事实
 
@@ -132,7 +133,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 当前分支：`master`
 - 当前状态：`master...origin/master`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- 当前工作区因 Archive Studio v0 real write create smoke test 写入算法文档和状态文档更新而存在新的未提交变更。
+- 当前工作区因 Archive Studio v0 music/album UI 流程设计和状态文档更新而存在新的未提交变更。
 
 ## 当前主要风险
 
@@ -155,7 +156,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：在 runner 中加入写入算法的 dry-run execution manifest 输出；继续保持计划模式，不启用真实写入。
+只建议做一件事：确认 Archive Studio v0 `music/album` UI / 表单流程设计；随后实现只读页面壳，不启用真实写入。
 
 ## 暂时不做
 
@@ -168,7 +169,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 不启动开发服务器；
 - 不运行发布脚本；
 - 不执行一键发布；
-- 不进入代码改造；
+- 不进入真实写入改造；
 - 不做代码修改；
 - 不开始代码修复；
 - 不进入自动改写源数据的维护自动化开发。
@@ -193,4 +194,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已只读完成，当前仍未做代码改造、源数据修改、派生数据生成、构建或发布。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计、只读 gate checker、gate 场景自检、dry-run manifest、dry-run manifest 场景自检、真实 create 写入试点执行前检查清单、preflight checker、smoke test 执行边界、只读计划模式、显式执行 gate、默认计划模式 runner、执行结构摘要和文件写入算法设计。下一步是在 runner 中加入写入算法的 dry-run execution manifest 输出；继续保持计划模式，不做前端实现，不修改 `public/data`，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 文件规则、只读迁移审计、migration dry-run、Music 试点迁移和 Archive Studio v0；当前已完成文件规则设计、只读迁移审计、migration dry-run、Music v2 试点边界设计、只读 planner、写入型试点任务设计、Music-only 写入试点、Git 边界验收、v2 Music preview 生成器、live 兼容策略设计、只读 v2-to-live 映射、live-compatible preview 生成器、replacement gate、live Music JSON 替换、仓库范围变更 review 计划、本地提交、push、Archive Studio v0 边界设计、技术入口设计、`music/album` payload schema 设计、CLI sandbox preview 原型、项目内样例 payload、preview core 模块拆分、preview core 自检、写入事务设计、transaction sandbox、失败场景自检、真实 v2 写入 approval gate 设计、只读 gate checker、gate 场景自检、dry-run manifest、dry-run manifest 场景自检、真实 create 写入试点执行前检查清单、preflight checker、smoke test 执行边界、只读计划模式、显式执行 gate、默认计划模式 runner、执行结构摘要、文件写入算法设计和 `music/album` UI / 表单流程设计。下一步是确认 UI 流程设计并实现只读页面壳；不启用真实写入，不修改 `public/data`，不再次运行 `build_archive.py`，不自动改写旧 OneDrive Data。
