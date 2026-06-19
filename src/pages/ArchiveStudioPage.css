@@ -58,6 +58,32 @@
   background: color-mix(in srgb, var(--studio-accent) 8%, transparent);
 }
 
+.studio-board-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--studio-border);
+}
+
+.studio-board-tabs a {
+  min-width: 88px;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.studio-board-tabs a:hover,
+.studio-board-tabs a.active {
+  border-color: color-mix(in srgb, var(--studio-accent) 35%, transparent);
+  background: color-mix(in srgb, var(--studio-accent) 8%, transparent);
+  color: var(--studio-accent);
+}
+
 .studio-context-bar {
   display: grid;
   grid-template-columns: repeat(3, minmax(120px, 180px)) minmax(180px, 1fr);
@@ -232,6 +258,51 @@
   gap: 1rem;
 }
 
+.studio-kind-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.studio-kind-selector button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 70px;
+  padding: 0.75rem;
+  border: 1px solid var(--studio-border);
+  border-radius: 7px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.studio-kind-selector button:hover,
+.studio-kind-selector button.is-active {
+  border-color: color-mix(in srgb, var(--studio-accent) 40%, transparent);
+  background: color-mix(in srgb, var(--studio-accent) 7%, var(--bg-primary));
+  color: var(--studio-accent);
+}
+
+.studio-kind-selector button span {
+  display: grid;
+  min-width: 0;
+  gap: 0.2rem;
+}
+
+.studio-kind-selector strong {
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.studio-kind-selector small {
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+  font-size: 0.66rem;
+}
+
 .studio-field {
   display: grid;
   gap: 0.45rem;
@@ -259,7 +330,8 @@
 }
 
 .studio-field input,
-.studio-field textarea {
+.studio-field textarea,
+.studio-field select {
   width: 100%;
   border: 1px solid var(--studio-border);
   border-radius: 6px;
@@ -273,7 +345,8 @@
 }
 
 .studio-field input:focus,
-.studio-field textarea:focus {
+.studio-field textarea:focus,
+.studio-field select:focus {
   border-color: var(--studio-accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--studio-accent) 14%, transparent);
 }
@@ -688,7 +761,8 @@
   }
 
   .studio-form-grid,
-  .studio-asset-grid {
+  .studio-asset-grid,
+  .studio-kind-selector {
     grid-template-columns: 1fr;
   }
 

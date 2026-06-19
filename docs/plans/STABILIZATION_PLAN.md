@@ -420,4 +420,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-实现 Archive Studio Texts 中文页面和 board/kind 切换，接入已完成的 preview、preflight、create 和 Texts v2 check。
+Archive Studio Texts 中文页面、board/kind 切换、preview 和 preflight 已通过验收。下一步只执行一次受控 Texts create + rollback smoke test，确认真实 ArchiveData-v2 写入、Texts v2 检查和无残留回退。

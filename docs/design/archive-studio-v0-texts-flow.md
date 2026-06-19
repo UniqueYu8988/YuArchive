@@ -1,7 +1,7 @@
 # Archive Studio Texts 新建流程
 
 创建日期：2026-06-20
-状态：preview core 和受控 API 已实现，中文页面尚未接入
+状态：preview core、受控 API 和中文页面已实现，真实 create + rollback 验收待执行
 
 ## 1. 定位
 
@@ -91,3 +91,12 @@ Archive Studio Texts 第一版只新建 ArchiveData-v2 文本，不编辑旧条�
 - `POST /api/studio/checks/texts-v2`
 
 接口只监听本机，create 需要一次性 preflight token。book_note 使用 multipart cover；其他 kind 不接受素材。
+
+## 8. 页面验收
+
+- `/studio/texts` 已接入音乐 / 文本板块切换；
+- article、book_note、series_note 三种表单按 kind 显示对应字段和栏目；
+- 文章表单已在浏览器完成 preview 和 preflight，未执行真实 create；
+- preflight 通过前创建按钮保持禁用，修改表单后旧 token 会失效；
+- 390px 移动视口无横向溢出，kind 选择器切换为单列；
+- `npm run build`、Texts API 检查和既有 Music API 回归均通过。
