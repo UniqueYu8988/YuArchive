@@ -145,6 +145,7 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 - Texts API 临时目录集成测试通过：article create、book cover 阻断、token 重放、目标冲突、故障 rollback、源目录不变和无发布路由均通过。
 - 已接入 `/studio/texts` 中文页面：支持 article、book_note、series_note、受约束栏目、Markdown 正文、book cover、preview、preflight、create 和写后检查。
 - Texts 页面已完成桌面与 390px 移动视口验收：无横向溢出，文章 preview / preflight 通过，未点击真实创建；生产构建和 Music / Texts API 回归通过。
+- Archive Studio Texts 真实 create + rollback smoke test 已通过：临时条目使总数从 132 变为 133，回退后恢复 132；ArchiveData-v2 快照恢复一致，旧源 778 个文件无变化。
 
 ## 当前可正常使用的事实
 
@@ -200,7 +201,7 @@ ArchiveData-v2 的 Music v2 和 Archive Studio v0 Music Album 新建闭环已完
 
 ## 当前下一步
 
-下一步执行一次受控 Texts create + rollback smoke test，确认真实 ArchiveData-v2 写入、结构检查和完整回退。
+下一步由用户通过 `/studio/texts` 创建并保留一个真实 Texts 条目，完成最终端到端验收；不自动生成 public JSON 或发布。
 
 ## 暂时不做
 
