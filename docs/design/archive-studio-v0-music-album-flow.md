@@ -1,7 +1,7 @@
 # Archive Studio v0 Music Album Flow
 
 创建日期：2026-06-18
-状态：设计已落地，最终验收待完成
+状态：v0 已完成
 
 ## 1. v0 定位
 
@@ -387,4 +387,4 @@ Archive Studio v0 只有在以下条件全部满足后，才视为完成：
 - 通过一次受控 create + check + rollback smoke test；
 - 通过一次保留新条目的完整 create 验收。
 
-当前 preview、preflight、受控 create 和写后检查已经实现。最终完成仍需浏览器可视化复核，并使用用户确认的真实素材保留一个新条目。
+当前 preview、preflight、受控 create 和写后检查已经实现。用户已通过页面使用真实素材保留一个新条目，Music v2 从 33 条增至 34 条，结构检查通过；v0 Music Album 新建闭环完成。

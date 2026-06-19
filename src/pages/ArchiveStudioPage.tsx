@@ -161,6 +161,54 @@ function slugifyTitle(title: string) {
   return slug.length >= 2 ? slug : 'music-album'
 }
 
+const issueMessages: Record<string, string> = {
+  invalid_mode: '操作模式无效。',
+  invalid_board: '当前只支持音乐板块。',
+  invalid_kind: '当前只支持专辑类型。',
+  invalid_entry_id: '条目 ID 格式无效。',
+  missing_title: '请填写专辑标题。',
+  content_empty: 'Markdown 正文为空。',
+  missing_cover: '请选择封面文件。',
+  missing_audio: '请选择音频文件。',
+  invalid_cover_extension: '封面扩展名不受支持。',
+  invalid_audio_extension: '音频扩展名不受支持。',
+  operation_not_allowed: '预览包含不允许的文件操作。',
+}
+
+const blockedReasonMessages: Record<string, string> = {
+  v2_root_missing: 'ArchiveData-v2 根目录不存在。',
+  v2_music_root_missing: 'Music v2 目录不存在。',
+  v2_migration_root_missing: '迁移基线目录不存在。',
+  create_target_exists: '目标条目已经存在，不能覆盖。',
+  update_target_missing: '要更新的目标条目不存在。',
+}
+
+function describeIssue(issue: ApiIssue) {
+  return issueMessages[issue.code] ?? issue.message
+}
+
+function describeBlockedReason(reason: string) {
+  return blockedReasonMessages[reason] ?? `预检规则未通过：${reason}`
+}
+
+function describeCreateError(details: ApiErrorResult['error']) {
+  if (!details) return 'Archive Studio 无法创建条目。'
+  if (details.code === 'preflight_token_invalid') return '预检凭证已失效，请重新生成预览并运行预检。'
+  if (details.code === 'asset_name_mismatch') return '所选素材已变化，请重新生成预览并运行预检。'
+  if (details.code === 'create_disabled') return '本地创建功能当前未启用。'
+  if (details.code === 'create_transaction_failed') {
+    const stageNames: Record<string, string> = {
+      staging: '准备素材',
+      'entry-write': '写入条目',
+      'manifest-write': '写入事务记录',
+      'post-write-check': '写后结构检查',
+      'source-boundary-check': '旧源数据边界检查',
+    }
+    return `创建在“${stageNames[details.stage ?? ''] ?? '未知阶段'}”失败。`
+  }
+  return details.message || 'Archive Studio 无法创建条目。'
+}
+
 export default function ArchiveStudioPage() {
   const [form, setForm] = useState<FormState>(initialForm)
   const [fileInputVersion, setFileInputVersion] = useState(0)
@@ -188,7 +236,7 @@ export default function ArchiveStudioPage() {
 
     fetch('/api/studio/profiles', { signal: controller.signal })
       .then(async response => {
-        if (!response.ok) throw new Error('Local service did not accept the profile request.')
+        if (!response.ok) throw new Error('本地服务未接受能力检查请求。')
         const result = await response.json() as {
           localOnly?: boolean
           writeEnabled?: boolean
@@ -196,7 +244,7 @@ export default function ArchiveStudioPage() {
         }
         const capabilities = result.profiles?.[0]?.capabilities
         if (result.localOnly !== true || capabilities?.publish !== false) {
-          throw new Error('Local service reported an unsafe capability profile.')
+          throw new Error('本地服务返回了不安全的能力配置。')
         }
         setCreateAvailable(result.writeEnabled === true && capabilities.create === true)
         setServiceStatus('online')
@@ -212,12 +260,12 @@ export default function ArchiveStudioPage() {
   const validation = useMemo(() => {
     const errors: string[] = []
 
-    if (!form.title.trim()) errors.push('Title is required.')
-    if (!form.cover) errors.push('Select a cover file.')
-    if (!form.audio) errors.push('Select an audio file.')
-    if (form.cover && !coverExtensions.has(coverExtension)) errors.push('Cover file type is not supported.')
-    if (form.audio && !audioExtensions.has(audioExtension)) errors.push('Audio file type is not supported.')
-    if (!entryIdPattern.test(effectiveEntryId)) errors.push('Entry ID must be a lowercase slug with 2-80 characters.')
+    if (!form.title.trim()) errors.push('请填写专辑标题。')
+    if (!form.cover) errors.push('请选择封面文件。')
+    if (!form.audio) errors.push('请选择音频文件。')
+    if (form.cover && !coverExtensions.has(coverExtension)) errors.push('封面文件类型不受支持。')
+    if (form.audio && !audioExtensions.has(audioExtension)) errors.push('音频文件类型不受支持。')
+    if (!entryIdPattern.test(effectiveEntryId)) errors.push('条目 ID 必须是 2-80 位小写字母、数字和连字符。')
 
     return errors
   }, [audioExtension, coverExtension, effectiveEntryId, form])
@@ -225,21 +273,21 @@ export default function ArchiveStudioPage() {
   const operations = useMemo<PreviewOperation[]>(() => {
     const entryRoot = `entries/music/album/${effectiveEntryId}`
     return [
-      { role: 'Entry directory', relativePath: entryRoot, status: 'ready' },
-      { role: 'YAML metadata', relativePath: `${entryRoot}/entry.yaml`, status: 'ready' },
-      { role: 'Markdown content', relativePath: `${entryRoot}/content.md`, status: 'ready' },
+      { role: '条目目录', relativePath: entryRoot, status: 'ready' },
+      { role: 'YAML 元数据', relativePath: `${entryRoot}/entry.yaml`, status: 'ready' },
+      { role: 'Markdown 内容', relativePath: `${entryRoot}/content.md`, status: 'ready' },
       {
-        role: 'Cover asset',
+        role: '封面素材',
         relativePath: `${entryRoot}/cover.${coverExtension || 'ext'}`,
         status: form.cover ? 'ready' : 'pending',
       },
       {
-        role: 'Audio asset',
+        role: '音频素材',
         relativePath: `${entryRoot}/audio.${audioExtension || 'ext'}`,
         status: form.audio ? 'ready' : 'pending',
       },
       {
-        role: 'Transaction manifest',
+        role: '事务记录',
         relativePath: 'migration/archive-studio-v0/transactions/[transaction-id]/',
         status: 'pending',
       },
@@ -293,7 +341,7 @@ export default function ArchiveStudioPage() {
     })
     const result = await response.json() as T
     if (!response.ok && response.status >= 500) {
-      throw new Error('Local Archive Studio service failed to process the request.')
+      throw new Error('本地 Archive Studio 服务处理请求失败。')
     }
     return result
   }
@@ -361,7 +409,7 @@ export default function ArchiveStudioPage() {
       setPreviewResult(null)
       setPreviewStatus('error')
       setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : 'Preview request failed.')
+      setRequestError(error instanceof Error ? error.message : '生成预览失败。')
     }
   }
 
@@ -378,7 +426,7 @@ export default function ArchiveStudioPage() {
     } catch (error) {
       setPreflightStatus('error')
       setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : 'Preflight request failed.')
+      setRequestError(error instanceof Error ? error.message : '预检请求失败。')
     }
   }
 
@@ -395,7 +443,7 @@ export default function ArchiveStudioPage() {
     } catch (error) {
       setMusicCheckStatus('error')
       setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : 'Music v2 check failed.')
+      setRequestError(error instanceof Error ? error.message : 'Music v2 检查失败。')
     }
   }
 
@@ -421,9 +469,9 @@ export default function ArchiveStudioPage() {
       if (!response.ok || !result.ok) {
         const details = 'error' in result ? result.error : undefined
         const rollback = details?.rollback
-          ? ` Rollback ${details.rollback.completed ? 'completed' : 'needs review'}.`
+          ? ` 回退${details.rollback.completed ? '已完成' : '需要人工检查'}。`
           : ''
-        const message = details?.message || 'Archive Studio could not create the entry.'
+        const message = describeCreateError(details)
         throw new Error(`${message}${rollback}`)
       }
 
@@ -435,7 +483,7 @@ export default function ArchiveStudioPage() {
       setServiceStatus('online')
     } catch (error) {
       setCreateStatus('error')
-      setRequestError(error instanceof Error ? error.message : 'Create request failed.')
+      setRequestError(error instanceof Error ? error.message : '创建条目失败。')
     } finally {
       setPreflightResult(current => current ? {
         ...current,
@@ -459,45 +507,62 @@ export default function ArchiveStudioPage() {
     <main className="studio-shell">
       <header className="studio-topbar">
         <div>
-          <div className="studio-kicker">Local collection workspace</div>
+          <div className="studio-kicker">本地收藏维护工具</div>
           <h1>Archive Studio</h1>
         </div>
         <div className="studio-status-cluster">
           <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}>
             <ShieldCheck size={15} />
-            {serviceStatus === 'checking' ? 'Checking local API' : serviceStatus === 'online' ? 'Local API online' : 'Local API offline'}
+            {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
           </span>
-          <span className="studio-status">No publish</span>
-          <span className="studio-status">No source writes</span>
+          <span className="studio-status">不会自动发布</span>
+          <span className="studio-status">不写旧源数据</span>
         </div>
       </header>
 
-      <section className="studio-context-bar" aria-label="Current creation profile">
+      <section className="studio-context-bar" aria-label="当前创建配置">
         <div className="studio-context-item">
-          <span>Board</span>
-          <strong>Music</strong>
+          <span>板块</span>
+          <strong>音乐</strong>
         </div>
         <div className="studio-context-item">
-          <span>Kind</span>
-          <strong>Album</strong>
+          <span>类型</span>
+          <strong>专辑</strong>
         </div>
         <div className="studio-context-item">
-          <span>Mode</span>
-          <strong>Create</strong>
+          <span>操作</span>
+          <strong>新建</strong>
         </div>
         <div className="studio-context-state">
           <span className={`studio-state-dot${isDirty ? ' is-dirty' : ''}`} />
           {createStatus === 'success'
-            ? 'Entry created'
+            ? '条目已创建'
             : preflightResult?.ok
-              ? 'Preflight passed'
+              ? '预检已通过'
               : previewReady
-                ? 'Preview ready'
+                ? '预览已就绪'
                 : isDirty
-                  ? 'Unsaved draft'
-                  : 'Pristine'}
+                  ? '草稿有改动'
+                  : '尚未编辑'}
         </div>
       </section>
+
+      {createResult ? (
+        <section className="studio-save-result" role="status" aria-live="polite">
+          <CheckCircle2 size={22} />
+          <div>
+            <strong>创建成功，条目已保存到 ArchiveData-v2</strong>
+            <span>{createResult.entryRelativeDir}</span>
+          </div>
+          <dl>
+            <div><dt>条目文件</dt><dd>{createResult.createdEntryFiles}</dd></div>
+            <div><dt>Music v2 总数</dt><dd>{createResult.musicEntries}</dd></div>
+            <div><dt>结构检查</dt><dd>{createResult.check.ok ? '通过' : '失败'}</dd></div>
+            <div><dt>旧源数据</dt><dd>{createResult.sourceUnchanged ? '未变化' : '需检查'}</dd></div>
+            <div><dt>发布</dt><dd>{createResult.publishTriggered ? '已触发' : '未触发'}</dd></div>
+          </dl>
+        </section>
+      ) : null}
 
       <div className="studio-workspace">
         <div className="studio-editor-column">
@@ -505,23 +570,23 @@ export default function ArchiveStudioPage() {
             <div className="studio-section-heading">
               <div>
                 <span>01</span>
-                <h2>Album details</h2>
+                <h2>专辑信息</h2>
               </div>
-              <p>Only the fields needed for a new Music album entry.</p>
+              <p>填写新建音乐专辑条目所需的基本信息。</p>
             </div>
 
             <div className="studio-form-grid">
               <label className="studio-field studio-field--wide">
-                <span>Title <b>Required</b></span>
+                <span>标题 <b>必填</b></span>
                 <input
                   value={form.title}
                   onChange={event => updateField('title', event.target.value)}
-                  placeholder="Album title"
+                  placeholder="专辑标题"
                 />
               </label>
 
               <label className="studio-field">
-                <span>Date or year</span>
+                <span>日期或年份</span>
                 <input
                   value={form.date}
                   onChange={event => updateField('date', event.target.value)}
@@ -530,7 +595,7 @@ export default function ArchiveStudioPage() {
               </label>
 
               <label className="studio-field">
-                <span>External URL</span>
+                <span>外部链接</span>
                 <input
                   type="url"
                   value={form.url}
@@ -540,22 +605,22 @@ export default function ArchiveStudioPage() {
               </label>
 
               <label className="studio-field studio-field--wide">
-                <span>Entry ID <b>Generated</b></span>
+                <span>条目 ID <b>自动建议</b></span>
                 <input
                   value={form.entryId}
                   onChange={event => updateField('entryId', event.target.value.toLowerCase())}
                   placeholder={suggestedEntryId}
                 />
-                <small>Suggested from title. Lowercase letters, numbers, and hyphens only.</small>
+                <small>根据标题生成；只允许小写字母、数字和连字符。</small>
               </label>
 
               <label className="studio-field studio-field--wide">
-                <span>Note</span>
+                <span>备注</span>
                 <textarea
                   rows={3}
                   value={form.note}
                   onChange={event => updateField('note', event.target.value)}
-                  placeholder="Optional working note"
+                  placeholder="可选的简短备注"
                 />
               </label>
             </div>
@@ -565,9 +630,9 @@ export default function ArchiveStudioPage() {
             <div className="studio-section-heading">
               <div>
                 <span>02</span>
-                <h2>Assets</h2>
+                <h2>素材</h2>
               </div>
-              <p>Files remain local until preview and preflight both pass.</p>
+              <p>预览和预检都通过前，文件不会写入 ArchiveData-v2。</p>
             </div>
 
             <div className="studio-asset-grid">
@@ -579,9 +644,9 @@ export default function ArchiveStudioPage() {
                   onChange={event => updateFile('cover', event.target.files?.[0] ?? null)}
                 />
                 <FileImage size={24} />
-                <span className="studio-asset-label">Cover</span>
-                <strong>{form.cover?.name ?? 'Choose image'}</strong>
-                <small>{formatFileSize(form.cover)} · JPG, PNG, or WebP</small>
+                <span className="studio-asset-label">封面</span>
+                <strong>{form.cover?.name ?? '选择图片'}</strong>
+                <small>{formatFileSize(form.cover)} · JPG、PNG 或 WebP</small>
               </label>
 
               <label className={`studio-asset-picker${form.audio ? ' has-file' : ''}`}>
@@ -592,9 +657,9 @@ export default function ArchiveStudioPage() {
                   onChange={event => updateFile('audio', event.target.files?.[0] ?? null)}
                 />
                 <FileAudio size={24} />
-                <span className="studio-asset-label">Audio</span>
-                <strong>{form.audio?.name ?? 'Choose audio'}</strong>
-                <small>{formatFileSize(form.audio)} · MP3, FLAC, M4A, or WAV</small>
+                <span className="studio-asset-label">音频</span>
+                <strong>{form.audio?.name ?? '选择音频'}</strong>
+                <small>{formatFileSize(form.audio)} · MP3、FLAC、M4A 或 WAV</small>
               </label>
             </div>
           </section>
@@ -603,21 +668,21 @@ export default function ArchiveStudioPage() {
             <div className="studio-section-heading">
               <div>
                 <span>03</span>
-                <h2>Markdown content</h2>
+                <h2>Markdown 内容</h2>
               </div>
-              <p>Saved as content.md without automatic rewriting.</p>
+              <p>原样保存为 content.md，不会自动改写。</p>
             </div>
 
             <label className="studio-field studio-field--wide">
-              <span>Content</span>
+              <span>正文</span>
               <textarea
                 className="studio-markdown-input"
                 rows={12}
                 value={form.content}
                 onChange={event => updateField('content', event.target.value)}
-                placeholder="Write notes, a track list, or a short description in Markdown."
+                placeholder="可用 Markdown 填写说明、曲目列表或个人记录。"
               />
-              <small>{form.content.length} characters · {form.content ? form.content.split(/\r\n|\r|\n/).length : 0} lines</small>
+              <small>{form.content.length} 个字符 · {form.content ? form.content.split(/\r\n|\r|\n/).length : 0} 行</small>
             </label>
           </section>
         </div>
@@ -627,13 +692,13 @@ export default function ArchiveStudioPage() {
             <div className="studio-preview-title">
               <FolderTree size={19} />
               <div>
-                <span>Write preview</span>
+                <span>写入预览</span>
                 <strong>[ArchiveData-v2]</strong>
               </div>
             </div>
 
             <div className="studio-preview-id">
-              <span>Entry ID</span>
+              <span>条目 ID</span>
               <code>{effectiveEntryId}</code>
             </div>
 
@@ -646,7 +711,7 @@ export default function ArchiveStudioPage() {
                     <code>{operation.relativePath}</code>
                   </div>
                   <i className={operation.status === 'ready' ? 'is-ready' : ''}>
-                    {operation.status === 'ready' ? 'Ready' : 'Pending'}
+                    {operation.status === 'ready' ? '就绪' : '待处理'}
                   </i>
                 </div>
               ))}
@@ -655,30 +720,30 @@ export default function ArchiveStudioPage() {
             <div className="studio-check-block">
               <div>
                 <SearchCheck size={17} />
-                <strong>Target conflict</strong>
+                  <strong>目标冲突</strong>
               </div>
               <span>
                 {preflightStatus === 'loading'
-                  ? 'Checking ArchiveData-v2 target...'
+                  ? '正在检查 ArchiveData-v2 目标...'
                   : preflightResult
                     ? preflightResult.targetEntryExists
-                      ? 'Conflict: target entry already exists'
-                      : 'No target entry conflict detected'
-                    : 'Run preflight after preview'}
+                      ? '冲突：目标条目已经存在'
+                      : '未发现目标条目冲突'
+                    : '生成预览后运行预检'}
               </span>
             </div>
 
             <div className="studio-check-block studio-check-block--action">
               <div>
                 <ShieldCheck size={17} />
-                <strong>Music v2 structure</strong>
+                  <strong>Music v2 结构</strong>
               </div>
               <button type="button" onClick={runMusicCheck} disabled={musicCheckStatus === 'loading' || serviceStatus === 'offline'}>
-                {musicCheckStatus === 'loading' ? 'Checking...' : 'Run check'}
+                {musicCheckStatus === 'loading' ? '检查中...' : '运行检查'}
               </button>
               {musicCheckResult ? (
                 <span>
-                  {musicCheckResult.ok ? 'Passed' : 'Needs review'} · {musicCheckResult.albumEntryDirs} entries · {musicCheckResult.malformedEntryDirs} malformed
+                  {musicCheckResult.ok ? '通过' : '需要检查'} · {musicCheckResult.albumEntryDirs} 个条目 · {musicCheckResult.malformedEntryDirs} 个异常
                 </span>
               ) : null}
             </div>
@@ -687,14 +752,14 @@ export default function ArchiveStudioPage() {
               <div className={`studio-validation${preflightResult.ok ? ' is-valid' : ' has-errors'}`}>
                 <div>
                   {preflightResult.ok ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-                  <strong>{preflightResult.ok ? 'Preflight passed' : 'Preflight blocked'}</strong>
+                  <strong>{preflightResult.ok ? '预检通过' : '预检被阻断'}</strong>
                 </div>
                 <p>
-                  Target files: {preflightResult.targetFilesExisting} · planned writes: {preflightResult.dryRun.writeItems} · write scope: {preflightResult.writeScope}
+                  已有目标文件：{preflightResult.targetFilesExisting} · 计划写入：{preflightResult.dryRun.writeItems} · 写入范围：{preflightResult.writeScope}
                 </p>
                 {preflightResult.blockedReasons.length ? (
                   <ul>
-                    {preflightResult.blockedReasons.map(reason => <li key={reason}>{reason}</li>)}
+                    {preflightResult.blockedReasons.map(reason => <li key={reason}>{describeBlockedReason(reason)}</li>)}
                   </ul>
                 ) : null}
               </div>
@@ -705,12 +770,12 @@ export default function ArchiveStudioPage() {
                 <div>
                   {createStatus === 'success' ? <CheckCircle2 size={18} /> : createStatus === 'error' ? <AlertCircle size={18} /> : <Sparkles size={18} />}
                   <strong>
-                    {createStatus === 'loading' ? 'Creating entry' : createStatus === 'success' ? 'Entry created' : 'Create failed'}
+                    {createStatus === 'loading' ? '正在创建条目' : createStatus === 'success' ? '条目创建成功' : '创建失败'}
                   </strong>
                 </div>
                 {createResult ? (
                   <p>
-                    {createResult.entryRelativeDir} · {createResult.createdEntryFiles} entry files · Music v2 check {createResult.check.ok ? 'passed' : 'failed'} · source unchanged
+                    {createResult.entryRelativeDir} · {createResult.createdEntryFiles} 个条目文件 · Music v2 检查{createResult.check.ok ? '通过' : '失败'} · 旧源数据未变化
                   </p>
                 ) : requestError ? <p>{requestError}</p> : null}
               </div>
@@ -721,21 +786,21 @@ export default function ArchiveStudioPage() {
                 <div>
                   {previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                   <strong>
-                    {previewStatus === 'loading' ? 'Generating preview' : previewReady ? 'API preview ready' : 'Preview blocked'}
+                    {previewStatus === 'loading' ? '正在生成预览' : previewReady ? '预览已就绪' : '预览被阻断'}
                   </strong>
                 </div>
                 {requestError ? <p>{requestError}</p> : null}
                 {previewStatus !== 'loading' && (previewResult?.errors.length || validation.length) ? (
                   <ul>
-                    {(previewResult?.errors.map(error => error.message) ?? validation).map(error => <li key={error}>{error}</li>)}
+                    {(previewResult?.errors.map(describeIssue) ?? validation).map(error => <li key={error}>{error}</li>)}
                   </ul>
                 ) : null}
-                {previewReady ? <p>Preview API passed. No files were written.</p> : null}
-                {previewResult?.warnings.map(warning => <p key={warning.code}>{warning.message}</p>)}
+                {previewReady ? <p>预览检查通过，此步骤尚未写入文件。</p> : null}
+                {previewResult?.warnings.map(warning => <p key={warning.code}>{describeIssue(warning)}</p>)}
               </div>
             ) : (
               <div className="studio-preview-placeholder">
-                Generate a preview to validate the draft and file roles.
+                请先生成预览，检查草稿和目标文件。
               </div>
             )}
           </section>
@@ -744,15 +809,15 @@ export default function ArchiveStudioPage() {
 
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
-          <span>{createStatus === 'success' ? 'Entry saved' : isDirty ? 'Draft changed' : 'No draft changes'}</span>
-          <small>{createAvailable ? 'Create writes only to ArchiveData-v2. Publishing is unavailable.' : 'Local create service is unavailable.'}</small>
+          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : '草稿无改动'}</span>
+          <small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small>
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={resetForm}>
-            <RefreshCcw size={16} /> Reset
+            <RefreshCcw size={16} /> 重置
           </button>
           <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}>
-            <SearchCheck size={16} /> {previewStatus === 'loading' ? 'Generating...' : 'Generate preview'}
+            <SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}
           </button>
           <button
             className="studio-button studio-button--secondary"
@@ -760,7 +825,7 @@ export default function ArchiveStudioPage() {
             onClick={runPreflight}
             disabled={!previewReady || preflightStatus === 'loading'}
           >
-            <ShieldCheck size={16} /> {preflightStatus === 'loading' ? 'Checking...' : 'Run preflight'}
+            <ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}
           </button>
           <button
             className="studio-button studio-button--primary"
@@ -768,7 +833,7 @@ export default function ArchiveStudioPage() {
             onClick={createEntry}
             disabled={!createReady}
           >
-            {createStatus === 'loading' ? 'Creating...' : createStatus === 'success' ? 'Entry created' : 'Create entry'}
+            {createStatus === 'loading' ? '创建中...' : createStatus === 'success' ? '创建成功' : '创建条目'}
           </button>
         </div>
       </footer>

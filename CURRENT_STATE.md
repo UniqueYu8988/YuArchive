@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 已完成 UI、preview、preflight、真实 create + rollback smoke test、受控 create API、前端保存接入和临时目录端到端 API 验证；最终仍待浏览器可视化复核，并使用用户确认的真实素材保留一个正式新条目。
+ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步已完成。Archive Studio v0 Music Album 新建闭环已完成：UI、preview、preflight、真实 create + rollback smoke test、受控 create API、前端保存、故障回退和一次保留真实条目的端到端验收均已通过。
 
 ## 已完成
 
@@ -123,6 +123,8 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - create API 使用绑定 payload 的短时一次性 preflight token，接收 cover / audio multipart 素材，写后检查 Music v2 和旧源只读边界。
 - 已扩展 `scripts/check-archive-studio-v0-server.mjs`：在系统临时目录验证成功 create、transaction manifests、token 重放阻断、目标冲突阻断、故障回退、源目录不变和无 publish 路由。
 - Studio 页面已接入真实保存：编辑后旧 preflight 立即失效，preview 和 preflight 通过后才解锁 Create，保存后显示 Music v2 检查结果；失败时显示阶段与 rollback 状态。
+- 用户已通过 Studio 页面完成一次真实保留创建：Music v2 从 33 条增至 34 条，四个条目文件齐全，transaction 三个记录文件齐全，malformed 0，隐私规则命中 0。
+- Studio 页面已完成中文化；创建成功后会显示醒目的结果摘要，明确条目相对目录、文件数、Music v2 总数、结构检查、旧源数据状态和发布状态。
 
 ## 当前可正常使用的事实
 
@@ -153,9 +155,9 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 最近只读检查结果：
 
 - 当前分支：`master`
-- 当前状态：`master...origin/master [ahead 5]`。
+- 当前状态：`master...origin/master [ahead 6]`。
 - ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- Archive Studio v0 受控 create API、前端保存和状态文档已形成第 5 个本地未推送提交，工作区干净。
+- Archive Studio v0 受控 create API、前端保存、中文界面和验收记录已形成 6 个本地未推送提交，工作区干净。
 
 ## 当前主要风险
 
@@ -178,7 +180,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 ## 当前下一步
 
-只建议做一件事：使用用户确认的真实 Music Album 标题、封面、音频和 Markdown 内容完成一次保留新条目的验收；执行前先补做浏览器可视化复核。
+Archive Studio v0 Music Album 新建目标已完成。下一步应另立任务，不在本轮扩展编辑、删除、其他 board、数据生成或发布能力。
 
 ## 暂时不做
 
@@ -202,7 +204,7 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 - 自动测试：已验证 title 到 entry id / 相对路径预览，以及缺少 cover / audio 时的阻断提示。
 - 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-20，受控 create API 临时目录集成测试和生产构建通过；当前应用内 Browser 插件缺少其声明的控制脚本，因此保存接入后的桌面/移动可视化复核尚未完成。
+- 最近一次验证日期：2026-06-20，用户通过真实页面完成保留条目创建；受控 create API 临时目录集成测试、Music v2 shape check 和生产构建通过。自动化截图复核因应用内 Browser 插件缺少其声明的控制脚本而未执行。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
@@ -211,4 +213,4 @@ ArchiveData-v2 的 Music v2 试点、live-compatible 数据替换和远端同步
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线是 ArchiveData-v2 和 Archive Studio v0；Music v2 试点、`music/album` UI、受控 Node API、真实 create + rollback smoke test 和保存接入均已完成。下一步是浏览器复核和一次保留正式新条目的完整验收；发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是未来可以逐步改进维护体验和自动化能力。当前系统升级主线的 Archive Studio v0 Music Album 新建闭环已经完成；发布和旧 OneDrive Data 修改仍保持关闭。后续升级必须作为新任务重新确定范围。

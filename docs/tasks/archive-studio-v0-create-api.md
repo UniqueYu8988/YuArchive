@@ -1,7 +1,7 @@
 # 任务：Archive Studio v0 Music Album 受控创建 API
 
 创建日期：2026-06-20
-状态：实现完成，最终验收待完成
+状态：已完成
 
 ## 1. 目标
 
@@ -61,6 +61,13 @@
 
 ## 7. 剩余验收
 
-- 在可用的应用内浏览器环境复核桌面和移动布局、按钮状态和控制台；
-- 使用用户确认的真实 title、cover、audio 和 content 完成一次保留新条目的完整 create 验收。
+2026-06-20，用户已通过 Archive Studio 页面完成一次保留新条目的真实 create：
 
+- Music v2 entry 数从 33 增至 34；
+- 新条目的 `entry.yaml`、`content.md`、cover 和 audio 均存在；
+- transaction 目录包含 `preview.json`、`write.json` 和 `rollback.json`；
+- Music v2 shape check 通过，malformed 为 0，隐私规则命中为 0；
+- create API 只有在旧 OneDrive Data 前后快照一致时才返回成功；
+- 页面操作未改变项目 Git 工作区，也未触发发布。
+
+验收后补充中文界面和醒目的创建成功摘要，明确显示目标相对目录、文件数、Music v2 总数、结构检查、旧源数据状态和发布状态。
