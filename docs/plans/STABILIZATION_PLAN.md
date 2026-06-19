@@ -79,6 +79,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Texts v2 专用规则已形成：固定 section-kind 映射、稳定 ID、日期、封面、legacy、迁移验收和 live-compatible 输出边界；当前尚未迁移。
 - Texts 只读 planner 和 v2 shape checker 已建立：132 个条目、319 个目标、187 个源记录，0 冲突、0 缺失封面、0 日期策略错误；临时目录 shape 自检通过。
 - Texts v2 已受控迁移并通过：132 个条目、54 个封面、187 条 manifest、0 unmapped、0 隐私命中；旧 Texts 187 个源文件 checksum 未变化，Music v2 未受影响。
+- Texts v2 live-compatible 隔离 preview 已通过：132/132 映射、0 歧义、字段与顺序差异 0，并与当前 live JSON 深度相等；未修改 public 数据。
 
 ## 稳定化目标
 
@@ -417,4 +418,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-实现 Texts v2 live-compatible 隔离 preview，验证 132/132 映射、section、顺序、live id 和书架 public cover path；不修改 `public/data/texts.json`。
+设计并实现 Archive Studio Texts 新建流程：三个 kind 的最小表单、相对路径预览、preflight 和 create-only 写入；不提供编辑、删除或发布。

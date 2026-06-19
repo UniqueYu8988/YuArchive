@@ -296,6 +296,41 @@ export function serializeTextEntryYaml(entry) {
   return `${lines.join('\n')}\n`;
 }
 
+export function parseTextEntryYaml(filePath) {
+  const data = {};
+  let errors = 0;
+  for (const rawLine of fs.readFileSync(filePath, 'utf8').split(/\r?\n/)) {
+    const trimmed = rawLine.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const indent = rawLine.length - rawLine.trimStart().length;
+    if (indent > 0) continue;
+    if (!trimmed.includes(':')) {
+      errors += 1;
+      continue;
+    }
+    const [rawKey, ...rest] = trimmed.split(':');
+    const key = normalizeText(rawKey);
+    const value = rest.join(':').trim();
+    if (!value) {
+      data[key] = {};
+    } else if (value.startsWith('[') && value.endsWith(']')) {
+      data[key] = parseInlineList(value);
+    } else if (
+      (value.startsWith('"') && value.endsWith('"'))
+      || (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      try {
+        data[key] = value.startsWith('"') ? JSON.parse(value) : value.slice(1, -1);
+      } catch {
+        data[key] = value.slice(1, -1);
+      }
+    } else {
+      data[key] = value;
+    }
+  }
+  return { data, errors };
+}
+
 export function serializeTextsSectionsYaml(sectionConfig) {
   const lines = [];
   for (const [key, section] of sectionConfig.sections) {
@@ -375,4 +410,3 @@ export function buildTextsMigrationPlan({ textsRoot = TEXTS_SOURCE_ROOT } = {}) 
     blockedReasons,
   };
 }
-
