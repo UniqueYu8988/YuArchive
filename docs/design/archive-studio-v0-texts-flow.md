@@ -1,7 +1,7 @@
 # Archive Studio Texts 新建流程
 
 创建日期：2026-06-20
-状态：preview core、受控 API 和中文页面已实现，真实 create + rollback 验收待执行
+状态：第一版闭环已完成
 
 ## 1. 定位
 
@@ -100,3 +100,6 @@ Archive Studio Texts 第一版只新建 ArchiveData-v2 文本，不编辑旧条�
 - preflight 通过前创建按钮保持禁用，修改表单后旧 token 会失效；
 - 390px 移动视口无横向溢出，kind 选择器切换为单列；
 - `npm run build`、Texts API 检查和既有 Music API 回归均通过。
+- 真实 create + rollback runner 已通过，临时条目从 132 增至 133 后恢复 132；
+- 真实中文页面已完成 preview、preflight、create 和成功反馈端到端验收；
+- UI 验收条目已按事务清单回退，条目与事务残留为 0，ArchiveData-v2 和旧源快照恢复一致。

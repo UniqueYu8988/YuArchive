@@ -48,3 +48,11 @@ runner 会在 `finally` 阶段读取本次事务回退清单并删除临时条�
 - ArchiveData-v2 文件快照恢复一致；
 - 旧源侧核对 778 个文件，前后无变化；
 - 未运行 `build_archive.py`，未生成 public JSON，未发布。
+
+## UI 端到端补充验收
+
+- 真实 `/studio/texts` 中文页面完成 article 表单、preview、preflight 和 create；
+- 页面成功反馈确认创建 2 个条目文件、Texts 总数 133、结构检查通过、旧源未变化、发布未触发；
+- 临时 UI 条目随后按本次事务 `rollback.json` 回退；
+- 回退后 Texts 为 132，条目残留 0、事务残留 0；
+- ArchiveData-v2 文件快照与旧源 778 个文件快照均恢复为执行前状态。

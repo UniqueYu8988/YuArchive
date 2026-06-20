@@ -76,12 +76,13 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio v0 受控 create API 和前端保存已接入；临时目录 API 集成测试覆盖成功创建、一次性 token、冲突阻断、故障 rollback、Music v2 检查和无发布路由。
 - 用户已通过 Archive Studio 页面完成一次保留真实条目的 create，Music v2 从 33 条增至 34 条，结构检查通过；页面已补充中文界面和明确的创建成功摘要。
 - Texts 板块升级已开始；专用只读审计确认 132 个 Markdown、5 个栏目和 54 张书架图片结构完整，当前 live 数量一致，旧 OneDrive Data 未修改。
-- Texts v2 专用规则已形成：固定 section-kind 映射、稳定 ID、日期、封面、legacy、迁移验收和 live-compatible 输出边界；当前尚未迁移。
+- Texts v2 专用规则已形成：固定 section-kind 映射、稳定 ID、日期、封面、legacy、迁移验收和 live-compatible 输出边界；受控迁移已完成。
 - Texts 只读 planner 和 v2 shape checker 已建立：132 个条目、319 个目标、187 个源记录，0 冲突、0 缺失封面、0 日期策略错误；临时目录 shape 自检通过。
 - Texts v2 已受控迁移并通过：132 个条目、54 个封面、187 条 manifest、0 unmapped、0 隐私命中；旧 Texts 187 个源文件 checksum 未变化，Music v2 未受影响。
 - Texts v2 live-compatible 隔离 preview 已通过：132/132 映射、0 歧义、字段与顺序差异 0，并与当前 live JSON 深度相等；未修改 public 数据。
-- Archive Studio Texts 流程和 preview core 已建立，三个 kind 的字段、section、日期、封面和路径安全自检通过；真实 create 尚未接入。
+- Archive Studio Texts 流程和 preview core 已建立，三个 kind 的字段、section、日期、封面和路径安全自检通过；受控 create 已接入。
 - Archive Studio Texts 受控 API 已完成并通过临时目录集成测试；一次性 token、create-only、故障 rollback、源边界和无发布路由均通过。
+- Archive Studio Texts 中文页面、真实 create + rollback runner 和真实 UI 端到端验收均已通过；临时条目和事务无残留，Texts 恢复 132，旧源与 v2 快照一致。
 
 ## 稳定化目标
 
@@ -420,4 +421,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Archive Studio Texts 中文页面、board/kind 切换、preview / preflight 和真实 create + rollback smoke test 已通过。下一步由用户创建并保留一个真实 Texts 条目，完成端到端验收；不自动生成 public JSON 或发布。
+Music 与 Texts 的 ArchiveData-v2 / Archive Studio 第一版闭环已完成。下一步如继续扩展，建议为 Visions 新建独立目标，先做只读结构、kind、媒体和 live-compatible 规则审计，不直接迁移或写入。
