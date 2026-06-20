@@ -165,6 +165,8 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - preview 仅有预期的 2 个条目、6 个字段修正：quote 2、url 2、type 2、cinema 0；showcase 字段差异 0、隐私命中 0，尚未修改 `public/data/visions.json`。
 - 已受控替换 `public/data/visions.json` 和对应 `home.json` 引用：Visions 2 个条目/6 字段，Home 1 个引用/3 字段；数量、ID、媒体路径和顺序均未变化。
 - Visions live 替换后 public shape、隐私检查和生产构建通过；旧源 157 个文件 changed 0、missing 0，替换器再次运行返回 already-current。
+- 已建立 Archive Studio Visions preview core、write gate、create core 和本机 API，只支持普通 movie / series 新建，不提供 showcase、update、delete 或 publish。
+- Visions API 临时目录集成测试通过：poster 阻断、period 校验、一次性 token、create、重放阻断、冲突阻断、故障 rollback、写后 shape、旧源不变和无发布路由均通过；Music/Text API 回归通过。
 
 ## 当前可正常使用的事实
 
@@ -220,7 +222,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-下一步设计并实现 Archive Studio Visions 第一版普通条目新建流程，只支持 movie / series，不实现 showcase 编辑，不自动生成 public JSON 或发布。
+下一步实现 Archive Studio Visions 中文页面与板块切换，接入现有 preview、preflight、create 和 Visions v2 check；不实现 showcase 编辑或自动发布。
 
 ## 暂时不做
 

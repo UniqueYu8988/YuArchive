@@ -21,6 +21,13 @@ import {
 import { evaluateTextsWriteGate } from './check-archive-studio-v0-texts-write-gate.mjs';
 import { createTextEntry } from './archive-studio-v0-texts-create-core.mjs';
 import { evaluateTextsV2Shape } from './check-archive-data-v2-texts-shape.mjs';
+import {
+  assertVisionsPreviewSafe,
+  buildVisionsPreview,
+} from './archive-studio-v0-visions-preview-core.mjs';
+import { evaluateVisionsWriteGate } from './check-archive-studio-v0-visions-write-gate.mjs';
+import { createVisionEntry } from './archive-studio-v0-visions-create-core.mjs';
+import { evaluateVisionsV2Shape } from './check-archive-data-v2-visions-shape.mjs';
 
 const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4176;
@@ -143,6 +150,19 @@ function buildProfilesResponse(writeEnabled) {
           publish: false,
         },
       })),
+      ...['movie', 'series'].map(kind => ({
+        board: 'visions',
+        kind,
+        modes: ['create'],
+        capabilities: {
+          preview: true,
+          preflight: true,
+          check: true,
+          create: writeEnabled,
+          update: false,
+          publish: false,
+        },
+      })),
     ],
   };
 }
@@ -232,6 +252,30 @@ function consumePreflightToken(context, token, payload) {
 }
 
 function buildTextsPreflightResponse(gate, tokenRecord = null) {
+  return {
+    ok: gate.allowedToRequestWrite,
+    entryId: gate.target.entryId,
+    targetEntryExists: gate.targetEntryExists,
+    targetFilesExisting: gate.targetFilesExisting,
+    blockedReasons: gate.blockedReasons,
+    scope: gate.target.entryRelativeDir,
+    operations: gate.operations,
+    dryRun: {
+      status: gate.allowedToRequestWrite ? 'ready' : 'blocked',
+      writeItems: gate.operations.length,
+      backupItems: 0,
+      rollbackDeletes: gate.operations.length,
+      rollbackRestores: 0,
+    },
+    baseline: gate.baseline,
+    writeEnabled: Boolean(tokenRecord),
+    writeScope: tokenRecord ? gate.target.entryRelativeDir : 'none',
+    preflightToken: tokenRecord?.token || null,
+    preflightExpiresAt: tokenRecord?.expiresAt || null,
+  };
+}
+
+function buildVisionsPreflightResponse(gate, tokenRecord = null) {
   return {
     ok: gate.allowedToRequestWrite,
     entryId: gate.target.entryId,
@@ -466,6 +510,112 @@ async function routeRequest(request, response, context) {
     return;
   }
 
+  if (request.method === 'POST' && url.pathname === '/api/studio/visions/preview') {
+    const payload = await readJsonBody(request);
+    const preview = buildVisionsPreview(payload);
+    assertVisionsPreviewSafe(preview);
+    sendJson(response, preview.ok ? 200 : 422, {
+      ...preview,
+      writeEnabled: context.writeEnabled,
+      writeScope: 'none',
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/visions/preflight') {
+    const payload = await readJsonBody(request);
+    const gate = evaluateVisionsWriteGate(payload, {
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumVisionsEntries,
+      expectedMinimumKinds: context.expectedMinimumVisionsKinds,
+      expectedCharacters: context.expectedVisionsCharacters,
+      requireMigrationBaseline: context.requireVisionsMigrationBaseline,
+    });
+    const tokenRecord = gate.allowedToRequestWrite && context.writeEnabled
+      ? issuePreflightToken(context, payload)
+      : null;
+    sendJson(response, gate.allowedToRequestWrite ? 200 : 409, buildVisionsPreflightResponse(gate, tokenRecord));
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/visions/create') {
+    if (!context.writeEnabled) {
+      sendError(response, 403, 'create_disabled', 'Archive Studio create is disabled');
+      return;
+    }
+    const form = await readMultipartForm(request);
+    const payloadText = requireFormText(form, 'payload');
+    const token = requireFormText(form, 'preflightToken');
+    const posterFile = requireFormFile(form, 'poster');
+    let payload;
+    try {
+      payload = JSON.parse(payloadText);
+    } catch {
+      const error = new Error('payload must be valid JSON');
+      error.statusCode = 400;
+      error.code = 'invalid_payload_json';
+      throw error;
+    }
+    if (!consumePreflightToken(context, token, payload)) {
+      sendError(response, 403, 'preflight_token_invalid', 'Preflight token is invalid or expired');
+      return;
+    }
+    const gate = evaluateVisionsWriteGate(payload, {
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumVisionsEntries,
+      expectedMinimumKinds: context.expectedMinimumVisionsKinds,
+      expectedCharacters: context.expectedVisionsCharacters,
+      requireMigrationBaseline: context.requireVisionsMigrationBaseline,
+    });
+    if (!gate.allowedToRequestWrite) {
+      sendJson(response, 409, buildVisionsPreflightResponse(gate));
+      return;
+    }
+    if (posterFile.name !== payload.assets?.poster?.originalName) {
+      sendError(response, 422, 'asset_name_mismatch', 'Selected poster no longer matches preview');
+      return;
+    }
+    const result = await createVisionEntry({
+      payload,
+      posterBuffer: Buffer.from(await posterFile.arrayBuffer()),
+      v2Root: context.v2Root,
+      sourceRoot: context.sourceRoot,
+      expectedMinimumEntries: context.expectedMinimumVisionsEntries,
+      expectedMinimumKinds: context.expectedMinimumVisionsKinds,
+      expectedCharacters: context.expectedVisionsCharacters,
+      requireMigrationBaseline: context.requireVisionsMigrationBaseline,
+    });
+    sendJson(response, 201, {
+      ...result,
+      check: evaluateVisionsV2Shape({
+        v2Root: context.v2Root,
+        expectedMinimumEntries: result.visionsEntries,
+        expectedMinimumKinds: context.expectedMinimumVisionsKinds,
+        expectedCharacters: context.expectedVisionsCharacters,
+        requireMigrationBaseline: context.requireVisionsMigrationBaseline,
+      }),
+      publishTriggered: false,
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/checks/visions-v2') {
+    await readJsonBody(request);
+    const result = evaluateVisionsV2Shape({
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumVisionsEntries,
+      expectedMinimumKinds: context.expectedMinimumVisionsKinds,
+      expectedCharacters: context.expectedVisionsCharacters,
+      requireMigrationBaseline: context.requireVisionsMigrationBaseline,
+    });
+    sendJson(response, result.ok ? 200 : 422, {
+      ...result,
+      writeEnabled: false,
+      writeScope: 'none',
+    });
+    return;
+  }
+
   if (request.method === 'POST' && url.pathname === '/api/studio/checks/music-v2') {
     await readJsonBody(request);
     const result = evaluateMusicV2Shape({
@@ -491,8 +641,12 @@ export function createArchiveStudioServer({
   expectedMinimumEntries = 33,
   expectedMinimumTextsEntries = 132,
   expectedMinimumTextsKinds,
+  expectedMinimumVisionsEntries = 112,
+  expectedMinimumVisionsKinds,
+  expectedVisionsCharacters = 20,
   requireMigrationBaseline = true,
   requireTextsMigrationBaseline = requireMigrationBaseline,
+  requireVisionsMigrationBaseline = requireMigrationBaseline,
 } = {}) {
   const context = {
     v2Root,
@@ -501,8 +655,12 @@ export function createArchiveStudioServer({
     expectedMinimumEntries,
     expectedMinimumTextsEntries,
     expectedMinimumTextsKinds,
+    expectedMinimumVisionsEntries,
+    expectedMinimumVisionsKinds,
+    expectedVisionsCharacters,
     requireMigrationBaseline,
     requireTextsMigrationBaseline,
+    requireVisionsMigrationBaseline,
     preflightTokens: new Map(),
   };
   return http.createServer((request, response) => {
@@ -536,7 +694,7 @@ export function startArchiveStudioServer({ port = DEFAULT_PORT } = {}) {
     console.log(`  host: ${HOST}`);
     console.log(`  port: ${port}`);
     console.log('  writeEnabled: true');
-    console.log('  writeScope: music/album/create, texts/*/create');
+    console.log('  writeScope: music/album/create, texts/*/create, visions/movie|series/create');
   });
   return server;
 }
