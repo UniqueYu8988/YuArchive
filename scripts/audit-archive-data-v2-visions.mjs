@@ -227,6 +227,15 @@ export function auditVisions() {
       groupAwareTypeDifferences,
       duplicateTitlesAcrossGroups,
       legacyGlobalTitleCollisionRisk: duplicateTitlesAcrossGroups,
+      expectedMetadataFieldDifferences: {
+        cinema: 0,
+        quote: duplicateTitlesAcrossGroups,
+        url: duplicateTitlesAcrossGroups,
+        type: groupAwareTypeDifferences,
+      },
+      expectedMetadataFieldDifferenceTotal: (
+        duplicateTitlesAcrossGroups * 2 + groupAwareTypeDifferences
+      ),
       positionalIdsAreStable: false,
       syntheticYearsRepresentPeriods: true,
     },
@@ -254,6 +263,8 @@ function printSummary(result) {
   console.log(`  sourceTypeCounts: ${JSON.stringify(result.source.sourceTypeCounts)}`);
   console.log(`  liveTypeCounts: ${JSON.stringify(result.live.liveTypeCounts)}`);
   console.log(`  groupAwareTypeDifferences: ${result.risks.groupAwareTypeDifferences}`);
+  console.log(`  metadataFieldDifferences: ${JSON.stringify(result.risks.expectedMetadataFieldDifferences)}`);
+  console.log(`  metadataFieldDifferenceTotal: ${result.risks.expectedMetadataFieldDifferenceTotal}`);
   console.log(`  duplicateTitlesAcrossGroups: ${result.risks.duplicateTitlesAcrossGroups}`);
   console.log(`  positionalLiveIds: ${result.live.positionalIdPatternCount}`);
   console.log(`  periodYearMismatches: ${result.live.periodYearMismatches}`);

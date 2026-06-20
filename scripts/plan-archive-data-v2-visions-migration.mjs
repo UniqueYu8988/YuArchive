@@ -25,7 +25,9 @@ export function evaluateVisionsMigrationPlan({
     duplicateIds: plan.duplicateIds,
     duplicateTargets: plan.duplicateTargets,
     duplicateTitlesAcrossPeriods: plan.duplicateTitlesAcrossPeriods,
-    liveTypeDifferences: plan.liveTypeDifferences,
+    liveDifferingEntries: plan.liveDifferingEntries,
+    liveFieldDifferences: plan.liveFieldDifferences,
+    liveTotalFieldDifferences: plan.liveTotalFieldDifferences,
     blockedReasons: plan.blockedReasons,
     writeActions: 0,
   };
@@ -45,11 +47,13 @@ function printResult(result) {
     'duplicateIds',
     'duplicateTargets',
     'duplicateTitlesAcrossPeriods',
-    'liveTypeDifferences',
+    'liveDifferingEntries',
+    'liveTotalFieldDifferences',
     'writeActions',
   ]) console.log(`  ${key}: ${result[key]}`);
   console.log(`  kindCounts: ${JSON.stringify(result.kindCounts)}`);
   console.log(`  targetRoles: ${JSON.stringify(result.targetRoles)}`);
+  console.log(`  liveFieldDifferences: ${JSON.stringify(result.liveFieldDifferences)}`);
   console.log(`  blockedReasons: ${result.blockedReasons.length ? result.blockedReasons.join(', ') : 'none'}`);
   console.log(`Result: archive data v2 visions migration plan ${result.ok ? 'passed' : 'failed'}`);
 }

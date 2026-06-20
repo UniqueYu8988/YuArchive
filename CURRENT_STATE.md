@@ -150,10 +150,10 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - UI 验收临时条目已按本次事务清单完整回退；条目和事务残留均为 0，Texts 恢复 132，ArchiveData-v2 与旧源快照均和执行前一致。
 - 已建立 `scripts/audit-archive-data-v2-visions.mjs` 和 `docs/tasks/archive-data-v2-visions-audit.md`，只读审计 Visions 分组、海报、元数据、角色橱窗、live JSON 和前端依赖。
 - Visions 审计确认：5 个普通分组、111 张海报与 111 个元数据条目完整匹配；20 个角色、20 个 GIF 和 20 个头像引用完整，解析错误和缺失引用均为 0。
-- 已定位旧 Visions 全局标题 join 风险：2 个标题跨分组重复，导致源 YAML 的 movie 71 / tv 40 在 live JSON 变为 movie 69 / tv 42；迁移必须按分组和源相对路径关联。
+- 已定位旧 Visions 全局标题 join 风险：2 个标题跨分组重复，导致前分组条目的 quote、url、type 被覆盖；共 6 个字段差异，源 YAML 的 movie 71 / tv 40 在 live JSON 变为 movie 69 / tv 42。
 - 已确认 111 个 live ID 全部是 `type_year_index` 位置型 ID，不适合作为 v2 稳定 ID；五个合成年份是叙事 period 的兼容排序值，不是自然收藏年份。
 - 已建立 `docs/design/archive-data-v2-visions.md` 草案：建议 kind 为 movie、series、showcase，角色橱窗独立建模；迁移前仍需确认 type/kind、2 个 live 类型偏移和 period 策略。
-- Visions v2 规则已冻结：采用 movie / series / showcase，以各分组源 YAML 修正 2 个旧 live 类型偏移，五个 period 可扩展且不要求真实年份。
+- Visions v2 规则已冻结：采用 movie / series / showcase，以各分组源 YAML 修正 2 个条目的 6 个旧 live 元数据偏移，五个 period 可扩展且不要求真实年份。
 - 已建立共享 `scripts/archive-data-v2-visions-core.mjs`、只读 migration planner 和 v2 shape checker。
 - Visions planner 通过：157 个源文件、111 个普通条目、1 个 showcase、20 个角色、284 个目标；ID/目标冲突和 blocked reason 均为 0，写入动作 0。
 - Visions shape checker 临时目录自检通过：合法 movie、series、showcase 结构通过，缺 avatar 和错误角色顺序正确阻断；真实 Visions v2 尚不存在，因此真实检查按预期失败。
@@ -161,6 +161,8 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - Visions 迁移器只允许写 `entries/visions`、`config/visions-periods.yaml` 和 `migration/visions`。
 - 已受控完成 Visions v2 迁移：112 个 entry（movie 71、series 40、showcase 1）、111 张 poster、20 个角色及 40 个角色媒体、157 条 manifest、0 unmapped。
 - Visions v2 shape 检查通过：malformed、invalid ID、period、角色顺序和隐私命中均为 0；旧 Visions 157 个文件 changed 0、missing 0，Music 与 Texts v2 未受影响。
+- Visions live-compatible 隔离 preview 已通过：普通条目 111/111、角色 20/20，missing 0，live ID 与全部缓存媒体路径复用，period / 条目 / 角色顺序差异 0。
+- preview 仅有预期的 2 个条目、6 个字段修正：quote 2、url 2、type 2、cinema 0；showcase 字段差异 0、隐私命中 0，尚未修改 `public/data/visions.json`。
 
 ## 当前可正常使用的事实
 
@@ -216,7 +218,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-下一步建立 Visions live-compatible 隔离 preview，复用当前 live ID 和缓存媒体路径，并显式报告 2 个源 YAML 类型修正；不修改 public JSON。
+下一步执行 Visions live JSON 替换前门槛：备份当前 JSON、确认 preview 只含 6 个预期字段修正、替换后运行结构/隐私/构建检查，并保留回退记录。
 
 ## 暂时不做
 

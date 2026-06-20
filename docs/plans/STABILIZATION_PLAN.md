@@ -84,12 +84,13 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio Texts 受控 API 已完成并通过临时目录集成测试；一次性 token、create-only、故障 rollback、源边界和无发布路由均通过。
 - Archive Studio Texts 中文页面、真实 create + rollback runner 和真实 UI 端到端验收均已通过；临时条目和事务无残留，Texts 恢复 132，旧源与 v2 快照一致。
 - Visions 只读结构与规则审计已完成：111 个普通条目、20 个角色和 151 个媒体文件关系完整，0 orphan、0 缺失引用、0 解析错误。
-- Visions 审计识别出 2 个跨分组同名标题导致旧生成器全局 title join 覆盖，源 type 71/40 与 live type 69/42 不一致；111 个 live ID 均为不稳定位置型 ID。
+- Visions 审计识别出 2 个跨分组同名标题导致旧生成器全局 title join 覆盖，共产生 quote、url、type 各 2 个字段差异；源 type 71/40 与 live type 69/42 不一致。
 - Visions v2 草案建议 kind 为 movie、series、showcase，保留五个叙事 period，普通条目与角色橱窗分开建模；迁移和写入尚未开始。
 - Visions v2 决策已冻结，共享 core、只读 planner 和 shape checker 已建立；planner 为 111 个普通条目、1 个 showcase、20 个角色规划 284 个目标，0 冲突、0 阻断。
 - Visions shape checker 系统临时目录自检通过；真实 v2 尚不存在，真实 shape 检查按预期失败。
 - Visions 受控迁移器已通过系统临时目录完整迁移：112 个 entry、20 个角色、157 条 manifest，错误授权被阻断，旧源 changed 0；真实迁移待执行。
 - Visions v2 已受控迁移并通过：movie 71、series 40、showcase 1，poster 111，角色 YAML / avatar / clip 各 20，manifest 157、unmapped 0、旧源 changed 0。
+- Visions live-compatible 隔离 preview 已通过：111/111 普通条目、20/20 角色、0 missing，ID/媒体路径全部复用，顺序差异 0；仅有预期的 quote、url、type 各 2 个修正。
 
 ## 稳定化目标
 
@@ -428,4 +429,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Visions 迁移已完成。下一步只建立 live-compatible 隔离 preview，核对 111 个条目、20 个角色、ID、分组顺序、媒体路径和 2 个类型修正；不替换 live JSON。
+Visions preview 已完成。下一步执行 live JSON 替换门槛与受控替换，要求只保留 6 个预期字段修正，并通过结构、隐私和生产构建检查。

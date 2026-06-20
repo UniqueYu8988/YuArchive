@@ -118,9 +118,9 @@ caption:
 ## 7. 已冻结决策
 
 1. v2 采用 `movie / series`，兼容输出映射为 `movie / tv`；
-2. 迁移以各自源 YAML 为事实，修正 2 个同名跨分组条目的旧 live 类型偏移；
+2. 迁移以各自源 YAML 为事实，修正 2 个同名跨分组条目的 6 个旧 live 元数据偏移（quote、url、type 各 2）；
 3. 保留五个现有 period，并允许未来新增 period，不要求真实年份；
-4. live-compatible preview 必须显式报告这 2 个行为差异，不能静默替换网页数据。
+4. live-compatible preview 必须显式报告这 2 个条目、6 个字段差异，不能静默替换网页数据。
 
 ## 8. 下一步
 
@@ -129,6 +129,6 @@ planner、shape checker 和受控迁移已完成。下一任务建立 live-compa
 - 读取已迁移的 111 个普通条目、1 个 showcase 和 20 个角色；
 - 映射回当前 `visions.json` 契约；
 - 复用当前 live ID 与缓存媒体路径；
-- 显式报告 2 个源 YAML 类型修正；
+- 显式报告 2 个条目、6 个源 YAML 元数据修正；
 - 不替换 `public/data/visions.json`；
 - 不运行 `build_archive.py` 或发布。

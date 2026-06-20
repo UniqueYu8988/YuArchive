@@ -13,7 +13,7 @@
 - 旧 `type: movie` 映射为 `kind: movie`；
 - 旧 `type: tv` 映射为 `kind: series`；
 - live-compatible 输出再映射回 `movie / tv`；
-- 迁移以各分组源 YAML 为准，2 个旧 live 类型偏移作为兼容差异报告；
+- 迁移以各分组源 YAML 为准，2 个条目、6 个旧 live 元数据偏移作为兼容差异报告；
 - `开端 / 前尘 / 旧影 / 未远 / 此岸` 保存为可扩展 period；
 - 合成年份只用于当前 live 兼容排序；
 - 普通条目按源海报相对路径生成稳定 ID；
@@ -43,7 +43,7 @@ node scripts/plan-archive-data-v2-visions-migration.mjs
 - duplicate target 0；
 - blocked reason 0；
 - write action 0；
-- 2 个跨 period 重复标题和 2 个 live type 差异只作为已知风险报告，不阻断按源事实迁移。
+- 2 个跨 period 重复标题、2 个差异条目和 6 个字段差异只作为已知风险报告，不阻断按源事实迁移。
 
 ## 回退
 

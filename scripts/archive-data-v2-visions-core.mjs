@@ -246,20 +246,45 @@ function parseShowcase(visionsRoot) {
   };
 }
 
-function compareLiveTypes(entries, liveJsonPath) {
-  if (!existsFile(liveJsonPath)) return { differences: 0, liveItems: 0 };
+function compareLiveMetadata(entries, liveJsonPath) {
+  if (!existsFile(liveJsonPath)) {
+    return {
+      differingEntries: 0,
+      fieldDifferences: { cinema: 0, quote: 0, url: 0, type: 0 },
+      totalFieldDifferences: 0,
+      liveItems: 0,
+    };
+  }
   const live = JSON.parse(fs.readFileSync(liveJsonPath, 'utf8'));
   const liveItems = (live.years || []).flatMap(group => (
     (group.items || []).map(item => ({ ...item, period: group.folder }))
   ));
   const byPeriodTitle = new Map(liveItems.map(item => [`${item.period}\0${item.title}`, item]));
-  let differences = 0;
+  let differingEntries = 0;
+  const fieldDifferences = { cinema: 0, quote: 0, url: 0, type: 0 };
   for (const entry of entries) {
     const liveItem = byPeriodTitle.get(`${entry.period}\0${entry.title}`);
     const expectedType = entry.kind === 'series' ? 'tv' : 'movie';
-    if (!liveItem || liveItem.type !== expectedType) differences += 1;
+    let entryDiffers = false;
+    for (const [field, expected] of [
+      ['cinema', entry.cinema],
+      ['quote', entry.quote],
+      ['url', entry.url],
+      ['type', expectedType],
+    ]) {
+      if (!liveItem || liveItem[field] !== expected) {
+        fieldDifferences[field] += 1;
+        entryDiffers = true;
+      }
+    }
+    if (entryDiffers) differingEntries += 1;
   }
-  return { differences, liveItems: liveItems.length };
+  return {
+    differingEntries,
+    fieldDifferences,
+    totalFieldDifferences: Object.values(fieldDifferences).reduce((sum, count) => sum + count, 0),
+    liveItems: liveItems.length,
+  };
 }
 
 export function buildVisionsSourceInventory({
@@ -270,7 +295,7 @@ export function buildVisionsSourceInventory({
   const showcase = parseShowcase(visionsRoot);
   const allFiles = existsDir(visionsRoot) ? walkFiles(visionsRoot) : [];
   const imageFiles = allFiles.filter(file => IMAGE_EXTENSIONS.has(path.extname(file).toLowerCase()));
-  const liveComparison = compareLiveTypes(ordinary.entries, liveJsonPath);
+  const liveComparison = compareLiveMetadata(ordinary.entries, liveJsonPath);
   const errors = [...ordinary.errors, ...showcase.errors];
   return {
     visionsRoot,
@@ -281,7 +306,9 @@ export function buildVisionsSourceInventory({
     imageFiles,
     errors,
     duplicateTitlesAcrossPeriods: ordinary.duplicateTitlesAcrossPeriods,
-    liveTypeDifferences: liveComparison.differences,
+    liveDifferingEntries: liveComparison.differingEntries,
+    liveFieldDifferences: liveComparison.fieldDifferences,
+    liveTotalFieldDifferences: liveComparison.totalFieldDifferences,
     liveItems: liveComparison.liveItems,
   };
 }
@@ -437,7 +464,9 @@ export function buildVisionsMigrationPlan({
     duplicateIds,
     duplicateTargets,
     duplicateTitlesAcrossPeriods: inventory.duplicateTitlesAcrossPeriods,
-    liveTypeDifferences: inventory.liveTypeDifferences,
+    liveDifferingEntries: inventory.liveDifferingEntries,
+    liveFieldDifferences: inventory.liveFieldDifferences,
+    liveTotalFieldDifferences: inventory.liveTotalFieldDifferences,
     blockedReasons,
   };
 }

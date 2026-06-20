@@ -60,7 +60,8 @@
 
 - 标准源 YAML：movie 71、tv 40；
 - 当前 live JSON：movie 69、tv 42；
-- 2 个前分组条目的类型被同名后分组条目覆盖。
+- 2 个前分组条目的 `quote`、`url`、`type` 被同名后分组条目覆盖；
+- 共 6 个字段差异：quote 2、url 2、type 2，cinema 0。
 
 迁移器必须按 `period + source relative path` 关联海报和元数据，不能全局按标题匹配。live-compatible 生成阶段需要单独决定是保留当前 live 行为，还是以源 YAML 修正类型。
 
