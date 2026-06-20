@@ -153,6 +153,10 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - 已定位旧 Visions 全局标题 join 风险：2 个标题跨分组重复，导致源 YAML 的 movie 71 / tv 40 在 live JSON 变为 movie 69 / tv 42；迁移必须按分组和源相对路径关联。
 - 已确认 111 个 live ID 全部是 `type_year_index` 位置型 ID，不适合作为 v2 稳定 ID；五个合成年份是叙事 period 的兼容排序值，不是自然收藏年份。
 - 已建立 `docs/design/archive-data-v2-visions.md` 草案：建议 kind 为 movie、series、showcase，角色橱窗独立建模；迁移前仍需确认 type/kind、2 个 live 类型偏移和 period 策略。
+- Visions v2 规则已冻结：采用 movie / series / showcase，以各分组源 YAML 修正 2 个旧 live 类型偏移，五个 period 可扩展且不要求真实年份。
+- 已建立共享 `scripts/archive-data-v2-visions-core.mjs`、只读 migration planner 和 v2 shape checker。
+- Visions planner 通过：157 个源文件、111 个普通条目、1 个 showcase、20 个角色、284 个目标；ID/目标冲突和 blocked reason 均为 0，写入动作 0。
+- Visions shape checker 临时目录自检通过：合法 movie、series、showcase 结构通过，缺 avatar 和错误角色顺序正确阻断；真实 Visions v2 尚不存在，因此真实检查按预期失败。
 
 ## 当前可正常使用的事实
 
@@ -208,7 +212,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-下一步先确认 Visions 的 3 项规则：`movie / series` 映射、2 个同名条目的类型修正策略、五个 period 是否继续固定。确认后只建立迁移 planner 和 shape checker，不直接写入。
+下一步设计并审查 Visions 受控迁移器，先在系统临时目录生成完整输出并验证 manifest、checksum、shape 和回退边界，再决定真实写入。
 
 ## 暂时不做
 

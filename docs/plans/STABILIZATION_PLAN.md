@@ -86,6 +86,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Visions 只读结构与规则审计已完成：111 个普通条目、20 个角色和 151 个媒体文件关系完整，0 orphan、0 缺失引用、0 解析错误。
 - Visions 审计识别出 2 个跨分组同名标题导致旧生成器全局 title join 覆盖，源 type 71/40 与 live type 69/42 不一致；111 个 live ID 均为不稳定位置型 ID。
 - Visions v2 草案建议 kind 为 movie、series、showcase，保留五个叙事 period，普通条目与角色橱窗分开建模；迁移和写入尚未开始。
+- Visions v2 决策已冻结，共享 core、只读 planner 和 shape checker 已建立；planner 为 111 个普通条目、1 个 showcase、20 个角色规划 284 个目标，0 冲突、0 阻断。
+- Visions shape checker 系统临时目录自检通过；真实 v2 尚不存在，真实 shape 检查按预期失败。
 
 ## 稳定化目标
 
@@ -424,4 +426,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Visions 只读审计和规则草案已完成。下一步先确认 type/kind、2 个同名条目的兼容策略和 period 规则，再只读实现 Visions migration planner 与 shape checker；不直接迁移或写入。
+Visions 规则、planner 和 shape checker 已完成。下一步只设计并隔离验证受控迁移器、manifest、checksum 和回退边界；不替换 live JSON，不修改旧源。

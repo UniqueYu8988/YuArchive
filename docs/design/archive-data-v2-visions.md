@@ -1,7 +1,7 @@
 # ArchiveData-v2 Visions 规则草案
 
 创建日期：2026-06-20
-状态：只读审计后草案，迁移前需确认 type / kind 兼容策略
+状态：规则已冻结，planner 与 shape checker 已建立，尚未迁移
 
 ## 1. 定位
 
@@ -115,20 +115,21 @@ caption:
 - 源 type 与当前 live type 差异；
 - ID、字段、分组顺序、角色顺序和媒体路径差异。
 
-## 7. 用户确认项
+## 7. 已冻结决策
 
-迁移前只需确认三个问题：
-
-1. v2 是否采用 `movie / series`，兼容输出再映射为 `movie / tv`；
-2. 当前 2 个同名跨分组条目的 live 类型偏移，是保留现网页行为，还是以各自源 YAML 修正；
-3. `period` 是否继续固定为五个叙事分组，并允许未来新增分组而不要求真实年份。
+1. v2 采用 `movie / series`，兼容输出映射为 `movie / tv`；
+2. 迁移以各自源 YAML 为事实，修正 2 个同名跨分组条目的旧 live 类型偏移；
+3. 保留五个现有 period，并允许未来新增 period，不要求真实年份；
+4. live-compatible preview 必须显式报告这 2 个行为差异，不能静默替换网页数据。
 
 ## 8. 下一步
 
-下一任务只建立 Visions planner 和 shape checker：
+planner 和 shape checker 已建立并通过隔离验证。下一任务设计并审查受控迁移器：
 
-- 只读规划 111 个普通条目、1 个 showcase、20 个角色及 151 个媒体文件；
-- 不创建真实 v2 输出；
+- 迁移 111 个普通条目、1 个 showcase、20 个角色及 151 个媒体文件；
+- 写入前记录旧源和目标边界；
+- 先在系统临时目录验证完整输出；
+- 生成 157 条 source manifest、0 unmapped 和 legacy report；
 - 不修改旧源；
 - 不替换 `public/data/visions.json`；
-- 在用户确认三项规则前不执行迁移。
+- 实际写入必须通过单独的受控执行检查。
