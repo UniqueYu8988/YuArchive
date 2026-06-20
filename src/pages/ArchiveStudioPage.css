@@ -351,6 +351,38 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--studio-accent) 14%, transparent);
 }
 
+.studio-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 48px;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--studio-border);
+  border-radius: 6px;
+  background: var(--bg-primary);
+}
+
+.studio-toggle > span {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.studio-toggle small {
+  color: var(--text-secondary);
+  font-size: 0.66rem;
+  font-weight: 400;
+}
+
+.studio-toggle input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--studio-accent);
+}
+
 .studio-field textarea {
   resize: vertical;
   line-height: 1.55;

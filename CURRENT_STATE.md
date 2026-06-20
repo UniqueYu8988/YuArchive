@@ -167,6 +167,8 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - Visions live 替换后 public shape、隐私检查和生产构建通过；旧源 157 个文件 changed 0、missing 0，替换器再次运行返回 already-current。
 - 已建立 Archive Studio Visions preview core、write gate、create core 和本机 API，只支持普通 movie / series 新建，不提供 showcase、update、delete 或 publish。
 - Visions API 临时目录集成测试通过：poster 阻断、period 校验、一次性 token、create、重放阻断、冲突阻断、故障 rollback、写后 shape、旧源不变和无发布路由均通过；Music/Text API 回归通过。
+- Archive Studio Visions 中文页面和板块导航已接入，支持 movie / series、period、cinema、quote、url、poster、preview、preflight、create 与写后检查。
+- Visions 页面生产构建通过；桌面流程和 390px 移动视口只读验收通过，无横向溢出或控制台错误。真实 create + rollback 尚未在本批执行。
 
 ## 当前可正常使用的事实
 
@@ -222,7 +224,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-下一步实现 Archive Studio Visions 中文页面与板块切换，接入现有 preview、preflight、create 和 Visions v2 check；不实现 showcase 编辑或自动发布。
+下一步只执行一次受控 Archive Studio Visions create + rollback smoke test，验证真实 ArchiveData-v2 写入、检查和无残留回退；不实现 showcase 编辑或自动发布。
 
 ## 暂时不做
 
@@ -242,7 +244,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 ## 当前验证状态
 
 - 项目能否启动：已受控启动本地 Vite 服务，仅用于 Archive Studio 页面验收。
-- 核心人工验收：已完成 `/studio` 与 `/studio/texts` 桌面和 390px 移动视口验收；Texts 真实 UI preview、preflight、create 和成功反馈通过。
+- 核心人工验收：已完成 `/studio`、`/studio/texts` 与 `/studio/visions` 桌面和 390px 移动视口验收；Texts 真实 UI preview、preflight、create 和成功反馈通过，Visions 缺 poster 阻断与响应式布局通过。
 - 自动测试：Music / Texts API 回归、Texts preview core、真实 create + rollback runner 和 Texts v2 shape 均通过。
 - 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。

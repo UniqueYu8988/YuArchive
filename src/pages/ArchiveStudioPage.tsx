@@ -524,6 +524,7 @@ export default function ArchiveStudioPage() {
       <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
         <NavLink to="/studio" end>音乐</NavLink>
         <NavLink to="/studio/texts">文本</NavLink>
+        <NavLink to="/studio/visions">影视</NavLink>
       </nav>
 
       <section className="studio-context-bar" aria-label="当前创建配置">

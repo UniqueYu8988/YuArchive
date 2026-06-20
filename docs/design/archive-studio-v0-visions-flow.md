@@ -1,7 +1,7 @@
 # Archive Studio Visions 新建流程
 
 创建日期：2026-06-20
-状态：preview core 与受控 API 已完成，中文页面待接入
+状态：preview core、受控 API 与中文页面已完成，真实 create + rollback 验收待执行
 
 ## 1. 第一版范围
 
@@ -66,7 +66,7 @@ entries/visions/<movie|series>/<vision-id>/
 
 1. preview core 自检；
 2. API 临时目录集成测试；
-3. 中文页面与 board tab；
+3. 中文页面与 board tab；（已完成）
 4. 真实 create + rollback smoke test；
-5. 真实 UI create + rollback；
+5. 真实 UI / API 链路 create + rollback；
 6. 最后才讨论是否保留用户真实新条目。

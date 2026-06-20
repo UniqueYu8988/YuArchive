@@ -2,170 +2,118 @@ import { useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   AlertCircle,
-  BookOpen,
   CheckCircle2,
+  Clapperboard,
   FileImage,
-  FileText,
   FolderTree,
-  Newspaper,
   RefreshCcw,
   SearchCheck,
   ShieldCheck,
+  Tv,
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 
-type TextKind = 'article' | 'book_note' | 'series_note'
+type VisionKind = 'movie' | 'series'
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
 
-type TextForm = {
+type VisionForm = {
   title: string
-  date: string
-  author: string
-  summary: string
-  tags: string
-  content: string
-  cover: File | null
+  period: string
+  cinema: boolean
+  quote: string
+  url: string
+  poster: File | null
 }
 
-type ApiIssue = {
-  code: string
-  message: string
-}
-
+type ApiIssue = { code: string; message: string }
 type ApiPreview = {
   ok: boolean
   target: {
     entryId: string
     entryRelativeDir: string
     entryYaml: string
-    contentMd: string
-    cover: string
+    poster: string
   }
-  operations: Array<{
-    role: string
-    relativePath: string
-  }>
+  operations: Array<{ role: string; relativePath: string }>
   warnings: ApiIssue[]
   errors: ApiIssue[]
 }
-
 type ApiPreflight = {
   ok: boolean
-  targetEntryExists: boolean
   targetFilesExisting: number
   blockedReasons: string[]
   writeScope: string
   preflightToken: string | null
   preflightExpiresAt: number | null
-  dryRun: {
-    writeItems: number
-    rollbackDeletes: number
-  }
+  dryRun: { writeItems: number; rollbackDeletes: number }
 }
-
-type TextsCheck = {
+type VisionsCheck = {
   ok: boolean
   totalEntries: number
   malformedEntries: number
+  malformedCharacters: number
   privacyRuleHits: number
-  kindCounts: Record<TextKind, number>
+  kindCounts: Record<'movie' | 'series' | 'showcase', number>
 }
-
 type CreateResult = {
   ok: true
   entryRelativeDir: string
   createdEntryFiles: number
   createdTransactionFiles: number
-  textsEntries: number
+  visionsEntries: number
   sourceUnchanged: boolean
   publishTriggered: false
-  check: TextsCheck
+  check: VisionsCheck
 }
-
 type ErrorResult = {
   ok: false
   error?: {
-    code?: string
     message?: string
-    stage?: string
-    rollback?: {
-      completed: boolean
-    }
+    rollback?: { completed: boolean }
   }
 }
 
-const kindOptions: Array<{
-  kind: TextKind
-  label: string
-  description: string
-  icon: typeof FileText
-}> = [
-  { kind: 'article', label: '文章', description: '参考信息或拾遗', icon: FileText },
-  { kind: 'book_note', label: '书籍笔记', description: '每天听本书', icon: BookOpen },
-  { kind: 'series_note', label: '系列文本', description: '头条或睡前消息', icon: Newspaper },
+const periods = ['此岸', '未远', '旧影', '前尘', '开端']
+const kinds: Array<{ kind: VisionKind; label: string; description: string; icon: typeof Clapperboard }> = [
+  { kind: 'movie', label: '电影', description: '单部电影或短片', icon: Clapperboard },
+  { kind: 'series', label: '剧集 / 动画', description: '连续剧集与动画作品', icon: Tv },
 ]
-
-const sectionsByKind: Record<TextKind, Array<{ key: string; label: string }>> = {
-  article: [
-    { key: 'reference-info', label: '参考信息' },
-    { key: 'miscellany', label: '拾遗' },
-  ],
-  book_note: [
-    { key: 'book-reviews', label: '每天听本书' },
-  ],
-  series_note: [
-    { key: 'headline', label: '得到头条' },
-    { key: 'bedtime-news', label: '睡前消息' },
-  ],
-}
-
-const initialForm: TextForm = {
+const initialForm: VisionForm = {
   title: '',
-  date: '',
-  author: '',
-  summary: '',
-  tags: '',
-  content: '',
-  cover: null,
+  period: periods[0],
+  cinema: false,
+  quote: '',
+  url: '',
+  poster: null,
 }
-
 const issueMessages: Record<string, string> = {
   invalid_entry_id: '条目 ID 无效，请重置草稿。',
   missing_title: '请填写标题。',
-  missing_content: '请填写 Markdown 正文。',
-  section_kind_mismatch: '所选栏目与文本类型不匹配。',
-  invalid_optional_date: '日期应为 YYYY-MM-DD 或留空。',
-  invalid_required_date: '请填写 YYYY-MM-DD 格式的日期。',
-  missing_cover: '书籍笔记必须选择封面。',
-  invalid_cover_extension: '封面类型不受支持。',
-  unexpected_cover: '当前文本类型不使用封面。',
-  summary_empty: '摘要为空，不影响保存。',
-  tags_normalized: '空标签或重复标签会自动移除。',
+  invalid_period: '请选择有效的时期。',
+  missing_poster: '请选择海报。',
+  invalid_poster_extension: '海报格式不受支持。',
+  invalid_url: '外部链接必须以 http:// 或 https:// 开头。',
+  quote_empty: '短句为空，不影响保存。',
+  url_empty: '外部链接为空，不影响保存。',
 }
-
 const blockedMessages: Record<string, string> = {
-  texts_v2_baseline_failed: 'Texts v2 当前结构检查未通过。',
+  visions_v2_baseline_failed: 'Visions v2 当前结构检查未通过。',
   create_target_exists: '目标条目已存在，不能覆盖。',
   create_target_files_exist: '目标文件已存在，不能覆盖。',
 }
 
-function newTextId() {
+function newVisionId() {
   const now = new Date()
   const day = [
     now.getFullYear(),
     String(now.getMonth() + 1).padStart(2, '0'),
     String(now.getDate()).padStart(2, '0'),
   ].join('')
-  return `text-${day}-${crypto.randomUUID().replace(/-/g, '').slice(0, 8)}`
-}
-
-function tagsFromInput(value: string) {
-  return [...new Set(value.split(/[,，]/).map(tag => tag.trim()).filter(Boolean))]
+  return `vision-${day}-${crypto.randomUUID().replace(/-/g, '').slice(0, 8)}`
 }
 
 function fileExtension(file: File | null) {
-  if (!file) return ''
-  const extension = file.name.split('.').pop()?.toLowerCase()
+  const extension = file?.name.split('.').pop()?.toLowerCase()
   return extension ? `.${extension}` : ''
 }
 
@@ -175,19 +123,10 @@ function formatSize(file: File | null) {
   return megabytes >= 1 ? `${megabytes.toFixed(1)} MB` : `${Math.max(1, Math.round(file.size / 1024))} KB`
 }
 
-function issueText(issue: ApiIssue) {
-  return issueMessages[issue.code] ?? issue.message
-}
-
-function blockedText(reason: string) {
-  return blockedMessages[reason] ?? `预检规则未通过：${reason}`
-}
-
-export default function ArchiveStudioTextsPage() {
-  const [kind, setKind] = useState<TextKind>('article')
-  const [section, setSection] = useState(sectionsByKind.article[0].key)
-  const [entryId, setEntryId] = useState(newTextId)
-  const [form, setForm] = useState<TextForm>(initialForm)
+export default function ArchiveStudioVisionsPage() {
+  const [kind, setKind] = useState<VisionKind>('movie')
+  const [entryId, setEntryId] = useState(newVisionId)
+  const [form, setForm] = useState<VisionForm>(initialForm)
   const [fileInputVersion, setFileInputVersion] = useState(0)
   const [isDirty, setIsDirty] = useState(false)
   const [serviceStatus, setServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
@@ -199,12 +138,9 @@ export default function ArchiveStudioTextsPage() {
   const [createStatus, setCreateStatus] = useState<RequestStatus>('idle')
   const [createResult, setCreateResult] = useState<CreateResult | null>(null)
   const [checkStatus, setCheckStatus] = useState<RequestStatus>('idle')
-  const [checkResult, setCheckResult] = useState<TextsCheck | null>(null)
+  const [checkResult, setCheckResult] = useState<VisionsCheck | null>(null)
   const [requestError, setRequestError] = useState('')
-
-  const isBookNote = kind === 'book_note'
-  const coverExtension = fileExtension(form.cover)
-  const tags = useMemo(() => tagsFromInput(form.tags), [form.tags])
+  const posterExtension = fileExtension(form.poster)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -216,13 +152,12 @@ export default function ArchiveStudioTextsPage() {
           writeEnabled?: boolean
           profiles?: Array<{
             board?: string
-            kind?: string
             capabilities?: { create?: boolean; publish?: boolean }
           }>
         }
-        const profiles = data.profiles?.filter(profile => profile.board === 'texts') ?? []
+        const profiles = data.profiles?.filter(profile => profile.board === 'visions') ?? []
         const safe = data.localOnly === true
-          && profiles.length === 3
+          && profiles.length === 2
           && profiles.every(profile => profile.capabilities?.publish === false)
         if (!safe) throw new Error('本地服务能力配置不安全。')
         setCreateAvailable(data.writeEnabled === true && profiles.every(profile => profile.capabilities?.create))
@@ -246,64 +181,40 @@ export default function ArchiveStudioTextsPage() {
     setRequestError('')
   }
 
-  const updateField = (field: keyof Omit<TextForm, 'cover'>, value: string) => {
+  const updateField = <K extends keyof VisionForm>(field: K, value: VisionForm[K]) => {
     setForm(current => ({ ...current, [field]: value }))
-    invalidate()
-  }
-
-  const updateCover = (cover: File | null) => {
-    setForm(current => ({ ...current, cover }))
-    invalidate()
-  }
-
-  const changeKind = (nextKind: TextKind) => {
-    setKind(nextKind)
-    setSection(sectionsByKind[nextKind][0].key)
-    setForm(current => ({
-      ...current,
-      date: nextKind === 'book_note' ? '' : current.date,
-      author: nextKind === 'book_note' ? current.author : '',
-      cover: nextKind === 'book_note' ? current.cover : null,
-    }))
-    setFileInputVersion(current => current + 1)
     invalidate()
   }
 
   const validation = useMemo(() => {
     const errors: string[] = []
     if (!form.title.trim()) errors.push('请填写标题。')
-    if (!form.content.trim()) errors.push('请填写 Markdown 正文。')
-    if (isBookNote) {
-      if (!form.cover) errors.push('请选择书籍封面。')
-      if (form.cover && !['.jpg', '.jpeg', '.png', '.webp'].includes(coverExtension)) {
-        errors.push('封面格式不受支持。')
-      }
-      if (form.date && !/^\d{4}-\d{2}-\d{2}$/.test(form.date)) errors.push('日期格式应为 YYYY-MM-DD。')
-    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date)) {
-      errors.push('文章和系列文本必须填写 YYYY-MM-DD 日期。')
+    if (!periods.includes(form.period)) errors.push('请选择有效的时期。')
+    if (!form.poster) errors.push('请选择海报。')
+    if (form.poster && !['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(posterExtension)) {
+      errors.push('海报格式不受支持。')
     }
+    if (form.url && !/^https?:\/\//i.test(form.url)) errors.push('外部链接格式无效。')
     return errors
-  }, [coverExtension, form, isBookNote])
+  }, [form, posterExtension])
 
   const buildPayload = () => ({
     mode: 'create',
-    board: 'texts',
+    board: 'visions',
     kind,
     id: entryId,
     fields: {
       title: form.title.trim(),
-      section,
-      date: form.date.trim(),
-      author: isBookNote ? form.author.trim() : '',
-      summary: form.summary.trim(),
-      tags,
+      period: form.period,
+      cinema: form.cinema,
+      quote: form.quote.trim(),
+      url: form.url.trim(),
     },
-    content: { markdown: form.content },
-    assets: isBookNote && form.cover ? {
-      cover: {
+    assets: form.poster ? {
+      poster: {
         source: 'selected-file',
-        originalName: form.cover.name,
-        extension: coverExtension,
+        originalName: form.poster.name,
+        extension: posterExtension,
       },
     } : {},
   })
@@ -320,9 +231,8 @@ export default function ArchiveStudioTextsPage() {
   }
 
   const reset = () => {
-    setKind('article')
-    setSection(sectionsByKind.article[0].key)
-    setEntryId(newTextId())
+    setKind('movie')
+    setEntryId(newVisionId())
     setForm(initialForm)
     setFileInputVersion(current => current + 1)
     setIsDirty(false)
@@ -339,14 +249,11 @@ export default function ArchiveStudioTextsPage() {
 
   const generatePreview = async () => {
     setPreviewStatus('loading')
-    setPreviewResult(null)
-    setPreflightStatus('idle')
     setPreflightResult(null)
-    setCreateStatus('idle')
     setCreateResult(null)
     setRequestError('')
     try {
-      const result = await postJson<ApiPreview>('/api/studio/texts/preview', buildPayload())
+      const result = await postJson<ApiPreview>('/api/studio/visions/preview', buildPayload())
       setPreviewResult(result)
       setPreviewStatus(result.ok ? 'success' : 'error')
       setServiceStatus('online')
@@ -359,15 +266,12 @@ export default function ArchiveStudioTextsPage() {
 
   const runPreflight = async () => {
     setPreflightStatus('loading')
-    setPreflightResult(null)
-    setCreateStatus('idle')
     setCreateResult(null)
     setRequestError('')
     try {
-      const result = await postJson<ApiPreflight>('/api/studio/texts/preflight', buildPayload())
+      const result = await postJson<ApiPreflight>('/api/studio/visions/preflight', buildPayload())
       setPreflightResult(result)
       setPreflightStatus(result.ok ? 'success' : 'error')
-      setServiceStatus('online')
     } catch (error) {
       setPreflightStatus('error')
       setRequestError(error instanceof Error ? error.message : '预检失败。')
@@ -376,9 +280,8 @@ export default function ArchiveStudioTextsPage() {
 
   const runCheck = async () => {
     setCheckStatus('loading')
-    setCheckResult(null)
     try {
-      const result = await postJson<TextsCheck>('/api/studio/checks/texts-v2', {})
+      const result = await postJson<VisionsCheck>('/api/studio/checks/visions-v2', {})
       setCheckResult(result)
       setCheckStatus(result.ok ? 'success' : 'error')
     } catch {
@@ -387,16 +290,15 @@ export default function ArchiveStudioTextsPage() {
   }
 
   const createEntry = async () => {
-    if (!preflightResult?.preflightToken) return
+    if (!preflightResult?.preflightToken || !form.poster) return
     setCreateStatus('loading')
-    setCreateResult(null)
     setRequestError('')
     const body = new FormData()
     body.set('payload', JSON.stringify(buildPayload()))
     body.set('preflightToken', preflightResult.preflightToken)
-    if (isBookNote && form.cover) body.set('cover', form.cover)
+    body.set('poster', form.poster)
     try {
-      const response = await fetch('/api/studio/texts/create', { method: 'POST', body })
+      const response = await fetch('/api/studio/visions/create', { method: 'POST', body })
       const result = await response.json() as CreateResult | ErrorResult
       if (!response.ok || !result.ok) {
         const details = 'error' in result ? result.error : undefined
@@ -429,15 +331,12 @@ export default function ArchiveStudioTextsPage() {
     && createAvailable
     && createStatus !== 'loading'
     && createStatus !== 'success'
-  const KindIcon = kindOptions.find(option => option.kind === kind)?.icon ?? FileText
+  const KindIcon = kind === 'movie' ? Clapperboard : Tv
 
   return (
     <main className="studio-shell">
       <header className="studio-topbar">
-        <div>
-          <div className="studio-kicker">本地收藏维护工具</div>
-          <h1>Archive Studio</h1>
-        </div>
+        <div><div className="studio-kicker">本地收藏维护工具</div><h1>Archive Studio</h1></div>
         <div className="studio-status-cluster">
           <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}>
             <ShieldCheck size={15} />
@@ -455,8 +354,8 @@ export default function ArchiveStudioTextsPage() {
       </nav>
 
       <section className="studio-context-bar" aria-label="当前创建配置">
-        <div className="studio-context-item"><span>板块</span><strong>文本</strong></div>
-        <div className="studio-context-item"><span>类型</span><strong>{kindOptions.find(option => option.kind === kind)?.label}</strong></div>
+        <div className="studio-context-item"><span>板块</span><strong>影视</strong></div>
+        <div className="studio-context-item"><span>类型</span><strong>{kind === 'movie' ? '电影' : '剧集 / 动画'}</strong></div>
         <div className="studio-context-item"><span>操作</span><strong>新建</strong></div>
         <div className="studio-context-state">
           <span className={`studio-state-dot${isDirty ? ' is-dirty' : ''}`} />
@@ -467,13 +366,10 @@ export default function ArchiveStudioTextsPage() {
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
           <CheckCircle2 size={22} />
-          <div>
-            <strong>创建成功，文本已保存到 ArchiveData-v2</strong>
-            <span>{createResult.entryRelativeDir}</span>
-          </div>
+          <div><strong>创建成功，影视条目已保存到 ArchiveData-v2</strong><span>{createResult.entryRelativeDir}</span></div>
           <dl>
             <div><dt>条目文件</dt><dd>{createResult.createdEntryFiles}</dd></div>
-            <div><dt>Texts v2 总数</dt><dd>{createResult.textsEntries}</dd></div>
+            <div><dt>Visions v2 总数</dt><dd>{createResult.visionsEntries}</dd></div>
             <div><dt>结构检查</dt><dd>{createResult.check.ok ? '通过' : '失败'}</dd></div>
             <div><dt>旧源数据</dt><dd>{createResult.sourceUnchanged ? '未变化' : '需检查'}</dd></div>
             <div><dt>发布</dt><dd>{createResult.publishTriggered ? '已触发' : '未触发'}</dd></div>
@@ -485,19 +381,14 @@ export default function ArchiveStudioTextsPage() {
         <div className="studio-editor-column">
           <section className="studio-section">
             <div className="studio-section-heading">
-              <div><span>01</span><h2>文本类型</h2></div>
-              <p>类型决定可用栏目、日期和封面规则。</p>
+              <div><span>01</span><h2>影视类型</h2></div>
+              <p>动画与连续剧在第一版统一使用剧集类型。</p>
             </div>
             <div className="studio-kind-selector">
-              {kindOptions.map(option => {
+              {kinds.map(option => {
                 const Icon = option.icon
                 return (
-                  <button
-                    key={option.kind}
-                    className={kind === option.kind ? 'is-active' : ''}
-                    type="button"
-                    onClick={() => changeKind(option.kind)}
-                  >
+                  <button key={option.kind} className={kind === option.kind ? 'is-active' : ''} type="button" onClick={() => { setKind(option.kind); invalidate() }}>
                     <Icon size={18} />
                     <span><strong>{option.label}</strong><small>{option.description}</small></span>
                   </button>
@@ -509,37 +400,30 @@ export default function ArchiveStudioTextsPage() {
           <section className="studio-section">
             <div className="studio-section-heading">
               <div><span>02</span><h2>条目信息</h2></div>
-              <p>只填写当前类型需要的字段。</p>
+              <p>这些字段将直接进入 entry.yaml，不会自动补全。</p>
             </div>
             <div className="studio-form-grid">
               <label className="studio-field studio-field--wide">
                 <span>标题 <b>必填</b></span>
-                <input value={form.title} onChange={event => updateField('title', event.target.value)} placeholder="文本标题" />
+                <input value={form.title} onChange={event => updateField('title', event.target.value)} placeholder="影视标题" />
               </label>
               <label className="studio-field">
-                <span>栏目 <b>必填</b></span>
-                <select value={section} onChange={event => { setSection(event.target.value); invalidate() }}>
-                  {sectionsByKind[kind].map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
+                <span>时期 <b>必填</b></span>
+                <select value={form.period} onChange={event => updateField('period', event.target.value)}>
+                  {periods.map(period => <option key={period} value={period}>{period}</option>)}
                 </select>
               </label>
-              <label className="studio-field">
-                <span>日期 {isBookNote ? '可选' : <b>必填</b>}</span>
-                <input type="date" value={form.date} onChange={event => updateField('date', event.target.value)} />
-              </label>
-              {isBookNote ? (
-                <label className="studio-field studio-field--wide">
-                  <span>作者</span>
-                  <input value={form.author} onChange={event => updateField('author', event.target.value)} placeholder="可选" />
-                </label>
-              ) : null}
-              <label className="studio-field studio-field--wide">
-                <span>摘要</span>
-                <textarea rows={3} value={form.summary} onChange={event => updateField('summary', event.target.value)} placeholder="可选的简短摘要，不会自动生成" />
+              <label className="studio-toggle">
+                <span>院线观看<small>在海报右上角显示影院标记</small></span>
+                <input type="checkbox" checked={form.cinema} onChange={event => updateField('cinema', event.target.checked)} />
               </label>
               <label className="studio-field studio-field--wide">
-                <span>标签</span>
-                <input value={form.tags} onChange={event => updateField('tags', event.target.value)} placeholder="用逗号分隔" />
-                <small>将保存 {tags.length} 个去重后的标签。</small>
+                <span>展示短句</span>
+                <textarea rows={3} value={form.quote} onChange={event => updateField('quote', event.target.value)} placeholder="可选，不会自动生成" />
+              </label>
+              <label className="studio-field studio-field--wide">
+                <span>外部链接</span>
+                <input value={form.url} onChange={event => updateField('url', event.target.value)} placeholder="https://..." />
               </label>
               <label className="studio-field studio-field--wide">
                 <span>条目 ID <b>系统生成</b></span>
@@ -548,42 +432,22 @@ export default function ArchiveStudioTextsPage() {
             </div>
           </section>
 
-          {isBookNote ? (
-            <section className="studio-section">
-              <div className="studio-section-heading">
-                <div><span>03</span><h2>书籍封面</h2></div>
-                <p>保存为条目目录下的 cover 文件。</p>
-              </div>
-              <label className={`studio-asset-picker${form.cover ? ' has-file' : ''}`}>
-                <input
-                  key={`cover-${fileInputVersion}`}
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp"
-                  onChange={event => updateCover(event.target.files?.[0] ?? null)}
-                />
-                <FileImage size={24} />
-                <span className="studio-asset-label">封面</span>
-                <strong>{form.cover?.name ?? '选择图片'}</strong>
-                <small>{formatSize(form.cover)} · JPG、PNG 或 WebP</small>
-              </label>
-            </section>
-          ) : null}
-
           <section className="studio-section">
             <div className="studio-section-heading">
-              <div><span>{isBookNote ? '04' : '03'}</span><h2>Markdown 正文</h2></div>
-              <p>正文原样保存为 content.md，不会自动改写。</p>
+              <div><span>03</span><h2>海报</h2></div>
+              <p>原图保存到新条目目录，不会自动找图或裁剪源文件。</p>
             </div>
-            <label className="studio-field studio-field--wide">
-              <span>正文 <b>必填</b></span>
-              <textarea
-                className="studio-markdown-input"
-                rows={16}
-                value={form.content}
-                onChange={event => updateField('content', event.target.value)}
-                placeholder="填写 Markdown 正文"
+            <label className={`studio-asset-picker${form.poster ? ' has-file' : ''}`}>
+              <input
+                key={fileInputVersion}
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.avif"
+                onChange={event => updateField('poster', event.target.files?.[0] ?? null)}
               />
-              <small>{form.content.length} 个字符 · {form.content ? form.content.split(/\r\n|\r|\n/).length : 0} 行</small>
+              <FileImage size={24} />
+              <span className="studio-asset-label">海报</span>
+              <strong>{form.poster?.name ?? '选择图片'}</strong>
+              <small>{formatSize(form.poster)} · JPG、PNG、WebP 或 AVIF</small>
             </label>
           </section>
         </div>
@@ -597,11 +461,10 @@ export default function ArchiveStudioTextsPage() {
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">
               {(previewResult?.operations ?? [
-                { role: 'entry_yaml', relativePath: `entries/texts/${kind}/${entryId}/entry.yaml` },
-                { role: 'content_md', relativePath: `entries/texts/${kind}/${entryId}/content.md` },
-                ...(isBookNote ? [{ role: 'cover', relativePath: `entries/texts/${kind}/${entryId}/cover${coverExtension || '.ext'}` }] : []),
+                { role: 'entry_yaml', relativePath: `entries/visions/${kind}/${entryId}/entry.yaml` },
+                { role: 'poster', relativePath: `entries/visions/${kind}/${entryId}/poster${posterExtension || '.ext'}` },
               ]).map(operation => (
-                <div className="studio-operation" key={`${operation.role}-${operation.relativePath}`}>
+                <div className="studio-operation" key={operation.role}>
                   <KindIcon size={16} />
                   <div><span>{operation.role}</span><code>{operation.relativePath}</code></div>
                   <i className="is-ready">就绪</i>
@@ -609,17 +472,17 @@ export default function ArchiveStudioTextsPage() {
               ))}
             </div>
             <div className="studio-check-block studio-check-block--action">
-              <div><ShieldCheck size={17} /><strong>Texts v2 结构</strong></div>
+              <div><ShieldCheck size={17} /><strong>Visions v2 结构</strong></div>
               <button type="button" onClick={runCheck} disabled={checkStatus === 'loading' || serviceStatus === 'offline'}>
                 {checkStatus === 'loading' ? '检查中...' : '运行检查'}
               </button>
-              {checkResult ? <span>{checkResult.ok ? '通过' : '需要检查'} · {checkResult.totalEntries} 个条目 · {checkResult.malformedEntries} 个异常</span> : null}
+              {checkResult ? <span>{checkResult.ok ? '通过' : '需要检查'} · {checkResult.totalEntries} 个条目 · {checkResult.malformedEntries + checkResult.malformedCharacters} 个异常</span> : null}
             </div>
             {preflightResult ? (
               <div className={`studio-validation${preflightResult.ok ? ' is-valid' : ' has-errors'}`}>
                 <div>{preflightResult.ok ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<strong>{preflightResult.ok ? '预检通过' : '预检被阻断'}</strong></div>
                 <p>已有目标文件：{preflightResult.targetFilesExisting} · 计划写入：{preflightResult.dryRun.writeItems} · 写入范围：{preflightResult.writeScope}</p>
-                {preflightResult.blockedReasons.length ? <ul>{preflightResult.blockedReasons.map(reason => <li key={reason}>{blockedText(reason)}</li>)}</ul> : null}
+                {preflightResult.blockedReasons.length ? <ul>{preflightResult.blockedReasons.map(reason => <li key={reason}>{blockedMessages[reason] ?? reason}</li>)}</ul> : null}
               </div>
             ) : null}
             {previewStatus !== 'idle' ? (
@@ -627,14 +490,12 @@ export default function ArchiveStudioTextsPage() {
                 <div>{previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<strong>{previewStatus === 'loading' ? '正在生成预览' : previewReady ? '预览已就绪' : '预览被阻断'}</strong></div>
                 {requestError ? <p>{requestError}</p> : null}
                 {previewStatus !== 'loading' && (previewResult?.errors.length || validation.length) ? (
-                  <ul>{(previewResult?.errors.map(issueText) ?? validation).map(message => <li key={message}>{message}</li>)}</ul>
+                  <ul>{(previewResult?.errors.map(issue => issueMessages[issue.code] ?? issue.message) ?? validation).map(message => <li key={message}>{message}</li>)}</ul>
                 ) : null}
                 {previewReady ? <p>预览通过，此步骤尚未写入文件。</p> : null}
-                {previewResult?.warnings.map(warning => <p key={warning.code}>{issueText(warning)}</p>)}
+                {previewResult?.warnings.map(warning => <p key={warning.code}>{issueMessages[warning.code] ?? warning.message}</p>)}
               </div>
-            ) : (
-              <div className="studio-preview-placeholder">填写表单后生成预览，检查目标文件和规则。</div>
-            )}
+            ) : <div className="studio-preview-placeholder">填写表单并选择海报后生成预览。</div>}
             {createStatus === 'error' ? (
               <div className="studio-validation has-errors"><div><AlertCircle size={18} /><strong>创建失败</strong></div><p>{requestError}</p></div>
             ) : null}

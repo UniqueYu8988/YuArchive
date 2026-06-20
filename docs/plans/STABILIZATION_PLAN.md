@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Visions 后端新建流程已完成。下一步接入 Archive Studio 中文页面与 board tab，再做真实 create/rollback 和 UI 端到端验收。
+Visions 后端和中文页面已完成。下一步只执行一次真实 ArchiveData-v2 create + rollback smoke test，验证 API 写入、shape check、事务回退和零残留；不扩展 showcase、编辑、删除或发布。
