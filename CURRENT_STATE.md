@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Games 受控迁移器已通过系统临时目录验证：entries 282、seasons 40、manifest 329，旧源 changed 0。下一步受控迁移真实 ArchiveData-v2 Games，写入范围只限 Games 三个目标。
+Games 已受控迁移到真实 ArchiveData-v2：entries 282（normal_game 273、dlc 6、live_game 3）、seasons 40、manifest 329、unmapped 0；旧 Games 329 个文件 changed 0、missing 0，其他三个 board 继续通过。下一步生成隔离的 live-compatible games.json preview，不修改当前 public JSON。
 
 ## 暂时不做
 

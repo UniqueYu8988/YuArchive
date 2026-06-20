@@ -1,7 +1,7 @@
 # ArchiveData-v2 Games 受控迁移
 
 创建日期：2026-06-20
-状态：系统临时目录验证已通过，真实迁移待执行
+状态：真实迁移已完成
 
 ## 目标
 
@@ -62,3 +62,15 @@ node scripts/migrate-archive-data-v2-games.mjs --execute --authorization "I auth
 - Games v2 shape checker 通过；
 - 旧源 329 个文件 changed 0；
 - 临时目录已清理。
+
+## 真实执行结果
+
+- entries 282：normal_game 273、dlc 6、live_game 3；
+- ordinary / DLC cover 279，live parent cover 2；
+- season YAML 与 cover 各 40；
+- manifest 329、unmapped 0；
+- malformed、invalid ID、DLC parent、unexpected file 和 privacy hit 均为 0；
+- metadata_disabled 93，保留 2010 / 2015 未增强边界；
+- 旧 Games baseline 329，changed 0、missing 0；
+- Music、Texts、Visions v2 检查继续通过；
+- 未运行 `build_archive.py`，未修改 public JSON，未发布。
