@@ -1,7 +1,7 @@
 # Archive Studio Games 新建流程
 
 创建日期：2026-06-20
-状态：preview core、受控 API 与中文页面已完成，真实 create + rollback 待验收
+状态：preview core、受控 API、中文页面与真实 create + rollback 均已完成
 
 ## 1. 第一版范围
 
@@ -71,6 +71,6 @@ entries/games/normal_game/<game-id>/
 1. preview core 自检；（已完成）
 2. API 临时目录集成测试；（已完成）
 3. 中文页面与 board tab；（已完成）
-4. 真实 create + rollback smoke test；
-5. 页面与 API 链路验收；
+4. 真实 create + rollback smoke test；（已完成）
+5. 页面与 API 链路验收；（已完成）
 6. 最后才讨论是否保留用户真实新条目。

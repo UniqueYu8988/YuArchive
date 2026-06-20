@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Archive Studio Games normal_game 中文页面和四板块导航已完成，接入 preview、preflight、create 与写后 Games v2 check。生产构建、桌面交互和 390px 移动布局通过；下一步执行真实 create + rollback smoke test。
+Games 第一版升级闭环已完成：规则、planner、shape、受控迁移、live-compatible already-current gate、Archive Studio normal_game 中文页面与真实 API create + rollback 均通过。smoke test 为 282 → 283 → 282，条目/事务残留 0，旧源 778 个文件不变，未发布。
 
 ## 暂时不做
 
@@ -259,4 +259,4 @@ Archive Studio Games normal_game 中文页面和四板块导航已完成，接�
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts 与 Visions 已完成第一版闭环；Games 已开始独立只读审计，尚未迁移或接入 Studio，发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts、Visions 与 Games 均已完成第一版闭环；发布和旧 OneDrive Data 修改仍保持关闭。
