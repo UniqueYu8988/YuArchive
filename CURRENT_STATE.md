@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Games 已受控迁移到真实 ArchiveData-v2：entries 282（normal_game 273、dlc 6、live_game 3）、seasons 40、manifest 329、unmapped 0；旧 Games 329 个文件 changed 0、missing 0，其他三个 board 继续通过。下一步生成隔离的 live-compatible games.json preview，不修改当前 public JSON。
+Games live-compatible 隔离 preview 已通过：282/282 条目、40/40 season、全部 live ID 与媒体路径复用，字段、顺序和首页 9 项差异均为 0。下一步建立幂等替换 gate；当前 public JSON 无需变化。
 
 ## 暂时不做
 

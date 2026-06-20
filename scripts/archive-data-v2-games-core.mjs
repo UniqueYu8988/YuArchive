@@ -174,6 +174,37 @@ export function parseLiveMeta(filePath) {
   return { fields, seasons, errors };
 }
 
+export function parseV2GameYaml(filePath) {
+  const data = {};
+  const legacy = {};
+  const errors = [];
+  if (!existsFile(filePath)) return { data, legacy, errors: ['file_missing'] };
+  let section = '';
+  fs.readFileSync(filePath, 'utf8').split(/\r?\n/).forEach((rawLine, index) => {
+    const trimmed = rawLine.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const indent = rawLine.length - rawLine.trimStart().length;
+    const colon = trimmed.indexOf(':');
+    if (colon < 0) {
+      errors.push(`line_${index + 1}_missing_colon`);
+      return;
+    }
+    const key = unquote(trimmed.slice(0, colon));
+    const value = parseScalar(trimmed.slice(colon + 1));
+    if (indent === 0) {
+      section = value === '' ? key : '';
+      if (key !== 'legacy') data[key] = value;
+      return;
+    }
+    if (indent === 2 && section === 'legacy') {
+      legacy[key] = value;
+      return;
+    }
+    errors.push(`line_${index + 1}_unsupported_shape`);
+  });
+  return { data, legacy, errors };
+}
+
 function normalizedMetadata(raw = {}) {
   const ratingNumber = raw.rating === '' || raw.rating === undefined ? '' : Number(raw.rating);
   return {

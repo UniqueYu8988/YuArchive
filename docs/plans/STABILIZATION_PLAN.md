@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Games 已受控迁移到真实 ArchiveData-v2，并证明旧源和其他三个 board 不变。下一步生成隔离的 live-compatible games.json preview，核对 282 个 ID、排序、媒体路径和首页影响；不修改当前 public JSON。
+Games live-compatible 隔离 preview 已通过，当前 public JSON 与 v2 兼容输出零差异。下一步建立幂等替换 gate，already-current 时不得重写文件。
