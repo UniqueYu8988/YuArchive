@@ -17,6 +17,7 @@ const TextsPage = lazy(() => import('./pages/TextsPage'))
 const ArchiveStudioPage = lazy(() => import('./pages/ArchiveStudioPage'))
 const ArchiveStudioTextsPage = lazy(() => import('./pages/ArchiveStudioTextsPage'))
 const ArchiveStudioVisionsPage = lazy(() => import('./pages/ArchiveStudioVisionsPage'))
+const ArchiveStudioGamesPage = lazy(() => import('./pages/ArchiveStudioGamesPage'))
 
 // ── Navbar ───────────────────────────────────────────────────
 interface NavbarProps {
@@ -429,6 +430,7 @@ export default function App() {
           <Route path="/studio" element={<ArchiveStudioPage />} />
           <Route path="/studio/texts" element={<ArchiveStudioTextsPage />} />
           <Route path="/studio/visions" element={<ArchiveStudioVisionsPage />} />
+          <Route path="/studio/games" element={<ArchiveStudioGamesPage />} />
         </Routes>
       </Suspense>
 

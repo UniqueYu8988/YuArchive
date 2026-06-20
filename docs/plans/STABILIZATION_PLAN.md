@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Archive Studio Games normal_game 后端新建链路已完成。下一步接入中文页面与 board tab，再执行真实 create / rollback 和浏览器验收；不支持 DLC、live game、season 编辑或发布。
+Archive Studio Games normal_game 后端与中文页面已完成。下一步只执行真实 create + rollback smoke test和最终验收；不支持 DLC、live game、season 编辑或发布。

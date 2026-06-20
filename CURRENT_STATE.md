@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Archive Studio Games preview core、write gate、create core 和本机 API 已完成，只支持 normal_game 新建。临时目录集成测试覆盖一次性 token、cover、冲突、故障 rollback、写后 shape、旧源不变和无发布；下一步接入中文页面与 board tab。
+Archive Studio Games normal_game 中文页面和四板块导航已完成，接入 preview、preflight、create 与写后 Games v2 check。生产构建、桌面交互和 390px 移动布局通过；下一步执行真实 create + rollback smoke test。
 
 ## 暂时不做
 
