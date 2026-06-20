@@ -1,7 +1,7 @@
 # ArchiveData-v2 Visions Live JSON Replacement
 
 创建日期：2026-06-20
-状态：执行门槛已建立，真实替换待验收
+状态：真实替换已完成
 
 ## 目标
 
@@ -49,3 +49,14 @@ node scripts/replace-archive-data-v2-visions-live-compatible.mjs --execute --aut
 ## 回退
 
 提交前可用 Git 恢复两个派生 JSON；脚本也保留系统临时备份。不得修改旧 OneDrive Data。
+
+## 执行结果
+
+- `visions.json`：2 个条目，quote 2、url 2、type 2；
+- `home.json`：1 个引用，quote 1、url 1、type 1；
+- 数量、ID、媒体路径、period、条目顺序、角色顺序和 showcase 均未变化；
+- Git diff 为 Visions 6 行增删、Home 3 行增删，没有序列化噪声；
+- 源文件检查 157，changed 0、missing 0；
+- public shape、隐私检查和生产构建通过；
+- 脚本再次运行返回 `already-current`，不重复写入；
+- 未运行 `build_archive.py`，未发布。

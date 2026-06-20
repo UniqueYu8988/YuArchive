@@ -60,6 +60,53 @@ function countDifferences(left, right) {
   return differences;
 }
 
+function findObjectBounds(text, id) {
+  const marker = `"id": ${JSON.stringify(id)}`;
+  const markerIndex = text.indexOf(marker);
+  if (markerIndex < 0 || text.indexOf(marker, markerIndex + marker.length) >= 0) {
+    throw new Error('entry_id_not_unique_in_json_text');
+  }
+  const start = text.lastIndexOf('{', markerIndex);
+  if (start < 0) throw new Error('entry_object_start_missing');
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let index = start; index < text.length; index += 1) {
+    const character = text[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if (character === '"') inString = false;
+      continue;
+    }
+    if (character === '"') inString = true;
+    else if (character === '{') depth += 1;
+    else if (character === '}') {
+      depth -= 1;
+      if (depth === 0) return { start, end: index + 1 };
+    }
+  }
+  throw new Error('entry_object_end_missing');
+}
+
+function replaceFieldsById(text, replacements) {
+  let output = text;
+  for (const { id, fields } of replacements) {
+    const bounds = findObjectBounds(output, id);
+    let objectText = output.slice(bounds.start, bounds.end);
+    for (const [field, value] of Object.entries(fields)) {
+      const fieldPattern = new RegExp(
+        `("${field}"\\s*:\\s*)("(?:\\\\.|[^"\\\\])*"|true|false|null|-?\\d+(?:\\.\\d+)?)`,
+      );
+      const matches = objectText.match(new RegExp(fieldPattern.source, 'g')) ?? [];
+      if (matches.length !== 1) throw new Error(`expected_one_${field}_field`);
+      objectText = objectText.replace(fieldPattern, `$1${JSON.stringify(value)}`);
+    }
+    output = `${output.slice(0, bounds.start)}${objectText}${output.slice(bounds.end)}`;
+  }
+  return output;
+}
+
 function buildHomeUpdate(home, currentVisions, previewVisions) {
   const currentById = new Map(currentVisions.years.flatMap(group => group.items || []).map(item => [item.id, item]));
   const previewById = new Map(previewVisions.years.flatMap(group => group.items || []).map(item => [item.id, item]));
@@ -89,23 +136,37 @@ function buildHomeUpdate(home, currentVisions, previewVisions) {
 
 function assertGate(preview, homeUpdate) {
   const expectedFields = { cinema: 0, quote: 2, url: 2, type: 2 };
-  if (
-    !preview.ok
-    || preview.sourceMetadataCorrectionEntries !== 2
-    || preview.itemFieldDifferences !== 6
-    || JSON.stringify(preview.sourceMetadataFieldCorrections) !== JSON.stringify(expectedFields)
-    || preview.requiredMissing !== 0
-    || preview.orderDifferences !== 0
-    || preview.periodOrderDifferences !== 0
-    || preview.showcaseFieldDifferences !== 0
-    || preview.showcaseOrderDifferences !== 0
-    || preview.privacyRuleHits !== 0
-  ) throw new Error('visions_preview_gate_failed');
-  if (
-    homeUpdate.changedIds.length !== 2
-    || homeUpdate.changedReferences !== 1
-    || JSON.stringify(homeUpdate.fieldDifferences) !== JSON.stringify({ quote: 1, url: 1, type: 1 })
-  ) throw new Error('home_update_gate_failed');
+  const commonSafe = (
+    preview.ok
+    && preview.requiredMissing === 0
+    && preview.orderDifferences === 0
+    && preview.periodOrderDifferences === 0
+    && preview.showcaseFieldDifferences === 0
+    && preview.showcaseOrderDifferences === 0
+    && preview.privacyRuleHits === 0
+  );
+  const replacementReady = (
+    commonSafe
+    && preview.sourceMetadataCorrectionEntries === 2
+    && preview.itemFieldDifferences === 6
+    && JSON.stringify(preview.sourceMetadataFieldCorrections) === JSON.stringify(expectedFields)
+    && homeUpdate.changedIds.length === 2
+    && homeUpdate.changedReferences === 1
+    && JSON.stringify(homeUpdate.fieldDifferences) === JSON.stringify({ quote: 1, url: 1, type: 1 })
+  );
+  const alreadyCurrent = (
+    commonSafe
+    && preview.sourceMetadataCorrectionEntries === 0
+    && preview.itemFieldDifferences === 0
+    && Object.values(preview.sourceMetadataFieldCorrections).every(count => count === 0)
+    && homeUpdate.changedIds.length === 0
+    && homeUpdate.changedReferences === 0
+    && Object.keys(homeUpdate.fieldDifferences).length === 0
+  );
+  if (!replacementReady && !alreadyCurrent) {
+    throw new Error('visions_replacement_gate_failed');
+  }
+  return alreadyCurrent ? 'already-current' : 'replacement-ready';
 }
 
 export function replaceVisionsLiveCompatible({
@@ -115,11 +176,14 @@ export function replaceVisionsLiveCompatible({
   const preview = generateVisionsLiveCompatiblePreview();
   const currentVisions = JSON.parse(fs.readFileSync(VISIONS_JSON, 'utf8'));
   const currentHome = JSON.parse(fs.readFileSync(HOME_JSON, 'utf8'));
+  const currentVisionsText = fs.readFileSync(VISIONS_JSON, 'utf8');
+  const currentHomeText = fs.readFileSync(HOME_JSON, 'utf8');
   const homeUpdate = buildHomeUpdate(currentHome, currentVisions, preview.preview);
-  assertGate(preview, homeUpdate);
+  const gateState = assertGate(preview, homeUpdate);
   const summary = {
     ok: true,
     mode: execute ? 'execute-requested' : 'plan',
+    gateState,
     visionsChangedEntries: homeUpdate.changedIds.length,
     visionsChangedFields: preview.itemFieldDifferences,
     homepageChangedReferences: homeUpdate.changedReferences,
@@ -129,6 +193,9 @@ export function replaceVisionsLiveCompatible({
     publishRun: false,
   };
   if (!execute) return summary;
+  if (gateState === 'already-current') {
+    return { ...summary, mode: 'already-current', writeScope: 'none' };
+  }
   if (authorization !== AUTHORIZATION_PHRASE) {
     return { ...summary, ok: false, blockedReason: 'authorization_phrase_mismatch' };
   }
@@ -141,12 +208,44 @@ export function replaceVisionsLiveCompatible({
   fs.writeFileSync(path.join(backupRoot, 'home.json'), homeBefore);
   let success = false;
   try {
-    const visionsText = `${JSON.stringify(preview.preview, null, 2)}\n`;
-    const homeText = `${JSON.stringify(homeUpdate.home, null, 2)}\n`;
+    const previewById = new Map(
+      preview.preview.years.flatMap(group => group.items || []).map(item => [item.id, item]),
+    );
+    const visionsText = replaceFieldsById(
+      currentVisionsText,
+      homeUpdate.changedIds.map(id => ({
+        id,
+        fields: {
+          quote: previewById.get(id).quote,
+          url: previewById.get(id).url,
+          type: previewById.get(id).type,
+        },
+      })),
+    );
+    const homeChangedIds = new Set((currentHome.latestVisions || [])
+      .filter(item => homeUpdate.changedIds.includes(item.id))
+      .map(item => item.id));
+    const homeText = replaceFieldsById(
+      currentHomeText,
+      [...homeChangedIds].map(id => ({
+        id,
+        fields: {
+          quote: previewById.get(id).quote,
+          url: previewById.get(id).url,
+          type: previewById.get(id).type,
+        },
+      })),
+    );
     fs.writeFileSync(VISIONS_JSON, visionsText, 'utf8');
     fs.writeFileSync(HOME_JSON, homeText, 'utf8');
-    JSON.parse(fs.readFileSync(VISIONS_JSON, 'utf8'));
-    JSON.parse(fs.readFileSync(HOME_JSON, 'utf8'));
+    const writtenVisions = JSON.parse(fs.readFileSync(VISIONS_JSON, 'utf8'));
+    const writtenHome = JSON.parse(fs.readFileSync(HOME_JSON, 'utf8'));
+    if (JSON.stringify(writtenVisions) !== JSON.stringify(preview.preview)) {
+      throw new Error('visions_semantic_verification_failed');
+    }
+    if (JSON.stringify(writtenHome) !== JSON.stringify(homeUpdate.home)) {
+      throw new Error('home_semantic_verification_failed');
+    }
     if (sha256(fs.readFileSync(VISIONS_JSON)) !== sha256(Buffer.from(visionsText, 'utf8'))) {
       throw new Error('visions_write_verification_failed');
     }

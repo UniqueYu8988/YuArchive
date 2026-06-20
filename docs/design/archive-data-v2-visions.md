@@ -1,7 +1,7 @@
 # ArchiveData-v2 Visions 规则草案
 
 创建日期：2026-06-20
-状态：规则已冻结并完成受控迁移，live-compatible 预览待建立
+状态：规则、受控迁移和 live-compatible 替换已完成，Archive Studio 接入待实施
 
 ## 1. 定位
 
@@ -124,11 +124,12 @@ caption:
 
 ## 8. 下一步
 
-planner、shape checker 和受控迁移已完成。下一任务建立 live-compatible preview：
+planner、shape checker、受控迁移和 live-compatible 替换已完成。下一任务设计 Archive Studio Visions 新建流程：
 
-- 读取已迁移的 111 个普通条目、1 个 showcase 和 20 个角色；
-- 映射回当前 `visions.json` 契约；
-- 复用当前 live ID 与缓存媒体路径；
-- 显式报告 2 个条目、6 个源 YAML 元数据修正；
-- 不替换 `public/data/visions.json`；
-- 不运行 `build_archive.py` 或发布。
+- 第一版只新建普通 movie / series；
+- 用户选择 kind 与 period；
+- 填写 title、cinema、quote、url；
+- 选择 poster；
+- preview、preflight、create、shape check；
+- showcase 编辑和创建留到后续；
+- 不自动生成 public JSON 或发布。

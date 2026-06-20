@@ -91,6 +91,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Visions 受控迁移器已通过系统临时目录完整迁移：112 个 entry、20 个角色、157 条 manifest，错误授权被阻断，旧源 changed 0；真实迁移待执行。
 - Visions v2 已受控迁移并通过：movie 71、series 40、showcase 1，poster 111，角色 YAML / avatar / clip 各 20，manifest 157、unmapped 0、旧源 changed 0。
 - Visions live-compatible 隔离 preview 已通过：111/111 普通条目、20/20 角色、0 missing，ID/媒体路径全部复用，顺序差异 0；仅有预期的 quote、url、type 各 2 个修正。
+- Visions live JSON 已受控替换：Visions 2 条/6 字段，Home 1 条/3 字段；结构、隐私、构建和旧源零变化检查通过，脚本幂等返回 already-current。
 
 ## 稳定化目标
 
@@ -429,4 +430,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Visions preview 已完成。下一步执行 live JSON 替换门槛与受控替换，要求只保留 6 个预期字段修正，并通过结构、隐私和生产构建检查。
+Visions 迁移与 live 替换已完成。下一步接入 Archive Studio 普通 movie / series 新建流程，先做 preview core、preflight 和 create API，再做 UI 与真实 create/rollback。
