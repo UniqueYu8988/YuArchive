@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Games 第一轮审计、v2 规则、只读 planner 和 shape checker 已建立。下一步实现受控迁移器并先在系统临时目录验证；不运行 `build_archive.py`，旧 OneDrive Data 只读。
+Games 迁移器已通过系统临时目录验证。下一步受控迁移真实 ArchiveData-v2 Games，并复核其他 board 与旧 Games 源不变；不运行 `build_archive.py`。

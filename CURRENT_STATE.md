@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Games 第一轮审计、v2 规则、只读 planner 和 Games v2 shape checker 已建立。checker 覆盖 kind、稳定 ID、DLC 父关联、cover、season、配置、migration baseline 和隐私边界；下一步实现受控迁移器并先在系统临时目录验证。
+Games 受控迁移器已通过系统临时目录验证：entries 282、seasons 40、manifest 329，旧源 changed 0。下一步受控迁移真实 ArchiveData-v2 Games，写入范围只限 Games 三个目标。
 
 ## 暂时不做
 

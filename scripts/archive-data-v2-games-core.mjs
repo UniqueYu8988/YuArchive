@@ -382,3 +382,89 @@ export function scanGamesSource() {
     errors,
   };
 }
+
+function yamlString(value) {
+  return JSON.stringify(String(value ?? ''));
+}
+
+export function serializeGameEntryYaml(entry) {
+  const lines = [
+    `id: ${entry.id}`,
+    'board: games',
+    `kind: ${entry.kind}`,
+    `title: ${yamlString(entry.title)}`,
+  ];
+  if (entry.kind !== 'live_game') lines.push(`year: ${entry.year}`);
+  lines.push(`metadata_enabled: ${entry.metadataEnabled ? 'true' : 'false'}`);
+  if (entry.metadataEnabled) {
+    lines.push(
+      `english_title: ${yamlString(entry.metadata.englishTitle)}`,
+      `url: ${yamlString(entry.metadata.url)}`,
+      `platform: ${yamlString(entry.metadata.platform)}`,
+      `price: ${yamlString(entry.metadata.price)}`,
+      `rating: ${entry.metadata.rating === '' ? '""' : entry.metadata.rating}`,
+      `playtime: ${yamlString(entry.metadata.playtime)}`,
+      `completed: ${entry.metadata.completed ? 'true' : 'false'}`,
+      `genre: ${yamlString(entry.metadata.genre)}`,
+    );
+    if (entry.metadata.summary) lines.push(`summary: ${yamlString(entry.metadata.summary)}`);
+    if (entry.metadata.hoverNote) lines.push(`hover_note: ${yamlString(entry.metadata.hoverNote)}`);
+    if (entry.kind === 'live_game') {
+      lines.push(
+        `season_heading: ${yamlString(entry.metadata.seasonHeading)}`,
+        `season_subheading: ${yamlString(entry.metadata.seasonSubheading)}`,
+        `season_description: ${yamlString(entry.metadata.seasonDescription)}`,
+      );
+    }
+  }
+  if (entry.kind === 'dlc') {
+    lines.push(
+      `parent_id: ${entry.parentId}`,
+      `parent_title: ${yamlString(entry.parentTitle)}`,
+    );
+  }
+  lines.push(
+    'legacy:',
+    `  source_relative_path: ${yamlString(entry.sourceRelativePath)}`,
+    `  source_folder: ${yamlString(entry.sourceFolder)}`,
+    `  source_stem: ${yamlString(entry.sourceStem)}`,
+    `  metadata_enabled: ${entry.metadataEnabled ? 'true' : 'false'}`,
+  );
+  if (entry.metadata.displayTitle) lines.push(`  display_title: ${yamlString(entry.metadata.displayTitle)}`);
+  if (entry.kind === 'dlc') {
+    lines.push(
+      `  dlc_parent_title: ${yamlString(entry.metadata.dlcParentTitle)}`,
+      `  inferred_parent: ${entry.parentInferred ? 'true' : 'false'}`,
+    );
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+export function serializeSeasonYaml(season) {
+  const lines = [
+    `id: ${season.id}`,
+    `title: ${yamlString(season.title)}`,
+    `label: ${yamlString(season.label)}`,
+    `order: ${season.order}`,
+  ];
+  for (const key of ['period', 'theme', 'feature', 'champion', 'note', 'build']) {
+    if (season.fields[key]) lines.push(`${key}: ${yamlString(season.fields[key])}`);
+  }
+  lines.push(
+    'legacy:',
+    `  source_relative_path: ${yamlString(season.sourceRelativePath)}`,
+    `  season_prefix: ${yamlString(season.seasonPrefix)}`,
+  );
+  return `${lines.join('\n')}\n`;
+}
+
+export function serializeGamesConfigYaml(entries) {
+  const priority = SEASON_RULES.map(rule => entries.find(entry => entry.kind === 'live_game' && entry.title === rule.parentTitle)?.id)
+    .filter(Boolean);
+  return [
+    'season_target_year: 2026',
+    'season_priority:',
+    ...priority.map(id => `  - ${id}`),
+    '',
+  ].join('\n');
+}
