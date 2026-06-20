@@ -89,7 +89,7 @@ export function evaluateGamesV2Shape({
   expectedMinimumEntries = 282,
   expectedMinimumKinds = { normal_game: 273, dlc: 6, live_game: 3 },
   expectedSeasons = 40,
-  expectedMetadataDisabled = 93,
+  expectedMinimumMetadataDisabled = 93,
   expectedLiveParentCovers = 2,
   requireMigrationBaseline = true,
 } = {}) {
@@ -218,7 +218,7 @@ export function evaluateGamesV2Shape({
     liveParentCovers !== expectedLiveParentCovers,
     seasonYamlFiles !== expectedSeasons,
     seasonCovers !== expectedSeasons,
-    metadataDisabled !== expectedMetadataDisabled,
+    metadataDisabled < expectedMinimumMetadataDisabled,
     malformedEntries,
     malformedSeasons,
     invalidGameIds,

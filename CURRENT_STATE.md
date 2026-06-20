@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Games live-compatible preview 和替换 gate 已通过：当前 `games.json` 与 v2 兼容输出语义完全相同，首页 9 项也一致，gate 返回 already-current 且 write scope 为 none。下一步接入 Archive Studio Games 第一版 normal_game 新建流程。
+Archive Studio Games preview core、write gate、create core 和本机 API 已完成，只支持 normal_game 新建。临时目录集成测试覆盖一次性 token、cover、冲突、故障 rollback、写后 shape、旧源不变和无发布；下一步接入中文页面与 board tab。
 
 ## 暂时不做
 

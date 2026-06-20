@@ -58,7 +58,7 @@ function evaluate(root) {
     expectedMinimumEntries: 3,
     expectedMinimumKinds: { normal_game: 1, dlc: 1, live_game: 1 },
     expectedSeasons: 1,
-    expectedMetadataDisabled: 1,
+    expectedMinimumMetadataDisabled: 1,
     expectedLiveParentCovers: 1,
     requireMigrationBaseline: false,
   });

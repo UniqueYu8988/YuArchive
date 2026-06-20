@@ -28,6 +28,13 @@ import {
 import { evaluateVisionsWriteGate } from './check-archive-studio-v0-visions-write-gate.mjs';
 import { createVisionEntry } from './archive-studio-v0-visions-create-core.mjs';
 import { evaluateVisionsV2Shape } from './check-archive-data-v2-visions-shape.mjs';
+import {
+  assertGamesPreviewSafe,
+  buildGamesPreview,
+} from './archive-studio-v0-games-preview-core.mjs';
+import { evaluateGamesWriteGate } from './check-archive-studio-v0-games-write-gate.mjs';
+import { createGameEntry } from './archive-studio-v0-games-create-core.mjs';
+import { evaluateGamesV2Shape } from './check-archive-data-v2-games-shape.mjs';
 
 const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4176;
@@ -163,6 +170,19 @@ function buildProfilesResponse(writeEnabled) {
           publish: false,
         },
       })),
+      {
+        board: 'games',
+        kind: 'normal_game',
+        modes: ['create'],
+        capabilities: {
+          preview: true,
+          preflight: true,
+          check: true,
+          create: writeEnabled,
+          update: false,
+          publish: false,
+        },
+      },
     ],
   };
 }
@@ -276,6 +296,30 @@ function buildTextsPreflightResponse(gate, tokenRecord = null) {
 }
 
 function buildVisionsPreflightResponse(gate, tokenRecord = null) {
+  return {
+    ok: gate.allowedToRequestWrite,
+    entryId: gate.target.entryId,
+    targetEntryExists: gate.targetEntryExists,
+    targetFilesExisting: gate.targetFilesExisting,
+    blockedReasons: gate.blockedReasons,
+    scope: gate.target.entryRelativeDir,
+    operations: gate.operations,
+    dryRun: {
+      status: gate.allowedToRequestWrite ? 'ready' : 'blocked',
+      writeItems: gate.operations.length,
+      backupItems: 0,
+      rollbackDeletes: gate.operations.length,
+      rollbackRestores: 0,
+    },
+    baseline: gate.baseline,
+    writeEnabled: Boolean(tokenRecord),
+    writeScope: tokenRecord ? gate.target.entryRelativeDir : 'none',
+    preflightToken: tokenRecord?.token || null,
+    preflightExpiresAt: tokenRecord?.expiresAt || null,
+  };
+}
+
+function buildGamesPreflightResponse(gate, tokenRecord = null) {
   return {
     ok: gate.allowedToRequestWrite,
     entryId: gate.target.entryId,
@@ -616,6 +660,122 @@ async function routeRequest(request, response, context) {
     return;
   }
 
+  if (request.method === 'POST' && url.pathname === '/api/studio/games/preview') {
+    const payload = await readJsonBody(request);
+    const preview = buildGamesPreview(payload);
+    assertGamesPreviewSafe(preview);
+    sendJson(response, preview.ok ? 200 : 422, {
+      ...preview,
+      writeEnabled: context.writeEnabled,
+      writeScope: 'none',
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/games/preflight') {
+    const payload = await readJsonBody(request);
+    const gate = evaluateGamesWriteGate(payload, {
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    const tokenRecord = gate.allowedToRequestWrite && context.writeEnabled
+      ? issuePreflightToken(context, payload)
+      : null;
+    sendJson(response, gate.allowedToRequestWrite ? 200 : 409, buildGamesPreflightResponse(gate, tokenRecord));
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/games/create') {
+    if (!context.writeEnabled) {
+      sendError(response, 403, 'create_disabled', 'Archive Studio create is disabled');
+      return;
+    }
+    const form = await readMultipartForm(request);
+    const payloadText = requireFormText(form, 'payload');
+    const token = requireFormText(form, 'preflightToken');
+    const coverFile = requireFormFile(form, 'cover');
+    let payload;
+    try {
+      payload = JSON.parse(payloadText);
+    } catch {
+      const error = new Error('payload must be valid JSON');
+      error.statusCode = 400;
+      error.code = 'invalid_payload_json';
+      throw error;
+    }
+    if (!consumePreflightToken(context, token, payload)) {
+      sendError(response, 403, 'preflight_token_invalid', 'Preflight token is invalid or expired');
+      return;
+    }
+    const gate = evaluateGamesWriteGate(payload, {
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    if (!gate.allowedToRequestWrite) {
+      sendJson(response, 409, buildGamesPreflightResponse(gate));
+      return;
+    }
+    if (coverFile.name !== payload.assets?.cover?.originalName) {
+      sendError(response, 422, 'asset_name_mismatch', 'Selected cover no longer matches preview');
+      return;
+    }
+    const result = await createGameEntry({
+      payload,
+      coverBuffer: Buffer.from(await coverFile.arrayBuffer()),
+      v2Root: context.v2Root,
+      sourceRoot: context.sourceRoot,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    sendJson(response, 201, {
+      ...result,
+      check: evaluateGamesV2Shape({
+        v2Root: context.v2Root,
+        expectedMinimumEntries: result.gamesEntries,
+        expectedMinimumKinds: context.expectedMinimumGamesKinds,
+        expectedSeasons: context.expectedGamesSeasons,
+        expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+        expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+        requireMigrationBaseline: context.requireGamesMigrationBaseline,
+      }),
+      publishTriggered: false,
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/checks/games-v2') {
+    await readJsonBody(request);
+    const result = evaluateGamesV2Shape({
+      v2Root: context.v2Root,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    sendJson(response, result.ok ? 200 : 422, {
+      ...result,
+      writeEnabled: false,
+      writeScope: 'none',
+    });
+    return;
+  }
+
   if (request.method === 'POST' && url.pathname === '/api/studio/checks/music-v2') {
     await readJsonBody(request);
     const result = evaluateMusicV2Shape({
@@ -644,9 +804,15 @@ export function createArchiveStudioServer({
   expectedMinimumVisionsEntries = 112,
   expectedMinimumVisionsKinds,
   expectedVisionsCharacters = 20,
+  expectedMinimumGamesEntries = 282,
+  expectedMinimumGamesKinds,
+  expectedGamesSeasons = 40,
+  expectedMinimumGamesMetadataDisabled = 93,
+  expectedGamesLiveParentCovers = 2,
   requireMigrationBaseline = true,
   requireTextsMigrationBaseline = requireMigrationBaseline,
   requireVisionsMigrationBaseline = requireMigrationBaseline,
+  requireGamesMigrationBaseline = requireMigrationBaseline,
 } = {}) {
   const context = {
     v2Root,
@@ -658,9 +824,15 @@ export function createArchiveStudioServer({
     expectedMinimumVisionsEntries,
     expectedMinimumVisionsKinds,
     expectedVisionsCharacters,
+    expectedMinimumGamesEntries,
+    expectedMinimumGamesKinds,
+    expectedGamesSeasons,
+    expectedMinimumGamesMetadataDisabled,
+    expectedGamesLiveParentCovers,
     requireMigrationBaseline,
     requireTextsMigrationBaseline,
     requireVisionsMigrationBaseline,
+    requireGamesMigrationBaseline,
     preflightTokens: new Map(),
   };
   return http.createServer((request, response) => {
@@ -694,7 +866,7 @@ export function startArchiveStudioServer({ port = DEFAULT_PORT } = {}) {
     console.log(`  host: ${HOST}`);
     console.log(`  port: ${port}`);
     console.log('  writeEnabled: true');
-    console.log('  writeScope: music/album/create, texts/*/create, visions/movie|series/create');
+    console.log('  writeScope: music/album/create, texts/*/create, visions/movie|series/create, games/normal_game/create');
   });
   return server;
 }

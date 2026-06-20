@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
-  GAME_ID_PATTERN,
   GAMES_SOURCE_ROOT,
+  MIGRATED_GAME_ID_PATTERN,
   SEASON_ID_PATTERN,
   scanGamesSource,
 } from './archive-data-v2-games-core.mjs';
@@ -94,7 +94,7 @@ export function planGamesMigration() {
   for (const source of metadataSourcesCoveredByEntryYaml) sourceCoverage.add(source);
   const sourceFilesUncovered = [...scannedSourceFiles].filter(source => !sourceCoverage.has(source));
   const sourceFilesUnexpected = [...sourceCoverage].filter(source => !scannedSourceFiles.has(source));
-  const invalidGameIds = entryIds.filter(id => !GAME_ID_PATTERN.test(id)).length;
+  const invalidGameIds = entryIds.filter(id => !MIGRATED_GAME_ID_PATTERN.test(id)).length;
   const invalidSeasonIds = seasonIds.filter(id => !SEASON_ID_PATTERN.test(id)).length;
   const duplicateGameIds = entryIds.length - new Set(entryIds).size;
   const duplicateSeasonIds = seasonIds.length - new Set(seasonIds).size;
