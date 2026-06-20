@@ -1,7 +1,7 @@
 # ArchiveData-v2 Visions 规则草案
 
 创建日期：2026-06-20
-状态：规则已冻结，planner 与 shape checker 已建立，尚未迁移
+状态：规则已冻结并完成受控迁移，live-compatible 预览待建立
 
 ## 1. 定位
 
@@ -124,12 +124,11 @@ caption:
 
 ## 8. 下一步
 
-planner 和 shape checker 已建立并通过隔离验证。下一任务设计并审查受控迁移器：
+planner、shape checker 和受控迁移已完成。下一任务建立 live-compatible preview：
 
-- 迁移 111 个普通条目、1 个 showcase、20 个角色及 151 个媒体文件；
-- 写入前记录旧源和目标边界；
-- 先在系统临时目录验证完整输出；
-- 生成 157 条 source manifest、0 unmapped 和 legacy report；
-- 不修改旧源；
+- 读取已迁移的 111 个普通条目、1 个 showcase 和 20 个角色；
+- 映射回当前 `visions.json` 契约；
+- 复用当前 live ID 与缓存媒体路径；
+- 显式报告 2 个源 YAML 类型修正；
 - 不替换 `public/data/visions.json`；
-- 实际写入必须通过单独的受控执行检查。
+- 不运行 `build_archive.py` 或发布。

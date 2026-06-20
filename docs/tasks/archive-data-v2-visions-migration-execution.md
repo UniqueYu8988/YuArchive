@@ -1,7 +1,7 @@
 # ArchiveData-v2 Visions 受控迁移
 
 创建日期：2026-06-20
-状态：迁移器隔离验证已通过，真实执行待验收
+状态：真实迁移已完成
 
 ## 目标
 
@@ -62,3 +62,14 @@ node scripts/migrate-archive-data-v2-visions.mjs --execute --authorization "I au
 - shape checker 通过；
 - 旧源 changed 0；
 - 临时目录已清理。
+
+## 真实执行结果
+
+- entries 112：movie 71、series 40、showcase 1；
+- poster 111；
+- character YAML、avatar、clip 各 20；
+- manifest 157、unmapped 0；
+- malformed、invalid ID、period、角色顺序和 privacy hit 均为 0；
+- 旧 Visions baseline 157，changed 0、missing 0；
+- Music 与 Texts v2 检查继续通过；
+- 未运行 `build_archive.py`，未修改 public JSON，未发布。
