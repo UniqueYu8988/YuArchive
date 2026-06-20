@@ -83,6 +83,9 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Archive Studio Texts 流程和 preview core 已建立，三个 kind 的字段、section、日期、封面和路径安全自检通过；受控 create 已接入。
 - Archive Studio Texts 受控 API 已完成并通过临时目录集成测试；一次性 token、create-only、故障 rollback、源边界和无发布路由均通过。
 - Archive Studio Texts 中文页面、真实 create + rollback runner 和真实 UI 端到端验收均已通过；临时条目和事务无残留，Texts 恢复 132，旧源与 v2 快照一致。
+- Visions 只读结构与规则审计已完成：111 个普通条目、20 个角色和 151 个媒体文件关系完整，0 orphan、0 缺失引用、0 解析错误。
+- Visions 审计识别出 2 个跨分组同名标题导致旧生成器全局 title join 覆盖，源 type 71/40 与 live type 69/42 不一致；111 个 live ID 均为不稳定位置型 ID。
+- Visions v2 草案建议 kind 为 movie、series、showcase，保留五个叙事 period，普通条目与角色橱窗分开建模；迁移和写入尚未开始。
 
 ## 稳定化目标
 
@@ -421,4 +424,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Music 与 Texts 的 ArchiveData-v2 / Archive Studio 第一版闭环已完成。下一步如继续扩展，建议为 Visions 新建独立目标，先做只读结构、kind、媒体和 live-compatible 规则审计，不直接迁移或写入。
+Visions 只读审计和规则草案已完成。下一步先确认 type/kind、2 个同名条目的兼容策略和 period 规则，再只读实现 Visions migration planner 与 shape checker；不直接迁移或写入。

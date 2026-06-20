@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 与 Texts v2 已完成迁移、保护检查、live-compatible 验证和 Archive Studio 新建闭环。旧 OneDrive Data 始终只读，未启用自动发布。
+ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 升级，只读结构与规则审计已完成，尚未迁移、写入或替换 live JSON。旧 OneDrive Data 始终只读，未启用自动发布。
 
 ## 已完成
 
@@ -148,6 +148,11 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成迁移、保护检查、live-c
 - Archive Studio Texts 真实 create + rollback smoke test 已通过：临时条目使总数从 132 变为 133，回退后恢复 132；ArchiveData-v2 快照恢复一致，旧源 778 个文件无变化。
 - Archive Studio Texts 真实 UI 端到端验收已通过：中文页面完成 preview、preflight、create，成功结果显示 2 个条目文件、133 个 Texts、结构通过、旧源未变化和未发布。
 - UI 验收临时条目已按本次事务清单完整回退；条目和事务残留均为 0，Texts 恢复 132，ArchiveData-v2 与旧源快照均和执行前一致。
+- 已建立 `scripts/audit-archive-data-v2-visions.mjs` 和 `docs/tasks/archive-data-v2-visions-audit.md`，只读审计 Visions 分组、海报、元数据、角色橱窗、live JSON 和前端依赖。
+- Visions 审计确认：5 个普通分组、111 张海报与 111 个元数据条目完整匹配；20 个角色、20 个 GIF 和 20 个头像引用完整，解析错误和缺失引用均为 0。
+- 已定位旧 Visions 全局标题 join 风险：2 个标题跨分组重复，导致源 YAML 的 movie 71 / tv 40 在 live JSON 变为 movie 69 / tv 42；迁移必须按分组和源相对路径关联。
+- 已确认 111 个 live ID 全部是 `type_year_index` 位置型 ID，不适合作为 v2 稳定 ID；五个合成年份是叙事 period 的兼容排序值，不是自然收藏年份。
+- 已建立 `docs/design/archive-data-v2-visions.md` 草案：建议 kind 为 movie、series、showcase，角色橱窗独立建模；迁移前仍需确认 type/kind、2 个 live 类型偏移和 period 策略。
 
 ## 当前可正常使用的事实
 
@@ -203,7 +208,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成迁移、保护检查、live-c
 
 ## 当前下一步
 
-Texts 板块升级闭环已完成。下一步如继续扩展，建议新建 Visions 板块独立目标，先做只读结构与 kind 规则审计，不直接迁移或写入。
+下一步先确认 Visions 的 3 项规则：`movie / series` 映射、2 个同名条目的类型修正策略、五个 period 是否继续固定。确认后只建立迁移 planner 和 shape checker，不直接写入。
 
 ## 暂时不做
 
@@ -217,7 +222,7 @@ Texts 板块升级闭环已完成。下一步如继续扩展，建议新建 Visi
 - 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
 - 不批量创建完整 `ArchiveData-v2` 四板块数据；
-- 不在本目标内迁移 Games、Visions 或 config；
+- 不在当前审计阶段迁移 Games、Visions 或 config；
 - 不提供 Git 或发布入口；Archive Studio 保存当前只限受控 Music Album 与 Texts create。
 
 ## 当前验证状态
@@ -236,4 +241,4 @@ Texts 板块升级闭环已完成。下一步如继续扩展，建议新建 Visi
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是逐步把 Visions、Games 接入 ArchiveData-v2 和 Archive Studio。Music 与 Texts 已完成第一版闭环；发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是逐步把 Visions、Games 接入 ArchiveData-v2 和 Archive Studio。Music 与 Texts 已完成第一版闭环；Visions 已完成只读审计，发布和旧 OneDrive Data 修改仍保持关闭。
