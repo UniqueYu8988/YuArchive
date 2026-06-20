@@ -157,6 +157,8 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - 已建立共享 `scripts/archive-data-v2-visions-core.mjs`、只读 migration planner 和 v2 shape checker。
 - Visions planner 通过：157 个源文件、111 个普通条目、1 个 showcase、20 个角色、284 个目标；ID/目标冲突和 blocked reason 均为 0，写入动作 0。
 - Visions shape checker 临时目录自检通过：合法 movie、series、showcase 结构通过，缺 avatar 和错误角色顺序正确阻断；真实 Visions v2 尚不存在，因此真实检查按预期失败。
+- 已建立 Visions 受控迁移器和系统临时目录集成测试；计划模式、错误授权阻断、112 个 entry、20 个角色、157 条 manifest、源 changed 0 均通过。
+- Visions 迁移器只允许写 `entries/visions`、`config/visions-periods.yaml` 和 `migration/visions`；真实迁移尚未执行。
 
 ## 当前可正常使用的事实
 
@@ -212,7 +214,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-下一步设计并审查 Visions 受控迁移器，先在系统临时目录生成完整输出并验证 manifest、checksum、shape 和回退边界，再决定真实写入。
+下一步对真实 ArchiveData-v2 做写前边界检查，然后受控执行 Visions 迁移；不修改 public JSON，不运行 `build_archive.py` 或发布。
 
 ## 暂时不做
 

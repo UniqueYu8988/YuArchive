@@ -88,6 +88,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Visions v2 草案建议 kind 为 movie、series、showcase，保留五个叙事 period，普通条目与角色橱窗分开建模；迁移和写入尚未开始。
 - Visions v2 决策已冻结，共享 core、只读 planner 和 shape checker 已建立；planner 为 111 个普通条目、1 个 showcase、20 个角色规划 284 个目标，0 冲突、0 阻断。
 - Visions shape checker 系统临时目录自检通过；真实 v2 尚不存在，真实 shape 检查按预期失败。
+- Visions 受控迁移器已通过系统临时目录完整迁移：112 个 entry、20 个角色、157 条 manifest，错误授权被阻断，旧源 changed 0；真实迁移待执行。
 
 ## 稳定化目标
 
@@ -426,4 +427,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Visions 规则、planner 和 shape checker 已完成。下一步只设计并隔离验证受控迁移器、manifest、checksum 和回退边界；不替换 live JSON，不修改旧源。
+Visions 迁移器已完成隔离验证。下一步只受控迁移到真实 ArchiveData-v2 并复核旧源零变化；不替换 live JSON，不运行生成或发布。
