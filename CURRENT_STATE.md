@@ -168,7 +168,9 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - 已建立 Archive Studio Visions preview core、write gate、create core 和本机 API，只支持普通 movie / series 新建，不提供 showcase、update、delete 或 publish。
 - Visions API 临时目录集成测试通过：poster 阻断、period 校验、一次性 token、create、重放阻断、冲突阻断、故障 rollback、写后 shape、旧源不变和无发布路由均通过；Music/Text API 回归通过。
 - Archive Studio Visions 中文页面和板块导航已接入，支持 movie / series、period、cinema、quote、url、poster、preview、preflight、create 与写后检查。
-- Visions 页面生产构建通过；桌面流程和 390px 移动视口只读验收通过，无横向溢出或控制台错误。真实 create + rollback 尚未在本批执行。
+- Visions 页面生产构建通过；桌面流程和 390px 移动视口只读验收通过，无横向溢出或控制台错误。
+- Visions 真实 API create + rollback smoke test 通过：临时 movie 使条目数 112 → 113 → 112，创建 2 个条目文件和 3 个事务文件，条目/事务残留均为 0。
+- 本次 smoke test 核对旧源 778 个文件前后不变，ArchiveData-v2 快照恢复一致，发布未触发。
 
 ## 当前可正常使用的事实
 
@@ -224,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-下一步只执行一次受控 Archive Studio Visions create + rollback smoke test，验证真实 ArchiveData-v2 写入、检查和无残留回退；不实现 showcase 编辑或自动发布。
+Visions 板块第一版升级闭环已完成。下一步应先做目标完成审计和 Git 边界确认；如开启新板块，优先单独审计 Games，不扩展 Visions showcase 编辑或自动发布。
 
 ## 暂时不做
 
@@ -245,10 +247,10 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 - 项目能否启动：已受控启动本地 Vite 服务，仅用于 Archive Studio 页面验收。
 - 核心人工验收：已完成 `/studio`、`/studio/texts` 与 `/studio/visions` 桌面和 390px 移动视口验收；Texts 真实 UI preview、preflight、create 和成功反馈通过，Visions 缺 poster 阻断与响应式布局通过。
-- 自动测试：Music / Texts API 回归、Texts preview core、真实 create + rollback runner 和 Texts v2 shape 均通过。
+- 自动测试：Music / Texts API 回归、Texts 与 Visions preview core、两板块真实 create + rollback runner，以及 Texts / Visions v2 shape 均通过。
 - 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-20，Texts 中文页面真实创建成功后已按事务清单回退；临时条目和事务残留为 0，Texts 为 132，ArchiveData-v2 与旧源快照恢复一致，生产构建通过。
+- 最近一次验证日期：2026-06-20，Visions 真实 API create 成功后已按事务清单回退；临时条目和事务残留为 0，Visions 为 112，ArchiveData-v2 与旧源快照恢复一致，生产构建通过。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
@@ -257,4 +259,4 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是逐步把 Visions、Games 接入 ArchiveData-v2 和 Archive Studio。Music 与 Texts 已完成第一版闭环；Visions 已完成只读审计，发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts 与 Visions 已完成第一版闭环；Games 尚待独立审计，发布和旧 OneDrive Data 修改仍保持关闭。
