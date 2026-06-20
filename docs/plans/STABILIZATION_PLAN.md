@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Games 第一轮只读规则审计和保守迁移边界已冻结。下一步写 Games v2 规则与只读 planner，不运行生成器、不迁移、不接入 Studio。
+Games 第一轮审计和 v2 文件规则已冻结。下一步实现只读 migration planner，核对 282 个顶层条目、6 个 DLC 父关联、3 个 live game 和 40 个 season；不运行生成器、不迁移、不接入 Studio。

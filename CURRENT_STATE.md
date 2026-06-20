@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Games 第一轮只读规则审计已完成并冻结迁移边界：6 个现有候选按 DLC 迁移，2010 / 2015 保留未增强状态，三个 live game 保留各自 season 扩展字段。下一步设计 v2 文件结构与只读 migration planner。
+Games 第一轮审计和 v2 文件规则已完成：冻结 normal_game / dlc / live_game / season、稳定 ID、legacy、配置和 live-compatible 边界。下一步实现只读 migration planner，尚未迁移或写 ArchiveData-v2。
 
 ## 暂时不做
 
