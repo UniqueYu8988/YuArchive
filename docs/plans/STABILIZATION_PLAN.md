@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Visions 第一版闭环已完成：规则、迁移、live-compatible 数据、中文页面、真实 API create、shape check 与 rollback 均已验证。下一步只做目标完成审计和 Git 边界确认；新板块必须另立目标，不扩展 showcase、编辑、删除或发布。
+Games 第一轮只读规则审计和保守迁移边界已冻结。下一步写 Games v2 规则与只读 planner，不运行生成器、不迁移、不接入 Studio。

@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Visions 板块第一版升级闭环已完成。下一步应先做目标完成审计和 Git 边界确认；如开启新板块，优先单独审计 Games，不扩展 Visions showcase 编辑或自动发布。
+Games 第一轮只读规则审计已完成并冻结迁移边界：6 个现有候选按 DLC 迁移，2010 / 2015 保留未增强状态，三个 live game 保留各自 season 扩展字段。下一步设计 v2 文件结构与只读 migration planner。
 
 ## 暂时不做
 
@@ -259,4 +259,4 @@ Visions 板块第一版升级闭环已完成。下一步应先做目标完成审
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts 与 Visions 已完成第一版闭环；Games 尚待独立审计，发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts 与 Visions 已完成第一版闭环；Games 已开始独立只读审计，尚未迁移或接入 Studio，发布和旧 OneDrive Data 修改仍保持关闭。
