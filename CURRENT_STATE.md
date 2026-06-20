@@ -226,7 +226,7 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 
 ## 当前下一步
 
-Games live-compatible 隔离 preview 已通过：282/282 条目、40/40 season、全部 live ID 与媒体路径复用，字段、顺序和首页 9 项差异均为 0。下一步建立幂等替换 gate；当前 public JSON 无需变化。
+Games live-compatible preview 和替换 gate 已通过：当前 `games.json` 与 v2 兼容输出语义完全相同，首页 9 项也一致，gate 返回 already-current 且 write scope 为 none。下一步接入 Archive Studio Games 第一版 normal_game 新建流程。
 
 ## 暂时不做
 

@@ -431,4 +431,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ## 当前只执行的下一步
 
-Games live-compatible 隔离 preview 已通过，当前 public JSON 与 v2 兼容输出零差异。下一步建立幂等替换 gate，already-current 时不得重写文件。
+Games live-compatible preview 与替换 gate 已通过，public JSON 已是 current，无需改动。下一步接入 Archive Studio Games normal_game 新建流程，不支持 DLC、live game、season 编辑或发布。
