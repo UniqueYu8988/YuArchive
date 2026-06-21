@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
+import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
 type GameForm = {
@@ -42,6 +43,7 @@ type ApiPreflight = {
   writeScope: string
   preflightToken: string | null
   preflightExpiresAt: number | null
+  updateToken?: string | null
   dryRun: { writeItems: number; rollbackDeletes: number }
 }
 type GamesCheck = {
@@ -116,6 +118,9 @@ function formatSize(file: File | null) {
 }
 
 export default function ArchiveStudioGamesPage() {
+  const [mode, setMode] = useState<StudioMode>('create')
+  const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [entryId, setEntryId] = useState(newGameId)
   const [form, setForm] = useState<GameForm>(initialForm)
   const [fileInputVersion, setFileInputVersion] = useState(0)
@@ -177,21 +182,23 @@ export default function ArchiveStudioGamesPage() {
     const year = Number(form.year)
     if (!form.title.trim()) errors.push('请填写标题。')
     if (!Number.isInteger(year) || year < 1900 || year > 2100) errors.push('年份必须是 1900–2100 的整数。')
-    if (!form.cover) errors.push('请选择封面。')
+    if (mode === 'create' && !form.cover) errors.push('请选择封面。')
     if (form.cover && !['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(coverExtension)) errors.push('封面格式不受支持。')
     if (form.metadataEnabled && form.url && !/^https?:\/\//i.test(form.url)) errors.push('外部链接格式无效。')
     return errors
-  }, [form, coverExtension])
+  }, [form, coverExtension, mode])
 
   const buildPayload = () => ({
-    mode: 'create', board: 'games', kind: 'normal_game', id: entryId,
+    mode, board: 'games', kind: 'normal_game', id: entryId,
     fields: {
       title: form.title.trim(), year: Number(form.year), metadata_enabled: form.metadataEnabled,
       english_title: form.englishTitle.trim(), url: form.url.trim(), platform: form.platform,
       price: form.price.trim(), rating: form.rating === '' ? '' : Number(form.rating),
       playtime: form.playtime.trim(), completed: form.completed, genre: form.genre,
     },
-    assets: form.cover ? { cover: { source: 'selected-file', originalName: form.cover.name, extension: coverExtension } } : {},
+    assets: form.cover
+      ? { cover: { source: 'selected-file', originalName: form.cover.name, extension: coverExtension } }
+      : mode === 'update' ? { cover: { source: 'keep-existing', extension: existingAssets.cover?.extension ?? '' } } : {},
   })
 
   const postJson = async <T,>(pathname: string, body: unknown): Promise<T> => {
@@ -212,12 +219,54 @@ export default function ArchiveStudioGamesPage() {
     setPreflightStatus('idle'); setPreflightResult(null)
     setCreateStatus('idle'); setCreateResult(null)
     setCheckStatus('idle'); setCheckResult(null); setRequestError('')
+    if (mode === 'update') {
+      setSelectedEntryId('')
+      setExistingAssets({})
+    }
+  }
+
+  const changeMode = (nextMode: StudioMode) => {
+    setMode(nextMode)
+    setSelectedEntryId('')
+    setExistingAssets({})
+    setEntryId(newGameId())
+    setForm({ ...initialForm, year: String(new Date().getFullYear()) })
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
+  }
+
+  const loadExistingEntry = (detail: EditableEntryDetail) => {
+    setEntryId(detail.id)
+    setSelectedEntryId(detail.id)
+    setExistingAssets(detail.assets)
+    setForm({
+      title: String(detail.fields.title ?? ''),
+      year: String(detail.fields.year ?? new Date().getFullYear()),
+      metadataEnabled: detail.fields.metadata_enabled === true,
+      englishTitle: String(detail.fields.english_title ?? ''),
+      url: String(detail.fields.url ?? ''),
+      platform: String(detail.fields.platform ?? 'steam'),
+      price: String(detail.fields.price ?? ''),
+      rating: detail.fields.rating === '' || detail.fields.rating === undefined ? '' : String(detail.fields.rating),
+      playtime: String(detail.fields.playtime ?? ''),
+      completed: detail.fields.completed === true,
+      genre: String(detail.fields.genre ?? ''),
+      cover: null,
+    })
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
   }
 
   const generatePreview = async () => {
     setPreviewStatus('loading'); setPreflightResult(null); setCreateResult(null); setRequestError('')
     try {
-      const result = await postJson<ApiPreview>('/api/studio/games/preview', buildPayload())
+      const result = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/games/update-preview' : '/api/studio/games/preview', buildPayload())
       setPreviewResult(result); setPreviewStatus(result.ok ? 'success' : 'error'); setServiceStatus('online')
     } catch (error) {
       setPreviewStatus('error'); setServiceStatus('offline')
@@ -228,7 +277,12 @@ export default function ArchiveStudioGamesPage() {
   const runPreflight = async () => {
     setPreflightStatus('loading'); setCreateResult(null); setRequestError('')
     try {
-      const result = await postJson<ApiPreflight>('/api/studio/games/preflight', buildPayload())
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/games/update-preflight' : '/api/studio/games/preflight', buildPayload())
+      const result = mode === 'update' ? {
+        ...raw, targetFilesExisting: raw.operations?.length ?? 0, blockedReasons: [],
+        writeScope: `entries/games/normal_game/${entryId}`, preflightToken: null, preflightExpiresAt: null,
+        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
+      } : raw
       setPreflightResult(result); setPreflightStatus(result.ok ? 'success' : 'error')
     } catch (error) {
       setPreflightStatus('error'); setRequestError(error instanceof Error ? error.message : '预检失败。')
@@ -244,14 +298,15 @@ export default function ArchiveStudioGamesPage() {
   }
 
   const createEntry = async () => {
-    if (!preflightResult?.preflightToken || !form.cover) return
+    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
+    if (!token || (mode === 'create' && !form.cover)) return
     setCreateStatus('loading'); setRequestError('')
     const body = new FormData()
     body.set('payload', JSON.stringify(buildPayload()))
-    body.set('preflightToken', preflightResult.preflightToken)
-    body.set('cover', form.cover)
+    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
+    if (form.cover) body.set('cover', form.cover)
     try {
-      const response = await fetch('/api/studio/games/create', { method: 'POST', body })
+      const response = await fetch(mode === 'update' ? '/api/studio/games/update-apply' : '/api/studio/games/create', { method: 'POST', body })
       const result = await response.json() as CreateResult | ErrorResult
       if (!response.ok || !result.ok) {
         const details = 'error' in result ? result.error : undefined
@@ -263,12 +318,12 @@ export default function ArchiveStudioGamesPage() {
     } catch (error) {
       setCreateStatus('error'); setRequestError(error instanceof Error ? error.message : '创建失败。')
     } finally {
-      setPreflightResult(current => current ? { ...current, preflightToken: null, preflightExpiresAt: null } : current)
+      setPreflightResult(current => current ? { ...current, preflightToken: null, preflightExpiresAt: null, updateToken: null } : current)
     }
   }
 
   const previewReady = previewResult?.ok === true && validation.length === 0
-  const createReady = previewReady && preflightResult?.ok === true && Boolean(preflightResult.preflightToken)
+  const createReady = previewReady && preflightResult?.ok === true && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
     && createAvailable && createStatus !== 'loading' && createStatus !== 'success'
 
   return (
@@ -286,6 +341,8 @@ export default function ArchiveStudioGamesPage() {
         <NavLink to="/studio" end>音乐</NavLink><NavLink to="/studio/texts">文本</NavLink>
         <NavLink to="/studio/visions">影视</NavLink><NavLink to="/studio/games">游戏</NavLink>
       </nav>
+
+      <ArchiveStudioModePicker board="games" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
@@ -328,7 +385,7 @@ export default function ArchiveStudioGamesPage() {
             <div className="studio-section-heading"><div><span>{form.metadataEnabled ? '03' : '02'}</span><h2>封面</h2></div><p>原图保存到新条目目录，不会自动找图或改写源文件。</p></div>
             <label className={`studio-asset-picker${form.cover ? ' has-file' : ''}`}>
               <input key={fileInputVersion} type="file" accept=".jpg,.jpeg,.png,.webp,.avif" onChange={event => updateField('cover', event.target.files?.[0] ?? null)} />
-              <FileImage size={24} /><span className="studio-asset-label">封面</span><strong>{form.cover?.name ?? '选择图片'}</strong><small>{formatSize(form.cover)} · JPG、PNG、WebP 或 AVIF</small>
+              <FileImage size={24} /><span className="studio-asset-label">封面</span><strong>{form.cover?.name ?? (mode === 'update' ? '保留现有封面' : '选择图片')}</strong><small>{form.cover ? formatSize(form.cover) : mode === 'update' ? existingAssets.cover?.name : '尚未选择'} · JPG、PNG、WebP 或 AVIF</small>
             </label>
           </section>
         </div>
@@ -352,12 +409,12 @@ export default function ArchiveStudioGamesPage() {
       </div>
 
       <footer className="studio-actionbar">
-        <div className="studio-action-summary"><span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : '草稿无改动'}</span><small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small></div>
+        <div className="studio-action-summary"><span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span><small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small></div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}><SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={runPreflight} disabled={!previewReady || preflightStatus === 'loading'}><ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}</button>
-          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? '创建中...' : createStatus === 'success' ? '创建成功' : '创建条目'}</button>
+          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}</button>
         </div>
       </footer>
     </main>

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
+import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
 
 type TextKind = 'article' | 'book_note' | 'series_note'
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
@@ -58,6 +59,7 @@ type ApiPreflight = {
   writeScope: string
   preflightToken: string | null
   preflightExpiresAt: number | null
+  updateToken?: string | null
   dryRun: {
     writeItems: number
     rollbackDeletes: number
@@ -186,6 +188,9 @@ function blockedText(reason: string) {
 
 export default function ArchiveStudioTextsPage() {
   const [kind, setKind] = useState<TextKind>('article')
+  const [mode, setMode] = useState<StudioMode>('create')
+  const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [section, setSection] = useState(sectionsByKind.article[0].key)
   const [entryId, setEntryId] = useState(newTextId)
   const [form, setForm] = useState<TextForm>(initialForm)
@@ -275,7 +280,7 @@ export default function ArchiveStudioTextsPage() {
     if (!form.title.trim()) errors.push('请填写标题。')
     if (!form.content.trim()) errors.push('请填写 Markdown 正文。')
     if (isBookNote) {
-      if (!form.cover) errors.push('请选择书籍封面。')
+      if (mode === 'create' && !form.cover) errors.push('请选择书籍封面。')
       if (form.cover && !['.jpg', '.jpeg', '.png', '.webp'].includes(coverExtension)) {
         errors.push('封面格式不受支持。')
       }
@@ -284,10 +289,10 @@ export default function ArchiveStudioTextsPage() {
       errors.push('文章和系列文本必须填写 YYYY-MM-DD 日期。')
     }
     return errors
-  }, [coverExtension, form, isBookNote])
+  }, [coverExtension, form, isBookNote, mode])
 
   const buildPayload = () => ({
-    mode: 'create',
+    mode,
     board: 'texts',
     kind,
     id: entryId,
@@ -306,6 +311,8 @@ export default function ArchiveStudioTextsPage() {
         originalName: form.cover.name,
         extension: coverExtension,
       },
+    } : isBookNote && mode === 'update' ? {
+      cover: { source: 'keep-existing', extension: existingAssets.cover?.extension ?? '' },
     } : {},
   })
 
@@ -336,6 +343,48 @@ export default function ArchiveStudioTextsPage() {
     setCheckStatus('idle')
     setCheckResult(null)
     setRequestError('')
+    if (mode === 'update') {
+      setSelectedEntryId('')
+      setExistingAssets({})
+    }
+  }
+
+  const changeMode = (nextMode: StudioMode) => {
+    setMode(nextMode)
+    setSelectedEntryId('')
+    setExistingAssets({})
+    setKind('article')
+    setSection(sectionsByKind.article[0].key)
+    setEntryId(newTextId())
+    setForm(initialForm)
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
+  }
+
+  const loadExistingEntry = (detail: EditableEntryDetail) => {
+    const nextKind = detail.kind as TextKind
+    setKind(nextKind)
+    setSection(String(detail.fields.section ?? sectionsByKind[nextKind][0].key))
+    setEntryId(detail.id)
+    setSelectedEntryId(detail.id)
+    setExistingAssets(detail.assets)
+    setForm({
+      title: String(detail.fields.title ?? ''),
+      date: String(detail.fields.date ?? ''),
+      author: String(detail.fields.author ?? ''),
+      summary: String(detail.fields.summary ?? ''),
+      tags: Array.isArray(detail.fields.tags) ? detail.fields.tags.join(', ') : '',
+      content: detail.content,
+      cover: null,
+    })
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
   }
 
   const generatePreview = async () => {
@@ -347,7 +396,7 @@ export default function ArchiveStudioTextsPage() {
     setCreateResult(null)
     setRequestError('')
     try {
-      const result = await postJson<ApiPreview>('/api/studio/texts/preview', buildPayload())
+      const result = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/texts/update-preview' : '/api/studio/texts/preview', buildPayload())
       setPreviewResult(result)
       setPreviewStatus(result.ok ? 'success' : 'error')
       setServiceStatus('online')
@@ -365,7 +414,13 @@ export default function ArchiveStudioTextsPage() {
     setCreateResult(null)
     setRequestError('')
     try {
-      const result = await postJson<ApiPreflight>('/api/studio/texts/preflight', buildPayload())
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/texts/update-preflight' : '/api/studio/texts/preflight', buildPayload())
+      const result = mode === 'update' ? {
+        ...raw, targetEntryExists: true, targetFilesExisting: raw.operations?.length ?? 0,
+        blockedReasons: [], writeScope: `entries/texts/${kind}/${entryId}`,
+        preflightToken: null, preflightExpiresAt: null,
+        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
+      } : raw
       setPreflightResult(result)
       setPreflightStatus(result.ok ? 'success' : 'error')
       setServiceStatus('online')
@@ -388,16 +443,17 @@ export default function ArchiveStudioTextsPage() {
   }
 
   const createEntry = async () => {
-    if (!preflightResult?.preflightToken) return
+    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
+    if (!token) return
     setCreateStatus('loading')
     setCreateResult(null)
     setRequestError('')
     const body = new FormData()
     body.set('payload', JSON.stringify(buildPayload()))
-    body.set('preflightToken', preflightResult.preflightToken)
+    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
     if (isBookNote && form.cover) body.set('cover', form.cover)
     try {
-      const response = await fetch('/api/studio/texts/create', { method: 'POST', body })
+      const response = await fetch(mode === 'update' ? '/api/studio/texts/update-apply' : '/api/studio/texts/create', { method: 'POST', body })
       const result = await response.json() as CreateResult | ErrorResult
       if (!response.ok || !result.ok) {
         const details = 'error' in result ? result.error : undefined
@@ -419,6 +475,7 @@ export default function ArchiveStudioTextsPage() {
         ...current,
         preflightToken: null,
         preflightExpiresAt: null,
+        updateToken: null,
       } : current)
     }
   }
@@ -426,7 +483,7 @@ export default function ArchiveStudioTextsPage() {
   const previewReady = previewResult?.ok === true && validation.length === 0
   const createReady = previewReady
     && preflightResult?.ok === true
-    && Boolean(preflightResult.preflightToken)
+    && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
     && createAvailable
     && createStatus !== 'loading'
     && createStatus !== 'success'
@@ -456,6 +513,8 @@ export default function ArchiveStudioTextsPage() {
         <NavLink to="/studio/visions">影视</NavLink>
         <NavLink to="/studio/games">游戏</NavLink>
       </nav>
+
+      <ArchiveStudioModePicker board="texts" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
@@ -492,6 +551,7 @@ export default function ArchiveStudioTextsPage() {
                     className={kind === option.kind ? 'is-active' : ''}
                     type="button"
                     onClick={() => changeKind(option.kind)}
+                    disabled={mode === 'update'}
                   >
                     <Icon size={18} />
                     <span><strong>{option.label}</strong><small>{option.description}</small></span>
@@ -558,8 +618,8 @@ export default function ArchiveStudioTextsPage() {
                 />
                 <FileImage size={24} />
                 <span className="studio-asset-label">封面</span>
-                <strong>{form.cover?.name ?? '选择图片'}</strong>
-                <small>{formatSize(form.cover)} · JPG、PNG 或 WebP</small>
+                <strong>{form.cover?.name ?? (mode === 'update' ? '保留现有封面' : '选择图片')}</strong>
+                <small>{form.cover ? formatSize(form.cover) : mode === 'update' ? existingAssets.cover?.name : '尚未选择'} · JPG、PNG 或 WebP</small>
               </label>
             </section>
           ) : null}
@@ -639,14 +699,14 @@ export default function ArchiveStudioTextsPage() {
 
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
-          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : '草稿无改动'}</span>
+          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span>
           <small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small>
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}><SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={runPreflight} disabled={!previewReady || preflightStatus === 'loading'}><ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}</button>
-          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? '创建中...' : createStatus === 'success' ? '创建成功' : '创建条目'}</button>
+          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}</button>
         </div>
       </footer>
     </main>

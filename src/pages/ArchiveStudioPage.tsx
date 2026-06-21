@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
+import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
 
 type FormState = {
   title: string
@@ -79,6 +80,7 @@ type ApiPreflight = {
   writeScope: string
   preflightToken: string | null
   preflightExpiresAt: number | null
+  updateToken?: string | null
 }
 
 type MusicCheckResult = {
@@ -213,6 +215,9 @@ function describeCreateError(details: ApiErrorResult['error']) {
 
 export default function ArchiveStudioPage() {
   const [form, setForm] = useState<FormState>(initialForm)
+  const [mode, setMode] = useState<StudioMode>('create')
+  const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [fileInputVersion, setFileInputVersion] = useState(0)
   const [isDirty, setIsDirty] = useState(false)
   const [previewRequested, setPreviewRequested] = useState(false)
@@ -263,14 +268,14 @@ export default function ArchiveStudioPage() {
     const errors: string[] = []
 
     if (!form.title.trim()) errors.push('请填写专辑标题。')
-    if (!form.cover) errors.push('请选择封面文件。')
-    if (!form.audio) errors.push('请选择音频文件。')
+    if (mode === 'create' && !form.cover) errors.push('请选择封面文件。')
+    if (mode === 'create' && !form.audio) errors.push('请选择音频文件。')
     if (form.cover && !coverExtensions.has(coverExtension)) errors.push('封面文件类型不受支持。')
     if (form.audio && !audioExtensions.has(audioExtension)) errors.push('音频文件类型不受支持。')
     if (!entryIdPattern.test(effectiveEntryId)) errors.push('条目 ID 必须是 2-80 位小写字母、数字和连字符。')
 
     return errors
-  }, [audioExtension, coverExtension, effectiveEntryId, form])
+  }, [audioExtension, coverExtension, effectiveEntryId, form, mode])
 
   const operations = useMemo<PreviewOperation[]>(() => {
     const entryRoot = `entries/music/album/${effectiveEntryId}`
@@ -297,7 +302,7 @@ export default function ArchiveStudioPage() {
   }, [audioExtension, coverExtension, effectiveEntryId, form.audio, form.cover])
 
   const buildPayload = () => ({
-    mode: 'create',
+    mode,
     board: 'music',
     kind: 'album',
     id: effectiveEntryId,
@@ -305,7 +310,7 @@ export default function ArchiveStudioPage() {
       title: form.title.trim(),
       date: form.date.trim(),
       url: form.url.trim(),
-      note: form.note,
+      description: form.note,
       legacy: {},
     },
     content: {
@@ -318,14 +323,14 @@ export default function ArchiveStudioPage() {
           originalName: form.cover.name,
           extension: `.${coverExtension}`,
         },
-      } : {}),
+      } : mode === 'update' ? { cover: { source: 'keep-existing', extension: existingAssets.cover?.extension ?? '' } } : {}),
       ...(form.audio ? {
         audio: {
           source: 'selected-file',
           originalName: form.audio.name,
           extension: `.${audioExtension}`,
         },
-      } : {}),
+      } : mode === 'update' ? { audio: { source: 'keep-existing', extension: existingAssets.audio?.extension ?? '' } } : {}),
     },
     options: {
       allowOverwriteEntry: false,
@@ -388,6 +393,44 @@ export default function ArchiveStudioPage() {
     setCreateStatus('idle')
     setCreateResult(null)
     setRequestError('')
+    if (mode === 'update') {
+      setSelectedEntryId('')
+      setExistingAssets({})
+    }
+  }
+
+  const changeMode = (nextMode: StudioMode) => {
+    setMode(nextMode)
+    setSelectedEntryId('')
+    setExistingAssets({})
+    setForm(initialForm)
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewRequested(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
+  }
+
+  const loadExistingEntry = (detail: EditableEntryDetail) => {
+    setSelectedEntryId(detail.id)
+    setExistingAssets(detail.assets)
+    setForm({
+      title: String(detail.fields.title ?? ''),
+      date: String(detail.fields.date ?? ''),
+      url: String(detail.fields.url ?? ''),
+      note: String(detail.fields.description ?? detail.fields.note ?? ''),
+      entryId: detail.id,
+      content: detail.content,
+      cover: null,
+      audio: null,
+    })
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewRequested(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
   }
 
   const generatePreview = async () => {
@@ -403,7 +446,8 @@ export default function ArchiveStudioPage() {
     setRequestError('')
 
     try {
-      const result = await postJson<ApiPreview>('/api/studio/music/album/preview', buildPayload())
+      const endpoint = mode === 'update' ? '/api/studio/music/update-preview' : '/api/studio/music/album/preview'
+      const result = await postJson<ApiPreview>(endpoint, buildPayload())
       setPreviewResult(result)
       setPreviewStatus(result.ok ? 'success' : 'error')
       setServiceStatus('online')
@@ -421,7 +465,20 @@ export default function ArchiveStudioPage() {
     setRequestError('')
 
     try {
-      const result = await postJson<ApiPreflight>('/api/studio/music/album/preflight', buildPayload())
+      const endpoint = mode === 'update' ? '/api/studio/music/update-preflight' : '/api/studio/music/album/preflight'
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(endpoint, buildPayload())
+      const result = mode === 'update' ? {
+        ...raw,
+        entryId: effectiveEntryId,
+        targetEntryExists: true,
+        targetFilesExisting: raw.operations?.length ?? 0,
+        blockedReasons: [],
+        scope: `entries/music/album/${effectiveEntryId}`,
+        dryRun: { status: 'ready', writeItems: raw.operations?.length ?? 0, backupItems: raw.operations?.length ?? 0, rollbackDeletes: 0, rollbackRestores: raw.operations?.length ?? 0 },
+        writeScope: `entries/music/album/${effectiveEntryId}`,
+        preflightToken: null,
+        preflightExpiresAt: null,
+      } : raw
       setPreflightResult(result)
       setPreflightStatus(result.ok ? 'success' : 'error')
       setServiceStatus('online')
@@ -450,7 +507,8 @@ export default function ArchiveStudioPage() {
   }
 
   const createEntry = async () => {
-    if (!form.cover || !form.audio || !preflightResult?.preflightToken) return
+    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
+    if (!token || (mode === 'create' && (!form.cover || !form.audio))) return
 
     setCreateStatus('loading')
     setCreateResult(null)
@@ -458,12 +516,12 @@ export default function ArchiveStudioPage() {
 
     const body = new FormData()
     body.set('payload', JSON.stringify(buildPayload()))
-    body.set('preflightToken', preflightResult.preflightToken)
-    body.set('cover', form.cover)
-    body.set('audio', form.audio)
+    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
+    if (form.cover) body.set('cover', form.cover)
+    if (form.audio) body.set('audio', form.audio)
 
     try {
-      const response = await fetch('/api/studio/music/album/create', {
+      const response = await fetch(mode === 'update' ? '/api/studio/music/update-apply' : '/api/studio/music/album/create', {
         method: 'POST',
         body,
       })
@@ -491,6 +549,7 @@ export default function ArchiveStudioPage() {
         ...current,
         writeEnabled: false,
         preflightToken: null,
+        updateToken: null,
         preflightExpiresAt: null,
       } : current)
     }
@@ -500,7 +559,7 @@ export default function ArchiveStudioPage() {
   const createReady = previewReady
     && preflightResult?.ok === true
     && preflightResult.writeEnabled
-    && Boolean(preflightResult.preflightToken)
+    && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
     && createAvailable
     && createStatus !== 'loading'
     && createStatus !== 'success'
@@ -530,6 +589,8 @@ export default function ArchiveStudioPage() {
         <NavLink to="/studio/games">游戏</NavLink>
       </nav>
 
+      <ArchiveStudioModePicker board="music" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
+
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
           <CheckCircle2 size={22} />
@@ -557,7 +618,7 @@ export default function ArchiveStudioPage() {
                 <span>01</span>
                 <h2>专辑信息</h2>
               </div>
-              <p>填写新建音乐专辑条目所需的基本信息。</p>
+              <p>{mode === 'update' ? '修改已有专辑；稳定 ID 保持不变。' : '填写新建音乐专辑条目所需的基本信息。'}</p>
             </div>
 
             <div className="studio-form-grid">
@@ -595,6 +656,7 @@ export default function ArchiveStudioPage() {
                   value={form.entryId}
                   onChange={event => updateField('entryId', event.target.value.toLowerCase())}
                   placeholder={suggestedEntryId}
+                  readOnly={mode === 'update'}
                 />
                 <small>根据标题生成；只允许小写字母、数字和连字符。</small>
               </label>
@@ -630,8 +692,8 @@ export default function ArchiveStudioPage() {
                 />
                 <FileImage size={24} />
                 <span className="studio-asset-label">封面</span>
-                <strong>{form.cover?.name ?? '选择图片'}</strong>
-                <small>{formatFileSize(form.cover)} · JPG、PNG 或 WebP</small>
+                <strong>{form.cover?.name ?? (mode === 'update' ? '保留现有封面' : '选择图片')}</strong>
+                <small>{form.cover ? formatFileSize(form.cover) : mode === 'update' ? existingAssets.cover?.name : '尚未选择'} · JPG、PNG 或 WebP</small>
               </label>
 
               <label className={`studio-asset-picker${form.audio ? ' has-file' : ''}`}>
@@ -643,8 +705,8 @@ export default function ArchiveStudioPage() {
                 />
                 <FileAudio size={24} />
                 <span className="studio-asset-label">音频</span>
-                <strong>{form.audio?.name ?? '选择音频'}</strong>
-                <small>{formatFileSize(form.audio)} · MP3、FLAC、M4A 或 WAV</small>
+                <strong>{form.audio?.name ?? (mode === 'update' ? '保留现有音频' : '选择音频')}</strong>
+                <small>{form.audio ? formatFileSize(form.audio) : mode === 'update' ? existingAssets.audio?.name : '尚未选择'} · MP3、FLAC、M4A 或 WAV</small>
               </label>
             </div>
           </section>
@@ -794,7 +856,7 @@ export default function ArchiveStudioPage() {
 
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
-          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : '草稿无改动'}</span>
+          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span>
           <small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small>
         </div>
         <div className="studio-actions">
@@ -818,7 +880,7 @@ export default function ArchiveStudioPage() {
             onClick={createEntry}
             disabled={!createReady}
           >
-            {createStatus === 'loading' ? '创建中...' : createStatus === 'success' ? '创建成功' : '创建条目'}
+            {createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}
           </button>
         </div>
       </footer>

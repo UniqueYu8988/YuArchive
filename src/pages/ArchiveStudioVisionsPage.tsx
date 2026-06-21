@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
+import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
 
 type VisionKind = 'movie' | 'series'
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
@@ -46,6 +47,7 @@ type ApiPreflight = {
   writeScope: string
   preflightToken: string | null
   preflightExpiresAt: number | null
+  updateToken?: string | null
   dryRun: { writeItems: number; rollbackDeletes: number }
 }
 type VisionsCheck = {
@@ -126,6 +128,9 @@ function formatSize(file: File | null) {
 
 export default function ArchiveStudioVisionsPage() {
   const [kind, setKind] = useState<VisionKind>('movie')
+  const [mode, setMode] = useState<StudioMode>('create')
+  const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [entryId, setEntryId] = useState(newVisionId)
   const [form, setForm] = useState<VisionForm>(initialForm)
   const [fileInputVersion, setFileInputVersion] = useState(0)
@@ -191,16 +196,16 @@ export default function ArchiveStudioVisionsPage() {
     const errors: string[] = []
     if (!form.title.trim()) errors.push('请填写标题。')
     if (!periods.includes(form.period)) errors.push('请选择有效的时期。')
-    if (!form.poster) errors.push('请选择海报。')
+    if (mode === 'create' && !form.poster) errors.push('请选择海报。')
     if (form.poster && !['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(posterExtension)) {
       errors.push('海报格式不受支持。')
     }
     if (form.url && !/^https?:\/\//i.test(form.url)) errors.push('外部链接格式无效。')
     return errors
-  }, [form, posterExtension])
+  }, [form, posterExtension, mode])
 
   const buildPayload = () => ({
-    mode: 'create',
+    mode,
     board: 'visions',
     kind,
     id: entryId,
@@ -217,6 +222,8 @@ export default function ArchiveStudioVisionsPage() {
         originalName: form.poster.name,
         extension: posterExtension,
       },
+    } : mode === 'update' ? {
+      poster: { source: 'keep-existing', extension: existingAssets.poster?.extension ?? '' },
     } : {},
   })
 
@@ -246,6 +253,44 @@ export default function ArchiveStudioVisionsPage() {
     setCheckStatus('idle')
     setCheckResult(null)
     setRequestError('')
+    if (mode === 'update') {
+      setSelectedEntryId('')
+      setExistingAssets({})
+    }
+  }
+
+  const changeMode = (nextMode: StudioMode) => {
+    setMode(nextMode)
+    setSelectedEntryId('')
+    setExistingAssets({})
+    setKind('movie')
+    setEntryId(newVisionId())
+    setForm(initialForm)
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
+  }
+
+  const loadExistingEntry = (detail: EditableEntryDetail) => {
+    setKind(detail.kind as VisionKind)
+    setEntryId(detail.id)
+    setSelectedEntryId(detail.id)
+    setExistingAssets(detail.assets)
+    setForm({
+      title: String(detail.fields.title ?? ''),
+      period: String(detail.fields.period ?? periods[0]),
+      cinema: detail.fields.cinema === true,
+      quote: String(detail.fields.quote ?? ''),
+      url: String(detail.fields.url ?? ''),
+      poster: null,
+    })
+    setFileInputVersion(current => current + 1)
+    setIsDirty(false)
+    setPreviewResult(null)
+    setPreflightResult(null)
+    setCreateResult(null)
   }
 
   const generatePreview = async () => {
@@ -254,7 +299,7 @@ export default function ArchiveStudioVisionsPage() {
     setCreateResult(null)
     setRequestError('')
     try {
-      const result = await postJson<ApiPreview>('/api/studio/visions/preview', buildPayload())
+      const result = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/visions/update-preview' : '/api/studio/visions/preview', buildPayload())
       setPreviewResult(result)
       setPreviewStatus(result.ok ? 'success' : 'error')
       setServiceStatus('online')
@@ -270,7 +315,12 @@ export default function ArchiveStudioVisionsPage() {
     setCreateResult(null)
     setRequestError('')
     try {
-      const result = await postJson<ApiPreflight>('/api/studio/visions/preflight', buildPayload())
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/visions/update-preflight' : '/api/studio/visions/preflight', buildPayload())
+      const result = mode === 'update' ? {
+        ...raw, targetFilesExisting: raw.operations?.length ?? 0, blockedReasons: [],
+        writeScope: `entries/visions/${kind}/${entryId}`, preflightToken: null, preflightExpiresAt: null,
+        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
+      } : raw
       setPreflightResult(result)
       setPreflightStatus(result.ok ? 'success' : 'error')
     } catch (error) {
@@ -291,15 +341,16 @@ export default function ArchiveStudioVisionsPage() {
   }
 
   const createEntry = async () => {
-    if (!preflightResult?.preflightToken || !form.poster) return
+    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
+    if (!token || (mode === 'create' && !form.poster)) return
     setCreateStatus('loading')
     setRequestError('')
     const body = new FormData()
     body.set('payload', JSON.stringify(buildPayload()))
-    body.set('preflightToken', preflightResult.preflightToken)
-    body.set('poster', form.poster)
+    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
+    if (form.poster) body.set('poster', form.poster)
     try {
-      const response = await fetch('/api/studio/visions/create', { method: 'POST', body })
+      const response = await fetch(mode === 'update' ? '/api/studio/visions/update-apply' : '/api/studio/visions/create', { method: 'POST', body })
       const result = await response.json() as CreateResult | ErrorResult
       if (!response.ok || !result.ok) {
         const details = 'error' in result ? result.error : undefined
@@ -321,6 +372,7 @@ export default function ArchiveStudioVisionsPage() {
         ...current,
         preflightToken: null,
         preflightExpiresAt: null,
+        updateToken: null,
       } : current)
     }
   }
@@ -328,7 +380,7 @@ export default function ArchiveStudioVisionsPage() {
   const previewReady = previewResult?.ok === true && validation.length === 0
   const createReady = previewReady
     && preflightResult?.ok === true
-    && Boolean(preflightResult.preflightToken)
+    && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
     && createAvailable
     && createStatus !== 'loading'
     && createStatus !== 'success'
@@ -355,6 +407,8 @@ export default function ArchiveStudioVisionsPage() {
         <NavLink to="/studio/visions">影视</NavLink>
         <NavLink to="/studio/games">游戏</NavLink>
       </nav>
+
+      <ArchiveStudioModePicker board="visions" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
@@ -383,7 +437,7 @@ export default function ArchiveStudioVisionsPage() {
               {kinds.map(option => {
                 const Icon = option.icon
                 return (
-                  <button key={option.kind} className={kind === option.kind ? 'is-active' : ''} type="button" onClick={() => { setKind(option.kind); invalidate() }}>
+                  <button key={option.kind} className={kind === option.kind ? 'is-active' : ''} type="button" onClick={() => { setKind(option.kind); invalidate() }} disabled={mode === 'update'}>
                     <Icon size={18} />
                     <span><strong>{option.label}</strong><small>{option.description}</small></span>
                   </button>
@@ -441,8 +495,8 @@ export default function ArchiveStudioVisionsPage() {
               />
               <FileImage size={24} />
               <span className="studio-asset-label">海报</span>
-              <strong>{form.poster?.name ?? '选择图片'}</strong>
-              <small>{formatSize(form.poster)} · JPG、PNG、WebP 或 AVIF</small>
+                <strong>{form.poster?.name ?? (mode === 'update' ? '保留现有海报' : '选择图片')}</strong>
+                <small>{form.poster ? formatSize(form.poster) : mode === 'update' ? existingAssets.poster?.name : '尚未选择'} · JPG、PNG、WebP 或 AVIF</small>
             </label>
           </section>
         </div>
@@ -500,14 +554,14 @@ export default function ArchiveStudioVisionsPage() {
 
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
-          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : '草稿无改动'}</span>
+          <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span>
           <small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small>
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}><SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={runPreflight} disabled={!previewReady || preflightStatus === 'loading'}><ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}</button>
-          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? '创建中...' : createStatus === 'success' ? '创建成功' : '创建条目'}</button>
+          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}</button>
         </div>
       </footer>
     </main>
