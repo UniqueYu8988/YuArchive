@@ -1,6 +1,6 @@
 {
   "counts": {
-    "games": 282,
+    "games": 283,
     "visions": 111,
     "music": 33,
     "texts": 132
@@ -43,8 +43,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2017.0,
-          "source_year": 0.0
+          "order": 2017,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_1",
@@ -58,8 +58,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2018.0,
-          "source_year": 0.0
+          "order": 2018,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_2",
@@ -73,8 +73,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2019.0,
-          "source_year": 0.0
+          "order": 2019,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_3",
@@ -88,8 +88,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2020.0,
-          "source_year": 0.0
+          "order": 2020,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_4",
@@ -103,8 +103,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2021.0,
-          "source_year": 0.0
+          "order": 2021,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_5",
@@ -118,8 +118,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2022.0,
-          "source_year": 0.0
+          "order": 2022,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_6",
@@ -133,8 +133,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2023.0,
-          "source_year": 0.0
+          "order": 2023,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_7",
@@ -148,8 +148,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2024.0,
-          "source_year": 0.0
+          "order": 2024,
+          "source_year": 0
         },
         {
           "id": "season_英雄联盟_8",
@@ -163,8 +163,8 @@
           "feature": "",
           "build": "",
           "icon_path": "",
-          "order": 2025.0,
-          "source_year": 0.0
+          "order": 2025,
+          "source_year": 0
         }
       ]
     },
@@ -231,8 +231,8 @@
           "feature": "初代羁绊",
           "build": "",
           "icon_path": "",
-          "order": 1.0,
-          "source_year": 0.0
+          "order": 1,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_9",
@@ -246,8 +246,8 @@
           "feature": "元素格",
           "build": "",
           "icon_path": "",
-          "order": 2.0,
-          "source_year": 0.0
+          "order": 2,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_11",
@@ -261,8 +261,8 @@
           "feature": "星系",
           "build": "",
           "icon_path": "",
-          "order": 3.0,
-          "source_year": 0.0
+          "order": 3,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_10",
@@ -277,7 +277,7 @@
           "build": "",
           "icon_path": "",
           "order": 3.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_13",
@@ -291,8 +291,8 @@
           "feature": "天选之人",
           "build": "",
           "icon_path": "",
-          "order": 4.0,
-          "source_year": 0.0
+          "order": 4,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_12",
@@ -307,7 +307,7 @@
           "build": "",
           "icon_path": "",
           "order": 4.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_15",
@@ -321,8 +321,8 @@
           "feature": "黑暗武器",
           "build": "",
           "icon_path": "",
-          "order": 5.0,
-          "source_year": 0.0
+          "order": 5,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_14",
@@ -337,7 +337,7 @@
           "build": "",
           "icon_path": "",
           "order": 5.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_17",
@@ -351,8 +351,8 @@
           "feature": "海克斯强化",
           "build": "",
           "icon_path": "",
-          "order": 6.0,
-          "source_year": 0.0
+          "order": 6,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_16",
@@ -367,7 +367,7 @@
           "build": "",
           "icon_path": "",
           "order": 6.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_19",
@@ -381,8 +381,8 @@
           "feature": "龙神",
           "build": "",
           "icon_path": "",
-          "order": 7.0,
-          "source_year": 0.0
+          "order": 7,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_18",
@@ -397,7 +397,7 @@
           "build": "",
           "icon_path": "",
           "order": 7.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_21",
@@ -411,8 +411,8 @@
           "feature": "英雄强化",
           "build": "",
           "icon_path": "",
-          "order": 8.0,
-          "source_year": 0.0
+          "order": 8,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_20",
@@ -427,7 +427,7 @@
           "build": "",
           "icon_path": "",
           "order": 8.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_23",
@@ -441,8 +441,8 @@
           "feature": "地区传送门",
           "build": "",
           "icon_path": "",
-          "order": 9.0,
-          "source_year": 0.0
+          "order": 9,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_22",
@@ -457,7 +457,7 @@
           "build": "",
           "icon_path": "",
           "order": 9.5,
-          "source_year": 0.0
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_0",
@@ -471,8 +471,8 @@
           "feature": "赛季之星",
           "build": "",
           "icon_path": "",
-          "order": 10.0,
-          "source_year": 0.0
+          "order": 10,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_1",
@@ -486,8 +486,8 @@
           "feature": "奇遇",
           "build": "",
           "icon_path": "",
-          "order": 11.0,
-          "source_year": 0.0
+          "order": 11,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_2",
@@ -501,8 +501,8 @@
           "feature": "魔法符咒",
           "build": "",
           "icon_path": "",
-          "order": 12.0,
-          "source_year": 0.0
+          "order": 12,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_3",
@@ -516,8 +516,8 @@
           "feature": "异常突变",
           "build": "",
           "icon_path": "",
-          "order": 13.0,
-          "source_year": 0.0
+          "order": 13,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_4",
@@ -531,8 +531,8 @@
           "feature": "海克斯骇入",
           "build": "",
           "icon_path": "",
-          "order": 14.0,
-          "source_year": 0.0
+          "order": 14,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_5",
@@ -546,8 +546,8 @@
           "feature": "英雄强化",
           "build": "",
           "icon_path": "",
-          "order": 15.0,
-          "source_year": 0.0
+          "order": 15,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_6",
@@ -561,8 +561,8 @@
           "feature": "解锁英雄",
           "build": "",
           "icon_path": "",
-          "order": 16.0,
-          "source_year": 0.0
+          "order": 16,
+          "source_year": 0
         },
         {
           "id": "season_云顶之弈_7",
@@ -576,8 +576,8 @@
           "feature": "移除选秀",
           "build": "",
           "icon_path": "",
-          "order": 17.0,
-          "source_year": 0.0
+          "order": 17,
+          "source_year": 0
         }
       ]
     },
@@ -618,8 +618,8 @@
           "feature": "",
           "build": "游侠",
           "icon_path": "",
-          "order": 3.0,
-          "source_year": 0.0
+          "order": 3,
+          "source_year": 0
         },
         {
           "id": "season_暗黑破坏神 IV_3",
@@ -633,8 +633,8 @@
           "feature": "",
           "build": "巫师",
           "icon_path": "",
-          "order": 4.0,
-          "source_year": 0.0
+          "order": 4,
+          "source_year": 0
         },
         {
           "id": "season_暗黑破坏神 IV_4",
@@ -648,8 +648,8 @@
           "feature": "",
           "build": "灵巫",
           "icon_path": "",
-          "order": 6.0,
-          "source_year": 0.0
+          "order": 6,
+          "source_year": 0
         },
         {
           "id": "season_暗黑破坏神 IV_5",
@@ -663,8 +663,8 @@
           "feature": "",
           "build": "死灵法师",
           "icon_path": "",
-          "order": 7.0,
-          "source_year": 0.0
+          "order": 7,
+          "source_year": 0
         },
         {
           "id": "season_暗黑破坏神 IV_6",
@@ -678,8 +678,8 @@
           "feature": "",
           "build": "游侠",
           "icon_path": "",
-          "order": 8.0,
-          "source_year": 0.0
+          "order": 8,
+          "source_year": 0
         },
         {
           "id": "season_暗黑破坏神 IV_0",
@@ -693,8 +693,8 @@
           "feature": "",
           "build": "灵巫",
           "icon_path": "",
-          "order": 11.0,
-          "source_year": 0.0
+          "order": 11,
+          "source_year": 0
         },
         {
           "id": "season_暗黑破坏神 IV_1",
@@ -708,8 +708,8 @@
           "feature": "",
           "build": "圣骑士",
           "icon_path": "",
-          "order": 12.0,
-          "source_year": 0.0
+          "order": 12,
+          "source_year": 0
         }
       ]
     },
@@ -933,7 +933,7 @@
       "title": "Clair Obscur Expedition 33",
       "cover": "webp_cache/Music/Covers/clair-obscur-expedition-33.webp",
       "description": "🕰️ 凄美空灵与浪漫古典的宿命交织！在超现实的奇幻画卷中，音符流淌着向死而生的优雅。如诗般的吟唱伴随厚重管弦，倾诉着对抗毁灭的悲壮，将你拉入那场绝望又美丽的末日远征！🎨",
-      "content": "## Part I\n1. For Those Who Come After\n2. Clair-Obscur\n3. We Lost\n4. Lumiere\n5. Gustave\n6. Alicia\n7. Monoco\n8. Lune\n9. Une vie à peindre\n10. Simon, The Divergent Star\n\n## Part II\n1. Lost Voice\n2. Forgotten Battlefield-Dualliste\n3. Gestral Village -Gestral Merchant\n4. Ancient Sanctuary-Gestral Summer Party\n5. Flying Waters- Rain from the Ground\n6. Flying Waters - Goblu\n7. Spring Meadows-Beneath the Blue Tree\n8. Spring Meadows-Battling Breeze\n9. Spring Meadows-Get Up！ For Lumiere！\n10. Spring Meadows-Get Up！ For Lumiere！\n\n## Part III\n1. Aux Lendemains non Ecrits\n2. Our Drafts Unite\n3. Renoir\n4. Aline\n5. Paintress\n6. Visages-Portrait Imparfait\n7. Sirene -Poeme d'Amour\n8. Sirene -Robe de Jour\n9. World Map - Dechire la Toile\n10. World Map-In Lumiere's Name",
+      "content": "## Part I\n1. For Those Who Come After\n2. Clair-Obscur\n3. We Lost\n4. Lumiere\n5. Gustave\n6. Alicia\n7. Monoco\n8. Lune\n9. Une vie à peindre\n10. Simon, The Divergent Star\n\n## Part II\n1. Lost Voice\n2. Forgotten Battlefield-Dualliste\n3. Gestral Village -Gestral Merchant\n4. Ancient Sanctuary-Gestral Summer Party\n5. Flying Waters- Rain from the Ground\n6. Flying Waters - Goblu\n7. Spring Meadows-Beneath the Blue Tree\n8. Spring Meadows-Battling Breeze\n9. Spring Meadows-Get Up！ For Lumiere！\n10. Spring Meadows-Get Up！ For Lumiere！\n\n## Part III\n1. Aux Lendemains non Ecrits\n2. Our Drafts Unite\n3. Renoir\n4. Aline\n5. Paintress\n6. Visages-Portrait Imparfait\n7. Sirene -Poeme d'Amour\n8. Sirene -Robe de Jour\n9. World Map - Dechire la Toile\n10. World Map-In Lumiere's Name\n",
       "audio": "audio_cache/Music/Songs/clair-obscur-expedition-33.m4a",
       "url": "",
       "track_title": "For Those Who Come After"
@@ -943,7 +943,7 @@
       "title": "Hollow Knight",
       "cover": "webp_cache/Music/Covers/hollow-knight.webp",
       "description": "🪲 孤寂清冷的钢琴与凄美弦乐在地下废都中回荡！旋律犹如微弱的提灯，照亮虫群王国的衰败与苍凉。在静谧哀伤与激昂战歌的交替中，感受那份独自行走的空洞与伟大！🗡️",
-      "content": "1.  Hollow Knight\n2.  Sealed Vessel\n3.  Resting Grounds\n4.  Queen's Gardens\n5.  The White Lady\n6.  Fungal Wastes\n7.  City of Tears\n8.  Reflection\n9.  Greenpath\n10.  Dirtmouth",
+      "content": "1.  Hollow Knight\n2.  Sealed Vessel\n3.  Resting Grounds\n4.  Queen's Gardens\n5.  The White Lady\n6.  Fungal Wastes\n7.  City of Tears\n8.  Reflection\n9.  Greenpath\n10.  Dirtmouth\n",
       "audio": "audio_cache/Music/Songs/hollow-knight.m4a",
       "url": "",
       "track_title": "Hollow Knight"
@@ -953,7 +953,7 @@
       "title": "Hades II",
       "cover": "webp_cache/Music/Covers/hades-ii.webp",
       "description": "🌙 诡秘幽暗的巫术女声与凌厉摇滚缠绵交织！神秘的管弦乐沉入更深邃的冥界深渊，在复仇与暗杀的危机中酝酿风暴。伴随每一次挥刃，瞬间唤醒潜藏于黑夜深处的致命优雅！🗡️",
-      "content": "1. Moonlight Guide Us",
+      "content": "1. Moonlight Guide Us\n\n",
       "audio": "audio_cache/Music/Songs/hades-ii.m4a",
       "url": "",
       "track_title": "Moonlight Guide Us"
@@ -963,7 +963,7 @@
       "title": "FINAL FANTASY VII",
       "cover": "webp_cache/Music/Covers/final-fantasy-vii.webp",
       "description": "🎹 史诗交响与重型摇滚的狂热碰撞！恢弘管弦与温柔钢琴交织，让经典旋律在钢铁丛林中焕发新生。音乐承载着反抗宿命的决绝与星球脉动，瞬间唤醒灵魂深处的热血与极致感动！⚔️",
-      "content": "1. Aerith's Theme\n2. Tifa's Theme\n3. Let the Battles Begin！\n4. Hollow Skies\n5. The Prelude",
+      "content": "1. Aerith's Theme\n2. Tifa's Theme\n3. Let the Battles Begin！\n4. Hollow Skies\n5. The Prelude\n\n",
       "audio": "audio_cache/Music/Songs/final-fantasy-vii.m4a",
       "url": "",
       "track_title": "Aerith's Theme"
@@ -973,7 +973,7 @@
       "title": "Minecraft",
       "cover": "webp_cache/Music/Covers/minecraft.webp",
       "description": "🎹 极简清冷的钢琴与温润的电子合成器缓缓流淌！这是属于最初方块世界的纯粹与孤独。在无尽探索与静谧夜晚的交替中，轻柔的旋律悄然唤醒心底最柔软的回忆，带你重回那段独自搭建庇护所的治愈时光！🟩",
-      "content": "1. Subwoofer Lullaby\n2. Living Mice\n3. Dry Hands\n4. Moog City\n5. Mice On Venus\n6. Wet Hands\n7. Sweden\n8. Danny\n9. Beginning\n10. KEY",
+      "content": "1. Subwoofer Lullaby\n2. Living Mice\n3. Dry Hands\n4. Moog City\n5. Mice On Venus\n6. Wet Hands\n7. Sweden\n8. Danny\n9. Beginning\n10. KEY\n",
       "audio": "audio_cache/Music/Songs/minecraft.m4a",
       "url": "",
       "track_title": "Subwoofer Lullaby"
@@ -983,7 +983,7 @@
       "title": "PERSONA 3",
       "cover": "webp_cache/Music/Covers/persona-3.webp",
       "description": "🎧 潮流说唱与空灵流行的完美交错！在静谧的忧伤与激昂的节拍间游走，用充满都市感的旋律触碰生命与时间的底色。音乐中潜藏着对抗宿命的温柔与决绝，一秒将你拉入那幽蓝色的影时间！🌙",
-      "content": "## Part I\n1. Burn My Dread-Reload\n2. Deep Breath Deep Breath\n3. Full Moon Full Life\n4. Burn My Dread-Last Battle Reload\n5. I Will Protect You \n6. Memories of You\n7. Memories of the School\n8. Changing Seasons\n9. It's Going Down Now\n10. Joy\n## Part II\n1. During the Exam\n2. Paulownia Mall\n3. Color Your Night\n4. Mass Destruction\n5. lwatodai Dorm\n6. When The Moon's Reaching Out Stars\n7. Aria of the Soul\n8. Want To Be Close",
+      "content": "## Part I\n1. Burn My Dread-Reload\n2. Deep Breath Deep Breath\n3. Full Moon Full Life\n4. Burn My Dread-Last Battle Reload\n5. I Will Protect You \n6. Memories of You\n7. Memories of the School\n8. Changing Seasons\n9. It's Going Down Now\n10. Joy\n## Part II\n1. During the Exam\n2. Paulownia Mall\n3. Color Your Night\n4. Mass Destruction\n5. lwatodai Dorm\n6. When The Moon's Reaching Out Stars\n7. Aria of the Soul\n8. Want To Be Close\n",
       "audio": "audio_cache/Music/Songs/persona-3.m4a",
       "url": "",
       "track_title": "Burn My Dread-Reload"
@@ -993,7 +993,7 @@
       "title": "PERSONA 5",
       "cover": "webp_cache/Music/Covers/persona-5.webp",
       "description": "🎷 极致华丽的酸性爵士与放克摇滚狂欢！张扬着反叛精神与不羁的都市摩登感，每一个跳跃的音符都在疯狂挑动神经。伴随充满爆发力的歌声，瞬间点燃偷心怪盗的华丽演出与正义之火！🔥",
-      "content": "## Part I\n1. Wake Up, Get Up, Get Out There\n2. When Mother Was There\n3. Sunset Bridge\n4. Tokyo Emergency\n5. Beneath the Mask\n6. Hoshi To Bokura To\n7. Rivers In the Desert\n8. The Whims of Fate\n9. Break it Down\n10. Life Goes On\n## Part II\n1. Have a Short Rest\n2. Butterfly Kiss\n3. Tokyo Daylight\n4. Layer Cake\n5. Last Surprise\n6. Aria of the Soul\n7. Life Will Change",
+      "content": "## Part I\n1. Wake Up, Get Up, Get Out There\n2. When Mother Was There\n3. Sunset Bridge\n4. Tokyo Emergency\n5. Beneath the Mask\n6. Hoshi To Bokura To\n7. Rivers In the Desert\n8. The Whims of Fate\n9. Break it Down\n10. Life Goes On\n## Part II\n1. Have a Short Rest\n2. Butterfly Kiss\n3. Tokyo Daylight\n4. Layer Cake\n5. Last Surprise\n6. Aria of the Soul\n7. Life Will Change\n",
       "audio": "audio_cache/Music/Songs/persona-5.m4a",
       "url": "",
       "track_title": "Wake Up, Get Up, Get Out There"

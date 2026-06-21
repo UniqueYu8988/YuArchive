@@ -35,6 +35,17 @@ import {
 import { evaluateGamesWriteGate } from './check-archive-studio-v0-games-write-gate.mjs';
 import { createGameEntry } from './archive-studio-v0-games-create-core.mjs';
 import { evaluateGamesV2Shape } from './check-archive-data-v2-games-shape.mjs';
+import {
+  applyPublicSync,
+  buildPublicSyncPreview,
+} from './archive-studio-public-sync-core.mjs';
+import {
+  applyHomepagePublicSync,
+  buildHomepageConfigPreview,
+  buildHomepagePublicPreview,
+  loadHomepageState,
+  saveHomepageConfig,
+} from './archive-studio-homepage-core.mjs';
 
 const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4176;
@@ -140,6 +151,7 @@ function buildProfilesResponse(writeEnabled) {
           preflight: true,
           check: true,
           create: writeEnabled,
+          sync: writeEnabled,
           update: false,
           publish: false,
         },
@@ -153,6 +165,7 @@ function buildProfilesResponse(writeEnabled) {
           preflight: true,
           check: true,
           create: writeEnabled,
+          sync: writeEnabled,
           update: false,
           publish: false,
         },
@@ -166,6 +179,7 @@ function buildProfilesResponse(writeEnabled) {
           preflight: true,
           check: true,
           create: writeEnabled,
+          sync: writeEnabled,
           update: false,
           publish: false,
         },
@@ -179,6 +193,7 @@ function buildProfilesResponse(writeEnabled) {
           preflight: true,
           check: true,
           create: writeEnabled,
+          sync: writeEnabled,
           update: false,
           publish: false,
         },
@@ -353,6 +368,123 @@ async function routeRequest(request, response, context) {
 
   if (request.method === 'GET' && url.pathname === '/api/studio/profiles') {
     sendJson(response, 200, buildProfilesResponse(context.writeEnabled));
+    return;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/studio/homepage') {
+    const state = loadHomepageState({ v2Root: context.v2Root, projectRoot: context.projectRoot });
+    const { internal, ...safeState } = state;
+    sendJson(response, state.ok ? 200 : 422, safeState);
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/homepage/config-preview') {
+    const body = await readJsonBody(request);
+    const preview = buildHomepageConfigPreview({
+      selection: body.selection,
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+    });
+    const token = preview.ok && context.writeEnabled ? crypto.randomUUID() : null;
+    const expiresAt = token ? Date.now() + PREFLIGHT_TOKEN_TTL_MS : null;
+    if (token) context.homepageTokens.set(token, {
+      action: 'config-save', digest: preview.digest, selection: preview.selection, expiresAt,
+    });
+    const { internal, digest, ...safePreview } = preview;
+    sendJson(response, preview.ok ? 200 : 422, { ...safePreview, token, expiresAt });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/homepage/config-save') {
+    const body = await readJsonBody(request);
+    const token = String(body.token ?? '');
+    const record = context.homepageTokens.get(token);
+    context.homepageTokens.delete(token);
+    if (!record || record.action !== 'config-save' || record.expiresAt < Date.now()) {
+      sendError(response, 403, 'homepage_token_invalid', 'Homepage configuration token is invalid or expired');
+      return;
+    }
+    const result = saveHomepageConfig({
+      selection: record.selection,
+      expectedDigest: record.digest,
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+    });
+    sendJson(response, 200, result);
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/homepage/sync-preview') {
+    await readJsonBody(request);
+    const preview = buildHomepagePublicPreview({ v2Root: context.v2Root, projectRoot: context.projectRoot });
+    const token = preview.ok && preview.homeChanged && context.writeEnabled ? crypto.randomUUID() : null;
+    const expiresAt = token ? Date.now() + PREFLIGHT_TOKEN_TTL_MS : null;
+    if (token) context.homepageTokens.set(token, {
+      action: 'public-sync', digest: preview.digest, expiresAt,
+    });
+    const { internal, digest, ...safePreview } = preview;
+    sendJson(response, preview.ok ? 200 : 422, { ...safePreview, token, expiresAt });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/homepage/sync-apply') {
+    const body = await readJsonBody(request);
+    const token = String(body.token ?? '');
+    const record = context.homepageTokens.get(token);
+    context.homepageTokens.delete(token);
+    if (!record || record.action !== 'public-sync' || record.expiresAt < Date.now()) {
+      sendError(response, 403, 'homepage_token_invalid', 'Homepage sync token is invalid or expired');
+      return;
+    }
+    const result = applyHomepagePublicSync({
+      expectedDigest: record.digest,
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+    });
+    sendJson(response, 200, result);
+    return;
+  }
+
+  const syncMatch = url.pathname.match(/^\/api\/studio\/(music|texts|visions|games)\/sync-(preview|apply)$/);
+  if (request.method === 'POST' && syncMatch) {
+    const [, board, action] = syncMatch;
+    const body = await readJsonBody(request);
+    if (action === 'preview') {
+      const preview = buildPublicSyncPreview({
+        board,
+        v2Root: context.v2Root,
+        projectRoot: context.projectRoot,
+      });
+      const token = preview.pendingEntries && context.writeEnabled ? crypto.randomUUID() : null;
+      const expiresAt = token ? Date.now() + PREFLIGHT_TOKEN_TTL_MS : null;
+      if (token) context.syncTokens.set(token, { board, digest: preview.digest, expiresAt });
+      const { internal, digest, ...safePreview } = preview;
+      sendJson(response, 200, {
+        ...safePreview,
+        syncEnabled: context.writeEnabled,
+        syncToken: token,
+        syncExpiresAt: expiresAt,
+      });
+      return;
+    }
+    if (!context.writeEnabled) {
+      sendError(response, 403, 'sync_disabled', 'Archive Studio public sync is disabled');
+      return;
+    }
+    const token = String(body.syncToken ?? '');
+    const record = context.syncTokens.get(token);
+    context.syncTokens.delete(token);
+    if (!record || record.board !== board || record.expiresAt < Date.now()) {
+      sendError(response, 403, 'sync_token_invalid', 'Public sync token is invalid or expired');
+      return;
+    }
+    const result = applyPublicSync({
+      board,
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+      expectedDigest: record.digest,
+    });
+    sendJson(response, 200, result);
     return;
   }
 
@@ -813,6 +945,7 @@ export function createArchiveStudioServer({
   requireTextsMigrationBaseline = requireMigrationBaseline,
   requireVisionsMigrationBaseline = requireMigrationBaseline,
   requireGamesMigrationBaseline = requireMigrationBaseline,
+  projectRoot = process.cwd(),
 } = {}) {
   const context = {
     v2Root,
@@ -833,7 +966,10 @@ export function createArchiveStudioServer({
     requireTextsMigrationBaseline,
     requireVisionsMigrationBaseline,
     requireGamesMigrationBaseline,
+    projectRoot,
     preflightTokens: new Map(),
+    syncTokens: new Map(),
+    homepageTokens: new Map(),
   };
   return http.createServer((request, response) => {
     routeRequest(request, response, context).catch((error) => {

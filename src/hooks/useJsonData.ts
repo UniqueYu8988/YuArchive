@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react'
 const dataCache = new Map<string, unknown>()
 const inflightRequests = new Map<string, Promise<unknown>>()
 
+export function invalidateJsonData(url: string) {
+  dataCache.delete(url)
+  inflightRequests.delete(url)
+}
+
 export async function loadJsonData<T>(url: string): Promise<T> {
   if (dataCache.has(url)) {
     return dataCache.get(url) as T
@@ -13,7 +18,7 @@ export async function loadJsonData<T>(url: string): Promise<T> {
     return existingRequest
   }
 
-  const request = fetch(url, { cache: 'force-cache' })
+  const request = fetch(url, { cache: 'no-cache' })
     .then(async response => {
       if (!response.ok) {
         throw new Error(`Failed to load ${url}: ${response.status}`)

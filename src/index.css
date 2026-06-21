@@ -165,7 +165,7 @@ body {
 @media (min-width: 1024px) {
   .nav-links {
       position: absolute;
-      left: calc(50% + 124px);
+      left: 50%;
       transform: translateX(-50%);
       margin-left: 0;
     }

@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
+import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
 
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
 type GameForm = {
@@ -281,6 +282,7 @@ export default function ArchiveStudioGamesPage() {
       </header>
 
       <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
+        <NavLink to="/studio/home">首页</NavLink>
         <NavLink to="/studio" end>音乐</NavLink><NavLink to="/studio/texts">文本</NavLink>
         <NavLink to="/studio/visions">影视</NavLink><NavLink to="/studio/games">游戏</NavLink>
       </nav>
@@ -298,6 +300,8 @@ export default function ArchiveStudioGamesPage() {
           <dl><div><dt>条目文件</dt><dd>{createResult.createdEntryFiles}</dd></div><div><dt>Games v2 总数</dt><dd>{createResult.gamesEntries}</dd></div><div><dt>结构检查</dt><dd>{createResult.check.ok ? '通过' : '失败'}</dd></div><div><dt>旧源数据</dt><dd>{createResult.sourceUnchanged ? '未变化' : '需检查'}</dd></div><div><dt>发布</dt><dd>{createResult.publishTriggered ? '已触发' : '未触发'}</dd></div></dl>
         </section>
       ) : null}
+
+      <ArchiveStudioPublicSync board="games" refreshKey={createResult?.entryRelativeDir} />
 
       <div className="studio-workspace">
         <div className="studio-editor-column">

@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
+import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
 
 type FormState = {
   title: string
@@ -522,6 +523,7 @@ export default function ArchiveStudioPage() {
       </header>
 
       <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
+        <NavLink to="/studio/home">首页</NavLink>
         <NavLink to="/studio" end>音乐</NavLink>
         <NavLink to="/studio/texts">文本</NavLink>
         <NavLink to="/studio/visions">影视</NavLink>
@@ -571,6 +573,8 @@ export default function ArchiveStudioPage() {
           </dl>
         </section>
       ) : null}
+
+      <ArchiveStudioPublicSync board="music" refreshKey={createResult?.entryRelativeDir} />
 
       <div className="studio-workspace">
         <div className="studio-editor-column">
