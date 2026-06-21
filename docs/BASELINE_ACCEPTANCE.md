@@ -7,6 +7,9 @@
 - [ ] `C:\Users\Yu\OneDrive\图片\Data` 未丢失、未覆盖、未移动、未被清理。
 - [ ] `Games`、`Visions`、`Music`、`Texts` 四类源目录仍存在。
 - [ ] 顶层配置 `homepage.yaml`、`site-layout.yaml`、`site-ui.yaml` 仍存在。
+- [ ] 旧 OneDrive Data 保持只读，ArchiveData-v2 是 Archive Studio 的受控写入目标。
+- [ ] `/studio/home` 能读取稳定 v2 ID，预览并保存首页精选配置。
+- [ ] 首页同步只修改 `public/data/home.json`，不触发发布或旧源写入。
 - [ ] `Texts\sections.yaml` 仍存在。
 - [ ] 不把 OneDrive 源数据全文复制进项目 Markdown。
 - [ ] 收藏标题、分类、评分和展示描述可作为网页展示资产处理。

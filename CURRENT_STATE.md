@@ -2,16 +2,17 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-06-20
+最后更新：2026-06-21
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 升级，只读结构与规则审计已完成，尚未迁移、写入或替换 live JSON。旧 OneDrive Data 始终只读，未启用自动发布。
+ArchiveData-v2 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。Archive Studio 已具备四板块显式公开同步和首页精选管理：先预览差异，再使用一次性 token 保存 v2 配置或同步公开 JSON；旧 OneDrive Data 始终只读，发布和 Git 推送不会自动触发。
 
 ## 已完成
 
 - 已确认项目根目录：`C:\Users\Yu\AI\Archive`。
-- 已确认真实收藏源数据目录：`C:\Users\Yu\OneDrive\图片\Data`。
+- 已确认旧版收藏源数据目录：`C:\Users\Yu\OneDrive\图片\Data`，当前只读保留。
+- 已确认新工作流维护数据目录：`C:\Users\Yu\OneDrive\图片\ArchiveData-v2`，由 Archive Studio 受控写入。
 - 用户已完成备份。
 - V2 核心工作流文件已复制到项目根目录和 `docs`。
 - 已完成首次正式只读审计。
@@ -168,6 +169,12 @@ ArchiveData-v2 的 Music v2 与 Texts v2 已完成闭环。当前进入 Visions 
 - 已建立 Archive Studio Visions preview core、write gate、create core 和本机 API，只支持普通 movie / series 新建，不提供 showcase、update、delete 或 publish。
 - Visions API 临时目录集成测试通过：poster 阻断、period 校验、一次性 token、create、重放阻断、冲突阻断、故障 rollback、写后 shape、旧源不变和无发布路由均通过；Music/Text API 回归通过。
 - Archive Studio Visions 中文页面和板块导航已接入，支持 movie / series、period、cinema、quote、url、poster、preview、preflight、create 与写后检查。
+- 已建立四板块共用的 Archive Studio 公开同步功能：任务记录为 `docs/tasks/archive-studio-public-sync.md`，同步核心为 `scripts/archive-studio-public-sync-core.mjs`，临时目录 API 自检为 `scripts/check-archive-studio-public-sync.mjs`。
+- Music、Texts、Visions、Games Studio 页面均显示公开同步状态；同步只处理 v2 新增且公开 JSON 尚未包含的条目，使用一次性 preview token，失败时恢复 JSON 并删除本次媒体，不修改 `home.json`、旧 OneDrive Data 或发布状态。
+- Games 新条目已由用户通过 Studio 同步到公开 JSON 和媒体目录，公开总数为 283；Music 仍有 1 条等待同步，Texts 与 Visions 已一致。同步后的公开页面读取已改为重新验证 JSON 缓存，并由“查看公开页面”附加刷新标记，避免同一浏览器继续显示旧数据。
+- Archive Studio 首页精选管理已建立：设计文档为 `docs/design/archive-studio-homepage-curation.md`，任务记录为 `docs/tasks/archive-studio-homepage-curation.md`，UI 路由为 `/studio/home`。
+- 当前首页 29 个选择已无损映射并保存到 `[ArchiveData-v2]/config/homepage.yaml`：Games 9、Visions 9、Music 7、Texts 4；数组顺序决定展示顺序，Music 与 Texts 第 1 项为主展示。
+- 首页公开同步已完成，`home.json` 与当前 v2 配置一致，Games 总数更新为 283；旧 OneDrive Data 778 个文件元数据摘要前后一致，未触发发布。
 - Visions 页面生产构建通过；桌面流程和 390px 移动视口只读验收通过，无横向溢出或控制台错误。
 - Visions 真实 API create + rollback smoke test 通过：临时 movie 使条目数 112 → 113 → 112，创建 2 个条目文件和 3 个事务文件，条目/事务残留均为 0。
 - 本次 smoke test 核对旧源 778 个文件前后不变，ArchiveData-v2 快照恢复一致，发布未触发。

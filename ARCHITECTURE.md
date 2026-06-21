@@ -29,6 +29,7 @@
 | `node_modules` | npm 依赖 | 不手改，可重新安装 |
 | `docs` | 新工作流文档、计划、任务模板 | 文档任务允许时修改 |
 | `C:\Users\Yu\OneDrive\图片\Data` | 真实收藏源数据 | 默认禁止修改 |
+| `C:\Users\Yu\OneDrive\图片\ArchiveData-v2` | 新工作流维护数据、稳定 ID 与媒体 | 仅由受控 Studio / 迁移任务修改 |
 
 ## 3. 源数据结构
 
@@ -55,7 +56,20 @@ C:\Users\Yu\OneDrive\图片\Data
 → React 前端读取并展示
 ```
 
-用户手动维护的源数据位于 `C:\Users\Yu\OneDrive\图片\Data`，其中包含 `Games`、`Visions`、`Music`、`Texts` 以及顶层 `homepage.yaml`、`site-layout.yaml`、`site-ui.yaml`。
+新工作流：
+
+```text
+旧 OneDrive Data（只读迁移来源）
+→ ArchiveData-v2（当前维护数据）
+→ Archive Studio preview / preflight / create
+→ 显式公开同步
+→ public\data\*.json + public\studio_media
+→ React 前端
+```
+
+首页精选使用 `[ArchiveData-v2]/config/homepage.yaml` 保存稳定 v2 ID，通过 Archive Studio 显式同步为 `public/data/home.json`。旧 `Data/homepage.yaml` 不再由新工作流修改。
+
+旧版源数据位于 `C:\Users\Yu\OneDrive\图片\Data`，包含 `Games`、`Visions`、`Music`、`Texts` 和顶层配置，当前作为只读迁移来源与回退备份。新条目和首页精选由 Archive Studio 写入 ArchiveData-v2。
 
 在明确授权下运行 `build_archive.py` 后，脚本会生成或更新：
 
@@ -100,7 +114,8 @@ C:\Users\Yu\OneDrive\图片\Data
 
 | 类型 | 位置 | 说明 | 备份要求 |
 |---|---|---|---|
-| 源数据 | `C:\Users\Yu\OneDrive\图片\Data` | 唯一长期维护的真实收藏源 | 必须备份 |
+| 旧源数据 | `C:\Users\Yu\OneDrive\图片\Data` | 只读迁移来源与回退备份 | 必须备份 |
+| 新维护数据 | `C:\Users\Yu\OneDrive\图片\ArchiveData-v2` | Archive Studio 当前写入目标 | 必须备份 |
 | 派生结构数据 | `src\data`、`public\data` | 由脚本生成，前端使用 | 建议保留快照，可重生成 |
 | 派生媒体缓存 | `public\webp_cache`、`public\audio_cache`、`public\media_cache` | 由源素材转换或复制 | 建议保留快照，可重生成 |
 | 报告 | `reports` | 游戏元数据辅助报告和缓存 | 建议备份 |

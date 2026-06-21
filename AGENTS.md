@@ -10,11 +10,15 @@ YuArchive 是一个个人数字收藏馆，用来展示和管理游戏、影视�
 
 `C:\Users\Yu\AI\Archive`
 
-真实收藏源数据目录：
+旧版收藏源数据目录（只读迁移来源与回退备份）：
 
 `C:\Users\Yu\OneDrive\图片\Data`
 
-当前阶段是老项目底层工作流改造，不是产品重设计，也不是新增功能阶段。
+当前维护数据目录：
+
+`C:\Users\Yu\OneDrive\图片\ArchiveData-v2`
+
+当前阶段已进入 ArchiveData-v2 + Archive Studio 本地可视化维护。旧 OneDrive Data 保持只读；新建条目、首页精选和公开 JSON 同步必须通过受控 preview / token / rollback 流程，不自动发布。
 
 ## 2. 事实来源
 
@@ -63,7 +67,7 @@ YuArchive 是一个个人数字收藏馆，用来展示和管理游戏、影视�
 
 ## 4. 个人数据安全红线
 
-`C:\Users\Yu\OneDrive\图片\Data` 是 YuArchive 的真实收藏源数据。AI 默认只能只读分析目录结构、文件类型和职责，不得自动修改、整理、迁移、导入、导出或清理其中任何内容。
+`C:\Users\Yu\OneDrive\图片\Data` 是 YuArchive 的旧版收藏源数据、迁移来源和回退备份。AI 默认只能只读分析，不得自动修改、整理、迁移、导入、导出或清理其中任何内容。`ArchiveData-v2` 是当前新工作流的维护数据目录；写入它仍必须来自明确任务，并具备预览、校验和回退，不能使用临时脚本随意改写。
 
 绝对不要在未经明确许可时修改：
 

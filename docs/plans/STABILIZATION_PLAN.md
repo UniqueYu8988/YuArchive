@@ -1,10 +1,10 @@
 # STABILIZATION_PLAN.md
 
-YuArchive 老项目稳定化计划。本计划记录阶段和边界，当前已进入 ArchiveData-v2 系统升级设计阶段。
+YuArchive 老项目稳定化计划。本计划记录阶段和边界，当前已进入 ArchiveData-v2 + Archive Studio 受控维护阶段。
 
 ## 当前情况
 
-YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据位于 `C:\Users\Yu\OneDrive\图片\Data`，前端和构建层位于 `C:\Users\Yu\AI\Archive`。
+YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份位于 `C:\Users\Yu\OneDrive\图片\Data`，当前维护数据位于相邻的 `ArchiveData-v2`，前端和构建层位于 `C:\Users\Yu\AI\Archive`。
 
 当前已经完成：
 
@@ -93,6 +93,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 - Visions live-compatible 隔离 preview 已通过：111/111 普通条目、20/20 角色、0 missing，ID/媒体路径全部复用，顺序差异 0；仅有预期的 quote、url、type 各 2 个修正。
 - Visions live JSON 已受控替换：Visions 2 条/6 字段，Home 1 条/3 字段；结构、隐私、构建和旧源零变化检查通过，脚本幂等返回 already-current。
 - Archive Studio Visions preview core、write gate、create core 与 API 已完成并通过临时目录集成测试；Music/Text 回归通过，showcase 与发布能力未开放。
+- Archive Studio 四板块公开同步已建立：统一执行 preview、一次性 token、受控 JSON/媒体写入和失败回退；首页精选、旧 OneDrive Data、发布与 Git 操作保持关闭。临时目录自检和生产构建通过。
+- Archive Studio 首页精选管理已完成：`/studio/home` 支持按稳定 v2 ID 搜索、替换槽位、拖拽/箭头排序、预览、保存配置和显式同步 `home.json`；当前 29 个选择已保存并同步，桌面和移动验收通过。
 
 ## 稳定化目标
 
@@ -400,7 +402,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。真实收藏源数据�
 
 ### 原则
 
-- OneDrive Data 仍然是唯一长期源数据；
+- 旧 OneDrive Data 保持只读迁移来源，ArchiveData-v2 承接新工作流维护；
 - 自动化先做只读检查、校验、预览和差异报告；
 - 一键发布不能和数据源修改混在一起；
 - 自动化不能替代用户对收藏内容、评分、分类、笔记和媒体选择的判断；
