@@ -6,7 +6,7 @@
 
 ## 当前阶段
 
-ArchiveData-v2 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。Archive Studio 已具备四板块显式公开同步和首页精选管理：先预览差异，再使用一次性 token 保存 v2 配置或同步公开 JSON；旧 OneDrive Data 始终只读，发布和 Git 推送不会自动触发。
+ArchiveData-v2 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。Archive Studio 已具备四板块普通条目的轻量 `新建 / 修改` 模式、显式公开同步和首页精选管理：修改时搜索并回填原表单，稳定 ID / board / kind 不变，素材默认保留，preview 与 preflight 通过后才受控写入；旧 OneDrive Data 始终只读，发布不会自动触发。
 
 ## 已完成
 
@@ -173,6 +173,12 @@ ArchiveData-v2 的 Music、Texts、Visions、Games 第一版新建闭环均已�
 - Music、Texts、Visions、Games Studio 页面均显示公开同步状态；同步只处理 v2 新增且公开 JSON 尚未包含的条目，使用一次性 preview token，失败时恢复 JSON 并删除本次媒体，不修改 `home.json`、旧 OneDrive Data 或发布状态。
 - Games 新条目已由用户通过 Studio 同步到公开 JSON 和媒体目录，公开总数为 283；Music 仍有 1 条等待同步，Texts 与 Visions 已一致。同步后的公开页面读取已改为重新验证 JSON 缓存，并由“查看公开页面”附加刷新标记，避免同一浏览器继续显示旧数据。
 - Archive Studio 首页精选管理已建立：设计文档为 `docs/design/archive-studio-homepage-curation.md`，任务记录为 `docs/tasks/archive-studio-homepage-curation.md`，UI 路由为 `/studio/home`。
+- 已移除五个 Studio 页面顶部重复的配置 / 槽位 / 来源状态栏，保留服务状态、板块导航和必要的同步提示。
+- 已建立 `docs/design/archive-studio-lightweight-editing.md`、`docs/tasks/archive-studio-lightweight-editing.md` 和 `scripts/archive-studio-update-core.mjs`。
+- Music album、Texts article / book_note / series_note、Visions movie / series、Games normal_game 均可在原页面切换到“修改”，搜索已有条目并回填表单。
+- 修改模式锁定稳定 ID、board 和 kind；现有素材默认保留，用户只选择需要替换的素材。
+- 更新使用一次性 token、staging checksum、事务备份、写后 v2 shape check、旧源摘要检查和失败回退；已公开条目会留下定向公开同步标记，标题或年份变化后仍替换原公开 ID，不会重复新增。
+- 已新增 `scripts/check-archive-studio-updates.mjs`，在系统临时目录覆盖四板块 list / detail / preview / preflight / apply、单素材替换、公开 ID 稳定、token 重放阻断和故障回退。
 - 当前首页 29 个选择已无损映射并保存到 `[ArchiveData-v2]/config/homepage.yaml`：Games 9、Visions 9、Music 7、Texts 4；数组顺序决定展示顺序，Music 与 Texts 第 1 项为主展示。
 - 首页公开同步已完成，`home.json` 与当前 v2 配置一致，Games 总数更新为 283；旧 OneDrive Data 778 个文件元数据摘要前后一致，未触发发布。
 - Visions 页面生产构建通过；桌面流程和 390px 移动视口只读验收通过，无横向溢出或控制台错误。
@@ -205,12 +211,9 @@ ArchiveData-v2 的 Music、Texts、Visions、Games 第一版新建闭环均已�
 
 ## Git 状态
 
-最近只读检查结果：
-
 - 当前分支：`master`
-- 当前状态：本地 `master` 领先 `origin/master`，本目标未执行 push。
-- ArchiveData-v2 Music 试点和 live-compatible 替换相关提交已推送到远端。
-- Archive Studio v0 与 Texts 数据链已形成一组本地未推送提交；本目标完成后由单独任务决定是否 push。
+- Archive Studio 轻量编辑实现已按事务核心 / UI / 状态文档拆分提交；本轮结束前自动推送。
+- `src/data/archive_data.json` 继续只在本地保留并被 Git 忽略。
 
 ## 当前主要风险
 
@@ -228,12 +231,13 @@ ArchiveData-v2 的 Music、Texts、Visions、Games 第一版新建闭环均已�
 | 生成脚本高风险 | 运行会写派生数据、缓存和 reports，并可能反写 OneDrive 游戏 YAML | 本轮受控运行后 OneDrive YAML/YML/MD 哈希无变化；后续仍默认禁止运行 |
 | ArchiveData-v2 迁移范围大 | 如果直接迁移或自动整理，可能误改源数据或丢失历史字段 | 当前已完成 Music-only 写入试点、live-compatible preview 和 Music live JSON 替换；后续扩展其他 board 仍需单独任务 |
 | Archive Studio 写入扩展到其他板块 | 各板块文件规则和媒体边界不同，直接复用可能造成错误写入 | Music 与 Texts 已各自完成规则、gate、create 和回退验收；其他板块必须独立审计和小步接入 |
+| 已有条目更新误覆盖或重复公开 | 修改字段或素材时可能破坏稳定引用、丢失旧文件或在公开 JSON 新增重复项 | 锁定 identity、事务备份与 rollback、pending public update 标记、一次性 token 和临时目录集成测试均已建立 |
 | v2 Music ID 与 live Music ID 不兼容 | 直接使用 raw v2 preview 替换 `public/data/music.json` 可能导致选择状态、首页引用或未来链接不稳定 | 已实现 live-compatible preview，证明可复用 33 个 live ID；禁止用 raw v2 preview 直接替换 |
 | v2 Music 媒体路径不是 live 公共路径 | 当前 preview 使用 `v2-preview` 路径，部署环境不会直接服务这些外部源文件 | live-compatible preview 已复用 33 个 `webp_cache` 和 33 个 `audio_cache` 路径；v2-native 媒体 serving 以后再设计 |
 
 ## 当前下一步
 
-Games 第一版升级闭环已完成：规则、planner、shape、受控迁移、live-compatible already-current gate、Archive Studio normal_game 中文页面与真实 API create + rollback 均通过。smoke test 为 282 → 283 → 282，条目/事务残留 0，旧源 778 个文件不变，未发布。
+先由用户实际体验四板块“修改已有条目”流程。下一批只建议处理使用反馈和小型可用性问题；不扩展删除、批量编辑、Games DLC / live game / season、Visions showcase 或自动发布。
 
 ## 暂时不做
 
@@ -243,21 +247,21 @@ Games 第一版升级闭环已完成：规则、planner、shape、受控迁移�
 - 不改 `public\data`、`src\data` 或派生缓存；
 - 不运行发布脚本；
 - 不执行一键发布；
-- 不扩展到已有条目编辑或删除；
+- 不提供删除或批量编辑；
 - 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
 - 不批量创建完整 `ArchiveData-v2` 四板块数据；
 - 不在当前审计阶段迁移 Games、Visions 或 config；
-- 不提供 Git 或发布入口；Archive Studio 保存当前只限受控 Music Album 与 Texts create。
+- 不提供 Git 或自动发布入口；公开同步仍需用户显式点击。
 
 ## 当前验证状态
 
 - 项目能否启动：已受控启动本地 Vite 服务，仅用于 Archive Studio 页面验收。
-- 核心人工验收：已完成 `/studio`、`/studio/texts` 与 `/studio/visions` 桌面和 390px 移动视口验收；Texts 真实 UI preview、preflight、create 和成功反馈通过，Visions 缺 poster 阻断与响应式布局通过。
-- 自动测试：Music / Texts API 回归、Texts 与 Visions preview core、两板块真实 create + rollback runner，以及 Texts / Visions v2 shape 均通过。
+- 核心人工验收：已完成 Music、Texts、Visions、Games 修改模式桌面验收，确认搜索、表单回填、稳定 ID 只读、保留素材和差异预览；五个 Studio 路由在 390px 视口无横向溢出。
+- 自动测试：四板块 create API、四板块 update 事务、公开同步、首页精选、public data shape、generated data privacy 和四板块 v2 shape 均通过。
 - 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-20，Visions 真实 API create 成功后已按事务清单回退；临时条目和事务残留为 0，Visions 为 112，ArchiveData-v2 与旧源快照恢复一致，生产构建通过。
+- 最近一次验证日期：2026-06-21，轻量 update 集成测试只写系统临时目录；真实 ArchiveData-v2 与旧 OneDrive Data 未被本轮测试修改，生产构建通过。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
@@ -266,4 +270,4 @@ Games 第一版升级闭环已完成：规则、planner、shape、受控迁移�
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts、Visions 与 Games 均已完成第一版闭环；发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是逐步把各板块接入 ArchiveData-v2 和 Archive Studio。Music、Texts、Visions 与 Games 均已完成第一版新建闭环和普通条目轻量修改；删除、复杂类型编辑、自动发布和旧 OneDrive Data 修改仍保持关闭。

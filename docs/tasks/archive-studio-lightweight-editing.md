@@ -28,6 +28,14 @@
 - 四板块原 create API 回归；
 - 桌面与移动浏览器流程验收。
 
+## 结果
+
+- 四板块 list / detail / preview / preflight / apply 均通过系统临时目录集成测试；
+- stable public ID 替换、单素材替换并保留其他素材、token 重放阻断和故障 rollback 均通过；
+- 原有四板块 create API、公开同步、首页精选、v2 shape、隐私检查和生产构建回归通过；
+- Music、Texts、Visions、Games 桌面修改流程通过，五个 Studio 路由在 390px 视口无横向溢出；
+- 本任务未修改旧 OneDrive Data，浏览器验收未保存真实条目，也未执行真实公开同步。
+
 ## 回退
 
 update 失败由事务恢复；已成功更新需按 transaction backup 执行单独回退任务。代码按 Git commit 回退。

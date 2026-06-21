@@ -228,7 +228,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 
 ## 系统升级主线：ArchiveData-v2
 
-状态：Archive Studio v0 UI、只读 API、联调、readiness audit 和 smoke runner 隔离验证已完成；当前等待受控真实 ArchiveData-v2 smoke test。
+状态：ArchiveData-v2 四板块迁移与第一版新建闭环已完成；Archive Studio 已进入轻量维护阶段，支持普通条目 `新建 / 修改`、显式公开同步和首页精选管理。
 
 ### 目标
 
@@ -360,6 +360,15 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 - [x] 用户通过桌面页面完成完整表单、preview、preflight 和 create 流程。
 - [x] 使用用户确认的真实素材保留一个新条目，完成最终 create 验收。
 - [x] 完成 Studio 中文化和创建成功结果反馈。
+- [x] 移除五个 Studio 页面重复的信息状态栏。
+- [x] 设计不增加复杂后台页面的统一轻量编辑流程。
+- [x] 建立四板块已有条目目录和详情读取 API。
+- [x] 建立字段差异 preview、一次性 update token、事务备份、写后 shape check 和失败 rollback。
+- [x] Music album、Texts 三类普通文本、Visions movie / series、Games normal_game 接入 `新建 / 修改` 模式。
+- [x] 修改模式锁定稳定 ID / board / kind，素材默认保留并允许单项替换。
+- [x] 公开同步支持按 pending marker 替换原公开 ID，避免标题或年份变化造成重复新增。
+- [x] 四板块临时目录 update 集成测试、原 create API 回归、公开同步、首页精选、v2 shape、隐私检查和生产构建通过。
+- [x] 四板块桌面流程与五个 Studio 路由 390px 视口验收通过。
 
 ## 阶段 4：核心数据与构建验收
 
@@ -433,4 +442,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 
 ## 当前只执行的下一步
 
-Games 第一版闭环已完成：规则、迁移、live-compatible、Studio normal_game、真实 create、shape 与 rollback 均已验证。下一步只做目标完成审计和 Git 边界确认；DLC、live game、season 编辑和发布仍不开放。
+轻量编辑第一版已完成。下一步先由用户体验四板块修改流程，再根据反馈处理小型可用性问题；DLC、live game、season、Visions showcase、删除、批量编辑和自动发布仍不开放。
