@@ -46,6 +46,12 @@ import {
   loadHomepageState,
   saveHomepageConfig,
 } from './archive-studio-homepage-core.mjs';
+import {
+  applyEntryUpdate,
+  buildUpdatePreview,
+  listEditableEntries,
+  loadEditableEntry,
+} from './archive-studio-update-core.mjs';
 
 const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4176;
@@ -152,7 +158,7 @@ function buildProfilesResponse(writeEnabled) {
           check: true,
           create: writeEnabled,
           sync: writeEnabled,
-          update: false,
+          update: writeEnabled,
           publish: false,
         },
       },
@@ -166,7 +172,7 @@ function buildProfilesResponse(writeEnabled) {
           check: true,
           create: writeEnabled,
           sync: writeEnabled,
-          update: false,
+          update: writeEnabled,
           publish: false,
         },
       })),
@@ -180,7 +186,7 @@ function buildProfilesResponse(writeEnabled) {
           check: true,
           create: writeEnabled,
           sync: writeEnabled,
-          update: false,
+          update: writeEnabled,
           publish: false,
         },
       })),
@@ -194,7 +200,7 @@ function buildProfilesResponse(writeEnabled) {
           check: true,
           create: writeEnabled,
           sync: writeEnabled,
-          update: false,
+          update: writeEnabled,
           publish: false,
         },
       },
@@ -368,6 +374,100 @@ async function routeRequest(request, response, context) {
 
   if (request.method === 'GET' && url.pathname === '/api/studio/profiles') {
     sendJson(response, 200, buildProfilesResponse(context.writeEnabled));
+    return;
+  }
+
+  const updateListMatch = url.pathname.match(/^\/api\/studio\/(music|texts|visions|games)\/entries$/);
+  if (request.method === 'GET' && updateListMatch) {
+    const board = updateListMatch[1];
+    sendJson(response, 200, {
+      ok: true,
+      board,
+      entries: listEditableEntries({ board, v2Root: context.v2Root, projectRoot: context.projectRoot }),
+    });
+    return;
+  }
+
+  const updateDetailMatch = url.pathname.match(/^\/api\/studio\/(music|texts|visions|games)\/entries\/([a-z0-9-]+)$/);
+  if (request.method === 'GET' && updateDetailMatch) {
+    const [, board, id] = updateDetailMatch;
+    sendJson(response, 200, loadEditableEntry({
+      board, id, v2Root: context.v2Root, projectRoot: context.projectRoot,
+    }));
+    return;
+  }
+
+  const updateActionMatch = url.pathname.match(/^\/api\/studio\/(music|texts|visions|games)\/update-(preview|preflight|apply)$/);
+  if (request.method === 'POST' && updateActionMatch) {
+    const [, board, action] = updateActionMatch;
+    if (action === 'apply') {
+      if (!context.writeEnabled) {
+        sendError(response, 403, 'update_disabled', 'Archive Studio update is disabled');
+        return;
+      }
+      const form = await readMultipartForm(request);
+      const payload = JSON.parse(requireFormText(form, 'payload'));
+      const token = requireFormText(form, 'updateToken');
+      const record = context.updateTokens.get(token);
+      context.updateTokens.delete(token);
+      if (
+        !record || record.board !== board || record.expiresAt < Date.now()
+        || record.fingerprint !== payloadFingerprint(payload)
+      ) {
+        sendError(response, 403, 'update_token_invalid', 'Update token is invalid or expired');
+        return;
+      }
+      const assetBuffers = {};
+      for (const role of ['cover', 'audio', 'poster']) {
+        const file = form.get(role);
+        if (file instanceof File && file.size > 0) assetBuffers[role] = Buffer.from(await file.arrayBuffer());
+      }
+      const result = await applyEntryUpdate({
+        payload,
+        expectedDigest: record.digest,
+        assetBuffers,
+        v2Root: context.v2Root,
+        sourceRoot: context.sourceRoot,
+        projectRoot: context.projectRoot,
+      });
+      sendJson(response, 200, {
+        ...result,
+        entryRelativeDir: `entries/${result.board}/${result.kind}/${result.entryId}`,
+        createdEntryFiles: result.changedFields.length + (result.contentChanged ? 1 : 0) + result.replacedAssets.length,
+        createdTransactionFiles: 3,
+        musicEntries: result.check.albumEntryDirs,
+        textsEntries: result.check.totalEntries,
+        visionsEntries: result.check.totalEntries,
+        gamesEntries: result.check.totalEntries,
+        publishTriggered: false,
+      });
+      return;
+    }
+    const payload = await readJsonBody(request);
+    if (payload.board !== board) {
+      sendError(response, 422, 'update_board_mismatch', 'Update board does not match route');
+      return;
+    }
+    const preview = buildUpdatePreview({
+      payload, v2Root: context.v2Root, projectRoot: context.projectRoot,
+    });
+    let token = null;
+    let expiresAt = null;
+    if (action === 'preflight' && preview.ok && context.writeEnabled) {
+      token = crypto.randomUUID();
+      expiresAt = Date.now() + PREFLIGHT_TOKEN_TTL_MS;
+      context.updateTokens.set(token, {
+        board, digest: preview.digest, fingerprint: payloadFingerprint(payload), expiresAt,
+      });
+    }
+    const { internal, digest, normalized, publicId, ...safePreview } = preview;
+    sendJson(response, preview.ok ? 200 : 422, {
+      ...safePreview,
+      warnings: safePreview.warnings ?? [],
+      updateToken: token,
+      updateExpiresAt: expiresAt,
+      writeEnabled: Boolean(token),
+    });
     return;
   }
 
@@ -970,6 +1070,7 @@ export function createArchiveStudioServer({
     preflightTokens: new Map(),
     syncTokens: new Map(),
     homepageTokens: new Map(),
+    updateTokens: new Map(),
   };
   return http.createServer((request, response) => {
     routeRequest(request, response, context).catch((error) => {
