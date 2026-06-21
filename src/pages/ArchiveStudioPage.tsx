@@ -530,33 +530,6 @@ export default function ArchiveStudioPage() {
         <NavLink to="/studio/games">游戏</NavLink>
       </nav>
 
-      <section className="studio-context-bar" aria-label="当前创建配置">
-        <div className="studio-context-item">
-          <span>板块</span>
-          <strong>音乐</strong>
-        </div>
-        <div className="studio-context-item">
-          <span>类型</span>
-          <strong>专辑</strong>
-        </div>
-        <div className="studio-context-item">
-          <span>操作</span>
-          <strong>新建</strong>
-        </div>
-        <div className="studio-context-state">
-          <span className={`studio-state-dot${isDirty ? ' is-dirty' : ''}`} />
-          {createStatus === 'success'
-            ? '条目已创建'
-            : preflightResult?.ok
-              ? '预检已通过'
-              : previewReady
-                ? '预览已就绪'
-                : isDirty
-                  ? '草稿有改动'
-                  : '尚未编辑'}
-        </div>
-      </section>
-
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
           <CheckCircle2 size={22} />

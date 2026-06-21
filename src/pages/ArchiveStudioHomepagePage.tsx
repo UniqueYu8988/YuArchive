@@ -191,13 +191,6 @@ export default function ArchiveStudioHomepagePage() {
         <NavLink to="/studio/texts">文本</NavLink><NavLink to="/studio/visions">影视</NavLink><NavLink to="/studio/games">游戏</NavLink>
       </nav>
 
-      <section className="studio-context-bar" aria-label="首页配置状态">
-        <div className="studio-context-item"><span>配置</span><strong>首页精选</strong></div>
-        <div className="studio-context-item"><span>槽位</span><strong>29</strong></div>
-        <div className="studio-context-item"><span>来源</span><strong>ArchiveData-v2</strong></div>
-        <div className="studio-context-state"><span className={`studio-state-dot${dirty ? ' is-dirty' : ''}`} />{dirty ? '选择有改动' : state?.configExists ? '配置已保存' : '等待首次保存'}</div>
-      </section>
-
       {message ? (
         <section className={`studio-home-message${status === 'error' ? ' has-errors' : ''}`}>
           {status === 'error' ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}<span>{message}</span>
