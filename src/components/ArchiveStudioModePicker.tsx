@@ -38,6 +38,7 @@ export default function ArchiveStudioModePicker({
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     if (mode !== 'update') return
@@ -71,6 +72,7 @@ export default function ArchiveStudioModePicker({
       if (!response.ok) throw new Error('无法读取条目详情')
       onEntryLoad(await response.json() as EditableEntryDetail)
       setError('')
+      setOpen(false)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '无法读取条目详情')
     } finally {
@@ -85,17 +87,25 @@ export default function ArchiveStudioModePicker({
         <button type="button" className={mode === 'update' ? 'active' : ''} onClick={() => onModeChange('update')}>修改</button>
       </div>
       {mode === 'update' ? (
-        <div className="studio-entry-search">
+        <div
+          className="studio-entry-search"
+          onFocus={() => setOpen(true)}
+          onBlur={event => {
+            if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
+          }}
+        >
           <label><Search size={16} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={loading ? '正在读取条目...' : '搜索已有条目'} /></label>
-          <div className="studio-entry-results">
-            {visible.map(entry => (
-              <button key={entry.id} type="button" className={selectedId === entry.id ? 'active' : ''} onClick={() => void loadEntry(entry.id)}>
-                {entry.thumbnail ? <img src={`/${entry.thumbnail.replace(/^\//, '')}`} alt="" /> : <span />}
-                <div><strong>{entry.title}</strong><small>{entry.secondary || entry.id}</small></div>
-                <i>{entry.synced ? '已公开' : '待同步'}</i>
-              </button>
-            ))}
-          </div>
+          {open ? (
+            <div className="studio-entry-results">
+              {visible.map(entry => (
+                <button key={entry.id} type="button" className={selectedId === entry.id ? 'active' : ''} onClick={() => void loadEntry(entry.id)}>
+                  {entry.thumbnail ? <img src={`/${entry.thumbnail.replace(/^\//, '')}`} alt="" /> : <span />}
+                  <div><strong>{entry.title}</strong><small>{entry.secondary || entry.id}</small></div>
+                  <i>{entry.synced ? '已公开' : '待同步'}</i>
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : <p>填写下方表单创建新条目。</p>}
       {error ? <span className="studio-mode-error">{error}</span> : null}
