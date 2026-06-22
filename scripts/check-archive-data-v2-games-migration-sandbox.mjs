@@ -22,7 +22,7 @@ try {
 
   const result = runGamesMigration({
     execute: true,
-    authorization: 'I authorize ArchiveData-v2 Games migration',
+    authorization: 'I authorize Archive Games migration',
     v2Root: tempRoot,
   });
   assert.equal(result.ok, true);
@@ -33,7 +33,7 @@ try {
   const shape = evaluateGamesV2Shape({ v2Root: tempRoot });
   assert.equal(shape.ok, true);
 
-  console.log('[PASS] ArchiveData-v2 Games migration sandbox');
+  console.log('[PASS] Archive Games migration sandbox');
   console.log('  planMode: passed');
   console.log('  invalidAuthorizationBlocked: passed');
   console.log(`  entries: ${result.entries}`);

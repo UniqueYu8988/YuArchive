@@ -76,7 +76,7 @@ async function main() {
   }
 
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'archive-studio-v0-api-check-'));
-  const v2Root = path.join(tempRoot, 'ArchiveData-v2');
+  const v2Root = path.join(tempRoot, 'Archive');
   const sourceRoot = path.join(tempRoot, 'source-read-only-baseline');
   const entryRoot = path.join(v2Root, 'entries', 'music', 'album');
   const sourceMarker = path.join(sourceRoot, 'baseline.txt');
@@ -144,7 +144,7 @@ async function main() {
       method: 'POST',
       body: buildCreateForm(preflight.body.preflightToken),
     });
-    assert.equal(create.response.status, 201);
+    assert.equal(create.response.status, 201, JSON.stringify(create.body));
     assert.equal(create.body.ok, true);
     assert.equal(create.body.sourceUnchanged, true);
     assert.equal(create.body.publishTriggered, false);

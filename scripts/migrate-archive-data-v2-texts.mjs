@@ -15,7 +15,7 @@ import {
 } from './archive-data-v2-texts-core.mjs';
 import { evaluateTextsV2Shape } from './check-archive-data-v2-texts-shape.mjs';
 
-const AUTHORIZATION_PHRASE = 'I authorize ArchiveData-v2 Texts migration';
+const AUTHORIZATION_PHRASE = 'I authorize Archive Texts migration';
 
 function parseArgs(args) {
   const result = { execute: false, authorization: '', resumeIdenticalResiduals: false };
@@ -84,7 +84,7 @@ function buildLegacyReport(plan) {
     }
   }
   return [
-    '# ArchiveData-v2 Texts Legacy Field Report',
+    '# Archive Texts Legacy Field Report',
     '',
     `- Entries: ${plan.entries}`,
     `- Article: ${plan.kindCounts.article ?? 0}`,
@@ -384,7 +384,7 @@ export function runTextsMigration({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Texts migration`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Texts migration`);
   for (const [key, value] of Object.entries(result)) {
     if (key === 'ok' || key === 'kindCounts' || key === 'blockedReasons') continue;
     console.log(`  ${key}: ${value}`);
@@ -408,7 +408,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     printResult(result);
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Texts migration');
+    console.log('[FAIL] Archive Texts migration');
     console.log(`  error: ${safeErrorMessage(error)}`);
     console.log('Result: archive data v2 texts migration failed');
     process.exitCode = 1;

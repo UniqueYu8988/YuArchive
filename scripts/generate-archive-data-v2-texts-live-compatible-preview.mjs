@@ -235,7 +235,7 @@ export function generateTextsLiveCompatiblePreview({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Texts live-compatible preview`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Texts live-compatible preview`);
   for (const [key, value] of Object.entries(result)) {
     if (key === 'ok' || key === 'privacyRules') continue;
     console.log(`  ${key}: ${value}`);
@@ -250,7 +250,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     printResult(result);
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Texts live-compatible preview');
+    console.log('[FAIL] Archive Texts live-compatible preview');
     console.log(`  error: ${error instanceof Error ? error.message : 'unknown_error'}`);
     console.log('Result: archive data v2 texts live-compatible preview failed');
     process.exitCode = 1;

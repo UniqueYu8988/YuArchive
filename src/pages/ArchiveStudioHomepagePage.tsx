@@ -244,7 +244,7 @@ export default function ArchiveStudioHomepagePage() {
       </div>
 
       <div className="studio-actionbar">
-        <div className="studio-action-summary"><span>{dirty ? '首页选择有改动' : '首页选择无改动'}</span><small>只写 ArchiveData-v2 首页配置和 public/data/home.json，不会发布。</small></div>
+        <div className="studio-action-summary"><span>{dirty ? '首页选择有改动' : '首页选择无改动'}</span><small>只写 Archive 首页配置和 public/data/home.json，不会发布。</small></div>
         <div className="studio-actions">
           <button type="button" className="studio-button studio-button--quiet" onClick={() => void load()}><RefreshCcw size={16} />重置</button>
           <button type="button" className="studio-button studio-button--secondary" onClick={() => void previewConfig()} disabled={!selection || status === 'loading'}>生成预览</button>

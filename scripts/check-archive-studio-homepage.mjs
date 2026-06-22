@@ -74,7 +74,7 @@ async function request(baseUrl, pathname, { method = 'GET', body } = {}) {
 
 const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'yuarchive-homepage-'));
 const projectRoot = path.join(sandbox, 'project');
-const v2Root = path.join(sandbox, 'ArchiveData-v2');
+const v2Root = path.join(sandbox, 'Archive');
 buildFixture(projectRoot, v2Root);
 const server = createArchiveStudioServer({ v2Root, projectRoot, requireMigrationBaseline: false });
 

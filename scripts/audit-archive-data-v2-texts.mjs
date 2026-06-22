@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 
 const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
 const TEXTS_ROOT = path.join(SOURCE_ROOT, 'Texts');
-const V2_TEXTS_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2', 'entries', 'texts');
+const V2_TEXTS_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive', 'entries', 'texts');
 const PUBLIC_TEXTS_PATH = path.resolve('public', 'data', 'texts.json');
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
@@ -292,7 +292,7 @@ export function evaluateTextsAudit({ textsRoot = TEXTS_ROOT, v2TextsRoot = V2_TE
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Texts read-only audit`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Texts read-only audit`);
   for (const key of [
     'sourceRootExists', 'sourceFiles', 'markdownFiles', 'imageFiles', 'otherFiles',
     'frontmatterFiles', 'frontmatterErrors', 'emptyBodies', 'sectionConfigExists',

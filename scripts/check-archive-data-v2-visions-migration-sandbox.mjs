@@ -23,7 +23,7 @@ async function main() {
 
     const result = runVisionsMigration({
       execute: true,
-      authorization: 'I authorize ArchiveData-v2 Visions migration',
+      authorization: 'I authorize Archive Visions migration',
       v2Root: tempRoot,
     });
     assert.equal(result.ok, true);
@@ -33,7 +33,7 @@ async function main() {
     const shape = evaluateVisionsV2Shape({ v2Root: tempRoot });
     assert.equal(shape.ok, true);
 
-    console.log('[PASS] ArchiveData-v2 Visions migration sandbox');
+    console.log('[PASS] Archive Visions migration sandbox');
     console.log('  planMode: passed');
     console.log('  invalidAuthorizationBlocked: passed');
     console.log(`  entries: ${result.entries}`);

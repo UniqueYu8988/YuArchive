@@ -162,7 +162,7 @@ export function buildHomepageConfigPreview({ selection, v2Root, projectRoot = pr
     selection: validation.selection,
     configExists: existsFile(state.internal.configPath),
     configChanged: before !== serialized,
-    writeTarget: '[ArchiveData-v2]/config/homepage.yaml',
+    writeTarget: '[Archive]/config/homepage.yaml',
     digest: sha256(serialized),
     internal: { configPath: state.internal.configPath, serialized },
   };

@@ -12,7 +12,7 @@ import {
 
 export const SANDBOX_LABEL = 'system-temp/yuarchive-archive-studio-v0-transaction-sandbox';
 export const SANDBOX_ROOT = path.join(os.tmpdir(), 'yuarchive-archive-studio-v0-transaction-sandbox');
-export const WRITE_ROOT = path.join(SANDBOX_ROOT, 'ArchiveData-v2');
+export const WRITE_ROOT = path.join(SANDBOX_ROOT, 'Archive');
 export const STAGING_ROOT = path.join(SANDBOX_ROOT, 'staging');
 export const BACKUP_ROOT = path.join(SANDBOX_ROOT, 'backups');
 export const MANIFEST_ROOT = path.join(SANDBOX_ROOT, 'manifests');
@@ -282,7 +282,7 @@ export async function runTransaction({ transactionId, payload }) {
     transaction: {
       id: transactionId,
       mode: payload.mode,
-      writeRootLabel: 'ArchiveData-v2',
+      writeRootLabel: 'Archive',
       scope: MUSIC_SCOPE,
     },
     target: preview.target,

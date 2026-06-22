@@ -69,7 +69,7 @@ export function evaluateGamesLiveReplacementGate() {
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Games live replacement gate`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Games live replacement gate`);
   for (const [key, value] of Object.entries(result)) {
     if (key === 'ok') continue;
     console.log(`  ${key}: ${value}`);

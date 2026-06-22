@@ -1,11 +1,15 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
+import {
+  ARCHIVE_SOURCE_ROOT,
+  resolveArchiveDataRoot,
+} from './archive-paths.mjs';
 
-export const ARCHIVE_SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
+export { ARCHIVE_SOURCE_ROOT };
 export const VISIONS_SOURCE_ROOT = path.join(ARCHIVE_SOURCE_ROOT, 'Visions');
-export const ARCHIVE_DATA_V2_ROOT = path.join(path.dirname(ARCHIVE_SOURCE_ROOT), 'ArchiveData-v2');
+export const ARCHIVE_DATA_ROOT = resolveArchiveDataRoot({ allowLegacy: true, allowMissing: true });
+export const ARCHIVE_DATA_V2_ROOT = ARCHIVE_DATA_ROOT;
 export const VISIONS_V2_ROOT = path.join(ARCHIVE_DATA_V2_ROOT, 'entries', 'visions');
 export const VISIONS_V2_CONFIG_PATH = path.join(ARCHIVE_DATA_V2_ROOT, 'config', 'visions-periods.yaml');
 export const VISIONS_MIGRATION_ROOT = path.join(ARCHIVE_DATA_V2_ROOT, 'migration', 'visions');

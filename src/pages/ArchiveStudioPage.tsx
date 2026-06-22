@@ -180,7 +180,7 @@ const issueMessages: Record<string, string> = {
 }
 
 const blockedReasonMessages: Record<string, string> = {
-  v2_root_missing: 'ArchiveData-v2 根目录不存在。',
+  v2_root_missing: 'Archive 根目录不存在。',
   v2_music_root_missing: 'Music v2 目录不存在。',
   v2_migration_root_missing: '迁移基线目录不存在。',
   create_target_exists: '目标条目已经存在，不能覆盖。',
@@ -595,7 +595,7 @@ export default function ArchiveStudioPage() {
         <section className="studio-save-result" role="status" aria-live="polite">
           <CheckCircle2 size={22} />
           <div>
-            <strong>创建成功，条目已保存到 ArchiveData-v2</strong>
+            <strong>创建成功，条目已保存到 Archive</strong>
             <span>{createResult.entryRelativeDir}</span>
           </div>
           <dl>
@@ -679,7 +679,7 @@ export default function ArchiveStudioPage() {
                 <span>02</span>
                 <h2>素材</h2>
               </div>
-              <p>预览和预检都通过前，文件不会写入 ArchiveData-v2。</p>
+              <p>预览和预检都通过前，文件不会写入 Archive。</p>
             </div>
 
             <div className="studio-asset-grid">
@@ -740,7 +740,7 @@ export default function ArchiveStudioPage() {
               <FolderTree size={19} />
               <div>
                 <span>写入预览</span>
-                <strong>[ArchiveData-v2]</strong>
+                <strong>[Archive]</strong>
               </div>
             </div>
 
@@ -771,7 +771,7 @@ export default function ArchiveStudioPage() {
               </div>
               <span>
                 {preflightStatus === 'loading'
-                  ? '正在检查 ArchiveData-v2 目标...'
+                  ? '正在检查 Archive 目标...'
                   : preflightResult
                     ? preflightResult.targetEntryExists
                       ? '冲突：目标条目已经存在'
@@ -857,7 +857,7 @@ export default function ArchiveStudioPage() {
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
           <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span>
-          <small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small>
+          <small>{createAvailable ? '只写入 Archive，不会自动发布。' : '本地创建服务不可用。'}</small>
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={resetForm}>

@@ -14,7 +14,7 @@ import { buildDryRunManifest } from './dry-run-archive-studio-v0-real-write-mani
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..');
 const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
-const V2_MUSIC_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2', 'entries', 'music', 'album');
+const V2_MUSIC_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive', 'entries', 'music', 'album');
 const SAMPLE_PAYLOAD = path.join(PROJECT_ROOT, 'docs', 'examples', 'archive-studio-v0-music-album-payload.sample.json');
 const RUNNER_FILE = path.join(PROJECT_ROOT, 'scripts', 'run-archive-studio-v0-real-write-create-smoke-test.mjs');
 const SAFE_SCOPE = /^entries\/music\/album\/[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/;

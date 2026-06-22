@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const PROJECT_ROOT = process.cwd();
 const SOURCE_ROOT = 'C:\\Users\\Yu\\OneDrive\\图片\\Data';
-const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
+const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive');
 const V2_MUSIC_ROOT = path.join(V2_ROOT, 'entries', 'music', 'album');
 const PUBLIC_MUSIC_JSON = path.join(PROJECT_ROOT, 'public', 'data', 'music.json');
 const PREVIEW_ROOT = path.join(os.tmpdir(), 'yuarchive-v2-music-live-compatible-preview');
@@ -229,7 +229,7 @@ function main() {
       && orderDifferences === 0
       && privacyHits.length === 0;
 
-    console.log(`[${pass ? 'PASS' : 'FAIL'}] ArchiveData-v2 Music live-compatible preview generator`);
+    console.log(`[${pass ? 'PASS' : 'FAIL'}] Archive Music live-compatible preview generator`);
     console.log('  previewOutput: system-temp/yuarchive-v2-music-live-compatible-preview/music.json');
     console.log(`  v2Entries: ${v2Entries.length}`);
     console.log(`  liveItems: ${liveItems.length}`);
@@ -248,7 +248,7 @@ function main() {
     console.log(`Result: archive data v2 music live-compatible preview generation ${pass ? 'passed' : 'failed'}`);
     process.exitCode = pass ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Music live-compatible preview generator');
+    console.log('[FAIL] Archive Music live-compatible preview generator');
     console.log(`  error: ${error instanceof Error ? error.message : 'unknown error'}`);
     console.log('Result: archive data v2 music live-compatible preview generation failed');
     process.exitCode = 1;

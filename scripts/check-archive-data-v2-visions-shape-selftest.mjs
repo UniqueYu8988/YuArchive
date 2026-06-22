@@ -117,7 +117,7 @@ async function main() {
     assert.equal(invalidOrder.ok, false);
     assert.equal(invalidOrder.characterOrderErrors, 1);
 
-    console.log('[PASS] ArchiveData-v2 Visions shape self-test');
+    console.log('[PASS] Archive Visions shape self-test');
     console.log('  validShape: passed');
     console.log('  missingAvatarBlocked: passed');
     console.log('  invalidCharacterOrderBlocked: passed');

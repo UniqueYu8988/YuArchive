@@ -18,7 +18,7 @@ import {
 import { evaluateGamesV2Shape } from './check-archive-data-v2-games-shape.mjs';
 import { planGamesMigration } from './plan-archive-data-v2-games-migration.mjs';
 
-const AUTHORIZATION_PHRASE = 'I authorize ArchiveData-v2 Games migration';
+const AUTHORIZATION_PHRASE = 'I authorize Archive Games migration';
 
 function parseArgs(args) {
   const result = { execute: false, authorization: '' };
@@ -91,7 +91,7 @@ function buildLegacyReport(scan) {
   const inferredParents = scan.entries.filter(entry => entry.kind === 'dlc' && entry.parentInferred).length;
   const metadataDisabled = scan.entries.filter(entry => !entry.metadataEnabled).length;
   return [
-    '# ArchiveData-v2 Games Legacy Field Report',
+    '# Archive Games Legacy Field Report',
     '',
     `- Normal games: ${kinds.normal_game}`,
     `- DLC: ${kinds.dlc}`,
@@ -295,7 +295,7 @@ export function runGamesMigration({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Games migration`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Games migration`);
   for (const [key, value] of Object.entries(result)) {
     if (['ok', 'kinds', 'kindCounts', 'blockedReasons'].includes(key)) continue;
     console.log(`  ${key}: ${value}`);
@@ -312,7 +312,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     printResult(result);
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Games migration');
+    console.log('[FAIL] Archive Games migration');
     console.log(`  error: ${error.message || error}`);
     process.exitCode = 1;
   }

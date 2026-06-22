@@ -521,7 +521,7 @@ function printBoardAudit(audit) {
 function main() {
   const missingBoards = BOARDS.filter(board => !existsDir(path.join(SOURCE_ROOT, BOARD_DIRS[board])));
   if (missingBoards.length) {
-    console.log('[FAIL] ArchiveData-v2 migration audit');
+    console.log('[FAIL] Archive migration audit');
     console.log(`  missingBoards: ${missingBoards.length}`);
     process.exitCode = 1;
     return;
@@ -536,7 +536,7 @@ function main() {
     0,
   );
 
-  console.log('[PASS] ArchiveData-v2 read-only migration audit');
+  console.log('[PASS] Archive read-only migration audit');
   console.log(`  sourceBoards: ${BOARDS.length}`);
   console.log(`  totalSourceFiles: ${totalFiles}`);
   console.log(`  totalParseErrors: ${totalParseErrors}`);

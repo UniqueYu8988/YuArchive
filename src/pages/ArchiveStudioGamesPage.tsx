@@ -346,7 +346,7 @@ export default function ArchiveStudioGamesPage() {
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
-          <CheckCircle2 size={22} /><div><strong>创建成功，游戏条目已保存到 ArchiveData-v2</strong><span>{createResult.entryRelativeDir}</span></div>
+          <CheckCircle2 size={22} /><div><strong>创建成功，游戏条目已保存到 Archive</strong><span>{createResult.entryRelativeDir}</span></div>
           <dl><div><dt>条目文件</dt><dd>{createResult.createdEntryFiles}</dd></div><div><dt>Games v2 总数</dt><dd>{createResult.gamesEntries}</dd></div><div><dt>结构检查</dt><dd>{createResult.check.ok ? '通过' : '失败'}</dd></div><div><dt>旧源数据</dt><dd>{createResult.sourceUnchanged ? '未变化' : '需检查'}</dd></div><div><dt>发布</dt><dd>{createResult.publishTriggered ? '已触发' : '未触发'}</dd></div></dl>
         </section>
       ) : null}
@@ -392,7 +392,7 @@ export default function ArchiveStudioGamesPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
-            <div className="studio-preview-title"><FolderTree size={19} /><div><span>写入预览</span><strong>[ArchiveData-v2]</strong></div></div>
+            <div className="studio-preview-title"><FolderTree size={19} /><div><span>写入预览</span><strong>[Archive]</strong></div></div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">
               {(previewResult?.operations ?? [
@@ -409,7 +409,7 @@ export default function ArchiveStudioGamesPage() {
       </div>
 
       <footer className="studio-actionbar">
-        <div className="studio-action-summary"><span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span><small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small></div>
+        <div className="studio-action-summary"><span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span><small>{createAvailable ? '只写入 Archive，不会自动发布。' : '本地创建服务不可用。'}</small></div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>
           <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}><SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}</button>

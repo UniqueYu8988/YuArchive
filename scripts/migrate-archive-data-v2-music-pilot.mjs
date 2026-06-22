@@ -6,7 +6,7 @@ const SOURCE_ROOT = 'C:\\Users\\Yu\\OneDrive\\图片\\Data';
 const MUSIC_ROOT = path.join(SOURCE_ROOT, 'Music');
 const COVERS_ROOT = path.join(MUSIC_ROOT, 'Covers');
 const SONGS_ROOT = path.join(MUSIC_ROOT, 'Songs');
-const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
+const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive');
 const V2_MUSIC_ROOT = path.join(V2_ROOT, 'entries', 'music', 'album');
 const V2_MIGRATION_ROOT = path.join(V2_ROOT, 'migration');
 
@@ -258,7 +258,7 @@ function compareBaseline(before, files) {
 
 function buildPlan() {
   if (!existsDir(MUSIC_ROOT)) throw new Error('Music source directory missing');
-  if (existsDir(V2_ROOT)) throw new Error('ArchiveData-v2 already exists; refusing to overwrite');
+  if (existsDir(V2_ROOT)) throw new Error('Archive already exists; refusing to overwrite');
 
   const markdownFiles = listImmediateFiles(MUSIC_ROOT, file => MARKDOWN_EXTENSIONS.has(path.extname(file).toLowerCase()));
   const ids = new Set();
@@ -293,7 +293,7 @@ function buildPlan() {
       coverTarget,
       audioTarget,
     ]) {
-      if (!assertInside(V2_ROOT, target)) throw new Error('Planned target escapes ArchiveData-v2');
+      if (!assertInside(V2_ROOT, target)) throw new Error('Planned target escapes Archive');
     }
 
     entries.push({
@@ -384,7 +384,7 @@ function writeLegacyFieldReport(entries) {
   const mapped = ['description', 'date', 'url', 'note', 'track_title'].filter(key => frontmatterKeys.has(key));
   const preserved = ['source_markdown', 'source_cover', 'source_audio'];
   const lines = [
-    '# ArchiveData-v2 Music Pilot Legacy Field Report',
+    '# Archive Music Pilot Legacy Field Report',
     '',
     'This report summarizes field handling for the Music-only pilot migration.',
     '',
@@ -427,7 +427,7 @@ function main() {
 
     const after = compareBaseline(before, sourceFiles);
 
-    console.log('[PASS] ArchiveData-v2 Music pilot migration');
+    console.log('[PASS] Archive Music pilot migration');
     console.log(`  sourceBaselineFiles: ${sourceFiles.length}`);
     console.log(`  sourceChangedFiles: ${after.changed}`);
     console.log(`  sourceMissingFiles: ${after.missing}`);
@@ -442,7 +442,7 @@ function main() {
     console.log('  releaseRun: false');
     console.log('Result: archive data v2 music pilot migration completed');
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Music pilot migration');
+    console.log('[FAIL] Archive Music pilot migration');
     console.log(`  error: ${error instanceof Error ? error.message : 'unknown error'}`);
     console.log('Result: archive data v2 music pilot migration failed');
     process.exitCode = 1;

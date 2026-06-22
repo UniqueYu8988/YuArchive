@@ -252,7 +252,7 @@ export function generateGamesLiveCompatiblePreview({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Games live-compatible preview`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Games live-compatible preview`);
   console.log('  previewOutput: system-temp/yuarchive-v2-games-live-compatible-preview/games.json');
   for (const key of [
     'v2Entries', 'liveItems', 'mappedEntries', 'previewItems', 'seasonMappings',
@@ -272,7 +272,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     printResult(result);
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Games live-compatible preview');
+    console.log('[FAIL] Archive Games live-compatible preview');
     console.log(`  error: ${error.message || error}`);
     process.exitCode = 1;
   }

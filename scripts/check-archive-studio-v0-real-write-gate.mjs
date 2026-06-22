@@ -13,7 +13,7 @@ import {
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(SCRIPT_DIR, '..');
 const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
-const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
+const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive');
 const V2_MUSIC_ROOT = path.join(V2_ROOT, 'entries', 'music', 'album');
 const V2_MIGRATION_ROOT = path.join(V2_ROOT, 'migration');
 export const DEFAULT_PAYLOAD_FILE = path.join(

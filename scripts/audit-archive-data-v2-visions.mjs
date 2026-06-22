@@ -252,7 +252,7 @@ function printSummary(result) {
     && result.source.showcase.missingGif === 0
     && result.source.showcase.missingAvatar === 0
   );
-  console.log(`[${pass ? 'PASS' : 'WARN'}] ArchiveData-v2 Visions read-only audit`);
+  console.log(`[${pass ? 'PASS' : 'WARN'}] Archive Visions read-only audit`);
   console.log(`  ordinaryGroups: ${result.source.ordinaryGroups}`);
   console.log(`  ordinaryImages: ${result.source.ordinaryImages}`);
   console.log(`  metadataEntries: ${result.source.metadataEntries}`);

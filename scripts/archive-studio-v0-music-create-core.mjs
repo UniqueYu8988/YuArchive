@@ -12,13 +12,18 @@ import {
 import os from 'node:os';
 import path from 'node:path';
 import {
+  ARCHIVE_SOURCE_ROOT,
+  resolveArchiveDataRoot,
+} from './archive-paths.mjs';
+import {
   assertPreviewSafe,
   buildMusicAlbumPreview,
 } from './archive-studio-v0-music-preview-core.mjs';
 import { evaluateMusicV2Shape } from './check-archive-data-v2-music-shape.mjs';
 
-export const ARCHIVE_SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
-export const ARCHIVE_DATA_V2_ROOT = path.join(path.dirname(ARCHIVE_SOURCE_ROOT), 'ArchiveData-v2');
+export { ARCHIVE_SOURCE_ROOT };
+export const ARCHIVE_DATA_ROOT = resolveArchiveDataRoot({ allowLegacy: true, allowMissing: true });
+export const ARCHIVE_DATA_V2_ROOT = ARCHIVE_DATA_ROOT;
 
 function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');

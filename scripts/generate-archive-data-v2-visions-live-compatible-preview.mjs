@@ -247,7 +247,7 @@ export function generateVisionsLiveCompatiblePreview({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Visions live-compatible preview`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Visions live-compatible preview`);
   console.log('  previewOutput: system-temp/yuarchive-v2-visions-live-compatible-preview/visions.json');
   for (const key of [
     'v2Entries', 'liveItems', 'mappedEntries', 'previewItems', 'missingLiveMappings',
@@ -268,7 +268,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     printResult(result);
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Visions live-compatible preview');
+    console.log('[FAIL] Archive Visions live-compatible preview');
     console.log(`  error: ${error instanceof Error ? error.message : 'unknown_error'}`);
     process.exitCode = 1;
   }

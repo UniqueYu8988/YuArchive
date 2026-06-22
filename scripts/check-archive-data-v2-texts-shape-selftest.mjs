@@ -95,7 +95,7 @@ async function main() {
     assert.equal(invalid.ok, false);
     assert.equal(invalid.malformedEntries, 1);
 
-    console.log('[PASS] ArchiveData-v2 Texts shape self-test');
+    console.log('[PASS] Archive Texts shape self-test');
     console.log('  validShape: passed');
     console.log('  missingBookCoverBlocked: passed');
     console.log('  writeScope: system-temp-only');

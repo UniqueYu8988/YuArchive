@@ -42,7 +42,7 @@ function createForm(token, value) {
 
 async function main() {
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'archive-studio-games-api-'));
-  const v2Root = path.join(tempRoot, 'ArchiveData-v2');
+  const v2Root = path.join(tempRoot, 'Archive');
   const sourceRoot = path.join(tempRoot, 'source-baseline');
   await mkdir(path.join(v2Root, 'entries', 'games'), { recursive: true });
   await mkdir(path.join(v2Root, 'config'), { recursive: true });

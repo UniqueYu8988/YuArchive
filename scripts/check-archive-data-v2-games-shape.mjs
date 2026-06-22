@@ -273,7 +273,7 @@ export function evaluateGamesV2Shape({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Games shape`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Games shape`);
   for (const key of [
     'archiveDataV2Exists', 'gamesRootExists', 'expectedMinimumEntries', 'totalEntries',
     'entryYamlFiles', 'ordinaryCovers', 'liveParentCovers', 'seasonYamlFiles',

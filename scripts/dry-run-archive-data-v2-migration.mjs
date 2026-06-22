@@ -279,7 +279,7 @@ function createPlan() {
 
 function main() {
   if (!existsDir(SOURCE_ROOT)) {
-    console.log('[FAIL] ArchiveData-v2 migration dry-run');
+    console.log('[FAIL] Archive migration dry-run');
     console.log('  sourceRootExists: false');
     process.exitCode = 1;
     return;
@@ -304,7 +304,7 @@ function main() {
   const unmappedFiles = Object.values(plan.unmapped).reduce((sum, value) => sum + value, 0);
   const ignoredFiles = Object.values(plan.ignored).reduce((sum, value) => sum + value, 0);
 
-  console.log('[PASS] ArchiveData-v2 migration dry-run');
+  console.log('[PASS] Archive migration dry-run');
   console.log(`  sourceFilesConsidered: ${files.length}`);
   console.log(`  checksumFiles: ${plan.checksumFiles}`);
   console.log(`  checksumBytes: ${plan.checksumBytes}`);

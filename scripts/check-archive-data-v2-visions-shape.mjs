@@ -294,7 +294,7 @@ export function evaluateVisionsV2Shape({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Visions shape`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Visions shape`);
   for (const key of [
     'archiveDataV2Exists', 'visionsRootExists', 'expectedMinimumEntries', 'totalEntries',
     'entryYamlFiles', 'posterFiles', 'totalCharacters', 'characterYamlFiles',

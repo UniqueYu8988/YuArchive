@@ -1,9 +1,14 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { parseTextEntryYaml, parseSectionsConfig } from './archive-data-v2-texts-core.mjs';
 import { parseFlatYaml } from './archive-data-v2-visions-core.mjs';
 import { parseV2GameYaml } from './archive-data-v2-games-core.mjs';
+import {
+  buildMediaTransform,
+  optimizeMediaToFile,
+} from './archive-studio-media-optimizer.mjs';
 
 const BOARDS = new Set(['music', 'texts', 'visions', 'games']);
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
@@ -74,12 +79,8 @@ function optionalAsset(entryRoot, stem, extensions) {
   return matches.length ? path.join(entryRoot, matches[0].name) : '';
 }
 
-function publicMedia(board, id, sourcePath) {
-  const name = path.basename(sourcePath);
-  const relativePath = path.posix.join('studio_media', board, id, name);
-  const bytes = fs.statSync(sourcePath).size;
-  const sha256 = crypto.createHash('sha256').update(fs.readFileSync(sourcePath)).digest('hex');
-  return { sourcePath, relativePath, publicPath: relativePath, bytes, sha256 };
+function publicMedia(board, id, role, sourcePath) {
+  return buildMediaTransform({ board, id, role, sourcePath });
 }
 
 function markdownExcerpt(markdown, fallback = '') {
@@ -103,8 +104,8 @@ function loadMusic(v2Root) {
       fields,
       content,
       media: [
-        publicMedia('music', child.name, findAsset(entryRoot, 'cover', IMAGE_EXTENSIONS)),
-        publicMedia('music', child.name, findAsset(entryRoot, 'audio', AUDIO_EXTENSIONS)),
+        publicMedia('music', child.name, 'cover', findAsset(entryRoot, 'cover', IMAGE_EXTENSIONS)),
+        publicMedia('music', child.name, 'audio', findAsset(entryRoot, 'audio', AUDIO_EXTENSIONS)),
       ],
     };
   });
@@ -127,7 +128,7 @@ function loadTexts(v2Root) {
         fingerprint: `${fields.section}\0${normalizeTitle(fields.title)}\0${fields.date ?? ''}`,
         fields,
         content,
-        media: cover ? [publicMedia('texts', child.name, cover)] : [],
+        media: cover ? [publicMedia('texts', child.name, 'cover', cover)] : [],
       });
     }
   }
@@ -148,7 +149,7 @@ function loadVisions(v2Root) {
         kind,
         fingerprint: `${fields.period}\0${normalizeTitle(fields.title)}`,
         fields,
-        media: [publicMedia('visions', child.name, findAsset(entryRoot, 'poster', IMAGE_EXTENSIONS))],
+        media: [publicMedia('visions', child.name, 'poster', findAsset(entryRoot, 'poster', IMAGE_EXTENSIONS))],
       });
     }
   }
@@ -175,7 +176,7 @@ function loadGames(v2Root) {
         kind,
         fingerprint,
         fields,
-        media: cover ? [publicMedia('games', child.name, cover)] : [],
+        media: cover ? [publicMedia('games', child.name, 'cover', cover)] : [],
       });
     }
   }
@@ -467,6 +468,14 @@ export function buildPublicSyncPreview({ board, v2Root, projectRoot = process.cw
     currentEntries: Number(live.total_count ?? 0),
     nextEntries: Number(next.total_count ?? 0),
     mediaFiles: media.length,
+    mediaTransforms: media.map(item => ({
+      role: item.role,
+      profile: item.profile,
+      sourceExtension: item.sourceExtension,
+      outputExtension: item.outputExtension,
+      sourceBytes: item.sourceBytes,
+      relativeTarget: `public/${item.relativePath}`,
+    })),
     jsonFiles: hasChanges ? 1 : 0,
     homeJsonModified: false,
     publishTriggered: false,
@@ -479,7 +488,9 @@ export function buildPublicSyncPreview({ board, v2Root, projectRoot = process.cw
     ...result,
     digest: crypto.createHash('sha256')
       .update(serialized)
-      .update(JSON.stringify(media.map(({ relativePath, bytes, sha256 }) => ({ relativePath, bytes, sha256 }))))
+      .update(JSON.stringify(media.map(({ relativePath, sourceBytes, sourceSha256, profile }) => ({
+        relativePath, sourceBytes, sourceSha256, profile,
+      }))))
       .digest('hex'),
     internal: {
       publicJsonPath, serialized, media, updateMarkers,
@@ -504,29 +515,43 @@ export function applyPublicSync({ board, v2Root, projectRoot = process.cwd(), ex
   const before = fs.readFileSync(preview.internal.publicJsonPath);
   const created = [];
   const replaced = [];
+  const optimized = [];
   const publicRoot = path.join(projectRoot, 'public');
   const tempJson = `${preview.internal.publicJsonPath}.studio-sync-${crypto.randomUUID()}.tmp`;
+  const stageRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'archive-studio-media-'));
   try {
-    for (const media of preview.internal.media) {
+    for (const [index, media] of preview.internal.media.entries()) {
+      const staged = path.join(stageRoot, `${index}${media.outputExtension}`);
+      const output = optimizeMediaToFile(media, staged);
       const target = path.join(publicRoot, ...media.relativePath.split('/'));
       if (existsFile(target)) {
         if (!preview.internal.replaceableMediaPaths.has(media.relativePath)) throw new Error('public_sync_media_conflict');
         replaced.push({ target, before: fs.readFileSync(target) });
       }
       fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.copyFileSync(media.sourcePath, target);
+      fs.copyFileSync(staged, target);
       if (!replaced.some(item => item.target === target)) created.push(target);
       const copied = fs.readFileSync(target);
-      if (copied.byteLength !== media.bytes || crypto.createHash('sha256').update(copied).digest('hex') !== media.sha256) {
+      if (
+        copied.byteLength !== output.outputBytes
+        || crypto.createHash('sha256').update(copied).digest('hex') !== output.outputSha256
+      ) {
         throw new Error('public_sync_media_verification_failed');
       }
+      optimized.push({
+        role: media.role,
+        profile: media.profile,
+        sourceBytes: media.sourceBytes,
+        outputBytes: output.outputBytes,
+        relativeTarget: `public/${media.relativePath}`,
+      });
     }
     fs.writeFileSync(tempJson, preview.internal.serialized, { encoding: 'utf8', flag: 'wx' });
     fs.renameSync(tempJson, preview.internal.publicJsonPath);
     const written = JSON.parse(fs.readFileSync(preview.internal.publicJsonPath, 'utf8'));
     if (Number(written.total_count) !== preview.nextEntries) throw new Error('public_sync_json_verification_failed');
     for (const marker of preview.internal.updateMarkers) fs.rmSync(marker.filePath, { force: true });
-    return { ...preview, state: 'synced', internal: undefined };
+    return { ...preview, state: 'synced', optimizedMedia: optimized, internal: undefined };
   } catch (error) {
     try { fs.rmSync(tempJson, { force: true }); } catch {}
     try { fs.writeFileSync(preview.internal.publicJsonPath, before); } catch {}
@@ -542,5 +567,7 @@ export function applyPublicSync({ board, v2Root, projectRoot = process.cwd(), ex
     wrapped.rollback = { attempted: true, completed: true };
     wrapped.cause = error;
     throw wrapped;
+  } finally {
+    fs.rmSync(stageRoot, { recursive: true, force: true });
   }
 }

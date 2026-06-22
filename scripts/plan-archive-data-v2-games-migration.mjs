@@ -152,12 +152,12 @@ export function planGamesMigration() {
     duplicateSeasonIds,
     duplicateTargets,
     privacySafe,
-    targetRootLabel: '[ArchiveData-v2]',
+    targetRootLabel: '[Archive]',
   };
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Games migration plan`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Games migration plan`);
   for (const key of [
     'mode', 'sourceFiles', 'sourceFilesCovered', 'sourceFilesUncovered',
     'sourceFilesUnexpected', 'sourceErrors', 'entries', 'seasons',

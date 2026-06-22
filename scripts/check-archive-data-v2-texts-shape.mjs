@@ -246,7 +246,7 @@ export function evaluateTextsV2Shape({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Texts shape`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Texts shape`);
   for (const key of [
     'archiveDataV2Exists', 'textsRootExists', 'expectedMinimumEntries', 'totalEntries',
     'entryYamlFiles', 'contentFiles', 'coverFiles', 'malformedEntries', 'invalidIds',

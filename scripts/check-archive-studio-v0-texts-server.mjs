@@ -96,7 +96,7 @@ async function writeTextsConfig(v2Root) {
 
 async function main() {
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'archive-studio-texts-api-'));
-  const v2Root = path.join(tempRoot, 'ArchiveData-v2');
+  const v2Root = path.join(tempRoot, 'Archive');
   const sourceRoot = path.join(tempRoot, 'source-baseline');
   const sourceMarker = path.join(sourceRoot, 'baseline.txt');
   await writeTextsConfig(v2Root);

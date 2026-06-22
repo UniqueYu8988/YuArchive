@@ -20,7 +20,7 @@ import { evaluateMusicV2Shape } from './check-archive-data-v2-music-shape.mjs';
 import { buildSmokeTestPlan } from './plan-archive-studio-v0-real-write-create-smoke-test.mjs';
 
 const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
-const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
+const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive');
 const AUTHORIZATION_PHRASE = 'I authorize Archive Studio create rollback smoke test';
 
 const EXECUTION_GATES = [

@@ -18,7 +18,7 @@ import {
 } from './archive-data-v2-visions-core.mjs';
 import { evaluateVisionsV2Shape } from './check-archive-data-v2-visions-shape.mjs';
 
-const AUTHORIZATION_PHRASE = 'I authorize ArchiveData-v2 Visions migration';
+const AUTHORIZATION_PHRASE = 'I authorize Archive Visions migration';
 
 function parseArgs(args) {
   const result = { execute: false, authorization: '', resumeIdenticalResiduals: false };
@@ -77,7 +77,7 @@ function writeBuffer(filePath, value) {
 
 function buildLegacyReport(plan) {
   return [
-    '# ArchiveData-v2 Visions Legacy Field Report',
+    '# Archive Visions Legacy Field Report',
     '',
     `- Ordinary entries: ${plan.ordinaryEntries}`,
     `- Movie: ${plan.kindCounts.movie}`,
@@ -411,7 +411,7 @@ export function runVisionsMigration({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Visions migration`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Visions migration`);
   for (const [key, value] of Object.entries(result)) {
     if (['ok', 'kindCounts', 'blockedReasons'].includes(key)) continue;
     console.log(`  ${key}: ${value}`);
@@ -434,7 +434,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     printResult(result);
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
-    console.log('[FAIL] ArchiveData-v2 Visions migration');
+    console.log('[FAIL] Archive Visions migration');
     console.log(`  error: ${safeErrorMessage(error)}`);
     console.log('Result: archive data v2 visions migration failed');
     process.exitCode = 1;

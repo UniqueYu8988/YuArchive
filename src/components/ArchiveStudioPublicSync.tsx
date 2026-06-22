@@ -12,6 +12,14 @@ interface SyncPreview {
   currentEntries: number
   nextEntries: number
   mediaFiles: number
+  mediaTransforms?: Array<{
+    role: string
+    profile: string
+    sourceExtension: string
+    outputExtension: string
+    sourceBytes: number
+    relativeTarget: string
+  }>
   jsonFiles: number
   homeJsonModified: false
   publishTriggered: false
@@ -86,10 +94,10 @@ export default function ArchiveStudioPublicSync({ board, refreshKey = '' }: { bo
         <div>
           <strong>公开网页同步</strong>
           <span>
-            {status === 'loading' && '正在检查 ArchiveData-v2 与公开网页的差异...'}
-            {status === 'ready' && `有 ${preview?.pendingEntries ?? 0} 个${labels[board]}条目等待同步，完成后网页总数为 ${preview?.nextEntries ?? 0}。`}
-            {status === 'syncing' && '正在复制公开媒体并更新网页 JSON...'}
-            {status === 'success' && (preview?.state === 'synced' ? '同步完成，公开页面现在可以读取新条目。' : 'ArchiveData-v2 与公开网页已经同步。')}
+            {status === 'loading' && '正在检查 Archive 与公开网页的差异...'}
+            {status === 'ready' && `有 ${preview?.pendingEntries ?? 0} 个${labels[board]}条目等待同步，将优化 ${preview?.mediaFiles ?? 0} 个媒体文件，完成后网页总数为 ${preview?.nextEntries ?? 0}。`}
+            {status === 'syncing' && '正在优化公开媒体并更新网页 JSON...'}
+            {status === 'success' && (preview?.state === 'synced' ? '同步完成，公开页面现在可以读取新条目。' : 'Archive 与公开网页已经同步。')}
             {status === 'error' && error}
           </span>
         </div>

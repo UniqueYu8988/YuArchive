@@ -281,7 +281,7 @@ function printSummary(result) {
     && result.live.uniqueIds === result.live.itemCount
     && result.live.homeMissingFromGames === 0
   );
-  console.log(`[${pass ? 'PASS' : 'WARN'}] ArchiveData-v2 Games read-only audit`);
+  console.log(`[${pass ? 'PASS' : 'WARN'}] Archive Games read-only audit`);
   console.log(`  yearGroups: ${result.source.yearGroups}`);
   console.log(`  ordinaryImages: ${result.source.ordinaryImages}`);
   console.log(`  managedYearGroups: ${result.source.managedYearGroups}`);

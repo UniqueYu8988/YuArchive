@@ -30,7 +30,7 @@ export function evaluateTextsMigrationPlan({ textsRoot = TEXTS_SOURCE_ROOT } = {
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Texts migration plan`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Texts migration plan`);
   for (const key of [
     'sourceFiles',
     'sourceMarkdown',

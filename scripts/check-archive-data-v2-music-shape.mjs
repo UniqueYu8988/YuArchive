@@ -4,7 +4,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const SOURCE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
-const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
+const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive');
 
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.flac', '.m4a', '.ogg', '.aac']);
@@ -70,7 +70,7 @@ export function evaluateMusicV2Shape({
   const v2MusicRoot = path.join(v2Root, 'entries', 'music', 'album');
   const v2MigrationRoot = path.join(v2Root, 'migration');
   const fatal = [];
-  if (!existsDir(v2Root)) fatal.push('ArchiveData-v2 missing');
+  if (!existsDir(v2Root)) fatal.push('Archive missing');
   if (!existsDir(v2MusicRoot)) fatal.push('Music album directory missing');
   if (requireMigrationBaseline && !existsDir(v2MigrationRoot)) fatal.push('migration directory missing');
 
@@ -148,7 +148,7 @@ export function evaluateMusicV2Shape({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Music shape`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Music shape`);
   console.log(`  archiveDataV2Exists: ${result.archiveDataV2Exists}`);
   console.log(`  albumEntryDirs: ${result.albumEntryDirs}`);
   console.log(`  entryYamlFiles: ${result.entryYamlFiles}`);

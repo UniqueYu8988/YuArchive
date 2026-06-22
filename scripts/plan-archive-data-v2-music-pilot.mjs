@@ -5,7 +5,7 @@ const SOURCE_ROOT = 'C:\\Users\\Yu\\OneDrive\\图片\\Data';
 const MUSIC_ROOT = path.join(SOURCE_ROOT, 'Music');
 const COVERS_ROOT = path.join(MUSIC_ROOT, 'Covers');
 const SONGS_ROOT = path.join(MUSIC_ROOT, 'Songs');
-const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'ArchiveData-v2');
+const V2_ROOT = path.join(path.dirname(SOURCE_ROOT), 'Archive');
 
 const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown']);
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
@@ -223,7 +223,7 @@ function createPlannerStats() {
 
 function main() {
   if (!existsDir(MUSIC_ROOT)) {
-    console.log('[FAIL] ArchiveData-v2 Music pilot planner');
+    console.log('[FAIL] Archive Music pilot planner');
     console.log('  musicRootExists: false');
     console.log('  writeActions: 0');
     console.log('Result: archive data v2 music pilot planner failed');
@@ -304,7 +304,7 @@ function main() {
     || stats.missingAudio > 0;
   const status = hasBlockingIssue ? 'WARN' : 'PASS';
 
-  console.log(`[${status}] ArchiveData-v2 Music pilot planner`);
+  console.log(`[${status}] Archive Music pilot planner`);
   console.log(`  markdownEntries: ${stats.markdownEntries}`);
   console.log(`  readableMarkdown: ${stats.readableMarkdown}`);
   console.log(`  frontmatterErrors: ${stats.frontmatterErrors}`);

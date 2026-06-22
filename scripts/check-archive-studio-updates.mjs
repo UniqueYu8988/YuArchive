@@ -5,6 +5,31 @@ import os from 'node:os';
 import path from 'node:path';
 import { createArchiveStudioServer } from './archive-studio-v0-server.mjs';
 
+const IMAGE_BYTES = Buffer.from(
+  'R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
+  'base64',
+);
+
+function wavBytes() {
+  const sampleRate = 8000;
+  const samples = 800;
+  const dataSize = samples * 2;
+  const buffer = Buffer.alloc(44 + dataSize);
+  buffer.write('RIFF', 0);
+  buffer.writeUInt32LE(36 + dataSize, 4);
+  buffer.write('WAVEfmt ', 8);
+  buffer.writeUInt32LE(16, 16);
+  buffer.writeUInt16LE(1, 20);
+  buffer.writeUInt16LE(1, 22);
+  buffer.writeUInt32LE(sampleRate, 24);
+  buffer.writeUInt32LE(sampleRate * 2, 28);
+  buffer.writeUInt16LE(2, 32);
+  buffer.writeUInt16LE(16, 34);
+  buffer.write('data', 36);
+  buffer.writeUInt32LE(dataSize, 40);
+  return buffer;
+}
+
 function write(root, relativePath, value = 'fixture') {
   const target = path.join(root, ...relativePath.split('/'));
   fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -71,7 +96,7 @@ function boardPublicItem(board, title) {
 
 function setupFixture(sandbox) {
   const projectRoot = path.join(sandbox, 'project');
-  const v2Root = path.join(sandbox, 'ArchiveData-v2');
+  const v2Root = path.join(sandbox, 'Archive');
   const sourceRoot = path.join(sandbox, 'source-baseline');
   fs.mkdirSync(sourceRoot, { recursive: true });
   write(sourceRoot, 'baseline.txt', 'source baseline');
@@ -98,8 +123,8 @@ function setupFixture(sandbox) {
   write(v2Root, 'entries/music/album/music-check/entry.yaml',
     'id: "music-check"\nboard: music\nkind: album\ntitle: "Music Before"\ndate: "2026"\nnote: "Before"\nlegacy:\n  source_label: "fixture"\n');
   write(v2Root, 'entries/music/album/music-check/content.md', 'Before content\n');
-  write(v2Root, 'entries/music/album/music-check/cover.jpg');
-  write(v2Root, 'entries/music/album/music-check/audio.mp3');
+  write(v2Root, 'entries/music/album/music-check/cover.png', IMAGE_BYTES);
+  write(v2Root, 'entries/music/album/music-check/audio.wav', wavBytes());
 
   write(v2Root, 'entries/texts/article/text-check/entry.yaml',
     'id: "text-check"\nboard: texts\nkind: article\ntitle: "Text Before"\nsection: reference-info\ndate: "2026-06-21"\nsummary: "Before"\ntags: ["check"]\nlegacy:\n  source_label: "fixture"\n');
@@ -107,11 +132,11 @@ function setupFixture(sandbox) {
 
   write(v2Root, 'entries/visions/movie/vision-check/entry.yaml',
     'id: "vision-check"\nboard: visions\nkind: movie\ntitle: "Vision Before"\nperiod: "此岸"\ncinema: false\nquote: ""\nurl: ""\nlegacy:\n  source_label: "fixture"\n');
-  write(v2Root, 'entries/visions/movie/vision-check/poster.jpg');
+  write(v2Root, 'entries/visions/movie/vision-check/poster.png', IMAGE_BYTES);
 
   write(v2Root, 'entries/games/normal_game/game-20260621-a1b2c3d4/entry.yaml',
     'id: game-20260621-a1b2c3d4\nboard: games\nkind: normal_game\ntitle: "Game Before"\nyear: 2026\nmetadata_enabled: false\nlegacy:\n  source_label: "fixture"\n');
-  write(v2Root, 'entries/games/normal_game/game-20260621-a1b2c3d4/cover.jpg');
+  write(v2Root, 'entries/games/normal_game/game-20260621-a1b2c3d4/cover.png', IMAGE_BYTES);
 
   writeJson(projectRoot, 'public/data/music.json', {
     key: 'music', display_name: 'Music', total_count: 1, sort_mode: 'music',
@@ -224,7 +249,7 @@ async function main() {
         `/api/studio/${board}/sync-apply`,
         postJson({ syncToken: syncPreview.body.syncToken }),
       );
-      assert.equal(syncApply.status, 200);
+      assert.equal(syncApply.status, 200, JSON.stringify(syncApply.body));
       const publicData = JSON.parse(fs.readFileSync(path.join(projectRoot, 'public', 'data', `${board}.json`), 'utf8'));
       const publicItem = findPublicItem(board, publicData);
       assert.equal(publicItem.id, `public-${board === 'texts' ? 'text' : board === 'visions' ? 'vision' : board === 'games' ? 'game' : 'music'}-1`);
@@ -251,15 +276,14 @@ async function main() {
       baseUrl,
       '/api/studio/music/update-apply',
       updateForm(replacePayload, replacePreflight.body.updateToken, {
-        cover: { bytes: Buffer.from('replacement-cover'), type: 'image/png', name: 'replacement.png' },
+        cover: { bytes: IMAGE_BYTES, type: 'image/png', name: 'replacement.png' },
       }),
     );
     assert.equal(replaced.status, 200, JSON.stringify(replaced.body));
     assert.deepEqual(replaced.body.replacedAssets, ['cover']);
     const musicRoot = path.join(v2Root, 'entries', 'music', 'album', 'music-check');
-    assert.equal(fs.existsSync(path.join(musicRoot, 'cover.jpg')), false);
     assert.equal(fs.existsSync(path.join(musicRoot, 'cover.png')), true);
-    assert.equal(fs.existsSync(path.join(musicRoot, 'audio.mp3')), true);
+    assert.equal(fs.existsSync(path.join(musicRoot, 'audio.wav')), true);
     const replaceSyncPreview = await requestJson(baseUrl, '/api/studio/music/sync-preview', postJson({}));
     assert.equal(replaceSyncPreview.status, 200);
     assert.equal(replaceSyncPreview.body.pendingUpdates, 1);
@@ -269,11 +293,11 @@ async function main() {
       '/api/studio/music/sync-apply',
       postJson({ syncToken: replaceSyncPreview.body.syncToken }),
     );
-    assert.equal(replaceSync.status, 200);
+    assert.equal(replaceSync.status, 200, JSON.stringify(replaceSync.body));
     const replacedPublic = JSON.parse(
       fs.readFileSync(path.join(projectRoot, 'public', 'data', 'music.json'), 'utf8'),
     ).items[0];
-    assert.match(replacedPublic.cover, /^studio_media\/music\/music-check\/cover\.png$/);
+    assert.match(replacedPublic.cover, /^studio_media\/music\/music-check\/cover\.webp$/);
     assert.equal(replacedPublic.audio, 'legacy/music-audio.mp3');
 
     const musicDetail = await requestJson(baseUrl, '/api/studio/music/entries/music-check');

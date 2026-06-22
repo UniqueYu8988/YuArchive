@@ -413,7 +413,7 @@ export default function ArchiveStudioVisionsPage() {
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
           <CheckCircle2 size={22} />
-          <div><strong>创建成功，影视条目已保存到 ArchiveData-v2</strong><span>{createResult.entryRelativeDir}</span></div>
+          <div><strong>创建成功，影视条目已保存到 Archive</strong><span>{createResult.entryRelativeDir}</span></div>
           <dl>
             <div><dt>条目文件</dt><dd>{createResult.createdEntryFiles}</dd></div>
             <div><dt>Visions v2 总数</dt><dd>{createResult.visionsEntries}</dd></div>
@@ -505,7 +505,7 @@ export default function ArchiveStudioVisionsPage() {
           <section className="studio-preview-panel">
             <div className="studio-preview-title">
               <FolderTree size={19} />
-              <div><span>写入预览</span><strong>[ArchiveData-v2]</strong></div>
+              <div><span>写入预览</span><strong>[Archive]</strong></div>
             </div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">
@@ -555,7 +555,7 @@ export default function ArchiveStudioVisionsPage() {
       <footer className="studio-actionbar">
         <div className="studio-action-summary">
           <span>{createStatus === 'success' ? '条目已保存' : isDirty ? '草稿有改动' : mode === 'update' ? '选择条目后修改' : '草稿无改动'}</span>
-          <small>{createAvailable ? '只写入 ArchiveData-v2，不会自动发布。' : '本地创建服务不可用。'}</small>
+          <small>{createAvailable ? '只写入 Archive，不会自动发布。' : '本地创建服务不可用。'}</small>
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>

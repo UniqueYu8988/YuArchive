@@ -34,7 +34,7 @@ export function evaluateVisionsMigrationPlan({
 }
 
 function printResult(result) {
-  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] ArchiveData-v2 Visions migration plan`);
+  console.log(`[${result.ok ? 'PASS' : 'FAIL'}] Archive Visions migration plan`);
   for (const key of [
     'sourceFiles',
     'sourceImages',

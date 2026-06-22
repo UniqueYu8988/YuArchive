@@ -30,7 +30,7 @@ async function listTree(root) {
 
 async function main() {
   const sandboxRoot = await mkdtemp(path.join(os.tmpdir(), 'archive-studio-v0-runner-check-'));
-  const v2Root = path.join(sandboxRoot, 'ArchiveData-v2');
+  const v2Root = path.join(sandboxRoot, 'Archive');
   const sourceRoot = path.join(sandboxRoot, 'source');
   await mkdir(path.join(v2Root, 'entries', 'music', 'album'), { recursive: true });
   await mkdir(sourceRoot, { recursive: true });

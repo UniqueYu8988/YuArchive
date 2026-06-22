@@ -52,6 +52,7 @@ import {
   listEditableEntries,
   loadEditableEntry,
 } from './archive-studio-update-core.mjs';
+import { assertArchiveDataWriteRoot } from './archive-paths.mjs';
 
 const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4176;
@@ -1046,7 +1047,9 @@ export function createArchiveStudioServer({
   requireVisionsMigrationBaseline = requireMigrationBaseline,
   requireGamesMigrationBaseline = requireMigrationBaseline,
   projectRoot = process.cwd(),
+  enforceConfiguredDataRoot = false,
 } = {}) {
+  if (writeEnabled && enforceConfiguredDataRoot) assertArchiveDataWriteRoot(v2Root);
   const context = {
     v2Root,
     sourceRoot,
@@ -1097,7 +1100,7 @@ export function createArchiveStudioServer({
 }
 
 export function startArchiveStudioServer({ port = DEFAULT_PORT } = {}) {
-  const server = createArchiveStudioServer();
+  const server = createArchiveStudioServer({ enforceConfiguredDataRoot: true });
   server.listen(port, HOST, () => {
     console.log(`[PASS] Archive Studio v0 local API`);
     console.log(`  host: ${HOST}`);

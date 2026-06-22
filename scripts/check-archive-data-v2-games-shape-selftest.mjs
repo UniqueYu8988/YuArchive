@@ -88,7 +88,7 @@ try {
   fs.appendFileSync(normalYaml, 'note: "C:/Users/local/private"\n');
   assert.equal(evaluate(tempRoot).privacyRuleHits > 0, true);
 
-  console.log('[PASS] ArchiveData-v2 Games shape self-test');
+  console.log('[PASS] Archive Games shape self-test');
   console.log('  validFixture: passed');
   console.log('  missingCoverBlocked: passed');
   console.log('  invalidDlcParentBlocked: passed');
