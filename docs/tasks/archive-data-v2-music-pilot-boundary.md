@@ -2,7 +2,7 @@
 
 ## Goal
 
-Design the boundary for a future Music-only ArchiveData-v2 pilot migration.
+Design the boundary for a future Music-only Archive pilot migration.
 
 This task does not migrate data. It defines the smallest safe write-enabled pilot that could be run later after explicit approval.
 
@@ -12,7 +12,7 @@ Music is the lowest-risk board for a v2 pilot:
 
 - Current source shape is regular: root Markdown entries, `Covers`, and `Songs`.
 - Existing source-side check reports 33 Markdown entries, 33 covers, and 33 audio files matched.
-- ArchiveData-v2 design already marks `music/album` as the v0 priority kind.
+- Archive design already marks `music/album` as the v0 priority kind.
 - The dry-run reports `music/album:33`, `audio:33`, and cover roles that can be verified by checksum.
 
 ## Current Evidence
@@ -20,7 +20,7 @@ Music is the lowest-risk board for a v2 pilot:
 - `scripts/check-music-media-shape.mjs` passes with zero warnings.
 - `scripts/audit-archive-data-v2-migration.mjs` reports Music as 33 likely `album` entries.
 - `scripts/dry-run-archive-data-v2-migration.mjs` reports zero unmapped files overall.
-- No real `ArchiveData-v2` data directory has been created.
+- No real `Archive` data directory has been created.
 - Old OneDrive Data remains the source of truth and must stay unchanged during the pilot.
 
 ## Proposed Pilot Scope
@@ -30,7 +30,7 @@ The pilot should migrate only Music album entries into a new, isolated v2 output
 Recommended target shape:
 
 ```text
-ArchiveData-v2/
+Archive/
 ├─ entries/
 │  └─ music/
 │     └─ album/
@@ -51,13 +51,13 @@ The first write-enabled pilot should not migrate Games, Visions, Texts, homepage
 
 Only after explicit approval, a pilot migration may:
 
-- Create `ArchiveData-v2/` if it does not exist.
+- Create `Archive/` if it does not exist.
 - Create `entries/music/album/<entry-id>/` directories.
 - Copy Music Markdown bodies into `content.md`.
 - Copy matched cover files as `cover.<ext>`.
 - Copy matched audio files as `audio.<ext>`.
 - Create `entry.yaml` files for Music album entries.
-- Create migration reports under `ArchiveData-v2/migration/`.
+- Create migration reports under `Archive/migration/`.
 - Compute and write checksums for copied source files.
 
 ## Forbidden In The Pilot
@@ -124,7 +124,7 @@ If an entry lacks a matched cover or audio in a future run, the pilot should not
 
 ## Migration Reports
 
-The pilot should write reports only inside `ArchiveData-v2/migration/`:
+The pilot should write reports only inside `Archive/migration/`:
 
 - `migration-manifest.json`: source role, relative source identifier, target role, target relative path, checksum, and status.
 - `unmapped-files.json`: any Music source file that has no destination.
@@ -144,7 +144,7 @@ The pilot is acceptable only if all of these are true:
 - `scripts/check-music-media-shape.mjs` still passes after the pilot.
 - A future v2 Music shape check passes after it is created.
 - No `public/data`, `src/data`, caches, reports data, or old source files are modified.
-- The generated `ArchiveData-v2/` pilot output can be deleted without affecting the old site.
+- The generated `Archive/` pilot output can be deleted without affecting the old site.
 
 ## Validation Commands
 
@@ -171,13 +171,13 @@ A future v2-specific check should be added before treating the pilot output as c
 
 Because the pilot must not modify old OneDrive Data, rollback should be simple:
 
-1. Delete the generated `ArchiveData-v2/` pilot output.
+1. Delete the generated `Archive/` pilot output.
 2. Re-run the source-side checks.
 3. Confirm old OneDrive Data hashes are unchanged.
 4. Do not run `build_archive.py` or the release script as part of rollback.
 
 ## Recommended Next Task
 
-Create a read-only v2 Music pilot planner that outputs the exact Music target directories, target file roles, and collision/manual-confirmation counts without writing `ArchiveData-v2/`.
+Create a read-only v2 Music pilot planner that outputs the exact Music target directories, target file roles, and collision/manual-confirmation counts without writing `Archive/`.
 
 Do not proceed directly to write-enabled migration until that planner is reviewed.

@@ -7,7 +7,7 @@
 
 建立一个只写系统临时目录的 CLI sandbox preview 脚本，用于验证 Archive Studio v0 `music/album` payload schema、路径 allowlist 和 preview 输出格式。
 
-本任务不写真实 ArchiveData-v2 输出，不接 UI，不修改公开网页数据。
+本任务不写真实 Archive 输出，不接 UI，不修改公开网页数据。
 
 ## 2. 背景
 
@@ -25,7 +25,7 @@ Archive Studio v0 已完成边界设计、技术入口设计、`music/album` pay
 
 - 不读取 OneDrive Data。
 - 不写旧 OneDrive Data。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 `public/data`。
 - 不写 `src/data`。
 - 不写缓存或 reports。
@@ -63,4 +63,4 @@ Archive Studio v0 已完成边界设计、技术入口设计、`music/album` pay
 
 ## 8. 下一步建议
 
-下一步只建议为 payload schema 增加只读校验脚本或把 sandbox preview 拆分为可复用纯函数模块，仍不接 UI、不写真实 ArchiveData-v2。
+下一步只建议为 payload schema 增加只读校验脚本或把 sandbox preview 拆分为可复用纯函数模块，仍不接 UI、不写真实 Archive。

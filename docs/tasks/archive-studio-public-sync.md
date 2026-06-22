@@ -2,11 +2,11 @@
 
 ## 目标
 
-为 Music、Texts、Visions、Games 四个 Archive Studio 新建流程补充显式公开同步能力。条目先保存到 ArchiveData-v2，再由用户检查待同步数量并确认更新对应的 `public/data/*.json` 和公开媒体副本。
+为 Music、Texts、Visions、Games 四个 Archive Studio 新建流程补充显式公开同步能力。条目先保存到 Archive，再由用户检查待同步数量并确认更新对应的 `public/data/*.json` 和公开媒体副本。
 
 ## 边界
 
-- 只读取 ArchiveData-v2 和当前公开 JSON。
+- 只读取 Archive 和当前公开 JSON。
 - 只写对应板块的 `public/data/<board>.json` 与 `public/studio_media/<board>/`。
 - 不修改旧 OneDrive Data，不运行 `build_archive.py`，不修改首页精选，不发布、不提交、不推送。
 - 只处理 v2 中存在、当前公开 JSON 尚未包含的新条目；不借同步流程批量重写已有条目。

@@ -1,11 +1,11 @@
-# ArchiveData-v2 Texts 文件规则
+# Archive Texts 文件规则
 
 创建日期：2026-06-20
 状态：规则草案已形成，迁移尚未执行
 
 ## 1. 定位
 
-本规则定义 Texts 从旧 OneDrive Data 迁移到 ArchiveData-v2，以及未来由 Archive Studio 新建文本条目的稳定文件结构。
+本规则定义 Texts 从旧 OneDrive Data 迁移到 Archive，以及未来由 Archive Studio 新建文本条目的稳定文件结构。
 
 边界：
 
@@ -19,7 +19,7 @@
 ## 2. 目录结构
 
 ```text
-ArchiveData-v2/
+Archive/
 ├─ config/
 │  └─ texts-sections.yaml
 └─ entries/

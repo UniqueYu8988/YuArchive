@@ -7,7 +7,7 @@
 
 定义从只读计划模式进入真实 create + rollback smoke test 前必须满足的显式执行 gate。
 
-本任务只做 gate 设计，不实现真实写入脚本，不执行真实写入，不创建真实 entry，不修改 ArchiveData-v2、OneDrive Data、`public/data` 或 Git 状态。
+本任务只做 gate 设计，不实现真实写入脚本，不执行真实写入，不创建真实 entry，不修改 Archive、OneDrive Data、`public/data` 或 Git 状态。
 
 ## 2. 背景
 
@@ -21,7 +21,7 @@
 - v2 Music shape 检查；
 - dry-run manifest 和 blocked 场景自检。
 
-下一步如果要进入真实写入，必须有一个硬性的 `--execute` gate，避免计划脚本或普通检查脚本误写真实 ArchiveData-v2。
+下一步如果要进入真实写入，必须有一个硬性的 `--execute` gate，避免计划脚本或普通检查脚本误写真实 Archive。
 
 ## 3. Gate 总则
 
@@ -31,7 +31,7 @@
 2. 命令显式包含 `--execute`；
 3. 命令显式包含与授权一致的 entry id。
 
-缺少任一条件，脚本必须只输出计划或直接停止，不得写真实 ArchiveData-v2。
+缺少任一条件，脚本必须只输出计划或直接停止，不得写真实 Archive。
 
 ## 4. 授权文本
 
@@ -41,7 +41,7 @@
 授权执行 Archive Studio v0 真实 v2 Music create + rollback smoke test，
 payload 使用 docs/examples/archive-studio-v0-music-album-payload.sample.json，
 entry id 为 archive-studio-sandbox-album，
-允许写入并随后回滚 ArchiveData-v2/entries/music/album/archive-studio-sandbox-album，
+允许写入并随后回滚 Archive/entries/music/album/archive-studio-sandbox-album，
 不修改 OneDrive Data，不修改 public/data，不运行 build_archive.py，不运行发布脚本。
 ```
 
@@ -93,7 +93,7 @@ migration/archive-studio-v0/transactions/<transaction-id>/write.json
 migration/archive-studio-v0/transactions/<transaction-id>/rollback.json
 ```
 
-所有路径必须按真实 ArchiveData-v2 根目录计算，并通过 allowlist 校验。
+所有路径必须按真实 Archive 根目录计算，并通过 allowlist 校验。
 
 manifest 中只能保存相对路径、角色、操作、字节数、checksum 和命令摘要，不得保存完整本机路径。
 

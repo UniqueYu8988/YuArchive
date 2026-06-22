@@ -47,18 +47,18 @@ The next replacement task, if authorized, must be explicit and narrow:
 
 ## Commit Boundary
 
-Current project Git changes are mostly workflow/design/check/generator tooling. The generated `ArchiveData-v2` pilot output is outside the project Git worktree.
+Current project Git changes are mostly workflow/design/check/generator tooling. The generated `Archive` pilot output is outside the project Git worktree.
 
 Recommended commit grouping later:
 
-1. ArchiveData-v2 design and migration audit tooling.
+1. Archive design and migration audit tooling.
 2. Music pilot migration, v2 output checks, and acceptance records.
 3. Music preview and live-compatibility tooling.
 4. Status document updates.
 
 Do not include generated system-temp preview JSON in Git.
 
-Do not include external `ArchiveData-v2` pilot output in this project Git repository unless a separate data-versioning policy is approved.
+Do not include external `Archive` pilot output in this project Git repository unless a separate data-versioning policy is approved.
 
 ## Pre-Replacement Checks
 

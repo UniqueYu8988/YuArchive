@@ -5,7 +5,7 @@
 
 ## 1. 定位
 
-Archive Studio Texts 第一版只新建 ArchiveData-v2 文本，不编辑旧条目，不写旧 OneDrive Data，不生成或发布网页数据。
+Archive Studio Texts 第一版只新建 Archive 文本，不编辑旧条目，不写旧 OneDrive Data，不生成或发布网页数据。
 
 支持：
 
@@ -102,4 +102,4 @@ Archive Studio Texts 第一版只新建 ArchiveData-v2 文本，不编辑旧条�
 - `npm run build`、Texts API 检查和既有 Music API 回归均通过。
 - 真实 create + rollback runner 已通过，临时条目从 132 增至 133 后恢复 132；
 - 真实中文页面已完成 preview、preflight、create 和成功反馈端到端验收；
-- UI 验收条目已按事务清单回退，条目与事务残留为 0，ArchiveData-v2 和旧源快照恢复一致。
+- UI 验收条目已按事务清单回退，条目与事务残留为 0，Archive 和旧源快照恢复一致。

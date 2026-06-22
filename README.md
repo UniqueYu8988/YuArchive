@@ -35,15 +35,15 @@ C:\Users\Yu\OneDrive\图片\Data
 当前 Archive Studio 维护数据目录：
 
 ```text
-C:\Users\Yu\OneDrive\图片\ArchiveData-v2
+C:\Users\Yu\OneDrive\图片\Archive
 ```
 
-旧 Data 保存迁移前收藏源文件并保持只读；ArchiveData-v2 保存新工作流条目、媒体和首页配置。网页公开展示内容不按高敏感信息处理，但两个外部目录都不得随意移动、清理或批量改写。
+旧 Data 保存迁移前收藏源文件并保持只读；Archive 保存新工作流条目、媒体和首页配置。网页公开展示内容不按高敏感信息处理，但两个外部目录都不得随意移动、清理或批量改写。
 
 ## 数据边界
 
 - `C:\Users\Yu\OneDrive\图片\Data` 是只读旧源与回退备份。
-- `C:\Users\Yu\OneDrive\图片\ArchiveData-v2` 是 Archive Studio 当前受控维护数据。
+- `C:\Users\Yu\OneDrive\图片\Archive` 是 Archive Studio 当前受控维护数据。
 - `public\data\*.json` 是当前前端读取的生成数据。
 - `src\data\archive_data.json` 和 `src\data\site_config.json` 是生成聚合数据。
 - `public\webp_cache`、`public\audio_cache`、`public\media_cache` 是派生媒体缓存。

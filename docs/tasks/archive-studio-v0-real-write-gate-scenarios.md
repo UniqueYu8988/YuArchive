@@ -7,7 +7,7 @@
 
 为真实 v2 Music 写入 gate checker 增加 update payload 和 blocked 场景自检，确认 checker 能区分允许进入写入申请和必须阻断的情况。
 
-本任务只读真实 ArchiveData-v2 Music 当前状态，不执行真实写入。
+本任务只读真实 Archive Music 当前状态，不执行真实写入。
 
 ## 2. 本次范围
 
@@ -17,7 +17,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不创建 backup。

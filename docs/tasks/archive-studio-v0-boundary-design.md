@@ -9,7 +9,7 @@
 
 ## 2. 背景
 
-ArchiveData-v2 已完成文件规则设计、只读迁移审计、migration dry-run、Music-only 写入试点、v2 Music 输出检查、live-compatible preview 和 `public/data/music.json` 替换。下一阶段可以开始考虑 Archive Studio v0，但应先定义安全边界，避免直接进入功能开发或自动化写源数据。
+Archive 已完成文件规则设计、只读迁移审计、migration dry-run、Music-only 写入试点、v2 Music 输出检查、live-compatible preview 和 `public/data/music.json` 替换。下一阶段可以开始考虑 Archive Studio v0，但应先定义安全边界，避免直接进入功能开发或自动化写源数据。
 
 ## 3. 本次范围
 
@@ -25,7 +25,7 @@ ArchiveData-v2 已完成文件规则设计、只读迁移审计、migration dry-
 - 不修改 `src` 代码。
 - 不修改 `build_archive.py`。
 - 不修改 OneDrive Data。
-- 不修改 `ArchiveData-v2` 试点输出。
+- 不修改 `Archive` 试点输出。
 - 不修改 `public/data` 或 `src/data`。
 - 不运行 `build_archive.py`。
 - 不运行 npm dev/build/preview。
@@ -100,7 +100,7 @@ v0 的目标工作流：
 
 ## 9. 写入边界
 
-v0 只能写入 ArchiveData-v2 输出目录，不能写旧 OneDrive Data。
+v0 只能写入 Archive 输出目录，不能写旧 OneDrive Data。
 
 允许的写入：
 

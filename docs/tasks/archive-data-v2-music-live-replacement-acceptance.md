@@ -89,14 +89,14 @@ The replacement is not committed.
 
 Current Git scope now includes:
 
-- previous ArchiveData-v2 design/task/script changes;
+- previous Archive design/task/script changes;
 - modified `public/data/music.json`.
 
-The generated external `ArchiveData-v2` pilot output remains outside the project Git worktree.
+The generated external `Archive` pilot output remains outside the project Git worktree.
 
 Recommended commit grouping later:
 
-1. ArchiveData-v2 design, audit, dry-run, and Music pilot tooling.
+1. Archive design, audit, dry-run, and Music pilot tooling.
 2. Music live-compatible replacement tooling and acceptance records.
 3. `public/data/music.json` live-compatible replacement.
 
@@ -117,5 +117,5 @@ Do not run `build_archive.py` as rollback.
 
 Do a repository-wide change review and commit plan.
 
-The review should decide how to group the many ArchiveData-v2 docs/scripts and the `public/data/music.json` replacement into commits. It should not push.
+The review should decide how to group the many Archive docs/scripts and the `public/data/music.json` replacement into commits. It should not push.
 

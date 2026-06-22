@@ -24,7 +24,7 @@ Archive Studio v0 已确定第一阶段只支持 `music/album`。技术入口设
 
 - 不实现脚本。
 - 不实现前端。
-- 不写 ArchiveData-v2 输出。
+- 不写 Archive 输出。
 - 不改 OneDrive Data。
 - 不改 `public/data` 或 `src/data`。
 - 不运行 `build_archive.py`。
@@ -393,7 +393,7 @@ error 示例：
 后续 CLI sandbox 原型应满足：
 
 - 只写系统临时目录或项目外的明确 sandbox。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写旧 OneDrive Data。
 - 不写 `public/data`。
 - 不运行 `build_archive.py`。

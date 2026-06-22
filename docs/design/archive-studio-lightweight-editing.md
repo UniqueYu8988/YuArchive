@@ -11,7 +11,7 @@
 → 修改字段或选择替换素材
 → 生成差异预览
 → 运行 preflight
-→ 保存到 ArchiveData-v2
+→ 保存到 Archive
 → 显式同步到公开网页
 ```
 

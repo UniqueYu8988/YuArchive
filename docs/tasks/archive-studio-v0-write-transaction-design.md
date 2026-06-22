@@ -7,7 +7,7 @@
 
 为 Archive Studio v0 `music/album` 写入流程设计第一版事务边界，明确 diff preview、backup manifest、写入顺序、失败处理和 rollback 规则。
 
-本任务只做设计，不写真实 ArchiveData-v2 输出，不接 UI，不修改 OneDrive Data。
+本任务只做设计，不写真实 Archive 输出，不接 UI，不修改 OneDrive Data。
 
 ## 2. 背景
 
@@ -37,7 +37,7 @@ Archive Studio v0 已完成：
 - 不实现写入脚本。
 - 不实现本地 Node 服务。
 - 不实现前端 UI。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不运行 `build_archive.py`。
@@ -177,7 +177,7 @@ update 模式失败回退：
   "transaction": {
     "id": "studio-preview-20260616-000001",
     "mode": "create",
-    "writeRootLabel": "ArchiveData-v2",
+    "writeRootLabel": "Archive",
     "scope": "entries/music/album"
   },
   "diff": [
@@ -316,7 +316,7 @@ rollback 禁止：
 1. 新建只写系统临时目录的 transaction sandbox。
 2. 在 sandbox 中实现 diff preview、backup manifest 和 write manifest。
 3. 增加 rollback sandbox 自检。
-4. 仍不写真实 ArchiveData-v2 输出。
+4. 仍不写真实 Archive 输出。
 5. sandbox 通过后，再设计真实 v2 Music 写入 approval gate。
 
 ## 15. 验收标准
@@ -328,9 +328,9 @@ rollback 禁止：
 - [x] 明确 backup manifest 和 write manifest。
 - [x] 明确 rollback 输入、行为和禁止范围。
 - [x] 明确失败分类和停止点。
-- [x] 明确后续仍先做 sandbox，不直接写真实 ArchiveData-v2。
-- [x] 未修改 OneDrive Data、真实 ArchiveData-v2、`public/data`、`src/data`、缓存或 reports。
+- [x] 明确后续仍先做 sandbox，不直接写真实 Archive。
+- [x] 未修改 OneDrive Data、真实 Archive、`public/data`、`src/data`、缓存或 reports。
 
 ## 16. 下一步建议
 
-下一步只建议实现 Archive Studio v0 transaction sandbox：仍只写系统临时目录，模拟 create / update / rollback，不写真实 ArchiveData-v2 输出，不接 UI。
+下一步只建议实现 Archive Studio v0 transaction sandbox：仍只写系统临时目录，模拟 create / update / rollback，不写真实 Archive 输出，不接 UI。

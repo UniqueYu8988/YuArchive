@@ -1,4 +1,4 @@
-# ArchiveData-v2 Games Live Replacement Gate
+# Archive Games Live Replacement Gate
 
 创建日期：2026-06-20
 状态：already-current gate 已建立

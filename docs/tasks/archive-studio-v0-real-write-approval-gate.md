@@ -5,9 +5,9 @@
 
 ## 1. 目标
 
-设计 Archive Studio v0 从 transaction sandbox 进入真实 ArchiveData-v2 Music 写入前必须满足的 approval gate。
+设计 Archive Studio v0 从 transaction sandbox 进入真实 Archive Music 写入前必须满足的 approval gate。
 
-本任务只做设计，不实现真实写入脚本，不写真实 ArchiveData-v2 输出，不接 UI。
+本任务只做设计，不实现真实写入脚本，不写真实 Archive 输出，不接 UI。
 
 ## 2. 背景
 
@@ -22,7 +22,7 @@
 - transaction sandbox；
 - transaction sandbox 失败场景自检。
 
-transaction sandbox 证明 create / update / rollback 的模型可以在系统临时目录中运行。但真实 ArchiveData-v2 输出位于项目 Git 工作树外，且包含迁移后的 Music 条目与媒体文件。进入真实写入前必须单独建立 gate，避免 sandbox 逻辑直接碰真实数据。
+transaction sandbox 证明 create / update / rollback 的模型可以在系统临时目录中运行。但真实 Archive 输出位于项目 Git 工作树外，且包含迁移后的 Music 条目与媒体文件。进入真实写入前必须单独建立 gate，避免 sandbox 逻辑直接碰真实数据。
 
 ## 3. 本次范围
 
@@ -39,7 +39,7 @@ transaction sandbox 证明 create / update / rollback 的模型可以在系统�
 
 - 不实现真实写入脚本。
 - 不接前端 UI。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不运行 `build_archive.py`。
@@ -54,7 +54,7 @@ transaction sandbox 证明 create / update / rollback 的模型可以在系统�
 授权文本至少应包含：
 
 ```text
-授权执行 Archive Studio v0 真实 v2 Music 写入试点，只允许写 ArchiveData-v2/entries/music/album，允许创建/更新一个指定 entry，不修改 OneDrive Data、不修改 public/data、不运行 build_archive.py、不发布。
+授权执行 Archive Studio v0 真实 v2 Music 写入试点，只允许写 Archive/entries/music/album，允许创建/更新一个指定 entry，不修改 OneDrive Data、不修改 public/data、不运行 build_archive.py、不发布。
 ```
 
 如果授权没有指定 entry id、mode 和写入范围，应停止并要求补充。
@@ -67,7 +67,7 @@ transaction sandbox 证明 create / update / rollback 的模型可以在系统�
 - kind: `album`
 - mode: `create` 或 `update`
 - entry 数量：一次只处理 1 个 entry
-- 写入根：真实 ArchiveData-v2 输出目录
+- 写入根：真实 Archive 输出目录
 - 写入 scope：`entries/music/album/<entry-id>/`
 
 允许写入文件：
@@ -114,7 +114,7 @@ migration/archive-studio-v0/transactions/<transaction-id>/
 最小基线：
 
 - 当前 Git 状态；
-- 真实 ArchiveData-v2 Music 输出目录是否存在；
+- 真实 Archive Music 输出目录是否存在；
 - 目标 entry 目录是否存在；
 - 目标 entry 下相关文件的存在性、大小和 checksum；
 - `migration-manifest.json`、`unmapped-files.json`、`legacy-field-report.md` 是否存在；
@@ -189,7 +189,7 @@ diff approval 中存在 `blocked` 时不能写入。
 用户确认应明确：
 
 ```text
-确认本次 transaction preview，可以写入 ArchiveData-v2 Music entry <entry-id>
+确认本次 transaction preview，可以写入 Archive Music entry <entry-id>
 ```
 
 ## 11. Backup gate
@@ -300,7 +300,7 @@ node scripts/check-archive-data-v2-music-shape.mjs
 
 1. 选择一个全新的测试 entry id；
 2. mode 使用 `create`；
-3. 写入真实 ArchiveData-v2 Music 输出；
+3. 写入真实 Archive Music 输出；
 4. 验收通过后立即执行 rollback；
 5. 验证 rollback 后 v2 Music shape 仍通过；
 6. 再决定是否允许保留测试 entry 或进入 update 试点。
@@ -314,7 +314,7 @@ node scripts/check-archive-data-v2-music-shape.mjs
 该 checker 应只读：
 
 - payload；
--真实 ArchiveData-v2 Music 输出；
+-真实 Archive Music 输出；
 - 目标 entry 文件状态；
 - 现有检查脚本输出。
 
@@ -327,7 +327,7 @@ node scripts/check-archive-data-v2-music-shape.mjs
 
 该 checker 不应：
 
-- 写真实 ArchiveData-v2；
+- 写真实 Archive；
 - 写 OneDrive Data；
 - 写 `public/data`；
 - 运行 `build_archive.py`；
@@ -343,7 +343,7 @@ node scripts/check-archive-data-v2-music-shape.mjs
 - [x] 明确 payload / diff / backup / write / rollback gates。
 - [x] 明确写入前基线和写入后验收。
 - [x] 明确第一轮真实写入仍应先做 gate checker，不直接写数据。
-- [x] 未写真实 ArchiveData-v2、OneDrive Data、`public/data` 或 `src/data`。
+- [x] 未写真实 Archive、OneDrive Data、`public/data` 或 `src/data`。
 
 ## 19. 下一步建议
 

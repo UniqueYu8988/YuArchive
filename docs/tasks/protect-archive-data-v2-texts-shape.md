@@ -1,4 +1,4 @@
-# 任务：保护 ArchiveData-v2 Texts 结构
+# 任务：保护 Archive Texts 结构
 
 创建日期：2026-06-20
 状态：已完成并通过真实迁移输出

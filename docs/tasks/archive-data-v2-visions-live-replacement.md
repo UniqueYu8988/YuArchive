@@ -1,4 +1,4 @@
-# ArchiveData-v2 Visions Live JSON Replacement
+# Archive Visions Live JSON Replacement
 
 创建日期：2026-06-20
 状态：真实替换已完成

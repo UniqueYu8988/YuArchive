@@ -2,9 +2,9 @@
 
 ## Goal
 
-Create a read-only migration dry-run for ArchiveData-v2.
+Create a read-only migration dry-run for Archive.
 
-The dry-run plans where legacy OneDrive Data files would go in the ArchiveData-v2 structure, computes in-memory checksum coverage, and reports manual-confirmation categories. It does not create the new data directory and does not write migration output files.
+The dry-run plans where legacy OneDrive Data files would go in the Archive structure, computes in-memory checksum coverage, and reports manual-confirmation categories. It does not create the new data directory and does not write migration output files.
 
 ## Allowed Scope
 
@@ -18,7 +18,7 @@ The dry-run plans where legacy OneDrive Data files would go in the ArchiveData-v
 ## Forbidden Scope
 
 - Do not modify OneDrive Data.
-- Do not create an `ArchiveData-v2` directory.
+- Do not create an `Archive` directory.
 - Do not copy, move, rename, delete, or rewrite source files.
 - Do not write `migration-manifest.json`, `unmapped-files.json`, checksum files, or generated data.
 - Do not modify `build_archive.py`.
@@ -54,7 +54,7 @@ Expected result:
 
 - The command exits successfully.
 - The command reports zero write actions.
-- No `ArchiveData-v2` directory is created.
+- No `Archive` directory is created.
 - No source data or generated data changes.
 
 Latest result on 2026-06-16:
@@ -69,7 +69,7 @@ Latest result on 2026-06-16:
 - Unmapped files: 0.
 - Ignored system files: 1.
 - Write actions: 0.
-- No `ArchiveData-v2` directory was created.
+- No `Archive` directory was created.
 
 The script was also checked for common write, network, build, release, and Git command calls; no matches were found.
 

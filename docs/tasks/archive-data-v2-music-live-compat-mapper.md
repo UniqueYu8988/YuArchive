@@ -9,7 +9,7 @@ This mapper is a prerequisite for any live-compatible Music JSON generation. It 
 ## Allowed Scope
 
 - Add `scripts/map-archive-data-v2-music-live-compat.mjs`.
-- Read `ArchiveData-v2/entries/music/album`.
+- Read `Archive/entries/music/album`.
 - Read current `public/data/music.json`.
 - Optionally read the isolated v2 preview JSON from system temp.
 - Count mapping results and reusable live fields.
@@ -17,7 +17,7 @@ This mapper is a prerequisite for any live-compatible Music JSON generation. It 
 
 ## Forbidden Scope
 
-- Do not modify `ArchiveData-v2`.
+- Do not modify `Archive`.
 - Do not modify `public/data/music.json`.
 - Do not modify `src/data`.
 - Do not modify old OneDrive Data.

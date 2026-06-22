@@ -1,4 +1,4 @@
-# Protect ArchiveData-v2 Games Shape
+# Protect Archive Games Shape
 
 创建日期：2026-06-20
 状态：checker 与临时目录自检已建立
@@ -23,7 +23,7 @@
 - checker 只读；
 - self-test 只写系统临时目录；
 - 不写旧 OneDrive Data；
-- 不创建真实 ArchiveData-v2 Games；
+- 不创建真实 Archive Games；
 - 不运行 `build_archive.py`；
 - 不修改 public JSON、缓存或 reports。
 

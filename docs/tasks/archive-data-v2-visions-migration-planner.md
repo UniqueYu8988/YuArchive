@@ -1,4 +1,4 @@
-# ArchiveData-v2 Visions Migration Planner
+# Archive Visions Migration Planner
 
 创建日期：2026-06-20
 状态：已建立，只读
@@ -47,4 +47,4 @@ node scripts/plan-archive-data-v2-visions-migration.mjs
 
 ## 回退
 
-删除 planner、共享 core 和本任务文档即可。脚本不写 OneDrive Data、ArchiveData-v2、public JSON、缓存或 reports。
+删除 planner、共享 core 和本任务文档即可。脚本不写 OneDrive Data、Archive、public JSON、缓存或 reports。

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add a read-only planner for the future Music-only ArchiveData-v2 pilot migration.
+Add a read-only planner for the future Music-only Archive pilot migration.
 
 The planner proves that the Music pilot has a complete and non-conflicting target plan before any write-enabled migration is considered.
 
@@ -19,7 +19,7 @@ The planner proves that the Music pilot has a complete and non-conflicting targe
 ## Forbidden Scope
 
 - Do not modify OneDrive Data.
-- Do not create an `ArchiveData-v2` directory.
+- Do not create an `Archive` directory.
 - Do not copy, move, rename, delete, or rewrite Music Markdown, cover, or audio files.
 - Do not write `entry.yaml`, `content.md`, migration manifests, checksums, generated data, or reports.
 - Do not modify `build_archive.py`.
@@ -50,7 +50,7 @@ The planner checks:
 - A stable target id can be generated from the source stem.
 - Generated target ids do not collide.
 - Cover and audio files can be matched using the same broad conventions as the existing Music media shape check.
-- No existing `ArchiveData-v2` directory is required or created.
+- No existing `Archive` directory is required or created.
 
 ## Output
 
@@ -84,7 +84,7 @@ Expected result:
 - The command reports 33 `entry_yaml`, 33 `content_md`, 33 `cover`, and 33 `audio` target roles.
 - The command reports zero id collisions and zero missing cover/audio files.
 - The command reports zero write actions.
-- No `ArchiveData-v2` directory is created.
+- No `Archive` directory is created.
 
 Latest result on 2026-06-16:
 
@@ -103,7 +103,7 @@ Latest result on 2026-06-16:
 - Missing covers: 0.
 - Missing audio: 0.
 - Manual confirmations: 0.
-- Existing `ArchiveData-v2` directory: false.
+- Existing `Archive` directory: false.
 - Write actions: 0.
 
 The script was also checked for common write, network, build, release, and Git command calls; no matches were found.

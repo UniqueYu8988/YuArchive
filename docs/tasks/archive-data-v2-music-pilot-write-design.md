@@ -2,7 +2,7 @@
 
 ## Goal
 
-Design the first write-enabled Music-only ArchiveData-v2 pilot migration.
+Design the first write-enabled Music-only Archive pilot migration.
 
 This document is an approval gate. It describes what a future migration task may write, how it must prove old source data stayed unchanged, and how the generated pilot output can be removed. This task does not execute the migration.
 
@@ -11,10 +11,10 @@ This document is an approval gate. It describes what a future migration task may
 Evidence already collected:
 
 - Music source-side media check passes with 33 Markdown entries, 33 covers, and 33 audio files matched.
-- ArchiveData-v2 full dry-run reports `music/album:33` and zero unmapped files overall.
+- Archive full dry-run reports `music/album:33` and zero unmapped files overall.
 - Music v2 pilot planner reports 33 planned album entries, 33 target directories, and 132 target file roles.
 - Music v2 pilot planner reports zero ID collisions, zero missing covers, zero missing audio, and zero manual confirmations.
-- No real `ArchiveData-v2` directory exists yet.
+- No real `Archive` directory exists yet.
 
 These preconditions should be rechecked immediately before any write-enabled task runs.
 
@@ -23,7 +23,7 @@ These preconditions should be rechecked immediately before any write-enabled tas
 A future write-enabled pilot may create only this new output tree:
 
 ```text
-ArchiveData-v2/
+Archive/
 ├─ entries/
 │  └─ music/
 │     └─ album/
@@ -38,21 +38,21 @@ ArchiveData-v2/
    └─ legacy-field-report.md
 ```
 
-The pilot must not write outside `ArchiveData-v2/`.
+The pilot must not write outside `Archive/`.
 
 ## Allowed In A Future Execution Task
 
 Only after explicit user approval, the execution task may:
 
-- Create `ArchiveData-v2/`.
-- Create `ArchiveData-v2/entries/music/album/<entry-id>/` directories.
+- Create `Archive/`.
+- Create `Archive/entries/music/album/<entry-id>/` directories.
 - Write `entry.yaml` for each Music album entry.
 - Write `content.md` from the corresponding source Markdown content.
 - Copy matched cover files as `cover.<original-extension>`.
 - Copy matched audio files as `audio.<original-extension>`.
-- Write `ArchiveData-v2/migration/migration-manifest.json`.
-- Write `ArchiveData-v2/migration/unmapped-files.json`.
-- Write `ArchiveData-v2/migration/legacy-field-report.md`.
+- Write `Archive/migration/migration-manifest.json`.
+- Write `Archive/migration/unmapped-files.json`.
+- Write `Archive/migration/legacy-field-report.md`.
 - Compute SHA-256 checksums for old source files and new copied files.
 - Use a temporary file outside the project if needed for source hash baselines.
 
@@ -76,11 +76,11 @@ The execution task must not:
 
 The future execution task must stop before writing if any of these occur:
 
-- `ArchiveData-v2/` already exists and is not explicitly approved for replacement.
+- `Archive/` already exists and is not explicitly approved for replacement.
 - Music source-side check fails or reports warnings.
 - Music pilot planner reports ID collisions, missing cover, missing audio, manual ID required, or manual confirmations.
 - Source hash baseline cannot be computed.
-- A planned target path would escape `ArchiveData-v2/`.
+- A planned target path would escape `Archive/`.
 - A planned source file is outside the old Music source directory.
 
 The future execution task must stop after writing and report before any further action if:
@@ -264,7 +264,7 @@ Post-run validation:
 
 ## Rollback
 
-Rollback should be limited to deleting the generated `ArchiveData-v2/` pilot output.
+Rollback should be limited to deleting the generated `Archive/` pilot output.
 
 After rollback:
 
@@ -278,4 +278,4 @@ Rollback must not run `build_archive.py`, modify old OneDrive Data, or run the r
 
 ## Recommended Next Task
 
-If the user approves a write-enabled pilot, implement a narrowly scoped migration script for Music only. The script should refuse to run if `ArchiveData-v2/` already exists unless an explicit overwrite/clean option is designed and approved.
+If the user approves a write-enabled pilot, implement a narrowly scoped migration script for Music only. The script should refuse to run if `Archive/` already exists unless an explicit overwrite/clean option is designed and approved.

@@ -21,7 +21,7 @@
 
 ## 3. 禁止范围
 
-- 不写 ArchiveData-v2；
+- 不写 Archive；
 - 不修改旧 OneDrive Data；
 - 不运行 `build_archive.py`；
 - 不修改 `public/data`、`src/data` 或缓存；
@@ -74,7 +74,7 @@ npm run build
 - 缺少 cover / audio 时 preview 正确阻断；
 - `Create entry` 始终禁用；
 - 浏览器控制台错误为 0；
-- 未写 ArchiveData-v2，未修改 OneDrive Data、`public/data` 或 `src/data`。
+- 未写 Archive，未修改 OneDrive Data、`public/data` 或 `src/data`。
 
 ## 8. 下一步建议
 

@@ -17,7 +17,7 @@
 ## 3. 明确不做
 
 - 不接 UI。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不读或写 `public/data`、`src/data`。
 - 不运行 `build_archive.py`。
@@ -51,4 +51,4 @@ node scripts/check-archive-data-v2-music-shape.mjs
 
 ## 6. 下一步建议
 
-下一步只建议继续做 Archive Studio v0 写入事务设计：仍先设计 manifest、backup、diff preview 和 rollback，不接真实 UI，不写真实 ArchiveData-v2 输出。
+下一步只建议继续做 Archive Studio v0 写入事务设计：仍先设计 manifest、backup、diff preview 和 rollback，不接真实 UI，不写真实 Archive 输出。

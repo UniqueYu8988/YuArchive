@@ -1,4 +1,4 @@
-# ArchiveData-v2 Games Migration Planner
+# Archive Games Migration Planner
 
 创建日期：2026-06-20
 状态：只读 planner 已建立
@@ -11,7 +11,7 @@
 
 - 只读旧 OneDrive Data；
 - 只读当前项目代码和 live JSON；
-- 不创建 ArchiveData-v2 Games；
+- 不创建 Archive Games；
 - 不写 manifest、entry、season、config 或媒体；
 - 不运行 `build_archive.py`；
 - 不修改 public JSON、缓存或 reports；

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create a read-only migration audit for the future ArchiveData-v2 migration.
+Create a read-only migration audit for the future Archive migration.
 
 This task does not migrate data. It only counts and classifies legacy OneDrive Data entries, files, metadata fields, and likely v2 kind mappings so the next `migration dry-run` can be designed from evidence.
 
@@ -19,7 +19,7 @@ This task does not migrate data. It only counts and classifies legacy OneDrive D
 ## Forbidden Scope
 
 - Do not modify OneDrive Data.
-- Do not create an `ArchiveData-v2` data directory.
+- Do not create an `Archive` data directory.
 - Do not copy, move, rename, delete, or rewrite source files.
 - Do not write migration manifests, unmapped files, checksums, or generated data.
 - Do not modify `build_archive.py`.

@@ -1,4 +1,4 @@
-# 任务：ArchiveData-v2 Texts live-compatible 隔离预览
+# 任务：Archive Texts live-compatible 隔离预览
 
 创建日期：2026-06-20
 状态：已完成

@@ -7,7 +7,7 @@
 
 设计真实 v2 Music create + rollback smoke test 的文件写入算法。
 
-本任务只做算法设计，不实现真实写入，不创建真实 entry，不修改 ArchiveData-v2、OneDrive Data、`public/data` 或 Git 状态。
+本任务只做算法设计，不实现真实写入，不创建真实 entry，不修改 Archive、OneDrive Data、`public/data` 或 Git 状态。
 
 ## 2. 本次范围
 
@@ -20,7 +20,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不创建或删除真实 entry。
 - 不创建 transaction manifest。
 - 不创建 backup、staging 或 rollback 文件。
@@ -38,7 +38,7 @@
 - project-local payload JSON；
 - `buildSmokeTestPlan(payload)` 的 plan；
 - create preflight checker 结果；
-- 当前真实 ArchiveData-v2 Music 状态；
+- 当前真实 Archive Music 状态；
 - 用户授权和命令行 gate。
 
 第一轮只允许默认样例：
@@ -100,7 +100,7 @@ allowlist 只来自 plan：
 - 不允许 `..`；
 - 不允许绝对路径；
 - 不允许反斜杠逃逸；
-- 解析后的真实路径必须在真实 ArchiveData-v2 根目录内；
+- 解析后的真实路径必须在真实 Archive 根目录内；
 - entry 文件必须在 `entries/music/album/<entry-id>/` 内；
 - manifest 文件必须在 `migration/archive-studio-v0/transactions/<transaction-id>/` 内；
 - entry id 必须与 payload id 和命令行 `--entry-id` 一致。
@@ -244,4 +244,4 @@ node scripts/check-archive-data-v2-music-shape.mjs
 - source metadata：未变化；
 - 错误授权：阻断。
 
-真实 ArchiveData-v2 尚未执行。常驻保存 API 仍未启用。
+真实 Archive 尚未执行。常驻保存 API 仍未启用。

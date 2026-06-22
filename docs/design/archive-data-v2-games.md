@@ -1,4 +1,4 @@
-# ArchiveData-v2 Games 文件规则
+# Archive Games 文件规则
 
 创建日期：2026-06-20
 状态：规则已冻结，planner 待实现
@@ -274,4 +274,4 @@ season_priority:
 
 ## 13. 下一步
 
-实现只读 migration planner，验证 279 个普通年份图片、6 个 DLC、3 个 live game、40 个 season、全部父关联、稳定 ID 和目标文件角色。planner 不创建 ArchiveData-v2 文件。
+实现只读 migration planner，验证 279 个普通年份图片、6 个 DLC、3 个 live game、40 个 season、全部父关联、稳定 ID 和目标文件角色。planner 不创建 Archive 文件。

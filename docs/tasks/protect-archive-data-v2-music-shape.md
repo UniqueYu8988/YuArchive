@@ -2,15 +2,15 @@
 
 ## Goal
 
-Add a read-only check for the generated ArchiveData-v2 Music pilot output.
+Add a read-only check for the generated Archive Music pilot output.
 
-This check validates the pilot output after the write-enabled Music migration has created `ArchiveData-v2/`. It does not modify v2 output or old OneDrive Data.
+This check validates the pilot output after the write-enabled Music migration has created `Archive/`. It does not modify v2 output or old OneDrive Data.
 
 ## Allowed Scope
 
 - Add `scripts/check-archive-data-v2-music-shape.mjs`.
-- Read generated `ArchiveData-v2/entries/music/album`.
-- Read generated `ArchiveData-v2/migration` reports.
+- Read generated `Archive/entries/music/album`.
+- Read generated `Archive/migration` reports.
 - Count `entry.yaml`, `content.md`, `cover.*`, and `audio.*`.
 - Check manifest and unmapped report shape.
 - Scan generated v2 reports for full local path or secret-like strings.
@@ -19,7 +19,7 @@ This check validates the pilot output after the write-enabled Music migration ha
 ## Forbidden Scope
 
 - Do not modify old OneDrive Data.
-- Do not modify generated `ArchiveData-v2` output.
+- Do not modify generated `Archive` output.
 - Do not run `build_archive.py`.
 - Do not modify `public/data`, `src/data`, caches, reports data, or frontend code.
 - Do not run npm dev/build/preview or the release script.
@@ -30,7 +30,7 @@ This check validates the pilot output after the write-enabled Music migration ha
 
 The script checks:
 
-- `ArchiveData-v2` exists.
+- `Archive` exists.
 - Music album directory exists.
 - 33 album entry directories exist.
 - Each entry directory has one `entry.yaml`, one `content.md`, one cover file, and one audio file.

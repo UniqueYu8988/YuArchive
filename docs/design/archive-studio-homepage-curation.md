@@ -2,7 +2,7 @@
 
 ## 定位
 
-首页精选管理用于选择和排序已经存在于 ArchiveData-v2、并已同步到公开板块 JSON 的条目。它不创建收藏条目，不修改旧 OneDrive Data 的 `homepage.yaml`，也不触发发布。
+首页精选管理用于选择和排序已经存在于 Archive、并已同步到公开板块 JSON 的条目。它不创建收藏条目，不修改旧 OneDrive Data 的 `homepage.yaml`，也不触发发布。
 
 ## v0 槽位
 
@@ -17,7 +17,7 @@
 
 ## 配置文件
 
-新配置位于 `[ArchiveData-v2]/config/homepage.yaml`：
+新配置位于 `[Archive]/config/homepage.yaml`：
 
 ```yaml
 version: 1
@@ -27,7 +27,7 @@ music_ids: ["stable-v2-id", "..."]
 texts_ids: ["stable-v2-id", "..."]
 ```
 
-- ID 必须是 ArchiveData-v2 条目目录的稳定 ID。
+- ID 必须是 Archive 条目目录的稳定 ID。
 - 同一板块不允许重复 ID。
 - ID 必须能映射到当前公开板块 JSON；尚未执行板块公开同步的条目不能进入首页。
 - `public/data/home.json` 仍保存完整公开条目对象，运行时前端无需读取 v2 配置。
@@ -48,7 +48,7 @@ texts_ids: ["stable-v2-id", "..."]
 
 ## 写入边界
 
-保存配置只写 `[ArchiveData-v2]/config/homepage.yaml`。公开同步只写 `public/data/home.json`。两步均使用 preview 摘要、一次性 token、临时文件替换和失败回退。
+保存配置只写 `[Archive]/config/homepage.yaml`。公开同步只写 `public/data/home.json`。两步均使用 preview 摘要、一次性 token、临时文件替换和失败回退。
 
 不会修改：
 

@@ -17,7 +17,7 @@
 ## 3. 明确不做
 
 - 不接 UI。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data` 或 `src/data`。
 - 不运行 `build_archive.py`。
@@ -66,4 +66,4 @@ node scripts/check-archive-data-v2-music-shape.mjs
 
 ## 6. 下一步建议
 
-下一步只建议为 core 模块增加小型只读自检脚本，覆盖 invalid id、非法扩展名、项目外 payload 路径等失败场景；仍不接 UI、不写真实 ArchiveData-v2。
+下一步只建议为 core 模块增加小型只读自检脚本，覆盖 invalid id、非法扩展名、项目外 payload 路径等失败场景；仍不接 UI、不写真实 Archive。

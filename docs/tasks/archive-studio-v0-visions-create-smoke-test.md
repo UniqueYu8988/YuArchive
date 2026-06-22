@@ -5,7 +5,7 @@
 
 ## 目标
 
-通过真实本机 Archive Studio API，在 ArchiveData-v2 中临时创建一个 `visions/movie`，运行 Visions v2 检查，再根据事务回退清单删除临时条目与事务文件。
+通过真实本机 Archive Studio API，在 Archive 中临时创建一个 `visions/movie`，运行 Visions v2 检查，再根据事务回退清单删除临时条目与事务文件。
 
 ## 边界
 
@@ -26,7 +26,7 @@
 - create 后必须为 113 个条目，且发布未触发；
 - rollback 必须读取本次事务的 `rollback.json`；
 - 回退后必须恢复为 112 个条目，条目与事务残留均为 0；
-- 回退后 ArchiveData-v2 与旧源文件快照必须和执行前一致。
+- 回退后 Archive 与旧源文件快照必须和执行前一致。
 
 ## 验证
 
@@ -40,14 +40,14 @@ node scripts/check-archive-data-v2-visions-shape.mjs
 
 ## 回退
 
-runner 在 `finally` 阶段关闭临时 API 服务，读取本次事务 `rollback.json`，删除其列出的两个条目文件、空条目目录和事务目录。任何条目、事务、shape、旧源或 ArchiveData-v2 快照残留都视为失败并停止后续任务。
+runner 在 `finally` 阶段关闭临时 API 服务，读取本次事务 `rollback.json`，删除其列出的两个条目文件、空条目目录和事务目录。任何条目、事务、shape、旧源或 Archive 快照残留都视为失败并停止后续任务。
 
 ## 执行结果
 
 - 真实 API preview、preflight、一次性 token create 与写后 Visions shape check 通过；
 - 临时 movie 创建 2 个条目文件和 3 个事务文件，条目数由 112 变为 113；
 - 回退后恢复为 112，临时条目残留 0、事务残留 0；
-- ArchiveData-v2 文件快照恢复一致；
+- Archive 文件快照恢复一致；
 - 旧源侧核对 778 个文件，前后无变化；
 - 发布未触发，未运行 `build_archive.py`，未修改 `public/data`。
 

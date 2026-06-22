@@ -22,7 +22,7 @@
 - 不返回完整本机路径；
 - 不提供 create、update、delete、Git、构建或发布接口；
 - preview 不写文件；
-- preflight 只读检查 ArchiveData-v2 目标状态；
+- preflight 只读检查 Archive 目标状态；
 - Music v2 check 只返回结构计数和规则结果；
 - 不读取或修改旧 OneDrive Data。
 
@@ -43,7 +43,7 @@
 - 不存在的路由返回 404；
 - `npm run build`；
 - 浏览器完成表单到 preview / preflight 的只读流程；
-- 对 ArchiveData-v2 和 OneDrive Data 做运行前后只读基线核对。
+- 对 Archive 和 OneDrive Data 做运行前后只读基线核对。
 
 ## 6. 回退方式
 
@@ -65,7 +65,7 @@
 - 浏览器确认 Music v2 check 为 33 entries / 0 malformed；
 - 390px 移动视口无横向溢出，控制台错误为 0；
 - `Create entry` 仍保持禁用；
-- 未写 ArchiveData-v2，未读取或修改旧 OneDrive Data。
+- 未写 Archive，未读取或修改旧 OneDrive Data。
 
 ## 8. 下一步建议
 

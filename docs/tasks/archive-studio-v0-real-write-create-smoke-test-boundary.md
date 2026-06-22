@@ -5,9 +5,9 @@
 
 ## 1. 目标
 
-定义第一轮真实 ArchiveData-v2 Music create smoke test 的执行边界。
+定义第一轮真实 Archive Music create smoke test 的执行边界。
 
-本任务仍只做执行设计，不执行真实写入，不创建真实 entry，不修改 ArchiveData-v2、OneDrive Data、`public/data` 或 Git 状态。
+本任务仍只做执行设计，不执行真实写入，不创建真实 entry，不修改 Archive、OneDrive Data、`public/data` 或 Git 状态。
 
 ## 2. 背景
 
@@ -21,7 +21,7 @@
 - create preflight checklist；
 - create preflight checker。
 
-这些只能证明“可以请求进入真实写入任务”。真正写入 ArchiveData-v2 仍必须是单独授权任务。
+这些只能证明“可以请求进入真实写入任务”。真正写入 Archive 仍必须是单独授权任务。
 
 ## 3. 试点原则
 
@@ -71,7 +71,7 @@ archive-studio-sandbox-album
 ```text
 授权执行 Archive Studio v0 真实 v2 Music create smoke test，
 payload 使用 docs/examples/archive-studio-v0-music-album-payload.sample.json，
-只允许创建 ArchiveData-v2/entries/music/album/archive-studio-sandbox-album，
+只允许创建 Archive/entries/music/album/archive-studio-sandbox-album，
 不修改 OneDrive Data，不修改 public/data，不运行 build_archive.py，不运行发布脚本，不 push。
 ```
 
@@ -90,7 +90,7 @@ node scripts/check-archive-data-v2-music-shape.mjs
 node scripts/check-archive-studio-v0-transaction-sandbox.mjs
 ```
 
-任何失败都停止，不写真实 ArchiveData-v2。
+任何失败都停止，不写真实 Archive。
 
 ## 7. 真实写入允许范围
 

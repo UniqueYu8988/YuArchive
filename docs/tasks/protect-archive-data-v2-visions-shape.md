@@ -1,4 +1,4 @@
-# Protect ArchiveData-v2 Visions Shape
+# Protect Archive Visions Shape
 
 创建日期：2026-06-20
 状态：检查器与临时目录自检已建立
@@ -19,7 +19,7 @@
 
 ## 边界
 
-- 默认检查真实 ArchiveData-v2，但当前尚无 Visions v2 时预期失败；
+- 默认检查真实 Archive，但当前尚无 Visions v2 时预期失败；
 - 自检只在系统临时目录创建样例；
 - 不读取或修改旧 Visions 源；
 - 不自动修复；

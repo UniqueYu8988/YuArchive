@@ -1,4 +1,4 @@
-# ArchiveData-v2 Games Live-Compatible Preview
+# Archive Games Live-Compatible Preview
 
 创建日期：2026-06-20
 状态：隔离 preview 已通过
@@ -9,7 +9,7 @@
 
 ## 边界
 
-- 只读 ArchiveData-v2 Games；
+- 只读 Archive Games；
 - 只读当前 `public/data/games.json` 和 `home.json`；
 - 只写系统临时 preview；
 - 不修改 public JSON、缓存、reports 或旧 OneDrive Data；

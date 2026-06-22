@@ -1,17 +1,17 @@
-# 任务：ArchiveData-v2 变更范围 review 和 Git 提交计划
+# 任务：Archive 变更范围 review 和 Git 提交计划
 
 创建日期：2026-06-16
 状态：待用户确认提交
 
 ## 1. 目标
 
-在不执行 Git 写操作、不发布、不运行 `build_archive.py` 的前提下，整理 ArchiveData-v2 当前工作区变更范围，确认验证结果，并给出后续提交拆分方案。
+在不执行 Git 写操作、不发布、不运行 `build_archive.py` 的前提下，整理 Archive 当前工作区变更范围，确认验证结果，并给出后续提交拆分方案。
 
 ## 2. 背景
 
 Music v2 live-compatible JSON 替换已完成：`public/data/music.json` 已由 live-compatible preview 替换，条目数量保持 33，字段集合保持兼容，媒体路径继续复用当前公开缓存路径。
 
-当前仍有多份 ArchiveData-v2 设计文档、任务记录和脚本处于未提交状态。正式提交前需要先确认哪些文件属于同一意图，哪些文件不应进入本轮提交，以及是否仍存在隐私或发布边界风险。
+当前仍有多份 Archive 设计文档、任务记录和脚本处于未提交状态。正式提交前需要先确认哪些文件属于同一意图，哪些文件不应进入本轮提交，以及是否仍存在隐私或发布边界风险。
 
 ## 3. 本次范围
 
@@ -26,7 +26,7 @@ Music v2 live-compatible JSON 替换已完成：`public/data/music.json` 已由 
 - 不运行发布脚本。
 - 不运行 npm dev/build/preview。
 - 不修改 OneDrive 源数据。
-- 不修改 `ArchiveData-v2` 试点输出。
+- 不修改 `Archive` 试点输出。
 - 不继续扩展 Games、Visions、Texts 迁移。
 - 不进入 Archive Studio 前端开发。
 
@@ -41,7 +41,7 @@ Music v2 live-compatible JSON 替换已完成：`public/data/music.json` 已由 
 未跟踪新增主要分组：
 
 - 设计文档：`docs/design/archive-data-v2.md`
-- ArchiveData-v2 迁移审计和 dry-run 任务记录
+- Archive 迁移审计和 dry-run 任务记录
 - Music v2 试点边界、planner、写入迁移、验收任务记录
 - v2 Music 输出检查、preview 生成器、live 兼容映射、live-compatible preview 任务记录
 - Music live replacement gate 和 replacement acceptance 任务记录
@@ -59,7 +59,7 @@ Music v2 live-compatible JSON 替换已完成：`public/data/music.json` 已由 
 
 ## 7. 建议提交拆分
 
-### Commit 1：ArchiveData-v2 规则设计和全局审计
+### Commit 1：Archive 规则设计和全局审计
 
 目的：提交规则设计、迁移审计和 dry-run 基础能力。
 
@@ -138,7 +138,7 @@ Replace music data with ArchiveData v2 compatible output
 
 ## 8. 不建议本轮提交的内容
 
-当前未发现项目工作树内有应明确排除的新数据目录。生成的 `ArchiveData-v2` 试点输出位于项目 Git 工作树外，当前不会被普通项目提交包含。
+当前未发现项目工作树内有应明确排除的新数据目录。生成的 `Archive` 试点输出位于项目 Git 工作树外，当前不会被普通项目提交包含。
 
 后续实际提交前仍应再次运行：
 

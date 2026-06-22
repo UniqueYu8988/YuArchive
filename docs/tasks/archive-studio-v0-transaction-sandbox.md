@@ -7,13 +7,13 @@
 
 实现一个只写系统临时目录的 Archive Studio v0 `music/album` transaction sandbox，用于验证 create / update / rollback 的写入事务模型。
 
-本任务不写真实 ArchiveData-v2 输出，不接 UI，不修改 OneDrive Data。
+本任务不写真实 Archive 输出，不接 UI，不修改 OneDrive Data。
 
 ## 2. 本次范围
 
 - 新增 `scripts/archive-studio-v0-music-transaction-sandbox.mjs`。
 - 复用 `scripts/archive-studio-v0-music-preview-core.mjs` 生成 preview 和基础安全断言。
-- 在系统临时目录创建模拟的 `ArchiveData-v2` 写入根。
+- 在系统临时目录创建模拟的 `Archive` 写入根。
 - 模拟 create 事务。
 - 模拟 update 事务。
 - 为覆盖项生成 backup manifest。
@@ -22,7 +22,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不运行 `build_archive.py`。
@@ -42,7 +42,7 @@ node scripts/archive-studio-v0-music-transaction-sandbox.mjs
 脚本会：
 
 1. 清理并重建系统临时 sandbox 根。
-2. 创建模拟的 `ArchiveData-v2` 写入根。
+2. 创建模拟的 `Archive` 写入根。
 3. 运行 create payload：
    - 生成 diff preview；
    - 写 staging；
@@ -88,8 +88,8 @@ node scripts/check-archive-data-v2-music-shape.mjs
 - 删除 `scripts/archive-studio-v0-music-transaction-sandbox.mjs`。
 - 删除本任务文档。
 - 回退 `CURRENT_STATE.md` 和 `docs/plans/STABILIZATION_PLAN.md` 的状态更新。
-- 系统临时 sandbox 目录可直接删除，不影响项目仓库、OneDrive Data 或真实 ArchiveData-v2。
+- 系统临时 sandbox 目录可直接删除，不影响项目仓库、OneDrive Data 或真实 Archive。
 
 ## 7. 下一步建议
 
-下一步只建议增加 transaction sandbox 自检覆盖失败场景，例如 invalid payload、路径逃逸、backup 失败前停止、rollback manifest 不匹配；仍不写真实 ArchiveData-v2 输出，不接 UI。
+下一步只建议增加 transaction sandbox 自检覆盖失败场景，例如 invalid payload、路径逃逸、backup 失败前停止、rollback manifest 不匹配；仍不写真实 Archive 输出，不接 UI。

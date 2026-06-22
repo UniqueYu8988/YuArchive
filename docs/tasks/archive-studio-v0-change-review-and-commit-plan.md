@@ -47,7 +47,7 @@ CLI sandbox preview 结果：
 本轮变更：
 
 - 不写 OneDrive Data。
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 `public/data`。
 - 不写 `src/data`。
 - 不写缓存或 reports。

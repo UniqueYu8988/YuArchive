@@ -4,7 +4,7 @@
 
 Design the v2 Music generator pilot.
 
-The pilot generator should read the accepted `ArchiveData-v2` Music album output and produce an isolated preview `music.json` for comparison. It must not replace the live frontend data.
+The pilot generator should read the accepted `Archive` Music album output and produce an isolated preview `music.json` for comparison. It must not replace the live frontend data.
 
 ## Current Evidence
 
@@ -51,7 +51,7 @@ This pilot must not:
 Input:
 
 ```text
-ArchiveData-v2/
+Archive/
 └─ entries/
    └─ music/
       └─ album/
@@ -65,7 +65,7 @@ ArchiveData-v2/
 The generator should also read:
 
 ```text
-ArchiveData-v2/migration/migration-manifest.json
+Archive/migration/migration-manifest.json
 ```
 
 The manifest is useful for preserving source-role evidence and for comparing migrated media roles.
@@ -157,7 +157,7 @@ The comparison should report counts only.
 The future implementation should stop before writing preview output if:
 
 - v2 Music shape check fails;
-- `ArchiveData-v2` Music album directory is missing;
+- `Archive` Music album directory is missing;
 - any entry is missing `entry.yaml`, `content.md`, cover, or audio;
 - any entry id is missing or duplicated;
 - preview output target would be inside `public/data`, `src/data`, reports data, caches, or old OneDrive Data;

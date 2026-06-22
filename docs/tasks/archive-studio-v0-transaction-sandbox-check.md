@@ -7,7 +7,7 @@
 
 为 Archive Studio v0 transaction sandbox 增加失败场景自检，验证事务模型不仅能完成 create / update happy path，也能在危险输入或 manifest 异常时停止。
 
-本任务仍只写系统临时目录，不写真实 ArchiveData-v2 输出，不接 UI。
+本任务仍只写系统临时目录，不写真实 Archive 输出，不接 UI。
 
 ## 2. 本次范围
 
@@ -17,7 +17,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不运行 `build_archive.py`。
@@ -59,4 +59,4 @@ node scripts/check-archive-data-v2-music-shape.mjs
 
 ## 6. 下一步建议
 
-下一步只建议设计真实 ArchiveData-v2 写入 approval gate：明确从 sandbox 到真实 v2 Music 写入前必须增加哪些 allowlist、确认、备份和验收，不直接开始真实写入。
+下一步只建议设计真实 Archive 写入 approval gate：明确从 sandbox 到真实 v2 Music 写入前必须增加哪些 allowlist、确认、备份和验收，不直接开始真实写入。

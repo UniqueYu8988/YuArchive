@@ -1,6 +1,6 @@
-# ArchiveData-v2 文件规则设计
+# Archive 文件规则设计
 
-本文档定义 YuArchive 下一代源数据目录 `ArchiveData-v2` 的文件组织规则。当前阶段只做规则设计，不迁移数据，不创建 `ArchiveData-v2` 真实目录，不修改旧 OneDrive Data。
+本文档定义 YuArchive 下一代源数据目录 `Archive` 的文件组织规则。当前阶段只做规则设计，不迁移数据，不创建 `Archive` 真实目录，不修改旧 OneDrive Data。
 
 ## 1. 设计目标
 
@@ -32,7 +32,7 @@
 建议目录：
 
 ```text
-ArchiveData-v2/
+Archive/
 ├─ config/
 │  ├─ homepage.yaml
 │  ├─ layout.yaml
@@ -450,7 +450,7 @@ Texts 的审计后正式规则已拆分到 `docs/design/archive-data-v2-texts.md
 ## 9. 旧数据迁移原则
 
 - 旧 OneDrive Data 只读，不在迁移中覆盖、重命名或删除。
-- 迁移输出写到新的 `ArchiveData-v2`，且必须能安全删除后重跑。
+- 迁移输出写到新的 `Archive`，且必须能安全删除后重跑。
 - 所有旧文件必须有去向：映射为条目文件、条目 assets、config、migration 报告，或进入 unmapped。
 - 所有旧字段必须映射、保留到 `legacy`，或进入人工确认报告。
 - 不确定内容不由 AI 猜测，例如评分含义、分类归属、封面选择、媒体选择、文本摘要。
@@ -497,7 +497,7 @@ v0 的理想试点是 `music/album`：字段少、媒体规则清楚、现有 33
 建议路线：
 
 1. 完成本设计文档。
-2. 做只读迁移审计：不写 `ArchiveData-v2`，只列出旧条目、旧文件、旧字段和可映射关系。
+2. 做只读迁移审计：不写 `Archive`，只列出旧条目、旧文件、旧字段和可映射关系。
 3. 做 migration dry-run：输出将创建的目录、文件、字段映射、checksum 和未映射报告。
 4. 以 Music v2 试点迁移，仍不覆盖旧 Data。
 5. 建立 v2 检查脚本，验证 `entry.yaml`、`content.md`、`cover.*`、`audio.*`。

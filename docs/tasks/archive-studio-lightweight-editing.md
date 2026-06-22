@@ -6,7 +6,7 @@
 
 ## 允许
 
-- 读取和受控更新 ArchiveData-v2 普通条目；
+- 读取和受控更新 Archive 普通条目；
 - 保留或替换现有素材；
 - 写 update transaction、backup、rollback 和 pending public update 标记；
 - 显式同步对应公开 JSON / 媒体。

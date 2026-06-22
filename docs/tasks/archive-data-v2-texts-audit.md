@@ -1,4 +1,4 @@
-# 任务：ArchiveData-v2 Texts 只读审计
+# 任务：Archive Texts 只读审计
 
 创建日期：2026-06-20
 状态：已完成
@@ -20,7 +20,7 @@
 
 - 不输出标题清单或正文；
 - 不修改旧 Texts Markdown、图片或 `sections.yaml`；
-- 不创建或修改 ArchiveData-v2 Texts 输出；
+- 不创建或修改 Archive Texts 输出；
 - 不运行 `build_archive.py`；
 - 不修改 `public/data`、`src/data`、缓存或 reports；
 - 不实现迁移、生成器或 Archive Studio Texts 写入；
@@ -39,7 +39,7 @@
 - 同名和重复 `source_id` 数量；
 - 书架图片按文件 stem 的匹配与孤儿数量；
 - 当前 live `texts.json` 是否与源 Markdown 数量一致；
-- 当前 ArchiveData-v2 Texts 目标是否已经存在。
+- 当前 Archive Texts 目标是否已经存在。
 
 ## 5. 验证方式
 
@@ -71,7 +71,7 @@ git status --short --branch
 - 书架图片 54 张，按文件 stem 匹配 54，孤儿图片 0；
 - 标题重复计数 2，迁移 id 不能只依赖标题；
 - 旧 `source_id` 仅出现 3 次，且没有一个符合 v2 slug 规则，应保留为 legacy 字段而不是直接作为 v2 id；
-- 当前 ArchiveData-v2 尚无 Texts 输出；
+- 当前 Archive 尚无 Texts 输出；
 - 本轮写入动作 0。
 
 ## 9. 规则阶段结论

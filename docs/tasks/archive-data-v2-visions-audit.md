@@ -1,11 +1,11 @@
-# ArchiveData-v2 Visions 只读审计
+# Archive Visions 只读审计
 
 创建日期：2026-06-20
 状态：已完成
 
 ## 目标
 
-只读确认旧 Visions 的分组、海报、`meta.yaml`、角色橱窗、当前 live JSON 和前端依赖，为 ArchiveData-v2 Visions 规则设计提供事实基线。
+只读确认旧 Visions 的分组、海报、`meta.yaml`、角色橱窗、当前 live JSON 和前端依赖，为 Archive Visions 规则设计提供事实基线。
 
 ## 边界
 
@@ -13,7 +13,7 @@
 - 不修改海报、GIF、头像或 YAML；
 - 不运行 `build_archive.py`；
 - 不修改 `public/data/visions.json`；
-- 不创建 ArchiveData-v2 Visions 输出；
+- 不创建 Archive Visions 输出；
 - 不接入 Archive Studio 写入；
 - 不发布。
 

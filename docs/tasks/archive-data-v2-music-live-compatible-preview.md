@@ -2,14 +2,14 @@
 
 ## Goal
 
-Generate an isolated live-compatible Music preview from ArchiveData-v2.
+Generate an isolated live-compatible Music preview from Archive.
 
 This preview proves that v2 Music data can produce the same frontend-facing shape while preserving current live IDs and public media paths. It does not replace `public/data/music.json`.
 
 ## Allowed Scope
 
 - Add `scripts/generate-archive-data-v2-music-live-compatible-preview.mjs`.
-- Read `ArchiveData-v2/entries/music/album`.
+- Read `Archive/entries/music/album`.
 - Read current `public/data/music.json`.
 - Map v2 entries to live items using the proven normalized-title mapper.
 - Write an isolated preview JSON under system temp.
@@ -21,7 +21,7 @@ This preview proves that v2 Music data can produce the same frontend-facing shap
 - Do not modify `public/data/music.json`.
 - Do not modify `src/data`.
 - Do not modify old OneDrive Data.
-- Do not modify `ArchiveData-v2`.
+- Do not modify `Archive`.
 - Do not copy media into `public`.
 - Do not run `build_archive.py`.
 - Do not run npm dev/build/preview.

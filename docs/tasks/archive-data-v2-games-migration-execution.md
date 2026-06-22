@@ -1,17 +1,17 @@
-# ArchiveData-v2 Games 受控迁移
+# Archive Games 受控迁移
 
 创建日期：2026-06-20
 状态：真实迁移已完成
 
 ## 目标
 
-把旧 Games 只读迁移为 ArchiveData-v2 Games，不覆盖 Music、Texts 或 Visions，不修改旧 OneDrive Data，不生成 live JSON。
+把旧 Games 只读迁移为 Archive Games，不覆盖 Music、Texts 或 Visions，不修改旧 OneDrive Data，不生成 live JSON。
 
 ## 唯一写入范围
 
-- `ArchiveData-v2/entries/games/`；
-- `ArchiveData-v2/config/games.yaml`；
-- `ArchiveData-v2/migration/games/`。
+- `Archive/entries/games/`；
+- `Archive/config/games.yaml`；
+- `Archive/migration/games/`。
 
 目标已存在时默认阻断。
 
@@ -37,7 +37,7 @@ node scripts/migrate-archive-data-v2-games.mjs
 真实执行需要精确授权：
 
 ```powershell
-node scripts/migrate-archive-data-v2-games.mjs --execute --authorization "I authorize ArchiveData-v2 Games migration"
+node scripts/migrate-archive-data-v2-games.mjs --execute --authorization "I authorize Archive Games migration"
 ```
 
 ## 验收标准
@@ -52,7 +52,7 @@ node scripts/migrate-archive-data-v2-games.mjs --execute --authorization "I auth
 
 ## 回退
 
-只删除本轮三个 Games 目标，不删除 ArchiveData-v2 根目录或其他 board 数据。
+只删除本轮三个 Games 目标，不删除 Archive 根目录或其他 board 数据。
 
 ## 隔离验证结果
 

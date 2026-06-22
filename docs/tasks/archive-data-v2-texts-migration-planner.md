@@ -1,11 +1,11 @@
-# 任务：ArchiveData-v2 Texts 只读迁移 planner
+# 任务：Archive Texts 只读迁移 planner
 
 创建日期：2026-06-20
 状态：已完成
 
 ## 1. 目标
 
-根据已确认的 Texts v2 规则，在内存中规划 132 个条目、稳定 ID、kind、正文、封面和栏目配置目标，不写 ArchiveData-v2。
+根据已确认的 Texts v2 规则，在内存中规划 132 个条目、稳定 ID、kind、正文、封面和栏目配置目标，不写 Archive。
 
 ## 2. 输出
 

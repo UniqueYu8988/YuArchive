@@ -1,11 +1,11 @@
-# ArchiveData-v2 Games 只读规则审计
+# Archive Games 只读规则审计
 
 创建日期：2026-06-20
 状态：第一轮已完成，迁移规则已冻结
 
 ## 目标
 
-只读确认旧 Games 的年份目录、`meta.yaml`、DLC 文件名规则、`Game-Live` 赛季聚合、当前 `games.json` 与前端依赖，为 ArchiveData-v2 Games 规则设计提供事实基线。
+只读确认旧 Games 的年份目录、`meta.yaml`、DLC 文件名规则、`Game-Live` 赛季聚合、当前 `games.json` 与前端依赖，为 Archive Games 规则设计提供事实基线。
 
 ## 边界
 
@@ -13,7 +13,7 @@
 - 不修改图片、YAML、首页配置或媒体文件；
 - 不运行 `build_archive.py`；
 - 不修改 `public/data/games.json` 或 `home.json`；
-- 不创建 ArchiveData-v2 Games 输出；
+- 不创建 Archive Games 输出；
 - 不接入 Archive Studio；
 - 不执行 Git push 或发布。
 

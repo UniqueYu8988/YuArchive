@@ -1,17 +1,17 @@
-# ArchiveData-v2 Visions 受控迁移
+# Archive Visions 受控迁移
 
 创建日期：2026-06-20
 状态：真实迁移已完成
 
 ## 目标
 
-把旧 Visions 只读迁移为 ArchiveData-v2 Visions，不覆盖 Music 或 Texts，不修改旧 OneDrive Data，不生成 live JSON。
+把旧 Visions 只读迁移为 Archive Visions，不覆盖 Music 或 Texts，不修改旧 OneDrive Data，不生成 live JSON。
 
 ## 唯一写入范围
 
-- `ArchiveData-v2/entries/visions/`；
-- `ArchiveData-v2/config/visions-periods.yaml`；
-- `ArchiveData-v2/migration/visions/`。
+- `Archive/entries/visions/`；
+- `Archive/config/visions-periods.yaml`；
+- `Archive/migration/visions/`。
 
 目标已存在时默认阻断。
 
@@ -37,7 +37,7 @@ node scripts/migrate-archive-data-v2-visions.mjs
 真实执行：
 
 ```powershell
-node scripts/migrate-archive-data-v2-visions.mjs --execute --authorization "I authorize ArchiveData-v2 Visions migration"
+node scripts/migrate-archive-data-v2-visions.mjs --execute --authorization "I authorize Archive Visions migration"
 ```
 
 ## 验收标准
@@ -52,7 +52,7 @@ node scripts/migrate-archive-data-v2-visions.mjs --execute --authorization "I au
 
 ## 回退
 
-只删除本轮三个 Visions 目标，不删除 ArchiveData-v2 根目录、Music、Texts 或其他 config / migration 记录。
+只删除本轮三个 Visions 目标，不删除 Archive 根目录、Music、Texts 或其他 config / migration 记录。
 
 ## 隔离验证结果
 

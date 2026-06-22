@@ -2,12 +2,12 @@
 
 ## 目标
 
-实现基于 ArchiveData-v2 稳定 ID 的首页精选管理，使用户可以在本地 UI 中选择、排序、预览、保存并同步四板块首页内容。
+实现基于 Archive 稳定 ID 的首页精选管理，使用户可以在本地 UI 中选择、排序、预览、保存并同步四板块首页内容。
 
 ## 边界
 
 - 旧 OneDrive Data 和旧 `homepage.yaml` 始终只读。
-- 新配置只写 `[ArchiveData-v2]/config/homepage.yaml`。
+- 新配置只写 `[Archive]/config/homepage.yaml`。
 - 公开同步只写 `public/data/home.json`。
 - 不修改四板块条目，不自动同步未公开条目，不自动发布或推送。
 
@@ -31,5 +31,5 @@
 ## 回退
 
 - 代码和仓库派生数据按 Git commit 回退。
-- `[ArchiveData-v2]/config/homepage.yaml` 是新增配置；若需撤回，应先保留副本，再由单独任务删除。
+- `[Archive]/config/homepage.yaml` 是新增配置；若需撤回，应先保留副本，再由单独任务删除。
 - 旧 OneDrive Data 未变化，不需要源数据回退。

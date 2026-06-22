@@ -5,9 +5,9 @@
 
 ## 1. 目标
 
-在执行任何真实 ArchiveData-v2 Music create 写入前，建立一份可复核的 preflight checklist。
+在执行任何真实 Archive Music create 写入前，建立一份可复核的 preflight checklist。
 
-本任务只做执行前清单，不执行真实写入，不创建真实 entry，不修改 ArchiveData-v2、OneDrive Data、`public/data` 或 Git 状态。
+本任务只做执行前清单，不执行真实写入，不创建真实 entry，不修改 Archive、OneDrive Data、`public/data` 或 Git 状态。
 
 ## 2. 本次范围
 
@@ -19,7 +19,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不修改旧 OneDrive Data。
 - 不修改 `public/data`、`src/data`、缓存或 reports。
 - 不运行 `build_archive.py`。
@@ -33,7 +33,7 @@
 真实 create 写入试点必须由用户单独授权。授权文本至少应包含：
 
 ```text
-授权执行 Archive Studio v0 真实 v2 Music create 写入试点，只允许写 ArchiveData-v2/entries/music/album/<entry-id>，只创建一个新测试 entry，不修改 OneDrive Data、不修改 public/data、不运行 build_archive.py、不发布。
+授权执行 Archive Studio v0 真实 v2 Music create 写入试点，只允许写 Archive/entries/music/album/<entry-id>，只创建一个新测试 entry，不修改 OneDrive Data、不修改 public/data、不运行 build_archive.py、不发布。
 ```
 
 如果授权缺少以下任一项，应停止：
@@ -69,7 +69,7 @@ archive-studio-real-write-smoke-test
 执行真实 create 写入前，按顺序完成：
 
 1. 确认 Git 状态，记录是否有未提交变更。
-2. 确认真实 ArchiveData-v2 Music 输出目录存在。
+2. 确认真实 Archive Music 输出目录存在。
 3. 确认目标 entry 目录不存在。
 4. 确认 payload 通过 preview core 校验。
 5. 运行只读 gate checker，确认 `allowedToRequestWrite` 为 true。
@@ -168,4 +168,4 @@ preflight 通过后，下一轮真实写入任务仍必须单独声明：
 
 下一步只建议实现一个只读 preflight checker，把本清单中的关键条件自动化为摘要检查。
 
-该 checker 仍不应写真实 ArchiveData-v2 输出，不应修改 OneDrive Data，不应修改 `public/data`，不应运行 `build_archive.py`。
+该 checker 仍不应写真实 Archive 输出，不应修改 OneDrive Data，不应修改 `public/data`，不应运行 `build_archive.py`。

@@ -5,7 +5,7 @@
 
 ## 1. 目标
 
-实现一个只读 dry-run manifest 脚本，在不写真实 ArchiveData-v2 的前提下，基于 real write gate checker 输出将要写入、备份和回滚的 manifest 草案。
+实现一个只读 dry-run manifest 脚本，在不写真实 Archive 的前提下，基于 real write gate checker 输出将要写入、备份和回滚的 manifest 草案。
 
 ## 2. 本次范围
 
@@ -16,7 +16,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不创建 backup。

@@ -1,19 +1,19 @@
-# 任务：ArchiveData-v2 Texts 受控迁移
+# 任务：Archive Texts 受控迁移
 
 创建日期：2026-06-20
 状态：已完成
 
 ## 1. 目标
 
-把旧 Texts 只读迁移为 ArchiveData-v2 Texts，不覆盖 Music，不修改旧 OneDrive Data，不生成 live JSON。
+把旧 Texts 只读迁移为 Archive Texts，不覆盖 Music，不修改旧 OneDrive Data，不生成 live JSON。
 
 ## 2. 写入范围
 
 只允许创建：
 
-- `ArchiveData-v2/entries/texts/`；
-- `ArchiveData-v2/config/texts-sections.yaml`；
-- `ArchiveData-v2/migration/texts/`。
+- `Archive/entries/texts/`；
+- `Archive/config/texts-sections.yaml`；
+- `Archive/migration/texts/`。
 
 任一目标已存在时拒绝执行。
 
@@ -23,7 +23,7 @@
 2. 对旧 Texts 187 个文件建立内存 SHA-256 基线；
 3. 在系统临时目录生成完整 v2 Texts；
 4. 在临时目录运行 Texts v2 shape checker；
-5. 通过后复制到 ArchiveData-v2 的限定范围；
+5. 通过后复制到 Archive 的限定范围；
 6. 在真实 v2 运行 shape checker；
 7. 对比旧 Texts 前后 SHA-256；
 8. 任一步失败，只删除本轮三个 Texts 目标。
@@ -39,7 +39,7 @@ node scripts/migrate-archive-data-v2-texts.mjs
 真实执行同时要求：
 
 ```powershell
-node scripts/migrate-archive-data-v2-texts.mjs --execute --authorization "I authorize ArchiveData-v2 Texts migration"
+node scripts/migrate-archive-data-v2-texts.mjs --execute --authorization "I authorize Archive Texts migration"
 ```
 
 ## 5. 禁止
@@ -65,11 +65,11 @@ node scripts/migrate-archive-data-v2-texts.mjs --execute --authorization "I auth
 
 只删除：
 
-- `ArchiveData-v2/entries/texts/`；
-- `ArchiveData-v2/config/texts-sections.yaml`；
-- `ArchiveData-v2/migration/texts/`。
+- `Archive/entries/texts/`；
+- `Archive/config/texts-sections.yaml`；
+- `Archive/migration/texts/`。
 
-不删除 ArchiveData-v2 根目录、Music、其他 config 或其他 migration 记录。
+不删除 Archive 根目录、Music、其他 config 或其他 migration 记录。
 
 ## 8. 执行结果
 

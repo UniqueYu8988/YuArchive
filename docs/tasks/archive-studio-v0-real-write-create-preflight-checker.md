@@ -7,7 +7,7 @@
 
 把 `docs/tasks/archive-studio-v0-real-write-create-preflight.md` 中的关键门槛自动化为一个只读 checker。
 
-本任务仍不执行真实写入，只判断当前 payload 和真实 ArchiveData-v2 Music 状态是否满足“可以请求进入真实 create 写入任务”的前置条件。
+本任务仍不执行真实写入，只判断当前 payload 和真实 Archive Music 状态是否满足“可以请求进入真实 create 写入任务”的前置条件。
 
 ## 2. 本次范围
 
@@ -19,7 +19,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写旧 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不创建 backup、write manifest 或 rollback manifest。

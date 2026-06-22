@@ -15,11 +15,11 @@
 - 增加执行 gate 列表。
 - 增加执行阶段列表。
 - 继续保持 `executeImplemented: false`。
-- 传入 `--execute` 时仍阻断，不写真实 ArchiveData-v2。
+- 传入 `--execute` 时仍阻断，不写真实 Archive。
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不创建或删除真实 entry。
 - 不创建 transaction manifest。
 - 不创建 backup、staging 或 rollback 文件。

@@ -1,4 +1,4 @@
-# ArchiveData-v2 Visions 规则草案
+# Archive Visions 规则草案
 
 创建日期：2026-06-20
 状态：规则、受控迁移和 live-compatible 替换已完成，Archive Studio 接入待实施

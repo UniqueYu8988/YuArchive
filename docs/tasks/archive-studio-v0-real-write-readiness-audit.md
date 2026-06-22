@@ -21,7 +21,7 @@
 ## 3. 安全边界
 
 - 只读旧 OneDrive Data 文件元数据，不读取收藏正文；
-- 只读 ArchiveData-v2 当前目录状态；
+- 只读 Archive 当前目录状态；
 - 不创建测试 entry；
 - 不复制素材；
 - 不写 manifest；

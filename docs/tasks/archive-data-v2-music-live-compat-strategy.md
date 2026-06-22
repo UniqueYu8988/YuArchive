@@ -200,7 +200,7 @@ Cons:
 
 ### Option 3: Serve v2 source media directly
 
-The frontend serves media from `ArchiveData-v2`.
+The frontend serves media from `Archive`.
 
 Pros:
 

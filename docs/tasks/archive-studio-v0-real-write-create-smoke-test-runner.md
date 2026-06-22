@@ -7,7 +7,7 @@
 
 建立真实 v2 Music create + rollback smoke test 的 runner 入口，但本轮只启用默认计划模式。
 
-该 runner 用于统一未来真实执行入口；当前不会写真实 ArchiveData-v2，不会创建 entry，不会创建 transaction manifest。
+该 runner 用于统一未来真实执行入口；当前不会写真实 Archive，不会创建 entry，不会创建 transaction manifest。
 
 ## 2. 本次范围
 
@@ -18,7 +18,7 @@
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不创建或删除真实 entry。
 - 不创建 transaction manifest。
 - 不创建 backup、staging 或 rollback 文件。
@@ -110,7 +110,7 @@ runner 已加入受控 create + rollback 实现：
 
 - 默认仍为计划模式；
 - 真实执行必须同时提供 `--execute`、精确 entry id 和固定授权短语；
-- CLI 的真实目标固定为 ArchiveData-v2，不接受任意输出根目录；
+- CLI 的真实目标固定为 Archive，不接受任意输出根目录；
 - staging 先写系统临时目录并校验 checksum；
 - entry 和 transaction 文件受 allowlist 限制；
 - 写入后运行 Music v2 shape check；
@@ -128,13 +128,13 @@ node scripts/check-archive-studio-v0-real-write-smoke-runner.mjs
 
 ## 10. 2026-06-19 真实执行结果
 
-已在授权范围内对真实 ArchiveData-v2 执行 create + rollback smoke test：
+已在授权范围内对真实 Archive 执行 create + rollback smoke test：
 
 - 写入后 Music entries 从 33 增至 34；
 - rollback 后恢复为 33；
 - 创建的 4 个 entry 文件和 3 个 transaction 文件均无残留；
 - 旧 OneDrive Data 778 个源文件元数据摘要前后一致；
-- rollback 后 ArchiveData-v2 元数据摘要恢复；
+- rollback 后 Archive 元数据摘要恢复；
 - Music v2 shape check 通过。
 
 该结果证明受控写入和回退链路可用，不等同于已经保留正式新条目。

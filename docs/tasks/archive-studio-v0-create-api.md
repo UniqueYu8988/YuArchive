@@ -10,7 +10,7 @@
 ## 2. 范围
 
 - 只支持 `music / album / create`；
-- 只写 ArchiveData-v2；
+- 只写 Archive；
 - 使用一次性、短时有效且绑定 payload 的 preflight token；
 - 通过 multipart 接收一个 cover 和一个 audio；
 - 创建 `entry.yaml`、`content.md`、cover、audio 和 transaction manifests；

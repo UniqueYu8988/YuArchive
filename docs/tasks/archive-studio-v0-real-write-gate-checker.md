@@ -5,7 +5,7 @@
 
 ## 1. 目标
 
-实现一个只读 gate checker，用于读取 Archive Studio v0 `music/album` payload 和真实 ArchiveData-v2 Music 当前状态，输出是否允许进入真实写入申请。
+实现一个只读 gate checker，用于读取 Archive Studio v0 `music/album` payload 和真实 Archive Music 当前状态，输出是否允许进入真实写入申请。
 
 本任务不执行真实写入，不创建备份，不修改任何数据。
 
@@ -13,13 +13,13 @@
 
 - 新增 `scripts/check-archive-studio-v0-real-write-gate.mjs`。
 - 默认读取项目内样例 payload。
-- 只读读取真实 ArchiveData-v2 Music 输出目录的目标 entry 状态。
+- 只读读取真实 Archive Music 输出目录的目标 entry 状态。
 - 复用 preview core 校验 payload 和 target 相对路径。
 - 输出 payload gate、目标 entry 存在性、operation 计数、backup 需求和 blocked reason。
 
 ## 3. 明确不做
 
-- 不写真实 ArchiveData-v2 输出。
+- 不写真实 Archive 输出。
 - 不写 OneDrive Data。
 - 不写 `public/data`、`src/data`、缓存或 reports。
 - 不创建 backup。
@@ -41,7 +41,7 @@ node scripts/check-archive-studio-v0-real-write-gate.mjs
 
 1. 读取 `docs/examples/archive-studio-v0-music-album-payload.sample.json`。
 2. 校验 payload 的 mode、board、kind、id、title 和素材扩展名。
-3. 只读检查真实 ArchiveData-v2 Music 根目录。
+3. 只读检查真实 Archive Music 根目录。
 4. 只读检查目标 entry 目录和目标文件是否存在。
 5. 输出 create / overwrite / keep / blocked 计数。
 6. 输出是否需要 backup。

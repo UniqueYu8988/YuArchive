@@ -13,7 +13,7 @@ Archive Studio v0 是 YuArchive 的本地可视化维护工具。
 - kind: `album`
 - 行为：新建条目
 
-目标是减少手写 YAML、Markdown 和文件放置规则的负担，让用户通过表单、素材选择和保存前预览来维护 ArchiveData-v2。
+目标是减少手写 YAML、Markdown 和文件放置规则的负担，让用户通过表单、素材选择和保存前预览来维护 Archive。
 
 v0 第一版不做：
 
@@ -26,7 +26,7 @@ v0 第一版不做：
 - 编辑已有 33 个 Music 条目；
 - 直接修改旧 OneDrive Data。
 
-ArchiveData-v2 是新写入目标。旧 OneDrive Data 仍作为只读迁移来源和回退参考。
+Archive 是新写入目标。旧 OneDrive Data 仍作为只读迁移来源和回退参考。
 
 ## 2. 用户流程
 
@@ -43,7 +43,7 @@ ArchiveData-v2 是新写入目标。旧 OneDrive Data 仍作为只读迁移来�
 → 预览将写入的文件
 → 运行 preflight
 → 保存按钮解锁
-→ 保存到 ArchiveData-v2
+→ 保存到 Archive
 → 运行检查
 → 显示结果
 ```
@@ -129,7 +129,7 @@ ArchiveData-v2 是新写入目标。旧 OneDrive Data 仍作为只读迁移来�
 - audio；
 - transaction manifest。
 
-所有路径使用相对路径或 `[ArchiveData-v2]` 占位。
+所有路径使用相对路径或 `[Archive]` 占位。
 
 ### 检查结果区
 
@@ -245,10 +245,10 @@ audio: .mp3 .wav .flac .m4a .ogg .aac
 路径显示规则：
 
 ```text
-[ArchiveData-v2]/entries/music/album/<entry-id>/entry.yaml
-[ArchiveData-v2]/entries/music/album/<entry-id>/content.md
-[ArchiveData-v2]/entries/music/album/<entry-id>/cover.<ext>
-[ArchiveData-v2]/entries/music/album/<entry-id>/audio.<ext>
+[Archive]/entries/music/album/<entry-id>/entry.yaml
+[Archive]/entries/music/album/<entry-id>/content.md
+[Archive]/entries/music/album/<entry-id>/cover.<ext>
+[Archive]/entries/music/album/<entry-id>/audio.<ext>
 ```
 
 preview 不显示：
@@ -301,7 +301,7 @@ preview 不显示：
 | `GET /api/studio/profiles` | 无 | 可用 board/kind、能力开关 | 只读 | 启用 | 否 |
 | `POST /api/studio/music/album/preview` | 表单 payload | target、summary、operations、warnings、errors | 只读 | 启用 | 否 |
 | `POST /api/studio/music/album/preflight` | 表单 payload / preview id | preflight 结果、阻断规则 | 只读 | 启用 | 否 |
-| `POST /api/studio/music/album/create` | confirmed payload、preflight token、cover、audio | 创建结果、manifest 摘要、检查结果 | 写 ArchiveData-v2 | 启用 | 是 |
+| `POST /api/studio/music/album/create` | confirmed payload、preflight token、cover、audio | 创建结果、manifest 摘要、检查结果 | 写 Archive | 启用 | 是 |
 | `POST /api/studio/checks/music-v2` | 无或检查 profile | v2 Music shape 检查摘要 | 只读 | 启用 | 否 |
 
 API 边界：
@@ -361,7 +361,7 @@ v0 第一版不做：
 7. 再决定是否接入真实 create + rollback smoke test。
 8. 最后才启用真实保存。
 
-第一批前端实现仍应只读，不写 ArchiveData-v2。
+第一批前端实现仍应只读，不写 Archive。
 
 ## 13. v0 完成验收标准
 
@@ -374,7 +374,7 @@ Archive Studio v0 只有在以下条件全部满足后，才视为完成：
 - UI 不显示完整本机路径；
 - UI 可以生成 entry id 建议和目标相对路径预览；
 - UI 可以预览 `entry.yaml`、`content.md`、cover、audio 和 manifest 的文件角色；
-- preview 和 preflight 不写 ArchiveData-v2；
+- preview 和 preflight 不写 Archive；
 - preflight 未通过时，`Create entry` 必须保持禁用；
 - 保存只允许创建一个新的 Music album 条目，不覆盖已有条目；
 - 保存后运行 v2 Music shape check，并显示结果；

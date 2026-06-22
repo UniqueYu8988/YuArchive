@@ -38,7 +38,7 @@ Archive Studio v0 的边界已经确定：第一版只服务 `music/album`，不
 ### 风险
 
 - 写入边界不稳定。
-- 用户可能以为已保存到 ArchiveData-v2，但实际上只是下载或浏览器缓存。
+- 用户可能以为已保存到 Archive，但实际上只是下载或浏览器缓存。
 - 后续还要补本地写入层，可能返工。
 
 ### 结论
@@ -80,7 +80,7 @@ Archive Studio v0 的边界已经确定：第一版只服务 `music/album`，不
 
 - 服务默认只监听 `127.0.0.1`。
 - 必须有 `ARCHIVE_STUDIO_ENABLED=1` 或显式命令才启动。
-- 写入目录只允许 ArchiveData-v2 的 `entries/music/album`。
+- 写入目录只允许 Archive 的 `entries/music/album`。
 - 第一版不提供删除 API。
 - 第一版不写 `public/data`、`src/data`、旧 OneDrive Data、缓存或 reports。
 - 所有写入先返回 preview，确认请求才执行。
@@ -157,7 +157,7 @@ Archive Studio v0 的边界已经确定：第一版只服务 `music/album`，不
 - 只写到系统临时目录或单独 sandbox。
 - 输出将写入的相对路径和字段摘要。
 - 运行 v2 Music shape 检查或轻量 schema 检查。
-- 不修改真实 ArchiveData-v2 试点输出。
+- 不修改真实 Archive 试点输出。
 
 目的：证明写入逻辑、preview、回退和检查顺序。
 
@@ -209,7 +209,7 @@ Archive Studio v0 的边界已经确定：第一版只服务 `music/album`，不
 ## 10. 安全边界
 
 - 写入根目录必须由配置显式指定。
-- 写入目标必须位于 ArchiveData-v2 `entries/music/album` 下。
+- 写入目标必须位于 Archive `entries/music/album` 下。
 - 任何相对路径必须规范化后检查，禁止 `..` 逃逸。
 - 不接受前端传来的绝对输出路径。
 - 不把本机完整路径返回给 UI。
@@ -240,4 +240,4 @@ Archive Studio v0 的边界已经确定：第一版只服务 `music/album`，不
 
 ## 13. 下一步建议
 
-下一步只建议做 `music/album` payload schema 和 preview 输出格式设计；仍不实现前端，不写真实 ArchiveData-v2 输出，不运行发布脚本。
+下一步只建议做 `music/album` payload schema 和 preview 输出格式设计；仍不实现前端，不写真实 Archive 输出，不运行发布脚本。

@@ -2,13 +2,13 @@
 
 ## Goal
 
-Record the acceptance result and Git boundary for the ArchiveData-v2 Music-only pilot output.
+Record the acceptance result and Git boundary for the Archive Music-only pilot output.
 
 This task does not change the pilot output. It verifies that the generated v2 Music data is structurally valid and clarifies whether it is part of the current project Git worktree.
 
 ## Checked Scope
 
-- Generated `ArchiveData-v2` Music pilot output.
+- Generated `Archive` Music pilot output.
 - Source-side OneDrive Data checks.
 - Music source media matching.
 - Generated v2 Music shape check.
@@ -36,7 +36,7 @@ Evidence:
 
 ## Git Boundary
 
-The generated `ArchiveData-v2` pilot output is outside the project Git worktree.
+The generated `Archive` pilot output is outside the project Git worktree.
 
 Current project boundary:
 
@@ -47,7 +47,7 @@ project Git worktree
 Generated v2 pilot output boundary:
 
 ```text
-external ArchiveData-v2 output directory
+external Archive output directory
 ```
 
 Because the generated v2 output is not under the project root, it is not shown by `git status` and will not be included by normal project commits.
@@ -72,19 +72,19 @@ Keeping it outside the code repo for now avoids:
 
 ## Future Options
 
-Option A: Keep `ArchiveData-v2` outside the project repo.
+Option A: Keep `Archive` outside the project repo.
 
 - Best for the current stage.
 - Matches the old model where source data lives outside the frontend repo.
 - Keeps media out of Git unless there is a deliberate data-versioning decision.
 
-Option B: Put `ArchiveData-v2` in a separate data repository later.
+Option B: Put `Archive` in a separate data repository later.
 
 - Useful if v2 source data should be versioned.
 - Requires separate privacy, media-size, and backup policy.
 - Should be planned after the Music generator and Archive Studio shape are clearer.
 
-Option C: Move `ArchiveData-v2` into this project repo later.
+Option C: Move `Archive` into this project repo later.
 
 - Not recommended as the default.
 - Would require `.gitignore`, large-file policy, and publication-boundary review.
@@ -94,11 +94,11 @@ Option C: Move `ArchiveData-v2` into this project repo later.
 
 Design the v2 Music generator pilot.
 
-The generator pilot should read `ArchiveData-v2/entries/music/album` and produce an isolated temporary Music JSON output for comparison, without modifying current `public/data/music.json`, without running `build_archive.py`, and without changing the live frontend.
+The generator pilot should read `Archive/entries/music/album` and produce an isolated temporary Music JSON output for comparison, without modifying current `public/data/music.json`, without running `build_archive.py`, and without changing the live frontend.
 
 ## Rollback
 
-If the pilot output needs to be removed, delete the generated `ArchiveData-v2` directory and rerun:
+If the pilot output needs to be removed, delete the generated `Archive` directory and rerun:
 
 ```powershell
 node scripts/check-source-data-shape.mjs
