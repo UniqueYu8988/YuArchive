@@ -207,6 +207,7 @@ export default function ArchiveStudioTextsPage() {
   const [checkStatus, setCheckStatus] = useState<RequestStatus>('idle')
   const [checkResult, setCheckResult] = useState<TextsCheck | null>(null)
   const [requestError, setRequestError] = useState('')
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState('')
 
   const isBookNote = kind === 'book_note'
   const coverExtension = fileExtension(form.cover)
@@ -240,6 +241,17 @@ export default function ArchiveStudioTextsPage() {
       })
     return () => controller.abort()
   }, [])
+
+  useEffect(() => {
+    if (!form.cover) {
+      setCoverPreviewUrl('')
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(form.cover)
+    setCoverPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [form.cover])
 
   const invalidate = () => {
     setIsDirty(true)
@@ -488,6 +500,15 @@ export default function ArchiveStudioTextsPage() {
     && createStatus !== 'loading'
     && createStatus !== 'success'
   const KindIcon = kindOptions.find(option => option.kind === kind)?.icon ?? FileText
+  const currentKind = kindOptions.find(option => option.kind === kind)
+  const currentSection = sectionsByKind[kind].find(option => option.key === section)?.label ?? section
+  const displayTitle = form.title.trim() || '文本标题'
+  const displaySummary = form.summary.trim() || form.content.trim().replace(/\s+/g, ' ').slice(0, 110) || '这里会显示摘要或正文开头。'
+  const displayMeta = [
+    currentSection,
+    form.date || (isBookNote ? '日期可选' : '日期未填'),
+    isBookNote && form.author.trim() ? form.author.trim() : '',
+  ].filter(Boolean).join(' · ')
 
   return (
     <main className="studio-shell">
@@ -501,8 +522,6 @@ export default function ArchiveStudioTextsPage() {
             <ShieldCheck size={15} />
             {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
           </span>
-          <span className="studio-status">不会自动发布</span>
-          <span className="studio-status">不写旧源数据</span>
         </div>
       </header>
 
@@ -645,9 +664,44 @@ export default function ArchiveStudioTextsPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
+            <div className="studio-display-preview">
+              <div className="studio-display-preview__heading">
+                <span>展示预览</span>
+                <strong>文本页面中的大致效果</strong>
+              </div>
+
+              <div className={`studio-text-preview-card${isBookNote ? ' studio-text-preview-card--book' : ''}`}>
+                {isBookNote ? (
+                  <div className="studio-text-preview-cover">
+                    {coverPreviewUrl ? (
+                      <img src={coverPreviewUrl} alt="" />
+                    ) : (
+                      <div>
+                        <FileImage size={24} />
+                        <span>{mode === 'update' ? '保留现有封面' : '选择封面后预览'}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <KindIcon size={22} className="studio-text-preview-icon" />
+                )}
+                <div className="studio-text-preview-body">
+                  <span className="studio-catalog-preview-kind">{currentKind?.label ?? '文本'}</span>
+                  <h3>{displayTitle}</h3>
+                  <p>{displayMeta}</p>
+                  <blockquote>{displaySummary}</blockquote>
+                  {tags.length ? (
+                    <div className="studio-catalog-preview-tags">
+                      {tags.slice(0, 4).map(tag => <span key={tag}>{tag}</span>)}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
             <div className="studio-preview-title">
               <FolderTree size={19} />
-              <div><span>写入预览</span><strong>[Archive]</strong></div>
+              <div><span>写入详情</span><strong>生成预览后用于检查</strong></div>
             </div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">

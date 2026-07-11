@@ -136,6 +136,7 @@ export default function ArchiveStudioGamesPage() {
   const [checkStatus, setCheckStatus] = useState<RequestStatus>('idle')
   const [checkResult, setCheckResult] = useState<GamesCheck | null>(null)
   const [requestError, setRequestError] = useState('')
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState('')
   const coverExtension = fileExtension(form.cover)
 
   useEffect(() => {
@@ -160,6 +161,17 @@ export default function ArchiveStudioGamesPage() {
       })
     return () => controller.abort()
   }, [])
+
+  useEffect(() => {
+    if (!form.cover) {
+      setCoverPreviewUrl('')
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(form.cover)
+    setCoverPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [form.cover])
 
   const invalidate = () => {
     setIsDirty(true)
@@ -325,6 +337,18 @@ export default function ArchiveStudioGamesPage() {
   const previewReady = previewResult?.ok === true && validation.length === 0
   const createReady = previewReady && preflightResult?.ok === true && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
     && createAvailable && createStatus !== 'loading' && createStatus !== 'success'
+  const platformLabel = platforms.find(([value]) => value === form.platform)?.[1] ?? form.platform
+  const genreLabel = genres.find(([value]) => value === form.genre)?.[1] ?? '未分类'
+  const displayTitle = form.title.trim() || '游戏标题'
+  const displayMeta = [form.year || '年份未填', form.metadataEnabled ? platformLabel : '基础条目'].filter(Boolean).join(' · ')
+  const displayStats = form.metadataEnabled
+    ? [
+      genreLabel,
+      form.rating ? `${form.rating} 星` : '未评分',
+      form.playtime.trim() || '时长未填',
+      form.completed ? '已完成' : '进行中',
+    ]
+    : ['未启用增强元数据']
 
   return (
     <main className="studio-shell">
@@ -332,7 +356,6 @@ export default function ArchiveStudioGamesPage() {
         <div><div className="studio-kicker">本地收藏维护工具</div><h1>Archive Studio</h1></div>
         <div className="studio-status-cluster">
           <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}><ShieldCheck size={15} />{serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}</span>
-          <span className="studio-status">不会自动发布</span><span className="studio-status">不写旧源数据</span>
         </div>
       </header>
 
@@ -392,7 +415,36 @@ export default function ArchiveStudioGamesPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
-            <div className="studio-preview-title"><FolderTree size={19} /><div><span>写入预览</span><strong>[Archive]</strong></div></div>
+            <div className="studio-display-preview">
+              <div className="studio-display-preview__heading">
+                <span>展示预览</span>
+                <strong>游戏页面中的大致效果</strong>
+              </div>
+
+              <div className="studio-catalog-preview-card">
+                <div className="studio-catalog-preview-poster">
+                  {coverPreviewUrl ? (
+                    <img src={coverPreviewUrl} alt="" />
+                  ) : (
+                    <div>
+                      <FileImage size={26} />
+                      <span>{mode === 'update' ? '保留现有封面' : '选择封面后预览'}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="studio-catalog-preview-body">
+                  <span className="studio-catalog-preview-kind">Game</span>
+                  <h3>{displayTitle}</h3>
+                  <p>{displayMeta}</p>
+                  <div className="studio-catalog-preview-tags">
+                    {displayStats.map(item => <span key={item}>{item}</span>)}
+                  </div>
+                  {form.englishTitle.trim() ? <small>{form.englishTitle.trim()}</small> : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="studio-preview-title"><FolderTree size={19} /><div><span>写入详情</span><strong>生成预览后用于检查</strong></div></div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">
               {(previewResult?.operations ?? [

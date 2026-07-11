@@ -1,9 +1,19 @@
 {
   "key": "music",
   "display_name": "Music",
-  "total_count": 33,
+  "total_count": 34,
   "sort_mode": "music",
   "items": [
+    {
+      "id": "aerith-s-theme",
+      "title": "Aerith's Theme",
+      "cover": "studio_media/music/aerith-s-theme/cover.webp",
+      "description": "",
+      "content": "",
+      "audio": "studio_media/music/aerith-s-theme/audio.m4a",
+      "url": "",
+      "track_title": ""
+    },
     {
       "id": "music_0",
       "title": "ARCANE II",

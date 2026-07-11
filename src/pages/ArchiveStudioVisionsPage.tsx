@@ -146,6 +146,7 @@ export default function ArchiveStudioVisionsPage() {
   const [checkStatus, setCheckStatus] = useState<RequestStatus>('idle')
   const [checkResult, setCheckResult] = useState<VisionsCheck | null>(null)
   const [requestError, setRequestError] = useState('')
+  const [posterPreviewUrl, setPosterPreviewUrl] = useState('')
   const posterExtension = fileExtension(form.poster)
 
   useEffect(() => {
@@ -175,6 +176,17 @@ export default function ArchiveStudioVisionsPage() {
       })
     return () => controller.abort()
   }, [])
+
+  useEffect(() => {
+    if (!form.poster) {
+      setPosterPreviewUrl('')
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(form.poster)
+    setPosterPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [form.poster])
 
   const invalidate = () => {
     setIsDirty(true)
@@ -385,6 +397,9 @@ export default function ArchiveStudioVisionsPage() {
     && createStatus !== 'loading'
     && createStatus !== 'success'
   const KindIcon = kind === 'movie' ? Clapperboard : Tv
+  const displayTitle = form.title.trim() || '影视标题'
+  const displayQuote = form.quote.trim() || '这里会显示展示短句。'
+  const displayKind = kind === 'movie' ? 'Movie' : 'Series'
 
   return (
     <main className="studio-shell">
@@ -395,8 +410,6 @@ export default function ArchiveStudioVisionsPage() {
             <ShieldCheck size={15} />
             {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
           </span>
-          <span className="studio-status">不会自动发布</span>
-          <span className="studio-status">不写旧源数据</span>
         </div>
       </header>
 
@@ -503,9 +516,36 @@ export default function ArchiveStudioVisionsPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
+            <div className="studio-display-preview">
+              <div className="studio-display-preview__heading">
+                <span>展示预览</span>
+                <strong>影视页面中的大致效果</strong>
+              </div>
+
+              <div className="studio-catalog-preview-card studio-catalog-preview-card--poster">
+                <div className="studio-catalog-preview-poster">
+                  {posterPreviewUrl ? (
+                    <img src={posterPreviewUrl} alt="" />
+                  ) : (
+                    <div>
+                      <FileImage size={26} />
+                      <span>{mode === 'update' ? '保留现有海报' : '选择海报后预览'}</span>
+                    </div>
+                  )}
+                  {form.cinema ? <i>影院</i> : null}
+                </div>
+                <div className="studio-catalog-preview-body">
+                  <span className="studio-catalog-preview-kind">{displayKind}</span>
+                  <h3>{displayTitle}</h3>
+                  <p>{form.period}</p>
+                  <blockquote>{displayQuote}</blockquote>
+                </div>
+              </div>
+            </div>
+
             <div className="studio-preview-title">
               <FolderTree size={19} />
-              <div><span>写入预览</span><strong>[Archive]</strong></div>
+              <div><span>写入详情</span><strong>生成预览后用于检查</strong></div>
             </div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">

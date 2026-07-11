@@ -1,13 +1,39 @@
 {
   "key": "games",
   "display_name": "Games",
-  "total_count": 283,
+  "total_count": 284,
   "sort_mode": "timeline",
   "years": [
     {
       "year": 2026,
       "folder": "Game-2026",
       "items": [
+        {
+          "id": "game-20260629-9ed64073",
+          "image_path": "studio_media/games/game-20260629-9ed64073/cover.webp",
+          "title": "小飞船大冒险",
+          "cinema": false,
+          "quote": "",
+          "url": "https://store.steampowered.com/app/1634860/_Minishoot_Adventures/",
+          "type": "game",
+          "game_meta_enabled": true,
+          "english_title": "Minishoot' Adventures",
+          "platform": "xbox",
+          "price": "Free",
+          "rating": "",
+          "playtime": "~8h",
+          "completed": true,
+          "genre": "casual",
+          "seasonal": false,
+          "dlc": false,
+          "dlc_parent": "",
+          "summary": "",
+          "hover_note": "",
+          "season_heading": "",
+          "season_subheading": "",
+          "season_description": "",
+          "season_entries": []
+        },
         {
           "id": "game-20260621-62225be7",
           "image_path": "studio_media/games/game-20260621-62225be7/cover.png",

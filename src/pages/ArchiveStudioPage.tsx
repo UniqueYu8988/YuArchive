@@ -232,6 +232,8 @@ export default function ArchiveStudioPage() {
   const [createStatus, setCreateStatus] = useState<RequestStatus>('idle')
   const [createResult, setCreateResult] = useState<ApiCreateResult | null>(null)
   const [requestError, setRequestError] = useState('')
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState('')
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState('')
 
   const coverExtension = getExtension(form.cover)
   const audioExtension = getExtension(form.audio)
@@ -263,6 +265,28 @@ export default function ArchiveStudioPage() {
 
     return () => controller.abort()
   }, [])
+
+  useEffect(() => {
+    if (!form.cover) {
+      setCoverPreviewUrl('')
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(form.cover)
+    setCoverPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [form.cover])
+
+  useEffect(() => {
+    if (!form.audio) {
+      setAudioPreviewUrl('')
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(form.audio)
+    setAudioPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [form.audio])
 
   const validation = useMemo(() => {
     const errors: string[] = []
@@ -563,6 +587,10 @@ export default function ArchiveStudioPage() {
     && createAvailable
     && createStatus !== 'loading'
     && createStatus !== 'success'
+  const displayTitle = form.title.trim() || '专辑标题'
+  const displayMeta = form.date.trim() || '日期未填写'
+  const displayNote = form.note.trim() || '这里会显示你填写的备注。'
+  const displayContent = form.content.trim().replace(/\s+/g, ' ')
 
   return (
     <main className="studio-shell">
@@ -576,8 +604,6 @@ export default function ArchiveStudioPage() {
             <ShieldCheck size={15} />
             {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
           </span>
-          <span className="studio-status">不会自动发布</span>
-          <span className="studio-status">不写旧源数据</span>
         </div>
       </header>
 
@@ -736,11 +762,47 @@ export default function ArchiveStudioPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
+            <div className="studio-display-preview">
+              <div className="studio-display-preview__heading">
+                <span>展示预览</span>
+                <strong>音乐页面中的大致效果</strong>
+              </div>
+
+              <div className="studio-music-preview-card">
+                <div className="studio-music-preview-cover">
+                  {coverPreviewUrl ? (
+                    <img src={coverPreviewUrl} alt="" />
+                  ) : (
+                    <div>
+                      <FileImage size={26} />
+                      <span>{mode === 'update' ? '保留现有封面' : '选择封面后预览'}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="studio-music-preview-body">
+                  <span className="studio-music-preview-kind">Album</span>
+                  <h3>{displayTitle}</h3>
+                  <p>{displayMeta}</p>
+                  <blockquote>{displayNote}</blockquote>
+                  {displayContent ? <small>{displayContent.slice(0, 86)}{displayContent.length > 86 ? '...' : ''}</small> : null}
+                </div>
+
+                <div className="studio-music-preview-audio">
+                  {audioPreviewUrl ? (
+                    <audio controls src={audioPreviewUrl} />
+                  ) : (
+                    <span>{mode === 'update' ? '保留现有音频' : '选择音频后可试听'}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="studio-preview-title">
               <FolderTree size={19} />
               <div>
-                <span>写入预览</span>
-                <strong>[Archive]</strong>
+                <span>写入详情</span>
+                <strong>生成预览后用于检查</strong>
               </div>
             </div>
 

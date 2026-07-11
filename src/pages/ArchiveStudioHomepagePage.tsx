@@ -182,7 +182,6 @@ export default function ArchiveStudioHomepagePage() {
         <div><div className="studio-kicker">本地收藏维护工具</div><h1>Archive Studio</h1></div>
         <div className="studio-status-cluster">
           <span className="studio-status studio-status--safe"><ShieldCheck size={15} />本地服务已连接</span>
-          <span className="studio-status">不会自动发布</span><span className="studio-status">不写旧源数据</span>
         </div>
       </header>
 

@@ -107,7 +107,7 @@ export default function ArchiveStudioModePicker({
             </div>
           ) : null}
         </div>
-      ) : <p>填写下方表单创建新条目。</p>}
+      ) : null}
       {error ? <span className="studio-mode-error">{error}</span> : null}
     </section>
   )

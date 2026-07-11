@@ -6,19 +6,52 @@ import {
 } from 'lucide-react'
 import type { HomePageData, MusicCategory, TextsCategory, TimelineCategory } from './types'
 import { useIsMobile } from './hooks/useIsMobile'
-import { useJsonData } from './hooks/useJsonData'
+import { loadJsonData, useJsonData } from './hooks/useJsonData'
 
 const MOBILE_NOTICE_STORAGE_KEY = 'yu-archive-mobile-notice-dismissed-v1'
-const HomePage = lazy(() => import('./pages/HomePage'))
-const GamesPage = lazy(() => import('./pages/GamesPage'))
-const Visions = lazy(() => import('./pages/Visions'))
-const MusicPage = lazy(() => import('./pages/MusicPage'))
-const TextsPage = lazy(() => import('./pages/TextsPage'))
-const ArchiveStudioPage = lazy(() => import('./pages/ArchiveStudioPage'))
-const ArchiveStudioTextsPage = lazy(() => import('./pages/ArchiveStudioTextsPage'))
-const ArchiveStudioVisionsPage = lazy(() => import('./pages/ArchiveStudioVisionsPage'))
-const ArchiveStudioGamesPage = lazy(() => import('./pages/ArchiveStudioGamesPage'))
-const ArchiveStudioHomepagePage = lazy(() => import('./pages/ArchiveStudioHomepagePage'))
+const routePreloads = {
+  home: () => import('./pages/HomePage'),
+  games: () => import('./pages/GamesPage'),
+  visions: () => import('./pages/Visions'),
+  music: () => import('./pages/MusicPage'),
+  texts: () => import('./pages/TextsPage'),
+  studio: () => import('./pages/ArchiveStudioPage'),
+  studioTexts: () => import('./pages/ArchiveStudioTextsPage'),
+  studioVisions: () => import('./pages/ArchiveStudioVisionsPage'),
+  studioGames: () => import('./pages/ArchiveStudioGamesPage'),
+  studioHome: () => import('./pages/ArchiveStudioHomepagePage'),
+}
+const HomePage = lazy(routePreloads.home)
+const GamesPage = lazy(routePreloads.games)
+const Visions = lazy(routePreloads.visions)
+const MusicPage = lazy(routePreloads.music)
+const TextsPage = lazy(routePreloads.texts)
+const ArchiveStudioPage = lazy(routePreloads.studio)
+const ArchiveStudioTextsPage = lazy(routePreloads.studioTexts)
+const ArchiveStudioVisionsPage = lazy(routePreloads.studioVisions)
+const ArchiveStudioGamesPage = lazy(routePreloads.studioGames)
+const ArchiveStudioHomepagePage = lazy(routePreloads.studioHome)
+
+const routeWarmups: Record<string, () => Promise<unknown>> = {
+  '/': () => Promise.all([routePreloads.home(), loadJsonData<HomePageData>('/data/home.json')]),
+  '/games': () => Promise.all([routePreloads.games(), loadJsonData<TimelineCategory>('/data/games.json')]),
+  '/movies': () => Promise.all([routePreloads.visions(), loadJsonData<TimelineCategory>('/data/visions.json')]),
+  '/music': () => Promise.all([routePreloads.music(), loadJsonData<MusicCategory>('/data/music.json')]),
+  '/texts': () => Promise.all([routePreloads.texts(), loadJsonData<TextsCategory>('/data/texts.json')]),
+  '/studio': routePreloads.studio,
+  '/studio/texts': routePreloads.studioTexts,
+  '/studio/visions': routePreloads.studioVisions,
+  '/studio/games': routePreloads.studioGames,
+  '/studio/home': routePreloads.studioHome,
+}
+
+function warmRoute(path: string) {
+  void routeWarmups[path]?.().catch(() => {})
+}
+
+function warmAllRoutes() {
+  Object.keys(routeWarmups).forEach(warmRoute)
+}
 
 // ── Navbar ───────────────────────────────────────────────────
 interface NavbarProps {
@@ -105,6 +138,8 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
       className={({ isActive }) => `nav-control-btn${isActive ? ' is-active' : ''}`}
       title="Archive Studio"
       aria-label="打开 Archive Studio"
+      onMouseEnter={() => warmRoute('/studio')}
+      onFocus={() => warmRoute('/studio')}
     >
       <Wrench size={17} />
     </NavLink>
@@ -115,7 +150,7 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
       <nav className="navbar navbar--mobile">
         <div className="nav-container nav-container--mobile">
           <div className="nav-mobile-brand-row">
-            <NavLink to="/" className="nav-logo nav-logo--mobile">
+            <NavLink to="/" className="nav-logo nav-logo--mobile" onMouseEnter={() => warmRoute('/')} onFocus={() => warmRoute('/')}>
               <img src="/favicon.png" alt="Yu" className="nav-avatar" />
               <span className="nav-title nav-title--mobile">Archive</span>
             </NavLink>
@@ -149,6 +184,8 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
               <NavLink
                 key={item.path}
                 to={item.path}
+                onMouseEnter={() => warmRoute(item.path)}
+                onFocus={() => warmRoute(item.path)}
                 className={({ isActive }) => `nav-item nav-item--mobile ${isActive ? 'active' : ''}`}
               >
                 <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
@@ -166,7 +203,7 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
       <div className="nav-container">
 
         {/* ── 左区：Logo（favicon.png = “Yu”手写图标 + Archive 文字 = “Yu Archive”） ── */}
-        <NavLink to="/" className="nav-logo">
+        <NavLink to="/" className="nav-logo" onMouseEnter={() => warmRoute('/')} onFocus={() => warmRoute('/')}>
           {/* favicon.png 是白色线稿：亮色主题用 invert(1) 变黑可见；暗色主题就是白色，保持原样 */}
           <img src="/favicon.png" alt="Yu" className="nav-avatar" />
           <span className="nav-title hidden md:inline">Archive</span>
@@ -178,6 +215,8 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
             <NavLink
               key={item.path}
               to={item.path}
+              onMouseEnter={() => warmRoute(item.path)}
+              onFocus={() => warmRoute(item.path)}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
               <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>
@@ -380,6 +419,17 @@ export default function App() {
     const dismissed = localStorage.getItem(MOBILE_NOTICE_STORAGE_KEY) === '1'
     setShowMobileViewportNotice(!dismissed)
   }, [isMobileViewport])
+
+  useEffect(() => {
+    const warm = () => warmAllRoutes()
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(warm, { timeout: 1800 })
+      return () => window.cancelIdleCallback(idleId)
+    }
+
+    const timeoutId = globalThis.setTimeout(warm, 500)
+    return () => globalThis.clearTimeout(timeoutId)
+  }, [])
 
   const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light')
 
