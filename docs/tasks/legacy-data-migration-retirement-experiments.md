@@ -99,6 +99,35 @@ Interpretation:
 
 The current Archive Studio runtime path looks healthy, but old `Data` and `Archive/migration` are not ready to delete or transfer yet.
 
+## Clean-Tree Run Result
+
+After committing the experiment files, the suite was run again.
+
+Command:
+
+```bash
+node scripts/run-retirement-readiness-experiments.mjs
+```
+
+Result:
+
+- `runtimeReady: true`.
+- `retirementReady: false`.
+- Git working tree was clean.
+- Public data, generated privacy, all four Archive shape checks, public sync sandbox, and update sandbox all passed.
+
+Remaining retirement blockers:
+
+1. `legacy_data_archive_coverage` still reports legacy generator / publish dependencies.
+2. `legacy_generation_publish_dependencies` still reports legacy generator and publish blockers.
+3. `legacy_publish_script_guard` reports `guarded: false`.
+4. `archive_migration_retirement_state` reports existing migration and transaction records.
+5. `legacy_data_exists_for_cold_backup_decision` reports old `Data` still exists and has not been moved to a verified cold backup.
+
+Decision:
+
+The runtime workflow is healthy. Retirement remains blocked.
+
 ## Future Deletion / Transfer Gate
 
 Codex should only help delete or transfer old `Data` or `Archive/migration` after:
