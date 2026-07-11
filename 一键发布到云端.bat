@@ -9,9 +9,21 @@ title YuArchive Sync Engine
 
 echo ========================================================
 echo.
-echo    YuArchive - One-click sync from OneDrive to GitHub
+echo    YuArchive - LEGACY one-click sync from OneDrive to GitHub
 echo.
 echo ========================================================
+echo.
+echo [WARNING] This is the legacy publish path.
+echo [WARNING] It will run build_archive.py, stage all changes, commit, and push.
+echo [WARNING] Current daily maintenance should use Archive Studio first.
+echo.
+set /p CONFIRM_LEGACY_PUBLISH=Type PUBLISH_LEGACY_YUARCHIVE to continue: 
+if not "%CONFIRM_LEGACY_PUBLISH%"=="PUBLISH_LEGACY_YUARCHIVE" (
+    echo.
+    echo [CANCELLED] Legacy publish confirmation did not match.
+    pause
+    exit /b 1
+)
 echo.
 echo [1/3] Building site data...
 python -X utf8 build_archive.py
