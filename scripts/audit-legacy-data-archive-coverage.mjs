@@ -224,18 +224,41 @@ function scanLegacyDependencies() {
   return { totalFiles: files.length, byCategory, files };
 }
 
+function readProjectText(relativePath) {
+  try {
+    return fs.readFileSync(path.join(PROJECT_ROOT, relativePath), 'utf8');
+  } catch {
+    return '';
+  }
+}
+
+function legacyEntryPointsAreGuarded() {
+  const buildText = readProjectText('build_archive.py');
+  const publishText = readProjectText('一键发布到云端.bat');
+  return {
+    legacyGeneratorGuarded: /YUARCHIVE_LEGACY_BUILD_CONFIRMATION/.test(buildText) && /RUN_LEGACY_BUILD_ARCHIVE/.test(buildText),
+    legacyPublishGuarded: /PUBLISH_LEGACY_YUARCHIVE/.test(publishText),
+  };
+}
+
 export function evaluateLegacyDataArchiveCoverage() {
   const legacyBoards = Object.fromEntries(BOARDS.map(board => [board, countLegacyBoard(board)]));
   const archiveBoards = Object.fromEntries(BOARDS.map(board => [BOARD_MAP[board], countArchiveBoard(board)]));
   const configFiles = listArchiveConfig();
   const dependencies = scanLegacyDependencies();
+  const guardedEntryPoints = legacyEntryPointsAreGuarded();
   const missingLegacyBoards = BOARDS.filter(board => !legacyBoards[board].exists);
   const missingArchiveBoards = BOARDS.filter(board => !archiveBoards[BOARD_MAP[board]].exists);
   const archiveHasAllBoards = missingArchiveBoards.length === 0;
   const archiveHasConfigs = configFiles.length > 0;
   const blockingDependencyCategories = ['legacy_generator', 'legacy_publish_path'];
   const blockingDependencies = Object.entries(dependencies.byCategory)
-    .filter(([category]) => blockingDependencyCategories.includes(category))
+    .filter(([category]) => {
+      if (!blockingDependencyCategories.includes(category)) return false;
+      if (category === 'legacy_generator') return !guardedEntryPoints.legacyGeneratorGuarded;
+      if (category === 'legacy_publish_path') return !guardedEntryPoints.legacyPublishGuarded;
+      return true;
+    })
     .reduce((sum, [, count]) => sum + count, 0);
   const retirementReady = (
     missingLegacyBoards.length === 0
@@ -255,6 +278,7 @@ export function evaluateLegacyDataArchiveCoverage() {
     archiveBoards,
     archiveConfigFiles: configFiles,
     dependencies,
+    guardedEntryPoints,
     blockers: {
       missingLegacyBoards,
       missingArchiveBoards,
@@ -297,6 +321,9 @@ function printResult(result) {
   for (const [category, count] of Object.entries(result.dependencies.byCategory).sort(([a], [b]) => a.localeCompare(b))) {
     console.log(`  ${category}: ${count}`);
   }
+  console.log('');
+  console.log(`Legacy generator guarded: ${result.guardedEntryPoints.legacyGeneratorGuarded}`);
+  console.log(`Legacy publish guarded: ${result.guardedEntryPoints.legacyPublishGuarded}`);
   console.log('');
   console.log(`Blocking dependencies: ${result.blockers.blockingDependencies}`);
   console.log(`Result: ${result.blockers.reason}`);

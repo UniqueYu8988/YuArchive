@@ -60,6 +60,8 @@ CATEGORIES = {
     "music": "Music",
     "texts": "Texts",
 }
+LEGACY_BUILD_CONFIRMATION_ENV = "YUARCHIVE_LEGACY_BUILD_CONFIRMATION"
+LEGACY_BUILD_CONFIRMATION_VALUE = "RUN_LEGACY_BUILD_ARCHIVE"
 # ──────────────────────────────────────────────────────────────────────
 
 DEFAULT_TEXT_DATE = "1970-01-01"
@@ -2296,6 +2298,12 @@ def process_texts_category(root: Path, report: dict, site_layout: dict | None = 
 # ─────────────────────────────────────────────────────────────
 
 def main():
+    if os.environ.get(LEGACY_BUILD_CONFIRMATION_ENV) != LEGACY_BUILD_CONFIRMATION_VALUE:
+        print("[BLOCKED] build_archive.py is the legacy OneDrive Data generator.")
+        print("[BLOCKED] Current maintenance should use Archive Studio first.")
+        print(f"[BLOCKED] To run this legacy generator, set {LEGACY_BUILD_CONFIRMATION_ENV}={LEGACY_BUILD_CONFIRMATION_VALUE}.")
+        sys.exit(1)
+
     print("=" * 65)
     print("  YuArchive 九九归一：极简数据引擎 (v3.0) 启动！")
     print(f"  根只读源：{ONEDRIVE_DATA_ROOT}")

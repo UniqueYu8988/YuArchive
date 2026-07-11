@@ -24,6 +24,7 @@ if not "%CONFIRM_LEGACY_PUBLISH%"=="PUBLISH_LEGACY_YUARCHIVE" (
     pause
     exit /b 1
 )
+set YUARCHIVE_LEGACY_BUILD_CONFIRMATION=RUN_LEGACY_BUILD_ARCHIVE
 echo.
 echo [1/3] Building site data...
 python -X utf8 build_archive.py

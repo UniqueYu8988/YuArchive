@@ -128,6 +128,7 @@ function inspectBuildScript() {
     mayWriteSourceYaml: has(text, /sync_game_meta_template|meta_file\.write_text/),
     usesNetwork: has(text, /urlopen|Request\(/),
     usesSubprocess: has(text, /subprocess\./),
+    hasLegacyExecutionGate: has(text, /YUARCHIVE_LEGACY_BUILD_CONFIRMATION/) && has(text, /RUN_LEGACY_BUILD_ARCHIVE/),
   };
   markers.riskMarkerCount = Object.entries(markers).filter(([, value]) => value === true).length;
   return markers;
@@ -142,6 +143,8 @@ function inspectPublishScript() {
     commits: has(text, /git\s+commit/i),
     pushes: has(text, /git\s+push/i),
     hasExplicitSafetyPhrase: has(text, /CONFIRM|确认|I_UNDERSTAND|ALLOW/i),
+    hasExactLegacyPublishGate: has(text, /PUBLISH_LEGACY_YUARCHIVE/),
+    passesLegacyBuildGate: has(text, /YUARCHIVE_LEGACY_BUILD_CONFIRMATION\s*=\s*RUN_LEGACY_BUILD_ARCHIVE/),
   };
   markers.riskMarkerCount = Object.entries(markers).filter(([, value]) => value === true).length;
   return markers;
@@ -173,10 +176,11 @@ export function evaluateLegacyGenerationPublishDependencies() {
   const references = scanReferences();
 
   const blockers = [];
-  if (buildScript.exists && buildScript.readsLegacyData) blockers.push('legacy_generator_reads_old_data');
-  if (buildScript.mayWriteSourceYaml) blockers.push('legacy_generator_can_write_source_yaml');
-  if (publishScript.exists && publishScript.runsBuildArchive) blockers.push('legacy_publish_runs_legacy_generator');
-  if (publishScript.stagesAllChanges || publishScript.commits || publishScript.pushes) blockers.push('legacy_publish_performs_git_write');
+  if (buildScript.exists && buildScript.readsLegacyData && !buildScript.hasLegacyExecutionGate) blockers.push('legacy_generator_reads_old_data');
+  if (buildScript.mayWriteSourceYaml && !buildScript.hasLegacyExecutionGate) blockers.push('legacy_generator_can_write_source_yaml');
+  if (publishScript.exists && publishScript.runsBuildArchive && !publishScript.hasExactLegacyPublishGate) blockers.push('legacy_publish_runs_legacy_generator');
+  if ((publishScript.stagesAllChanges || publishScript.commits || publishScript.pushes) && !publishScript.hasExactLegacyPublishGate) blockers.push('legacy_publish_performs_git_write');
+  if (publishScript.runsBuildArchive && !publishScript.passesLegacyBuildGate) blockers.push('legacy_publish_does_not_pass_generator_gate');
   if (packageScripts.callsBuildArchive || packageScripts.callsPublishScript || packageScripts.gitPushInScripts) blockers.push('npm_indirect_publish_or_generation');
 
   return {
