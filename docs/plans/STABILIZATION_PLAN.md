@@ -105,6 +105,8 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 - 旧生成 / 发布链路依赖审计首次运行完成，结果为 `retirementReady: false`；下一步最小保护任务应优先处理旧一键发布脚本的误触风险，再考虑旧 `build_archive.py` 的 legacy-only guard 或 Archive-based replacement。
 - 旧一键发布脚本防误触设计已建立，任务记录为 `docs/tasks/legacy-publish-script-guard-design.md`，检查脚本为 `scripts/check-legacy-publish-script-guard.mjs`；当前检查脚本只读确认是否存在精确确认短语 gate，不运行发布。
 - 旧一键发布脚本 guard 检查首次运行完成，结果为 `guarded: false`；下一步若用户授权，应只加入早期确认短语 gate，不改旧生成器、不运行发布。
+- 旧 `Data` / `Archive/migration` 退役验证目标已开启，任务记录为 `docs/tasks/legacy-data-migration-retirement-experiments.md`，总控脚本为 `scripts/run-retirement-readiness-experiments.mjs`；目标是用自动化实验替代低频手测，只有实验和备份/转移条件都通过后才进入删除或转移动作。
+- 退役验证实验第一轮已运行：运行时数据和 Studio 沙箱检查通过，但当前因本轮实验文件未提交导致 `runtimeReady: false`；退役仍被旧生成/发布链路、旧发布脚本无 guard、`Archive/migration` 记录和旧 `Data` 冷备份未确认阻断。
 
 ## 稳定化目标
 
@@ -452,4 +454,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 
 ## 当前只执行的下一步
 
-轻量编辑第一版已完成。旧 `Data` 覆盖审计已建立并确认当前不具备退役条件。下一步如获明确授权，可对旧一键发布脚本实施最小确认短语 gate；在确认 Archive 全量覆盖、旧生成/发布链路退役或加保护、外部备份可用前，不删除、不改名旧 `Data`。DLC、live game、season、Visions showcase、删除、批量编辑和自动发布仍不开放。
+轻量编辑第一版已完成。旧 `Data` 覆盖审计已建立并确认当前不具备退役条件。当前优先执行退役验证实验，形成自动化 PASS/BLOCKED 判断；在确认 Archive 全量覆盖、旧生成/发布链路退役或加保护、外部备份可用前，不删除、不改名旧 `Data`，不清理 `Archive/migration`。DLC、live game、season、Visions showcase、删除、批量编辑和自动发布仍不开放。
