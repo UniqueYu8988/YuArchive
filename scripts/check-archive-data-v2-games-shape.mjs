@@ -99,6 +99,7 @@ export function evaluateGamesV2Shape({
   const manifestPath = path.join(migrationRoot, 'migration-manifest.json');
   const unmappedPath = path.join(migrationRoot, 'unmapped-files.json');
   const legacyReportPath = path.join(migrationRoot, 'legacy-field-report.md');
+  const migrationBaselineRequired = requireMigrationBaseline && existsDir(migrationRoot);
   const kindCounts = { normal_game: 0, dlc: 0, live_game: 0 };
   const gameIds = new Set();
   const parentReferences = [];
@@ -230,9 +231,9 @@ export function evaluateGamesV2Shape({
     !existsFile(configPath),
     configErrors,
     privacyRuleHits,
-    requireMigrationBaseline && (!manifest.exists || manifest.parseError || manifest.count !== 329),
-    requireMigrationBaseline && (!unmapped.exists || unmapped.parseError || unmapped.count !== 0),
-    requireMigrationBaseline && !existsFile(legacyReportPath),
+    migrationBaselineRequired && (!manifest.exists || manifest.parseError || manifest.count !== 329),
+    migrationBaselineRequired && (!unmapped.exists || unmapped.parseError || unmapped.count !== 0),
+    migrationBaselineRequired && !existsFile(legacyReportPath),
   ].filter(Boolean).length;
 
   return {

@@ -226,8 +226,8 @@ function buildExperiments() {
 
   experiments.push({
     name: 'legacy_data_exists_for_cold_backup_decision',
-    ok: existsDir(LEGACY_ROOT),
-    detail: `exists=${existsDir(LEGACY_ROOT)}`,
+    ok: existsDir(LEGACY_ROOT) || coldStorage.legacyData.ok,
+    detail: `exists=${existsDir(LEGACY_ROOT)}; coldStored=${coldStorage.legacyData.ok}`,
     retirementRequired: true,
     retirementBlocker: existsDir(LEGACY_ROOT),
   });

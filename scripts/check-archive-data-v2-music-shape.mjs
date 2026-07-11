@@ -69,10 +69,10 @@ export function evaluateMusicV2Shape({
 } = {}) {
   const v2MusicRoot = path.join(v2Root, 'entries', 'music', 'album');
   const v2MigrationRoot = path.join(v2Root, 'migration');
+  const migrationBaselineRequired = requireMigrationBaseline && existsDir(v2MigrationRoot);
   const fatal = [];
   if (!existsDir(v2Root)) fatal.push('Archive missing');
   if (!existsDir(v2MusicRoot)) fatal.push('Music album directory missing');
-  if (requireMigrationBaseline && !existsDir(v2MigrationRoot)) fatal.push('migration directory missing');
 
   const entryDirs = existsDir(v2MusicRoot)
     ? listDirSafe(v2MusicRoot).filter(entry => entry.isDirectory())
@@ -119,9 +119,9 @@ export function evaluateMusicV2Shape({
     + (coverFiles === entryDirs.length ? 0 : 1)
     + (audioFiles === entryDirs.length ? 0 : 1)
     + malformedEntryDirs
-    + (requireMigrationBaseline && !(existsFile(manifestPath) && !manifest.error && manifestRecords === 99) ? 1 : 0)
-    + (requireMigrationBaseline && !(existsFile(unmappedPath) && !unmapped.error && unmappedFiles === 0) ? 1 : 0)
-    + (requireMigrationBaseline && !existsFile(legacyReportPath) ? 1 : 0)
+    + (migrationBaselineRequired && !(existsFile(manifestPath) && !manifest.error && manifestRecords === 99) ? 1 : 0)
+    + (migrationBaselineRequired && !(existsFile(unmappedPath) && !unmapped.error && unmappedFiles === 0) ? 1 : 0)
+    + (migrationBaselineRequired && !existsFile(legacyReportPath) ? 1 : 0)
     + privacyHits.length;
 
   return {

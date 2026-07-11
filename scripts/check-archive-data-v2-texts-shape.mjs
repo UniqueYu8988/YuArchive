@@ -101,6 +101,7 @@ export function evaluateTextsV2Shape({
   const manifestPath = path.join(migrationRoot, 'migration-manifest.json');
   const unmappedPath = path.join(migrationRoot, 'unmapped-files.json');
   const legacyReportPath = path.join(migrationRoot, 'legacy-field-report.md');
+  const migrationBaselineRequired = requireMigrationBaseline && existsDir(migrationRoot);
   const config = parseSectionsConfig(configPath);
   const kindCounts = Object.fromEntries([...TEXT_KINDS].map(kind => [kind, 0]));
   let entryYamlFiles = 0;
@@ -207,9 +208,9 @@ export function evaluateTextsV2Shape({
     datePolicyViolations > 0,
     unknownKindDirs > 0,
     privacyRuleHits > 0,
-    requireMigrationBaseline && (!manifest.exists || manifest.parseError || manifest.count !== 187),
-    requireMigrationBaseline && (!unmapped.exists || unmapped.parseError || unmapped.count !== 0),
-    requireMigrationBaseline && !existsFile(legacyReportPath),
+    migrationBaselineRequired && (!manifest.exists || manifest.parseError || manifest.count !== 187),
+    migrationBaselineRequired && (!unmapped.exists || unmapped.parseError || unmapped.count !== 0),
+    migrationBaselineRequired && !existsFile(legacyReportPath),
   ].filter(Boolean).length;
 
   return {
@@ -265,4 +266,3 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   printResult(result);
   process.exitCode = result.ok ? 0 : 1;
 }
-

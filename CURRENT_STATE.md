@@ -30,6 +30,7 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 - 已建立 `docs/tasks/legacy-data-cold-storage-plan.md` 和 `scripts/plan-legacy-data-cold-storage.mjs`，用于只读规划旧 `Data` 的冷备份转移；dry-run 通过，当前识别 778 个旧 Data 文件并建议先 copy-only 冷存储再验证，仍不复制、不移动、不删除旧 `Data`。
 - 已建立 `docs/tasks/legacy-generator-guard.md`，将旧 `build_archive.py` 和旧一键发布脚本降级为显式确认后才能运行的 legacy 工具；本轮不运行旧生成器或发布脚本。
 - 已建立 `docs/tasks/retired-data-transfer-execution.md`、`scripts/transfer-retired-legacy-data.mjs` 和 `scripts/check-retired-cold-storage-state.mjs`，用于执行前计划、执行后校验旧 `Data` / `Archive/migration` 冷存储转移；真实执行需要 `--execute` 和精确确认短语。
+- 已执行旧 `Data` / `Archive/migration` 退役转移：冷存储校验通过，旧活动 `Data` 和活动 `Archive/migration` 均已移除；当前旧 Data 收藏相关文件 777 个和 migration 文件 21 个位于 `[Archive]/_cold_storage` 并可通过哈希校验，`desktop.ini` 作为 Windows / OneDrive 系统元数据不纳入收藏完整性判断。
 - 已于 2026-06-22 将维护目录从旧名称安全改名为 `Archive`：改名前后均为 1,404 个文件、924,631,536 字节，逐文件 SHA-256 变化、缺失和新增均为 0。
 - 改名完成时旧 OneDrive Data 记录的 778 个文件元数据变化为 0；最终复核时 775 个仍存在文件的长度和修改时间均未变化，另有 3 个由 Windows / OneDrive 管理的辅助元数据文件不再存在，未发现 YAML、Markdown 或实际收藏媒体被改写；旧维护目录名已不存在。
 - 已建立 `scripts/archive-paths.mjs` 作为统一数据根目录入口；新旧维护目录同时存在时正式 Studio 写入会被阻断。

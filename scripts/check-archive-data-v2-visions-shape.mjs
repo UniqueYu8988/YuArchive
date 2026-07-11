@@ -74,6 +74,7 @@ export function evaluateVisionsV2Shape({
   const manifestPath = path.join(migrationRoot, 'migration-manifest.json');
   const unmappedPath = path.join(migrationRoot, 'unmapped-files.json');
   const legacyReportPath = path.join(migrationRoot, 'legacy-field-report.md');
+  const migrationBaselineRequired = requireMigrationBaseline && existsDir(migrationRoot);
   const kindCounts = { movie: 0, series: 0, showcase: 0 };
   let entryYamlFiles = 0;
   let posterFiles = 0;
@@ -250,9 +251,9 @@ export function evaluateVisionsV2Shape({
     characterOrderErrors > 0,
     unknownKindDirs > 0,
     privacyRuleHits > 0,
-    requireMigrationBaseline && (!manifest.exists || manifest.parseError || manifest.count !== 157),
-    requireMigrationBaseline && (!unmapped.exists || unmapped.parseError || unmapped.count !== 0),
-    requireMigrationBaseline && !existsFile(legacyReportPath),
+    migrationBaselineRequired && (!manifest.exists || manifest.parseError || manifest.count !== 157),
+    migrationBaselineRequired && (!unmapped.exists || unmapped.parseError || unmapped.count !== 0),
+    migrationBaselineRequired && !existsFile(legacyReportPath),
   ].filter(Boolean).length;
 
   return {

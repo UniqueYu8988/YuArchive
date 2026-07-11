@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { evaluateRetiredColdStorageState } from './check-retired-cold-storage-state.mjs';
 
 const LEGACY_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
 const ARCHIVE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Archive');
@@ -247,6 +248,7 @@ export function evaluateLegacyDataArchiveCoverage() {
   const configFiles = listArchiveConfig();
   const dependencies = scanLegacyDependencies();
   const guardedEntryPoints = legacyEntryPointsAreGuarded();
+  const coldStorage = evaluateRetiredColdStorageState();
   const missingLegacyBoards = BOARDS.filter(board => !legacyBoards[board].exists);
   const missingArchiveBoards = BOARDS.filter(board => !archiveBoards[BOARD_MAP[board]].exists);
   const archiveHasAllBoards = missingArchiveBoards.length === 0;
@@ -261,7 +263,7 @@ export function evaluateLegacyDataArchiveCoverage() {
     })
     .reduce((sum, [, count]) => sum + count, 0);
   const retirementReady = (
-    missingLegacyBoards.length === 0
+    (missingLegacyBoards.length === 0 || coldStorage.legacyData.ok)
     && archiveHasAllBoards
     && archiveHasConfigs
     && blockingDependencies === 0
@@ -273,6 +275,7 @@ export function evaluateLegacyDataArchiveCoverage() {
     roots: {
       legacyDataExists: existsDir(LEGACY_ROOT),
       archiveExists: existsDir(ARCHIVE_ROOT),
+      legacyDataColdStored: coldStorage.legacyData.ok,
     },
     legacyBoards,
     archiveBoards,
@@ -301,6 +304,7 @@ function printResult(result) {
   console.log(`  retirementReady: ${result.retirementReady}`);
   console.log(`  legacyDataExists: ${result.roots.legacyDataExists}`);
   console.log(`  archiveExists: ${result.roots.archiveExists}`);
+  console.log(`  legacyDataColdStored: ${result.roots.legacyDataColdStored}`);
   console.log('');
   console.log('Legacy Data boards:');
   for (const board of BOARDS) {

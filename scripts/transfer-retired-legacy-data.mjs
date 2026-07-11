@@ -9,6 +9,7 @@ const LEGACY_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Data');
 const MIGRATION_ROOT = path.join(ARCHIVE_ROOT, 'migration');
 const COLD_ROOT = path.join(ARCHIVE_ROOT, '_cold_storage');
 const CONFIRMATION = 'TRANSFER_LEGACY_DATA_AND_MIGRATION';
+const IGNORED_RELATIVE_FILES = new Set(['desktop.ini']);
 
 function existsDir(target) {
   try {
@@ -62,7 +63,9 @@ function createManifest(sourceRoot) {
       modifiedTime: stat.mtime.toISOString(),
       sha256: sha256File(filePath),
     };
-  }).sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  })
+    .filter(record => !IGNORED_RELATIVE_FILES.has(record.relativePath))
+    .sort((a, b) => a.relativePath.localeCompare(b.relativePath));
 }
 
 function digestRecords(records) {

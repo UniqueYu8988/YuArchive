@@ -14,6 +14,7 @@ Allowed:
 - Write manifest JSON files for the copied data.
 - Verify copied files with size and SHA-256.
 - Remove the original old `Data` and `Archive/migration` only after all copies verify.
+- Ignore Windows / OneDrive system metadata files such as `desktop.ini` when deciding collection-data integrity.
 
 Forbidden:
 
@@ -69,6 +70,11 @@ Expected result after successful transfer:
 - old `Data` no longer exists at the old active location;
 - `Archive/migration` no longer exists at the active location;
 - cold-storage manifests verify.
+
+Notes:
+
+- `desktop.ini` is treated as Windows / OneDrive system metadata and is ignored in collection-data integrity checks.
+- V2 board shape checks treat active `Archive/migration` as optional after cold storage has been verified; entry/config/media checks remain mandatory.
 
 ## Rollback
 

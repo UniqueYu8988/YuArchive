@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 
 const ARCHIVE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Archive');
 const COLD_ROOT = path.join(ARCHIVE_ROOT, '_cold_storage');
+const IGNORED_RELATIVE_FILES = new Set(['desktop.ini']);
 
 function existsDir(target) {
   try {
@@ -67,7 +68,8 @@ function verifyColdStorage({ prefix, payloadDirName, manifestFileName }) {
   let missing = 0;
   let mismatch = 0;
   let totalBytes = 0;
-  for (const record of manifest.records) {
+  const records = manifest.records.filter(record => !IGNORED_RELATIVE_FILES.has(record.relativePath.replace(/\\/g, '/')));
+  for (const record of records) {
     const target = path.join(payloadRoot, record.relativePath);
     if (!existsFile(target)) {
       missing += 1;
@@ -80,7 +82,7 @@ function verifyColdStorage({ prefix, payloadDirName, manifestFileName }) {
   return {
     ok: existsDir(payloadRoot) && existsFile(manifestPath) && missing === 0 && mismatch === 0,
     exists: true,
-    files: manifest.records.length,
+    files: records.length,
     totalBytes,
     manifestOk: true,
     missing,
