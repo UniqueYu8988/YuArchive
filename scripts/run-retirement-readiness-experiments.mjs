@@ -11,6 +11,7 @@ import { evaluateMusicV2Shape } from './check-archive-data-v2-music-shape.mjs';
 import { evaluateTextsV2Shape } from './check-archive-data-v2-texts-shape.mjs';
 import { evaluateVisionsV2Shape } from './check-archive-data-v2-visions-shape.mjs';
 import { buildArchiveMigrationColdStoragePlan } from './plan-archive-migration-cold-storage.mjs';
+import { buildLegacyDataColdStoragePlan } from './plan-legacy-data-cold-storage.mjs';
 
 const PROJECT_ROOT = process.cwd();
 const ARCHIVE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Archive');
@@ -199,6 +200,14 @@ function buildExperiments() {
     name: 'archive_migration_cold_storage_plan',
     ok: migrationColdStorage.ok,
     detail: `files=${migrationColdStorage.files}; mode=${migrationColdStorage.recommendedMode}; deletionRecommendedNow=${migrationColdStorage.deletionRecommendedNow}`,
+    retirementRequired: true,
+  });
+
+  const legacyDataColdStorage = buildLegacyDataColdStoragePlan();
+  experiments.push({
+    name: 'legacy_data_cold_storage_plan',
+    ok: legacyDataColdStorage.ok,
+    detail: `files=${legacyDataColdStorage.files}; mode=${legacyDataColdStorage.recommendedMode}; deletionRecommendedNow=${legacyDataColdStorage.deletionRecommendedNow}`,
     retirementRequired: true,
   });
 

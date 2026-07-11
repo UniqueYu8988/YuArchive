@@ -110,6 +110,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 - 实验文件提交后再次运行退役验证：`runtimeReady: true`、`retirementReady: false`；这说明当前网页/Studio 维护链路可以信任，但旧 `Data` 和 `Archive/migration` 暂时不能删除或转移。
 - 旧一键发布脚本已加入精确确认短语 gate，退役验证中的 publish guard 阻断已消除；剩余阻断集中在旧生成器依赖、`Archive/migration` 冷备份和旧 `Data` 冷备份。
 - `Archive/migration` 冷备份 dry-run 已建立，任务记录为 `docs/tasks/archive-migration-cold-storage-plan.md`，脚本为 `scripts/plan-archive-migration-cold-storage.mjs`；当前 dry-run 通过并识别 21 个 migration 文件，第一步只规划 copy-only 冷备份，不删除原目录。
+- 旧 `Data` 冷备份 dry-run 已建立，任务记录为 `docs/tasks/legacy-data-cold-storage-plan.md`，脚本为 `scripts/plan-legacy-data-cold-storage.mjs`；当前 dry-run 通过并识别 778 个旧 Data 文件，只规划 copy-only 冷备份，不删除、不移动旧 `Data`。
 
 ## 稳定化目标
 

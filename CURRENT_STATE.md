@@ -27,6 +27,7 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 - 提交实验文件后再次运行 `node scripts/run-retirement-readiness-experiments.mjs`：`runtimeReady: true`，`retirementReady: false`；当前运行时维护链路健康，但旧 `Data` / `Archive/migration` 删除或转移仍被 5 个退役阻断项拦住。
 - 已为旧一键发布脚本加入精确确认短语 gate，`node scripts/check-legacy-publish-script-guard.mjs` 显示 `guarded: true`；退役总控实验中的阻断项从 5 个降为 4 个。
 - 已建立 `docs/tasks/archive-migration-cold-storage-plan.md` 和 `scripts/plan-archive-migration-cold-storage.mjs`，用于只读规划 `Archive/migration` 的冷备份转移；dry-run 通过，当前识别 21 个 migration 文件并建议先 copy-only 冷存储再验证，仍不复制、不移动、不删除。
+- 已建立 `docs/tasks/legacy-data-cold-storage-plan.md` 和 `scripts/plan-legacy-data-cold-storage.mjs`，用于只读规划旧 `Data` 的冷备份转移；dry-run 通过，当前识别 778 个旧 Data 文件并建议先 copy-only 冷存储再验证，仍不复制、不移动、不删除旧 `Data`。
 - 已于 2026-06-22 将维护目录从旧名称安全改名为 `Archive`：改名前后均为 1,404 个文件、924,631,536 字节，逐文件 SHA-256 变化、缺失和新增均为 0。
 - 改名完成时旧 OneDrive Data 记录的 778 个文件元数据变化为 0；最终复核时 775 个仍存在文件的长度和修改时间均未变化，另有 3 个由 Windows / OneDrive 管理的辅助元数据文件不再存在，未发现 YAML、Markdown 或实际收藏媒体被改写；旧维护目录名已不存在。
 - 已建立 `scripts/archive-paths.mjs` 作为统一数据根目录入口；新旧维护目录同时存在时正式 Studio 写入会被阻断。
