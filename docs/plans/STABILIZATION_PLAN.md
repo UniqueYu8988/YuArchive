@@ -98,6 +98,13 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 - Archive Studio Visions preview core、write gate、create core 与 API 已完成并通过临时目录集成测试；Music/Text 回归通过，showcase 与发布能力未开放。
 - Archive Studio 四板块公开同步已建立：统一执行 preview、一次性 token、受控 JSON/媒体写入和失败回退；首页精选、旧 OneDrive Data、发布与 Git 操作保持关闭。临时目录自检和生产构建通过。
 - Archive Studio 首页精选管理已完成：`/studio/home` 支持按稳定 v2 ID 搜索、替换槽位、拖拽/箭头排序、预览、保存配置和显式同步 `home.json`；当前 29 个选择已保存并同步，桌面和移动验收通过。
+- 旧 `Data` 退役审计已启动，任务记录为 `docs/tasks/legacy-data-retirement-audit.md`；当前结论是旧 `Data` 不再作为日常维护入口，但仍是只读迁移来源、回退基线和旧生成链路依赖，不能直接删除或改名。
+- 旧 `Data` / `Archive` 覆盖审计脚本已建立，任务记录为 `docs/tasks/legacy-data-archive-coverage-audit.md`，脚本为 `scripts/audit-legacy-data-archive-coverage.mjs`；当前只输出统计、配置文件和旧路径依赖类别，不读取或展示收藏正文。
+- 覆盖审计首次运行完成，结果为 `retirementReady: false`；当前退役阻断点是旧 `build_archive.py` 和旧一键发布路径仍存在，下一步应先做 legacy generation / publish dependency 的只读分类和退役方案，不移动旧 `Data`。
+- 旧生成 / 发布链路退役方案已建立，任务记录为 `docs/tasks/legacy-generation-publish-retirement-plan.md`，脚本为 `scripts/audit-legacy-generation-publish-dependencies.mjs`；当前只读确认 npm scripts 未串联旧生成或发布，风险集中在独立旧生成器和旧 bat 发布链路。
+- 旧生成 / 发布链路依赖审计首次运行完成，结果为 `retirementReady: false`；下一步最小保护任务应优先处理旧一键发布脚本的误触风险，再考虑旧 `build_archive.py` 的 legacy-only guard 或 Archive-based replacement。
+- 旧一键发布脚本防误触设计已建立，任务记录为 `docs/tasks/legacy-publish-script-guard-design.md`，检查脚本为 `scripts/check-legacy-publish-script-guard.mjs`；当前检查脚本只读确认是否存在精确确认短语 gate，不运行发布。
+- 旧一键发布脚本 guard 检查首次运行完成，结果为 `guarded: false`；下一步若用户授权，应只加入早期确认短语 gate，不改旧生成器、不运行发布。
 
 ## 稳定化目标
 
@@ -445,4 +452,4 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 
 ## 当前只执行的下一步
 
-轻量编辑第一版已完成。下一步先由用户体验四板块修改流程，再根据反馈处理小型可用性问题；DLC、live game、season、Visions showcase、删除、批量编辑和自动发布仍不开放。
+轻量编辑第一版已完成。旧 `Data` 覆盖审计已建立并确认当前不具备退役条件。下一步如获明确授权，可对旧一键发布脚本实施最小确认短语 gate；在确认 Archive 全量覆盖、旧生成/发布链路退役或加保护、外部备份可用前，不删除、不改名旧 `Data`。DLC、live game、season、Visions showcase、删除、批量编辑和自动发布仍不开放。

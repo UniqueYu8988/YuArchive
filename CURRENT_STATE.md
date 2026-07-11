@@ -2,17 +2,26 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-06-22
+最后更新：2026-07-12
 
 ## 当前阶段
 
 Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。Archive Studio 已具备四板块普通条目的轻量 `新建 / 修改` 模式、显式公开同步和首页精选管理：修改时搜索并回填原表单，稳定 ID / board / kind 不变，素材默认保留，preview 与 preflight 通过后才受控写入；旧 OneDrive Data 始终只读，发布不会自动触发。
+
+已启动旧 `Data` 退役审计第一阶段：当前只做只读关系确认和退役条件设计，不删除、不改名、不迁移旧 `Data`，不运行旧生成或发布流程。
 
 ## 已完成
 
 - 已确认项目根目录：`C:\Users\Yu\AI\Archive`。
 - 已确认旧版收藏源数据目录：`C:\Users\Yu\OneDrive\图片\Data`，当前只读保留。
 - 已确认新工作流维护数据目录：`C:\Users\Yu\OneDrive\图片\Archive`，由 Archive Studio 受控写入。
+- 已建立 `docs/tasks/legacy-data-retirement-audit.md`，记录旧 `Data` 与当前 `Archive` 的关系、只读计数快照、旧生成链路依赖、不能直接删除的原因和分阶段退役条件。
+- 已建立 `docs/tasks/legacy-data-archive-coverage-audit.md` 和 `scripts/audit-legacy-data-archive-coverage.mjs`，用于只读对照旧 `Data` 与当前 `Archive` 的板块覆盖、文件角色、配置文件和旧路径依赖；该脚本只输出统计，不删除、不改名、不迁移任何源数据。
+- 已运行 `node scripts/audit-legacy-data-archive-coverage.mjs`：审计通过但 `retirementReady: false`；旧 `Data` 和当前 `Archive` 均存在，Archive 已有四板块 entry 与配置文件，阻断项集中在旧生成器和旧发布路径仍依赖旧 `Data`。
+- 已建立 `docs/tasks/legacy-generation-publish-retirement-plan.md` 和 `scripts/audit-legacy-generation-publish-dependencies.mjs`，用于只读分类旧 `build_archive.py`、旧一键发布脚本、npm scripts 和旧 `Data` 依赖引用；本阶段仍不修改生成器或发布脚本。
+- 已运行 `node scripts/audit-legacy-generation-publish-dependencies.mjs`：审计通过但 `retirementReady: false`；npm scripts 未调用旧生成或发布，阻断项为旧生成器读取旧 `Data`、可能写源 YAML、旧发布脚本运行旧生成器并执行 Git 写操作。
+- 已建立 `docs/tasks/legacy-publish-script-guard-design.md` 和 `scripts/check-legacy-publish-script-guard.mjs`，用于设计并只读检查旧一键发布脚本的显式确认 gate；当前尚未修改发布脚本。
+- 已运行 `node scripts/check-legacy-publish-script-guard.mjs`：检查通过但 `guarded: false`；旧发布脚本仍包含 build、stage-all、commit、push 步骤，尚无精确确认短语 gate。
 - 已于 2026-06-22 将维护目录从旧名称安全改名为 `Archive`：改名前后均为 1,404 个文件、924,631,536 字节，逐文件 SHA-256 变化、缺失和新增均为 0。
 - 改名完成时旧 OneDrive Data 记录的 778 个文件元数据变化为 0；最终复核时 775 个仍存在文件的长度和修改时间均未变化，另有 3 个由 Windows / OneDrive 管理的辅助元数据文件不再存在，未发现 YAML、Markdown 或实际收藏媒体被改写；旧维护目录名已不存在。
 - 已建立 `scripts/archive-paths.mjs` 作为统一数据根目录入口；新旧维护目录同时存在时正式 Studio 写入会被阻断。
