@@ -12,6 +12,7 @@ import { evaluateTextsV2Shape } from './check-archive-data-v2-texts-shape.mjs';
 import { evaluateVisionsV2Shape } from './check-archive-data-v2-visions-shape.mjs';
 import { buildArchiveMigrationColdStoragePlan } from './plan-archive-migration-cold-storage.mjs';
 import { buildLegacyDataColdStoragePlan } from './plan-legacy-data-cold-storage.mjs';
+import { evaluateRetiredColdStorageState } from './check-retired-cold-storage-state.mjs';
 
 const PROJECT_ROOT = process.cwd();
 const ARCHIVE_ROOT = path.join(os.homedir(), 'OneDrive', '图片', 'Archive');
@@ -186,6 +187,14 @@ function buildExperiments() {
     retirementBlocker: !publishGuard.guarded,
   });
 
+  const coldStorage = evaluateRetiredColdStorageState();
+  experiments.push({
+    name: 'retired_cold_storage_state',
+    ok: coldStorage.ok,
+    detail: `legacyData=${coldStorage.legacyData.ok}; legacyFiles=${coldStorage.legacyData.files}; migration=${coldStorage.migration.ok}; migrationFiles=${coldStorage.migration.files}`,
+    retirementRequired: !existsDir(LEGACY_ROOT) || !existsDir(MIGRATION_ROOT),
+  });
+
   const migration = migrationState();
   experiments.push({
     name: 'archive_migration_retirement_state',
@@ -195,21 +204,25 @@ function buildExperiments() {
     retirementBlocker: migration.retirementBlocker,
   });
 
-  const migrationColdStorage = buildArchiveMigrationColdStoragePlan();
-  experiments.push({
-    name: 'archive_migration_cold_storage_plan',
-    ok: migrationColdStorage.ok,
-    detail: `files=${migrationColdStorage.files}; mode=${migrationColdStorage.recommendedMode}; deletionRecommendedNow=${migrationColdStorage.deletionRecommendedNow}`,
-    retirementRequired: true,
-  });
+  if (existsDir(MIGRATION_ROOT)) {
+    const migrationColdStorage = buildArchiveMigrationColdStoragePlan();
+    experiments.push({
+      name: 'archive_migration_cold_storage_plan',
+      ok: migrationColdStorage.ok,
+      detail: `files=${migrationColdStorage.files}; mode=${migrationColdStorage.recommendedMode}; deletionRecommendedNow=${migrationColdStorage.deletionRecommendedNow}`,
+      retirementRequired: true,
+    });
+  }
 
-  const legacyDataColdStorage = buildLegacyDataColdStoragePlan();
-  experiments.push({
-    name: 'legacy_data_cold_storage_plan',
-    ok: legacyDataColdStorage.ok,
-    detail: `files=${legacyDataColdStorage.files}; mode=${legacyDataColdStorage.recommendedMode}; deletionRecommendedNow=${legacyDataColdStorage.deletionRecommendedNow}`,
-    retirementRequired: true,
-  });
+  if (existsDir(LEGACY_ROOT)) {
+    const legacyDataColdStorage = buildLegacyDataColdStoragePlan();
+    experiments.push({
+      name: 'legacy_data_cold_storage_plan',
+      ok: legacyDataColdStorage.ok,
+      detail: `files=${legacyDataColdStorage.files}; mode=${legacyDataColdStorage.recommendedMode}; deletionRecommendedNow=${legacyDataColdStorage.deletionRecommendedNow}`,
+      retirementRequired: true,
+    });
+  }
 
   experiments.push({
     name: 'legacy_data_exists_for_cold_backup_decision',

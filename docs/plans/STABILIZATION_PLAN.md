@@ -112,6 +112,7 @@ YuArchive 是长期开发的个人数字收藏馆项目。旧源与回退备份�
 - `Archive/migration` 冷备份 dry-run 已建立，任务记录为 `docs/tasks/archive-migration-cold-storage-plan.md`，脚本为 `scripts/plan-archive-migration-cold-storage.mjs`；当前 dry-run 通过并识别 21 个 migration 文件，第一步只规划 copy-only 冷备份，不删除原目录。
 - 旧 `Data` 冷备份 dry-run 已建立，任务记录为 `docs/tasks/legacy-data-cold-storage-plan.md`，脚本为 `scripts/plan-legacy-data-cold-storage.mjs`；当前 dry-run 通过并识别 778 个旧 Data 文件，只规划 copy-only 冷备份，不删除、不移动旧 `Data`。
 - 旧生成器 guard 已建立，任务记录为 `docs/tasks/legacy-generator-guard.md`；旧 `build_archive.py` 默认阻断直接运行，旧发布脚本只有在精确确认后才会向生成器传递 legacy 执行 gate。
+- 退役数据转移执行脚本已建立，任务记录为 `docs/tasks/retired-data-transfer-execution.md`，脚本为 `scripts/transfer-retired-legacy-data.mjs`；默认计划模式，真实执行需要 `--execute` 和精确确认短语，并会先复制、写 manifest、校验后再移除原活动位置。
 
 ## 稳定化目标
 
