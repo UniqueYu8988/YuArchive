@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronUp } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import type { TextItem, TextsCategory } from '../types'
 import { siteLayout } from '../data/siteConfig'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { TextBookCoverCard, TextEntryCardHeader, textSectionVariant } from '../components/TextDisplayCards'
 
 interface Props {
   data: TextsCategory
@@ -55,21 +56,6 @@ function extractExcerpt(item: { summary?: string; excerpt?: string }) {
   return item.excerpt?.trim() ?? ''
 }
 
-function sectionVariant(sectionKey: string) {
-  switch (sectionKey) {
-    case 'headline':
-      return 'headline'
-    case 'bedtime-news':
-      return 'bedtime'
-    case 'reference-info':
-      return 'reference'
-    case 'miscellany':
-      return 'miscellany'
-    default:
-      return 'default'
-  }
-}
-
 export default function TextsPage({ data }: Props) {
   const hasData = data.items.length > 0 && data.total_count > 0
   const sections = data.sections ?? []
@@ -104,7 +90,7 @@ export default function TextsPage({ data }: Props) {
     [sections, activeSection]
   )
   const isBookShelfSection = activeSection === 'book-reviews'
-  const currentSectionVariant = sectionVariant(activeSection)
+  const currentSectionVariant = textSectionVariant(activeSection)
   const expandedItem = filteredItems.find(item => item.id === expandedId) ?? null
   const featuredTextItem = !isBookShelfSection ? filteredItems[0] ?? null : null
   const indexedTextItems = !isBookShelfSection ? filteredItems.slice(featuredTextItem ? 1 : 0) : filteredItems
@@ -693,34 +679,13 @@ export default function TextsPage({ data }: Props) {
                               const center = (visibleBookShelfItems.length - 1) / 2
                               const tilt = idx < center ? -1.1 : idx > center ? 1.1 : 0
                               return (
-                                <button
+                                <TextBookCoverCard
                                   key={item.id}
-                                  type="button"
-                                  onClick={() => toggleExpand(item.id)}
-                                  className={`daily-shelf-book ${isExpanded ? 'is-active' : ''}`}
-                                  style={{
-                                    transform: `translateY(${bookShelfArcOffsets[idx] ?? 0}px) rotate(${isMobileLayout ? 0 : tilt}deg) ${isExpanded ? 'scale(1.04)' : 'scale(1)'}`,
-                                  }}
-                                  aria-label={item.title}
-                                >
-                                  <div className="daily-shelf-book__media">
-                                    {item.cover ? (
-                                      <img
-                                        src={`/${item.cover}`}
-                                        alt={item.title}
-                                        loading="lazy"
-                                        style={{
-                                          width: '100%',
-                                          height: '100%',
-                                          objectFit: 'cover',
-                                          display: 'block',
-                                        }}
-                                      />
-                                    ) : (
-                                      <div className="daily-shelf-book__fallback">暂无封面</div>
-                                    )}
-                                  </div>
-                                </button>
+                                  item={item}
+                                  active={isExpanded}
+                                  onSelect={() => toggleExpand(item.id)}
+                                  style={{ transform: `translateY(${bookShelfArcOffsets[idx] ?? 0}px) rotate(${isMobileLayout ? 0 : tilt}deg) ${isExpanded ? 'scale(1.04)' : 'scale(1)'}` }}
+                                />
                               )
                             })}
                           </div>
@@ -946,50 +911,7 @@ export default function TextsPage({ data }: Props) {
                         animationDelay: `${Math.min(index, 6) * 0.04}s`,
                       }}
                     >
-                      <div
-                        onClick={() => toggleExpand(item.id)}
-                        className="texts-entry-card__header p-4 md:p-6 cursor-pointer flex flex-col gap-2.5 md:gap-3.5 transition-colors"
-                        onMouseEnter={e => {
-                          ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.08)'
-                        }}
-                        onMouseLeave={e => {
-                          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-                        }}
-                      >
-                        <div className="flex items-start justify-between w-full">
-                          <h2 className={`font-semibold text-primary tracking-tight leading-snug flex-1 pr-4 m-0 transition-all ${isExpanded ? 'text-lg md:text-xl' : 'text-base md:text-lg'}`}>
-                            {item.title}
-                          </h2>
-                          <div className={`transition-transform duration-500 flex items-center justify-center text-primary flex-shrink-0 mt-0.5 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
-                            <ChevronDown size={isExpanded ? 24 : 20} strokeWidth={1.5} />
-                          </div>
-                        </div>
-
-                        <p className="texts-entry-card__excerpt">
-                          {extractExcerpt(item)}
-                        </p>
-
-                        <div className="texts-entry-card__meta">
-                          <span
-                            className="texts-entry-card__meta-date"
-                            title={formatDisplayDate(item.date, item.sort_date)}
-                          >
-                            {formatDisplayDate(item.date, item.sort_date)}
-                          </span>
-                          {item.tags.length > 0 ? item.tags.map(tag => (
-                            <span
-                              key={tag}
-                              className="texts-entry-card__meta-tag"
-                            >
-                              #{tag}
-                            </span>
-                          )) : (
-                            <span className="texts-entry-card__meta-empty">
-                              无标签
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                      <TextEntryCardHeader item={item} expanded={isExpanded} onToggle={() => toggleExpand(item.id)} />
 
                       {renderExpandedBody(item)}
                     </div>

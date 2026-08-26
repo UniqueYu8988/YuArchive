@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink, Music2, Pause, Play, Sparkles } from 'lucide-react'
-import type { MusicCategory, MusicItem } from '../types'
+import type { MusicCategory } from '../types'
 import { assetVersion, siteUi } from '../data/siteConfig'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { MusicAlbumCard } from '../components/MusicAlbumFeature'
 
 function toImageUrl(imagePath?: string): string {
   if (!imagePath) return ''
@@ -23,87 +24,6 @@ function extractTracks(content: string): string[] {
     .map(line => line.trim())
     .filter(line => /^(?:[-*+]|\d+\.)\s+/.test(line))
     .map(line => line.replace(/^(?:[-*+]|\d+\.)\s+/, '').trim())
-}
-
-function AlbumCard({
-  item,
-  active,
-  onSelect,
-}: {
-  item: MusicItem
-  active: boolean
-  onSelect: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      style={{
-        border: active ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.06)',
-        background: active
-          ? 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)'
-          : 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 100%)',
-        borderRadius: '22px',
-        padding: '0.95rem',
-        textAlign: 'left',
-        cursor: 'pointer',
-        transition: 'all 0.24s ease',
-        boxShadow: active ? '0 16px 36px rgba(0,0,0,0.08)' : '0 8px 20px rgba(0,0,0,0.03)',
-      }}
-    >
-      <div
-        style={{
-          aspectRatio: '1 / 1',
-          borderRadius: '18px',
-          overflow: 'hidden',
-          background: 'rgba(255,255,255,0.04)',
-          position: 'relative',
-        }}
-      >
-        {item.cover ? (
-          <img
-            src={toImageUrl(item.cover)}
-            alt={item.title}
-            loading="lazy"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
-        ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <Music2 size={28} />
-          </div>
-        )}
-
-        <div
-          className="music-library-card__overlay"
-          style={{
-            position: 'absolute',
-            inset: 'auto 0 0 0',
-            padding: '0.85rem 0.9rem 0.8rem',
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.72) 100%)',
-            color: '#fff',
-            fontSize: '0.95rem',
-            fontWeight: 700,
-            lineHeight: 1.25,
-            opacity: active ? 1 : 0,
-            transform: active ? 'translateY(0)' : 'translateY(12px)',
-            transition: 'all 0.22s ease',
-            pointerEvents: 'none',
-          }}
-        >
-          {item.title}
-        </div>
-      </div>
-    </button>
-  )
 }
 
 interface Props {
@@ -812,7 +732,7 @@ export default function MusicPage({ data }: Props) {
                     }}
                   >
                     {data.items.map(item => (
-                      <AlbumCard
+                      <MusicAlbumCard
                         key={item.id}
                         item={item}
                         active={item.id === selectedItem.id}

@@ -1,13 +1,39 @@
 {
   "key": "games",
   "display_name": "Games",
-  "total_count": 284,
+  "total_count": 285,
   "sort_mode": "timeline",
   "years": [
     {
       "year": 2026,
       "folder": "Game-2026",
       "items": [
+        {
+          "id": "game-20260825-2207f064",
+          "image_path": "studio_media/games/game-20260825-2207f064/cover.webp",
+          "title": "QQ经典农场",
+          "cinema": false,
+          "quote": "",
+          "url": "",
+          "type": "game",
+          "game_meta_enabled": true,
+          "english_title": "",
+          "platform": "steam",
+          "price": "Free",
+          "rating": 5,
+          "playtime": "＞50h",
+          "completed": false,
+          "genre": "simulation",
+          "seasonal": false,
+          "dlc": false,
+          "dlc_parent": "",
+          "summary": "",
+          "hover_note": "",
+          "season_heading": "",
+          "season_subheading": "",
+          "season_description": "",
+          "season_entries": []
+        },
         {
           "id": "game-20260629-9ed64073",
           "image_path": "studio_media/games/game-20260629-9ed64073/cover.webp",
@@ -228,7 +254,7 @@
           "title": "云顶之弈",
           "cinema": false,
           "quote": "",
-          "url": "",
+          "url": "https://teamfighttactics.leagueoflegends.com/",
           "type": "game",
           "game_meta_enabled": true,
           "english_title": "Teamfight Tactics",
@@ -249,8 +275,9 @@
           "season_entries": [
             {
               "id": "season_云顶之弈_8",
-              "title": "S1云顶之弈",
               "image_path": "webp_cache/Games/Game-Live/TFT_S1云顶之弈.webp",
+              "icon_path": "",
+              "title": "S1云顶之弈",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -258,14 +285,14 @@
               "theme": "云顶之弈",
               "feature": "初代羁绊",
               "build": "",
-              "icon_path": "",
-              "order": 1,
-              "source_year": 0
+              "source_year": 0,
+              "order": 1
             },
             {
               "id": "season_云顶之弈_9",
-              "title": "S2元素崛起",
               "image_path": "webp_cache/Games/Game-Live/TFT_S2元素崛起.webp",
+              "icon_path": "",
+              "title": "S2元素崛起",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -273,14 +300,14 @@
               "theme": "元素崛起",
               "feature": "元素格",
               "build": "",
-              "icon_path": "",
-              "order": 2,
-              "source_year": 0
+              "source_year": 0,
+              "order": 2
             },
             {
               "id": "season_云顶之弈_11",
-              "title": "S3银河战争",
               "image_path": "webp_cache/Games/Game-Live/TFT_S3银河战争.webp",
+              "icon_path": "",
+              "title": "S3银河战争",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -288,14 +315,14 @@
               "theme": "银河战争",
               "feature": "星系",
               "build": "",
-              "icon_path": "",
-              "order": 3,
-              "source_year": 0
+              "source_year": 0,
+              "order": 3
             },
             {
               "id": "season_云顶之弈_10",
-              "title": "S3.5再战星海",
               "image_path": "webp_cache/Games/Game-Live/TFT_S3.5再战星海.webp",
+              "icon_path": "",
+              "title": "S3.5再战星海",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -303,14 +330,14 @@
               "theme": "再战星海",
               "feature": "星系",
               "build": "",
-              "icon_path": "",
-              "order": 3.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 3.5
             },
             {
               "id": "season_云顶之弈_13",
-              "title": "S4命运之轮",
               "image_path": "webp_cache/Games/Game-Live/TFT_S4命运之轮.webp",
+              "icon_path": "",
+              "title": "S4命运之轮",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -318,14 +345,14 @@
               "theme": "命运之轮",
               "feature": "天选之人",
               "build": "",
-              "icon_path": "",
-              "order": 4,
-              "source_year": 0
+              "source_year": 0,
+              "order": 4
             },
             {
               "id": "season_云顶之弈_12",
-              "title": "S4.5瑞兽闹新春",
               "image_path": "webp_cache/Games/Game-Live/TFT_S4.5瑞兽闹新春.webp",
+              "icon_path": "",
+              "title": "S4.5瑞兽闹新春",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -333,14 +360,14 @@
               "theme": "瑞兽闹新春",
               "feature": "天选之人",
               "build": "",
-              "icon_path": "",
-              "order": 4.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 4.5
             },
             {
               "id": "season_云顶之弈_15",
-              "title": "S5光明与黑暗",
               "image_path": "webp_cache/Games/Game-Live/TFT_S5光明与黑暗.webp",
+              "icon_path": "",
+              "title": "S5光明与黑暗",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -348,14 +375,14 @@
               "theme": "光明与黑暗",
               "feature": "黑暗武器",
               "build": "",
-              "icon_path": "",
-              "order": 5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 5
             },
             {
               "id": "season_云顶之弈_14",
-              "title": "S5.5英雄黎明",
               "image_path": "webp_cache/Games/Game-Live/TFT_S5.5英雄黎明.webp",
+              "icon_path": "",
+              "title": "S5.5英雄黎明",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -363,14 +390,14 @@
               "theme": "英雄黎明",
               "feature": "光明武器",
               "build": "",
-              "icon_path": "",
-              "order": 5.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 5.5
             },
             {
               "id": "season_云顶之弈_17",
-              "title": "S6双城之战",
               "image_path": "webp_cache/Games/Game-Live/TFT_S6双城之战.webp",
+              "icon_path": "",
+              "title": "S6双城之战",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -378,14 +405,14 @@
               "theme": "双城之战",
               "feature": "海克斯强化",
               "build": "",
-              "icon_path": "",
-              "order": 6,
-              "source_year": 0
+              "source_year": 0,
+              "order": 6
             },
             {
               "id": "season_云顶之弈_16",
-              "title": "S6.5霓虹之夜",
               "image_path": "webp_cache/Games/Game-Live/TFT_S6.5霓虹之夜.webp",
+              "icon_path": "",
+              "title": "S6.5霓虹之夜",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -393,14 +420,14 @@
               "theme": "霓虹之夜",
               "feature": "海克斯强化",
               "build": "",
-              "icon_path": "",
-              "order": 6.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 6.5
             },
             {
               "id": "season_云顶之弈_19",
-              "title": "S7巨龙之境",
               "image_path": "webp_cache/Games/Game-Live/TFT_S7巨龙之境.webp",
+              "icon_path": "",
+              "title": "S7巨龙之境",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -408,14 +435,14 @@
               "theme": "巨龙之境",
               "feature": "龙神",
               "build": "",
-              "icon_path": "",
-              "order": 7,
-              "source_year": 0
+              "source_year": 0,
+              "order": 7
             },
             {
               "id": "season_云顶之弈_18",
-              "title": "S7.5隐秘海域",
               "image_path": "webp_cache/Games/Game-Live/TFT_S7.5隐秘海域.webp",
+              "icon_path": "",
+              "title": "S7.5隐秘海域",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -423,14 +450,14 @@
               "theme": "隐秘海域",
               "feature": "巨龙圣坛",
               "build": "",
-              "icon_path": "",
-              "order": 7.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 7.5
             },
             {
               "id": "season_云顶之弈_21",
-              "title": "S8怪兽来袭！",
               "image_path": "webp_cache/Games/Game-Live/TFT_S8怪兽来袭！.webp",
+              "icon_path": "",
+              "title": "S8怪兽来袭！",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -438,14 +465,14 @@
               "theme": "怪兽来袭！",
               "feature": "英雄强化",
               "build": "",
-              "icon_path": "",
-              "order": 8,
-              "source_year": 0
+              "source_year": 0,
+              "order": 8
             },
             {
               "id": "season_云顶之弈_20",
-              "title": "S8.5铲铲市危机",
               "image_path": "webp_cache/Games/Game-Live/TFT_S8.5铲铲市危机.webp",
+              "icon_path": "",
+              "title": "S8.5铲铲市危机",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -453,14 +480,14 @@
               "theme": "铲铲市危机",
               "feature": "黑客来袭",
               "build": "",
-              "icon_path": "",
-              "order": 8.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 8.5
             },
             {
               "id": "season_云顶之弈_23",
-              "title": "S9符文大陆传说",
               "image_path": "webp_cache/Games/Game-Live/TFT_S9符文大陆传说.webp",
+              "icon_path": "",
+              "title": "S9符文大陆传说",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -468,14 +495,14 @@
               "theme": "符文大陆传说",
               "feature": "地区传送门",
               "build": "",
-              "icon_path": "",
-              "order": 9,
-              "source_year": 0
+              "source_year": 0,
+              "order": 9
             },
             {
               "id": "season_云顶之弈_22",
-              "title": "S9.5向着地平线",
               "image_path": "webp_cache/Games/Game-Live/TFT_S9.5向着地平线.webp",
+              "icon_path": "",
+              "title": "S9.5向着地平线",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -483,14 +510,14 @@
               "theme": "向着地平线",
               "feature": "地区传送门",
               "build": "",
-              "icon_path": "",
-              "order": 9.5,
-              "source_year": 0
+              "source_year": 0,
+              "order": 9.5
             },
             {
               "id": "season_云顶之弈_0",
-              "title": "S10强音争霸",
               "image_path": "webp_cache/Games/Game-Live/TFT_S10强音争霸.webp",
+              "icon_path": "",
+              "title": "S10强音争霸",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -498,14 +525,14 @@
               "theme": "强音争霸",
               "feature": "赛季之星",
               "build": "",
-              "icon_path": "",
-              "order": 10,
-              "source_year": 0
+              "source_year": 0,
+              "order": 10
             },
             {
               "id": "season_云顶之弈_1",
-              "title": "S11画中灵",
               "image_path": "webp_cache/Games/Game-Live/TFT_S11画中灵.webp",
+              "icon_path": "",
+              "title": "S11画中灵",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -513,14 +540,14 @@
               "theme": "画中灵",
               "feature": "奇遇",
               "build": "",
-              "icon_path": "",
-              "order": 11,
-              "source_year": 0
+              "source_year": 0,
+              "order": 11
             },
             {
               "id": "season_云顶之弈_2",
-              "title": "S12魔法大乱斗",
               "image_path": "webp_cache/Games/Game-Live/TFT_S12魔法大乱斗.webp",
+              "icon_path": "",
+              "title": "S12魔法大乱斗",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -528,14 +555,14 @@
               "theme": "魔法大乱斗",
               "feature": "魔法符咒",
               "build": "",
-              "icon_path": "",
-              "order": 12,
-              "source_year": 0
+              "source_year": 0,
+              "order": 12
             },
             {
               "id": "season_云顶之弈_3",
-              "title": "S13步入双城",
               "image_path": "webp_cache/Games/Game-Live/TFT_S13步入双城.webp",
+              "icon_path": "",
+              "title": "S13步入双城",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -543,14 +570,14 @@
               "theme": "双城之战",
               "feature": "异常突变",
               "build": "",
-              "icon_path": "",
-              "order": 13,
-              "source_year": 0
+              "source_year": 0,
+              "order": 13
             },
             {
               "id": "season_云顶之弈_4",
-              "title": "S14赛博之城",
               "image_path": "webp_cache/Games/Game-Live/TFT_S14赛博之城.webp",
+              "icon_path": "",
+              "title": "S14赛博之城",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -558,14 +585,14 @@
               "theme": "赛博之城",
               "feature": "海克斯骇入",
               "build": "",
-              "icon_path": "",
-              "order": 14,
-              "source_year": 0
+              "source_year": 0,
+              "order": 14
             },
             {
               "id": "season_云顶之弈_5",
-              "title": "S15格斗竞技场",
               "image_path": "webp_cache/Games/Game-Live/TFT_S15格斗竞技场.webp",
+              "icon_path": "",
+              "title": "S15格斗竞技场",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -573,14 +600,14 @@
               "theme": "格斗竞技场",
               "feature": "英雄强化",
               "build": "",
-              "icon_path": "",
-              "order": 15,
-              "source_year": 0
+              "source_year": 0,
+              "order": 15
             },
             {
               "id": "season_云顶之弈_6",
-              "title": "S16传世之说",
               "image_path": "webp_cache/Games/Game-Live/TFT_S16传世之说.webp",
+              "icon_path": "",
+              "title": "S16传世之说",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -588,14 +615,14 @@
               "theme": "传世之说",
               "feature": "解锁英雄",
               "build": "",
-              "icon_path": "",
-              "order": 16,
-              "source_year": 0
+              "source_year": 0,
+              "order": 16
             },
             {
               "id": "season_云顶之弈_7",
+              "image_path": "studio_media/games/game-c34f6a89ec79/seasons/season-8d4429a5f50f/cover.webp",
+              "icon_path": "",
               "title": "S17星神",
-              "image_path": "webp_cache/Games/Game-Live/TFT_S17星神.webp",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -603,9 +630,23 @@
               "theme": "星神",
               "feature": "移除选秀",
               "build": "",
+              "source_year": 0,
+              "order": 17
+            },
+            {
+              "id": "season-b54127299849",
+              "image_path": "studio_media/games/game-c34f6a89ec79/seasons/season-b54127299849/cover.webp",
               "icon_path": "",
-              "order": 17,
-              "source_year": 0
+              "title": "S18自然之力",
+              "label": "赛季",
+              "champion": "",
+              "note": "",
+              "period": "2026.07",
+              "theme": "",
+              "feature": "小精灵",
+              "build": "",
+              "source_year": 0,
+              "order": 25
             }
           ]
         },
@@ -615,7 +656,7 @@
           "title": "暗黑破坏神 IV",
           "cinema": false,
           "quote": "",
-          "url": "",
+          "url": "https://diablo4.blizzard.com/",
           "type": "game",
           "game_meta_enabled": true,
           "english_title": "Diablo IV",
@@ -636,8 +677,9 @@
           "season_entries": [
             {
               "id": "season_暗黑破坏神 IV_2",
-              "title": "S3造物主赛季",
               "image_path": "webp_cache/Games/Game-Live/D4_S3造物主赛季.webp",
+              "icon_path": "",
+              "title": "S3造物主赛季",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -645,14 +687,14 @@
               "theme": "",
               "feature": "",
               "build": "游侠",
-              "icon_path": "",
-              "order": 3,
-              "source_year": 0
+              "source_year": 0,
+              "order": 3
             },
             {
               "id": "season_暗黑破坏神 IV_3",
-              "title": "S4战利品重生",
               "image_path": "webp_cache/Games/Game-Live/D4_S4战利品重生.webp",
+              "icon_path": "",
+              "title": "S4战利品重生",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -660,14 +702,14 @@
               "theme": "",
               "feature": "",
               "build": "巫师",
-              "icon_path": "",
-              "order": 4,
-              "source_year": 0
+              "source_year": 0,
+              "order": 4
             },
             {
               "id": "season_暗黑破坏神 IV_4",
-              "title": "S6憎恨高升",
               "image_path": "webp_cache/Games/Game-Live/D4_S6憎恨高升.webp",
+              "icon_path": "",
+              "title": "S6憎恨高升",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -675,14 +717,14 @@
               "theme": "",
               "feature": "",
               "build": "灵巫",
-              "icon_path": "",
-              "order": 6,
-              "source_year": 0
+              "source_year": 0,
+              "order": 6
             },
             {
               "id": "season_暗黑破坏神 IV_5",
-              "title": "S7巫术赛季",
               "image_path": "webp_cache/Games/Game-Live/D4_S7巫术赛季.webp",
+              "icon_path": "",
+              "title": "S7巫术赛季",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -690,14 +732,14 @@
               "theme": "",
               "feature": "",
               "build": "死灵法师",
-              "icon_path": "",
-              "order": 7,
-              "source_year": 0
+              "source_year": 0,
+              "order": 7
             },
             {
               "id": "season_暗黑破坏神 IV_6",
-              "title": "S8彼列归来",
               "image_path": "webp_cache/Games/Game-Live/D4_S8彼列归来.webp",
+              "icon_path": "",
+              "title": "S8彼列归来",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -705,14 +747,14 @@
               "theme": "",
               "feature": "",
               "build": "游侠",
-              "icon_path": "",
-              "order": 8,
-              "source_year": 0
+              "source_year": 0,
+              "order": 8
             },
             {
               "id": "season_暗黑破坏神 IV_0",
-              "title": "S11神圣赠礼",
               "image_path": "webp_cache/Games/Game-Live/D4_S11神圣赠礼.webp",
+              "icon_path": "",
+              "title": "S11神圣赠礼",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -720,14 +762,14 @@
               "theme": "",
               "feature": "",
               "build": "灵巫",
-              "icon_path": "",
-              "order": 11,
-              "source_year": 0
+              "source_year": 0,
+              "order": 11
             },
             {
               "id": "season_暗黑破坏神 IV_1",
-              "title": "S12绝灭屠戮",
               "image_path": "webp_cache/Games/Game-Live/D4_S12绝灭屠戮.webp",
+              "icon_path": "",
+              "title": "S12绝灭屠戮",
               "label": "赛季",
               "champion": "",
               "note": "",
@@ -735,9 +777,23 @@
               "theme": "",
               "feature": "",
               "build": "圣骑士",
+              "source_year": 0,
+              "order": 12
+            },
+            {
+              "id": "season-d4bbb259fcef",
+              "image_path": "studio_media/games/game-65274f6c7374/seasons/season-d4bbb259fcef/cover.webp",
               "icon_path": "",
-              "order": 12,
-              "source_year": 0
+              "title": "S13憎恨之王",
+              "label": "赛季",
+              "champion": "",
+              "note": "",
+              "period": "2026.05",
+              "theme": "",
+              "feature": "",
+              "build": "巫师",
+              "source_year": 0,
+              "order": 13
             }
           ]
         },

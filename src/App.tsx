@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route, NavLink } from 'react-router-dom'
 import { lazy, Suspense, useState, useEffect, useRef } from 'react'
 import {
   Gamepad2, Clapperboard, Music, Feather,
-  Sun, Moon, Volume2, VolumeX, ArrowUp, Ellipsis, Wrench
+  Sun, Moon, Volume2, VolumeX, ArrowUp, Ellipsis
 } from 'lucide-react'
 import type { HomePageData, MusicCategory, TextsCategory, TimelineCategory } from './types'
 import { useIsMobile } from './hooks/useIsMobile'
@@ -15,22 +15,12 @@ const routePreloads = {
   visions: () => import('./pages/Visions'),
   music: () => import('./pages/MusicPage'),
   texts: () => import('./pages/TextsPage'),
-  studio: () => import('./pages/ArchiveStudioPage'),
-  studioTexts: () => import('./pages/ArchiveStudioTextsPage'),
-  studioVisions: () => import('./pages/ArchiveStudioVisionsPage'),
-  studioGames: () => import('./pages/ArchiveStudioGamesPage'),
-  studioHome: () => import('./pages/ArchiveStudioHomepagePage'),
 }
 const HomePage = lazy(routePreloads.home)
 const GamesPage = lazy(routePreloads.games)
 const Visions = lazy(routePreloads.visions)
 const MusicPage = lazy(routePreloads.music)
 const TextsPage = lazy(routePreloads.texts)
-const ArchiveStudioPage = lazy(routePreloads.studio)
-const ArchiveStudioTextsPage = lazy(routePreloads.studioTexts)
-const ArchiveStudioVisionsPage = lazy(routePreloads.studioVisions)
-const ArchiveStudioGamesPage = lazy(routePreloads.studioGames)
-const ArchiveStudioHomepagePage = lazy(routePreloads.studioHome)
 
 const routeWarmups: Record<string, () => Promise<unknown>> = {
   '/': () => Promise.all([routePreloads.home(), loadJsonData<HomePageData>('/data/home.json')]),
@@ -38,11 +28,6 @@ const routeWarmups: Record<string, () => Promise<unknown>> = {
   '/movies': () => Promise.all([routePreloads.visions(), loadJsonData<TimelineCategory>('/data/visions.json')]),
   '/music': () => Promise.all([routePreloads.music(), loadJsonData<MusicCategory>('/data/music.json')]),
   '/texts': () => Promise.all([routePreloads.texts(), loadJsonData<TextsCategory>('/data/texts.json')]),
-  '/studio': routePreloads.studio,
-  '/studio/texts': routePreloads.studioTexts,
-  '/studio/visions': routePreloads.studioVisions,
-  '/studio/games': routePreloads.studioGames,
-  '/studio/home': routePreloads.studioHome,
 }
 
 function warmRoute(path: string) {
@@ -132,19 +117,6 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
     </a>
   )
 
-  const studioButton = (
-    <NavLink
-      to="/studio"
-      className={({ isActive }) => `nav-control-btn${isActive ? ' is-active' : ''}`}
-      title="Archive Studio"
-      aria-label="打开 Archive Studio"
-      onMouseEnter={() => warmRoute('/studio')}
-      onFocus={() => warmRoute('/studio')}
-    >
-      <Wrench size={17} />
-    </NavLink>
-  )
-
   if (isMobile) {
     return (
       <nav className="navbar navbar--mobile">
@@ -173,7 +145,6 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
 
           {showMobileUtilities ? (
             <div className="nav-mobile-utility-menu">
-              {studioButton}
               {githubButton}
               {spotifyButton}
             </div>
@@ -229,7 +200,6 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
         <div className="nav-controls">
           {muteButton}
           {themeButton}
-          {studioButton}
           {githubButton}
           {spotifyButton}
         </div>
@@ -240,12 +210,6 @@ function Navbar({ theme, toggleTheme, isMuted, toggleMute, isMobile }: NavbarPro
 }
 
 function MobileViewportNotice({ onDismiss }: { onDismiss: () => void }) {
-  const location = useLocation()
-
-  if (location.pathname === '/studio') {
-    return null
-  }
-
   return (
     <div className="mobile-viewport-notice" role="status" aria-live="polite">
       <div className="mobile-viewport-notice__eyebrow">Mobile Viewing Note</div>
@@ -478,11 +442,7 @@ export default function App() {
           <Route path="/movies" element={<VisionsRoute />} />
           <Route path="/music"  element={<MusicRoute />} />
           <Route path="/texts"  element={<TextsRoute />} />
-          <Route path="/studio" element={<ArchiveStudioPage />} />
-          <Route path="/studio/texts" element={<ArchiveStudioTextsPage />} />
-          <Route path="/studio/visions" element={<ArchiveStudioVisionsPage />} />
-          <Route path="/studio/games" element={<ArchiveStudioGamesPage />} />
-          <Route path="/studio/home" element={<ArchiveStudioHomepagePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
 

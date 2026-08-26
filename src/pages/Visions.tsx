@@ -4,6 +4,7 @@ import type { TimelineCategory, ArchiveItem, VisionShowcase } from '../types'
 import { assetVersion, siteUi } from '../data/siteConfig'
 
 function toImageUrl(imagePath: string): string {
+  if (/^(?:blob:|data:|https?:)/i.test(imagePath)) return imagePath
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
   return assetVersion ? `${encodedPath}?v=${encodeURIComponent(assetVersion)}` : encodedPath
 }
@@ -143,28 +144,15 @@ function VisionCharacterShowcase({ showcase }: { showcase?: VisionShowcase | nul
 }
 
 // ── 混合时间线海报卡片 (Visions) ──────────────────────────────
-function VisionsPosterCard({ item }: { item: ArchiveItem }) {
+export function VisionsPosterCard({ item, forceStatic = false }: { item: ArchiveItem; forceStatic?: boolean }) {
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
   const [hovered, setHovered] = useState(false)
 
   const displayText = item.quote || ''
 
-  return (
-    <a
-      href={item.url || '#'}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="poster-card"
-      style={{
-        display: 'block',
-        position: 'relative',
-        overflow: 'hidden',
-        textDecoration: 'none',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const cardContent = (
+    <>
       {/* 骨架屏 & 错误占位 */}
       {!loaded && !error && <div className="absolute inset-0 poster-skeleton" />}
       {error && (
@@ -177,7 +165,6 @@ function VisionsPosterCard({ item }: { item: ArchiveItem }) {
         </div>
       )}
 
-      {/* 海报图片 */}
       {!error && (
         <img
           src={toImageUrl(item.image_path)}
@@ -197,7 +184,6 @@ function VisionsPosterCard({ item }: { item: ArchiveItem }) {
         />
       )}
 
-      {/* ── hover 信息层 ── */}
       <div
         style={{
           position: 'absolute',
@@ -253,7 +239,6 @@ function VisionsPosterCard({ item }: { item: ArchiveItem }) {
         )}
       </div>
 
-      {/* ── 左上角：身份印记 ── */}
       <div style={{
         position: 'absolute',
         top: '0.5rem',
@@ -273,7 +258,6 @@ function VisionsPosterCard({ item }: { item: ArchiveItem }) {
         {item.type === 'movie' ? <Clapperboard size={12} strokeWidth={2.5} /> : <Tv size={12} strokeWidth={2.5} />}
       </div>
 
-      {/* ── 右上角：VIP 电影院钢印 ── */}
       {item.cinema && (
         <div style={{
           position: 'absolute',
@@ -298,8 +282,24 @@ function VisionsPosterCard({ item }: { item: ArchiveItem }) {
           />
         </div>
       )}
-    </a>
+    </>
   )
+
+  const sharedProps = {
+    className: 'poster-card',
+    style: {
+      display: 'block',
+      position: 'relative',
+      overflow: 'hidden',
+      textDecoration: 'none',
+    },
+    onMouseEnter: () => setHovered(true),
+    onMouseLeave: () => setHovered(false),
+  } as const
+
+  return forceStatic
+    ? <div {...sharedProps}>{cardContent}</div>
+    : <a href={item.url || '#'} target="_blank" rel="noopener noreferrer" {...sharedProps}>{cardContent}</a>
 }
 
 // ── 年份区块 ──────────────────────────────────────────────────

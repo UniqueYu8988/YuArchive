@@ -18,6 +18,7 @@ const TIMELINE_SIDEBAR_ICON_MAP: Record<number, string> = {
 const TIMELINE_SEASON_ICON = '/icons/games-season-journey.svg'
 
 function toImageUrl(imagePath: string): string {
+  if (/^(?:blob:|data:|https?:)/i.test(imagePath)) return imagePath
   const encodedPath = `/${encodeURIComponent(imagePath).replace(/%2F/g, '/')}`
   return assetVersion ? `${encodedPath}?v=${encodeURIComponent(assetVersion)}` : encodedPath
 }
@@ -110,6 +111,7 @@ function platformIconPath(platform?: string) {
     battlenet: '/platform-icons/battlenet.svg',
     playstation: '/platform-icons/playstation.svg',
     switch: '/platform-icons/switch.svg',
+    others: '/platform-icons/others.svg',
   }
   return icons[platform ?? ''] ?? ''
 }
@@ -131,7 +133,7 @@ function renderSeasonEntryMeta(itemTitle: string, entry: NonNullable<ArchiveItem
   return lines.slice(0, 3)
 }
 
-function PosterCard({
+export function GamePosterCard({
   item,
   mode = 'default',
   expanded = false,
@@ -547,7 +549,7 @@ function LiveArchiveSection({
               tabIndex={0}
               aria-pressed={expandedSeasonTitle === item.title}
             >
-              <PosterCard
+              <GamePosterCard
                 item={item}
                 mode={mode}
                 expanded={expandedSeasonTitle === item.title}
@@ -607,7 +609,7 @@ function YearSection({
           {items.length > 0 && (
             <div className="year-grid">
               {items.map(item => (
-                <PosterCard
+                <GamePosterCard
                   key={item.id}
                   item={item}
                   mode={mode}

@@ -1,13 +1,49 @@
 {
   "key": "visions",
   "display_name": "Visions",
-  "total_count": 111,
+  "total_count": 115,
   "sort_mode": "timeline",
   "years": [
     {
-      "year": 2026.0,
+      "year": 2026,
       "folder": "此岸",
       "items": [
+        {
+          "id": "vision-20260825-bdc42a0f",
+          "image_path": "studio_media/visions/vision-20260825-bdc42a0f/poster.webp",
+          "title": "奥德赛",
+          "cinema": true,
+          "quote": "特洛伊战争之后，奥德修斯踏上返回伊萨卡的艰险归途，途中遭遇了诸如独眼巨人波吕斐摩斯、塞壬女妖和喀耳刻等神话生物。",
+          "url": "https://www.themoviedb.org/movie/1368337-the-odyssey",
+          "type": "movie"
+        },
+        {
+          "id": "vision-20260825-79bb5c4f",
+          "image_path": "studio_media/visions/vision-20260825-79bb5c4f/poster.webp",
+          "title": "蜘蛛侠：崭新之日",
+          "cinema": true,
+          "quote": "重建普通生活后，彼得一边在大学完成学业、一边从事兼职以维持生计，同时仍肩负着守护纽约街头的蜘蛛侠责任。然而，当一个神秘力量从内部腐蚀这座城市的安全与秩序，彼得被迫再次披上战衣。他必须在强大的敌人与昔日纽带之间找到平衡，并重新定义英雄的意义。",
+          "url": "https://www.themoviedb.org/movie/969681-spider-man-brand-new-day",
+          "type": "movie"
+        },
+        {
+          "id": "vision-20260825-523a12b9",
+          "image_path": "studio_media/visions/vision-20260825-523a12b9/poster.webp",
+          "title": "玩具总动员5",
+          "cinema": true,
+          "quote": "胡迪、巴斯光年、翠斯等“元老级”玩具将跟随小主人邦妮的成长脚步，共同迎接数字时代下的全新挑战。随着无所不能的科技产品逐渐走进童年世界，一批充满科技感的崭新角色也随之重磅亮相：青蛙造型的智能平板小荷、憨态可掬的导航玩具小不丢、活力十足的抓拍好手小拍侠，以及自带笑点的臭屁小机灵。当身边的同龄朋友们开始沉浸在科技玩具带来的“电子陪伴”中，而玩具伙伴们也迎来了前所未有的生存难题：在屏幕占据注意力的时代，玩具的时代真的结束了吗？在“被取代”危机的当下，这群玩具伙伴还能否携手，帮助邦妮找回属于自己的真实友谊与快乐？",
+          "url": "https://www.themoviedb.org/movie/1084244-toy-story-5",
+          "type": "movie"
+        },
+        {
+          "id": "vision-20260825-49c6a3c6",
+          "image_path": "studio_media/visions/vision-20260825-49c6a3c6/poster.webp",
+          "title": "奥本海默",
+          "cinema": false,
+          "quote": "随着战争阴云笼罩世界，各国之间的军事竞赛愈演愈烈。为了抢占先机，美国军方找到量子力学与核物理学家罗伯特·奥本海默，任命他领导洛斯阿拉莫斯实验室，并参与推进绝密的曼哈顿计划。在科学家们争分夺秒的研发下，人类历史上第一颗原子弹最终在荒漠中成功引爆。然而，当这种足以改变世界的力量真正诞生后，奥本海默也开始重新审视自己的选择以及核武器可能带来的后果。随着战争结束，他的政治立场和过往经历又让他逐渐卷入一场更加复杂的政治风暴",
+          "url": "https://www.themoviedb.org/movie/872585-oppenheimer",
+          "type": "movie"
+        },
         {
           "id": "movie_2026.0_0",
           "image_path": "webp_cache/Visions/此岸/失控玩家.webp",
@@ -146,7 +182,7 @@
       ]
     },
     {
-      "year": 2025.0,
+      "year": 2025,
       "folder": "未远",
       "items": [
         {
@@ -350,7 +386,7 @@
       ]
     },
     {
-      "year": 2023.0,
+      "year": 2023,
       "folder": "旧影",
       "items": [
         {
@@ -536,7 +572,7 @@
       ]
     },
     {
-      "year": 2020.0,
+      "year": 2020,
       "folder": "前尘",
       "items": [
         {
@@ -839,7 +875,7 @@
       ]
     },
     {
-      "year": 2017.0,
+      "year": 2017,
       "folder": "开端",
       "items": [
         {
