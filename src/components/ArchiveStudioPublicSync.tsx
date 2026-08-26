@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { CheckCircle2, RefreshCw, UploadCloud } from 'lucide-react'
 import { invalidateJsonData } from '../hooks/useJsonData'
 
@@ -9,6 +9,7 @@ interface SyncPreview {
   board: Board
   state: 'ready' | 'current' | 'synced'
   pendingEntries: number
+  pendingDeletes?: number
   currentEntries: number
   nextEntries: number
   mediaFiles: number
@@ -51,21 +52,33 @@ export default function ArchiveStudioPublicSync({ board, refreshKey = '' }: { bo
   const [preview, setPreview] = useState<SyncPreview | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'syncing' | 'success' | 'error'>('loading')
   const [error, setError] = useState('')
+  const latestRequest = useRef(0)
 
   const refresh = useCallback(async () => {
+    const requestId = latestRequest.current + 1
+    latestRequest.current = requestId
     setStatus('loading')
     setError('')
     try {
       const result = await requestSync(board, 'preview')
+      if (requestId !== latestRequest.current) return
       setPreview(result)
       setStatus(result.pendingEntries ? 'ready' : 'success')
     } catch (caught) {
+      if (requestId !== latestRequest.current) return
       setError(caught instanceof Error ? caught.message : '无法检查网页同步状态')
       setStatus('error')
     }
   }, [board])
 
-  useEffect(() => { void refresh() }, [refresh, refreshKey])
+  useEffect(() => {
+    void refresh()
+    const verificationTimer = window.setTimeout(() => void refresh(), 1200)
+    return () => {
+      window.clearTimeout(verificationTimer)
+      latestRequest.current += 1
+    }
+  }, [refresh, refreshKey])
 
   const sync = async () => {
     if (!preview?.syncToken) return
@@ -97,7 +110,9 @@ export default function ArchiveStudioPublicSync({ board, refreshKey = '' }: { bo
           <strong>公开网页同步</strong>
           <span>
             {status === 'loading' && '正在检查是否有待同步内容...'}
-            {status === 'ready' && `有 ${preview?.pendingEntries ?? 0} 个${labels[board]}条目待同步。`}
+            {status === 'ready' && (preview?.pendingDeletes
+              ? `有 ${preview.pendingDeletes} 个${labels[board]}条目待从网页移除。`
+              : `有 ${preview?.pendingEntries ?? 0} 个${labels[board]}条目待同步。`)}
             {status === 'syncing' && '正在同步到本地网页...'}
             {status === 'success' && (preview?.state === 'synced' ? '同步完成，可以查看公开页面。' : '已同步。')}
             {status === 'error' && error}

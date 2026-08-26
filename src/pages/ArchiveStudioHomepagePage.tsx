@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import {
   AlertCircle, ArrowDown, ArrowUp, CheckCircle2, GripVertical,
-  Home, RefreshCcw, Save, Search, ShieldCheck,
+  Home, RefreshCcw, Save, Search,
 } from 'lucide-react'
 import { invalidateJsonData } from '../hooks/useJsonData'
 import './ArchiveStudioPage.css'
@@ -178,18 +177,6 @@ export default function ArchiveStudioHomepagePage() {
 
   return (
     <main className="studio-shell studio-homepage">
-      <header className="studio-topbar">
-        <div><div className="studio-kicker">本地收藏维护工具</div><h1>Archive Studio</h1></div>
-        <div className="studio-status-cluster">
-          <span className="studio-status studio-status--safe"><ShieldCheck size={15} />本地服务已连接</span>
-        </div>
-      </header>
-
-      <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
-        <NavLink to="/studio/home" className="active">首页</NavLink><NavLink to="/studio" end>音乐</NavLink>
-        <NavLink to="/studio/texts">文本</NavLink><NavLink to="/studio/visions">影视</NavLink><NavLink to="/studio/games">游戏</NavLink>
-      </nav>
-
       {message ? (
         <section className={`studio-home-message${status === 'error' ? ' has-errors' : ''}`}>
           {status === 'error' ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}<span>{message}</span>

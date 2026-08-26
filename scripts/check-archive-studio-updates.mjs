@@ -328,6 +328,97 @@ async function main() {
       'utf8',
     );
     assert.equal(afterYaml, beforeYaml);
+    fs.rmSync(pendingMusicRoot, { recursive: true, force: true });
+
+    write(v2Root, 'config/homepage.yaml', [
+      'version: 1',
+      'games_ids: []',
+      'visions_ids: []',
+      'music_ids: ["music-check"]',
+      'texts_ids: []',
+      '',
+    ].join('\n'));
+    const homepageBlockedDelete = await requestJson(
+      baseUrl,
+      '/api/studio/music/delete-preflight',
+      postJson({ board: 'music', id: 'music-check' }),
+    );
+    assert.equal(homepageBlockedDelete.status, 422);
+    assert.equal(homepageBlockedDelete.body.errors[0].code, 'homepage_reference_exists');
+    write(v2Root, 'config/homepage.yaml', [
+      'version: 1',
+      'games_ids: []',
+      'visions_ids: []',
+      'music_ids: []',
+      'texts_ids: []',
+      '',
+    ].join('\n'));
+
+    const deleteConflictRoot = path.join(v2Root, 'migration', 'archive-studio-v0', 'pending-public-deletes');
+    write(v2Root, 'migration/archive-studio-v0/pending-public-deletes', 'intentional conflict');
+    const rollbackDeletePreflight = await requestJson(
+      baseUrl,
+      '/api/studio/music/delete-preflight',
+      postJson({ board: 'music', id: 'music-check' }),
+    );
+    assert.equal(rollbackDeletePreflight.status, 200);
+    const rollbackDelete = await requestJson(
+      baseUrl,
+      '/api/studio/music/delete-apply',
+      postJson({
+        payload: { board: 'music', id: 'music-check' },
+        deleteToken: rollbackDeletePreflight.body.deleteToken,
+      }),
+    );
+    assert.equal(rollbackDelete.status, 500);
+    assert.equal(rollbackDelete.body.error.rollback.completed, true);
+    assert.equal(fs.existsSync(path.join(v2Root, 'entries', 'music', 'album', 'music-check')), true);
+    fs.rmSync(deleteConflictRoot, { recursive: true, force: true });
+
+    for (const [board, id] of Object.entries(ids)) {
+      const payload = { board, id };
+      const preflight = await requestJson(
+        baseUrl,
+        `/api/studio/${board}/delete-preflight`,
+        postJson(payload),
+      );
+      assert.equal(preflight.status, 200, JSON.stringify(preflight.body));
+      assert.equal(typeof preflight.body.deleteToken, 'string');
+
+      const applied = await requestJson(
+        baseUrl,
+        `/api/studio/${board}/delete-apply`,
+        postJson({ payload, deleteToken: preflight.body.deleteToken }),
+      );
+      assert.equal(applied.status, 200, JSON.stringify(applied.body));
+      assert.equal(applied.body.sourceUnchanged, true);
+      assert.equal(applied.body.publicSyncPending, true);
+      assert.equal(applied.body.publishTriggered, false);
+
+      const replay = await requestJson(
+        baseUrl,
+        `/api/studio/${board}/delete-apply`,
+        postJson({ payload, deleteToken: preflight.body.deleteToken }),
+      );
+      assert.equal(replay.status, 403);
+
+      const list = await requestJson(baseUrl, `/api/studio/${board}/entries`);
+      assert.equal(list.status, 200);
+      assert.equal(list.body.entries.length, 0);
+
+      const syncPreview = await requestJson(baseUrl, `/api/studio/${board}/sync-preview`, postJson({}));
+      assert.equal(syncPreview.status, 200, JSON.stringify(syncPreview.body));
+      assert.equal(syncPreview.body.pendingDeletes, 1);
+      assert.equal(syncPreview.body.nextEntries, 0);
+      const syncApply = await requestJson(
+        baseUrl,
+        `/api/studio/${board}/sync-apply`,
+        postJson({ syncToken: syncPreview.body.syncToken }),
+      );
+      assert.equal(syncApply.status, 200, JSON.stringify(syncApply.body));
+      const publicData = JSON.parse(fs.readFileSync(path.join(projectRoot, 'public', 'data', `${board}.json`), 'utf8'));
+      assert.equal(publicData.total_count, 0);
+    }
 
     console.log('[PASS] Archive Studio lightweight updates');
     console.log('  boards: 4');
@@ -336,6 +427,11 @@ async function main() {
     console.log('  replaceOneAssetKeepOthers: passed');
     console.log('  tokenReplayBlocked: passed');
     console.log('  failedUpdateRollback: passed');
+    console.log('  deleteHomepageGuard: passed');
+    console.log('  deletePreviewPreflightApply: passed');
+    console.log('  deleteTokenReplayBlocked: passed');
+    console.log('  failedDeleteRollback: passed');
+    console.log('  publicDeleteSync: passed');
     console.log('  sourceUnchanged: passed');
     console.log('  writeScope: system-temp only');
   } catch (error) {

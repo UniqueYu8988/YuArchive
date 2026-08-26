@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import {
   AlertCircle,
   CheckCircle2,
@@ -7,13 +6,16 @@ import {
   FileImage,
   FolderTree,
   RefreshCcw,
-  SearchCheck,
   ShieldCheck,
   Tv,
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
 import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
+import ArchiveStudioDisplayPreview from '../components/ArchiveStudioDisplayPreview'
+import ArchiveStudioDeleteAction from '../components/ArchiveStudioDeleteAction'
+import { VisionsPosterCard } from './Visions'
+import type { ArchiveItem } from '../types'
 
 type VisionKind = 'movie' | 'series'
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
@@ -130,6 +132,7 @@ export default function ArchiveStudioVisionsPage() {
   const [kind, setKind] = useState<VisionKind>('movie')
   const [mode, setMode] = useState<StudioMode>('create')
   const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [entryListVersion, setEntryListVersion] = useState(0)
   const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [entryId, setEntryId] = useState(newVisionId)
   const [form, setForm] = useState<VisionForm>(initialForm)
@@ -139,7 +142,7 @@ export default function ArchiveStudioVisionsPage() {
   const [createAvailable, setCreateAvailable] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<RequestStatus>('idle')
   const [previewResult, setPreviewResult] = useState<ApiPreview | null>(null)
-  const [preflightStatus, setPreflightStatus] = useState<RequestStatus>('idle')
+  const [, setPreflightStatus] = useState<RequestStatus>('idle')
   const [preflightResult, setPreflightResult] = useState<ApiPreflight | null>(null)
   const [createStatus, setCreateStatus] = useState<RequestStatus>('idle')
   const [createResult, setCreateResult] = useState<CreateResult | null>(null)
@@ -147,6 +150,7 @@ export default function ArchiveStudioVisionsPage() {
   const [checkResult, setCheckResult] = useState<VisionsCheck | null>(null)
   const [requestError, setRequestError] = useState('')
   const [posterPreviewUrl, setPosterPreviewUrl] = useState('')
+  const [existingPreviewUrl, setExistingPreviewUrl] = useState('')
   const posterExtension = fileExtension(form.poster)
 
   useEffect(() => {
@@ -268,6 +272,7 @@ export default function ArchiveStudioVisionsPage() {
     if (mode === 'update') {
       setSelectedEntryId('')
       setExistingAssets({})
+      setExistingPreviewUrl('')
     }
   }
 
@@ -275,6 +280,7 @@ export default function ArchiveStudioVisionsPage() {
     setMode(nextMode)
     setSelectedEntryId('')
     setExistingAssets({})
+    setExistingPreviewUrl('')
     setKind('movie')
     setEntryId(newVisionId())
     setForm(initialForm)
@@ -290,6 +296,7 @@ export default function ArchiveStudioVisionsPage() {
     setEntryId(detail.id)
     setSelectedEntryId(detail.id)
     setExistingAssets(detail.assets)
+    setExistingPreviewUrl(detail.thumbnail ? `/${detail.thumbnail.replace(/^\//, '')}` : '')
     setForm({
       title: String(detail.fields.title ?? ''),
       period: String(detail.fields.period ?? periods[0]),
@@ -305,42 +312,6 @@ export default function ArchiveStudioVisionsPage() {
     setCreateResult(null)
   }
 
-  const generatePreview = async () => {
-    setPreviewStatus('loading')
-    setPreflightResult(null)
-    setCreateResult(null)
-    setRequestError('')
-    try {
-      const result = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/visions/update-preview' : '/api/studio/visions/preview', buildPayload())
-      setPreviewResult(result)
-      setPreviewStatus(result.ok ? 'success' : 'error')
-      setServiceStatus('online')
-    } catch (error) {
-      setPreviewStatus('error')
-      setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : '生成预览失败。')
-    }
-  }
-
-  const runPreflight = async () => {
-    setPreflightStatus('loading')
-    setCreateResult(null)
-    setRequestError('')
-    try {
-      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/visions/update-preflight' : '/api/studio/visions/preflight', buildPayload())
-      const result = mode === 'update' ? {
-        ...raw, targetFilesExisting: raw.operations?.length ?? 0, blockedReasons: [],
-        writeScope: `entries/visions/${kind}/${entryId}`, preflightToken: null, preflightExpiresAt: null,
-        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
-      } : raw
-      setPreflightResult(result)
-      setPreflightStatus(result.ok ? 'success' : 'error')
-    } catch (error) {
-      setPreflightStatus('error')
-      setRequestError(error instanceof Error ? error.message : '预检失败。')
-    }
-  }
-
   const runCheck = async () => {
     setCheckStatus('loading')
     try {
@@ -353,15 +324,55 @@ export default function ArchiveStudioVisionsPage() {
   }
 
   const createEntry = async () => {
-    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
-    if (!token || (mode === 'create' && !form.poster)) return
+    if (validation.length > 0) {
+      setPreviewStatus('error')
+      setPreviewResult(null)
+      setCreateStatus('error')
+      setRequestError(validation[0])
+      return
+    }
+
+    const payload = buildPayload()
     setCreateStatus('loading')
+    setCreateResult(null)
+    setPreviewStatus('loading')
+    setPreviewResult(null)
+    setPreflightStatus('idle')
+    setPreflightResult(null)
     setRequestError('')
-    const body = new FormData()
-    body.set('payload', JSON.stringify(buildPayload()))
-    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
-    if (form.poster) body.set('poster', form.poster)
+
     try {
+      const preview = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/visions/update-preview' : '/api/studio/visions/preview', payload)
+      setPreviewResult(preview)
+      setPreviewStatus(preview.ok ? 'success' : 'error')
+      setServiceStatus('online')
+      if (!preview.ok) {
+        setCreateStatus('error')
+        setRequestError(preview.errors[0] ? issueMessages[preview.errors[0].code] ?? preview.errors[0].message : '预览检查未通过。')
+        return
+      }
+
+      setPreflightStatus('loading')
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/visions/update-preflight' : '/api/studio/visions/preflight', payload)
+      const preflight = mode === 'update' ? {
+        ...raw, targetFilesExisting: raw.operations?.length ?? 0, blockedReasons: [],
+        writeScope: `entries/visions/${kind}/${entryId}`, preflightToken: null, preflightExpiresAt: null,
+        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
+      } : raw
+      setPreflightResult(preflight)
+      setPreflightStatus(preflight.ok ? 'success' : 'error')
+      const token = mode === 'update' ? preflight.updateToken : preflight.preflightToken
+      if (!preflight.ok || !token) {
+        setCreateStatus('error')
+        setRequestError('保存前检查未通过。')
+        return
+      }
+
+      const body = new FormData()
+      body.set('payload', JSON.stringify(payload))
+      body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
+      if (form.poster) body.set('poster', form.poster)
+
       const response = await fetch(mode === 'update' ? '/api/studio/visions/update-apply' : '/api/studio/visions/create', { method: 'POST', body })
       const result = await response.json() as CreateResult | ErrorResult
       if (!response.ok || !result.ok) {
@@ -376,6 +387,17 @@ export default function ArchiveStudioVisionsPage() {
       setCheckResult(result.check)
       setCheckStatus(result.check.ok ? 'success' : 'error')
       setIsDirty(false)
+
+      if (mode === 'create') {
+        setKind('movie')
+        setEntryId(newVisionId())
+        setForm(initialForm)
+        setFileInputVersion(current => current + 1)
+        setPreviewStatus('idle')
+        setPreviewResult(null)
+        setPreflightStatus('idle')
+        setPreflightResult(null)
+      }
     } catch (error) {
       setCreateStatus('error')
       setRequestError(error instanceof Error ? error.message : '创建失败。')
@@ -390,38 +412,21 @@ export default function ArchiveStudioVisionsPage() {
   }
 
   const previewReady = previewResult?.ok === true && validation.length === 0
-  const createReady = previewReady
-    && preflightResult?.ok === true
-    && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
-    && createAvailable
-    && createStatus !== 'loading'
-    && createStatus !== 'success'
   const KindIcon = kind === 'movie' ? Clapperboard : Tv
-  const displayTitle = form.title.trim() || '影视标题'
-  const displayQuote = form.quote.trim() || '这里会显示展示短句。'
-  const displayKind = kind === 'movie' ? 'Movie' : 'Series'
+  const displayPosterUrl = posterPreviewUrl || existingPreviewUrl
+  const previewItem: ArchiveItem = {
+    id: entryId,
+    image_path: displayPosterUrl,
+    title: form.title.trim() || '影视标题',
+    cinema: form.cinema,
+    quote: form.quote.trim(),
+    url: '',
+    type: kind === 'movie' ? 'movie' : 'tv',
+  }
 
   return (
     <main className="studio-shell">
-      <header className="studio-topbar">
-        <div><div className="studio-kicker">本地收藏维护工具</div><h1>Archive Studio</h1></div>
-        <div className="studio-status-cluster">
-          <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}>
-            <ShieldCheck size={15} />
-            {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
-          </span>
-        </div>
-      </header>
-
-      <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
-        <NavLink to="/studio/home">首页</NavLink>
-        <NavLink to="/studio" end>音乐</NavLink>
-        <NavLink to="/studio/texts">文本</NavLink>
-        <NavLink to="/studio/visions">影视</NavLink>
-        <NavLink to="/studio/games">游戏</NavLink>
-      </nav>
-
-      <ArchiveStudioModePicker board="visions" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
+      <ArchiveStudioModePicker board="visions" mode={mode} selectedId={selectedEntryId} refreshKey={entryListVersion} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
@@ -437,7 +442,7 @@ export default function ArchiveStudioVisionsPage() {
         </section>
       ) : null}
 
-      <ArchiveStudioPublicSync board="visions" refreshKey={createResult?.entryRelativeDir} />
+      <ArchiveStudioPublicSync board="visions" refreshKey={`${createResult?.entryRelativeDir ?? ''}:${entryListVersion}`} />
 
       <div className="studio-workspace">
         <div className="studio-editor-column">
@@ -483,13 +488,13 @@ export default function ArchiveStudioVisionsPage() {
                 <span>展示短句</span>
                 <textarea rows={3} value={form.quote} onChange={event => updateField('quote', event.target.value)} placeholder="可选，不会自动生成" />
               </label>
-              <label className="studio-field studio-field--wide">
+              <label className="studio-field">
                 <span>外部链接</span>
                 <input value={form.url} onChange={event => updateField('url', event.target.value)} placeholder="https://..." />
               </label>
               <label className="studio-field studio-field--wide">
-                <span>条目 ID <b>系统生成</b></span>
-                <input value={entryId} readOnly />
+                <span>条目 ID <b>{mode === 'update' ? '固定' : '自动建议'}</b></span>
+                <input value={entryId} onChange={event => { setEntryId(event.target.value.toLowerCase()); invalidate() }} readOnly={mode === 'update'} />
               </label>
             </div>
           </section>
@@ -516,36 +521,22 @@ export default function ArchiveStudioVisionsPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
-            <div className="studio-display-preview">
-              <div className="studio-display-preview__heading">
-                <span>展示预览</span>
-                <strong>影视页面中的大致效果</strong>
+            <ArchiveStudioDisplayPreview title="影视页面实际卡片">
+              <div className="studio-real-poster-preview">
+                {displayPosterUrl ? (
+                  <VisionsPosterCard item={previewItem} forceStatic />
+                ) : (
+                  <div className="studio-real-poster-preview__empty">
+                    <FileImage size={26} />
+                    <span>{mode === 'update' ? '重新选择海报后预览' : '选择海报后预览'}</span>
+                  </div>
+                )}
               </div>
-
-              <div className="studio-catalog-preview-card studio-catalog-preview-card--poster">
-                <div className="studio-catalog-preview-poster">
-                  {posterPreviewUrl ? (
-                    <img src={posterPreviewUrl} alt="" />
-                  ) : (
-                    <div>
-                      <FileImage size={26} />
-                      <span>{mode === 'update' ? '保留现有海报' : '选择海报后预览'}</span>
-                    </div>
-                  )}
-                  {form.cinema ? <i>影院</i> : null}
-                </div>
-                <div className="studio-catalog-preview-body">
-                  <span className="studio-catalog-preview-kind">{displayKind}</span>
-                  <h3>{displayTitle}</h3>
-                  <p>{form.period}</p>
-                  <blockquote>{displayQuote}</blockquote>
-                </div>
-              </div>
-            </div>
+            </ArchiveStudioDisplayPreview>
 
             <div className="studio-preview-title">
               <FolderTree size={19} />
-              <div><span>写入详情</span><strong>生成预览后用于检查</strong></div>
+              <div><span>写入详情</span><strong>保存时自动检查</strong></div>
             </div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">
@@ -576,15 +567,15 @@ export default function ArchiveStudioVisionsPage() {
             ) : null}
             {previewStatus !== 'idle' ? (
               <div className={`studio-validation${previewReady ? ' is-valid' : ' has-errors'}`}>
-                <div>{previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<strong>{previewStatus === 'loading' ? '正在生成预览' : previewReady ? '预览已就绪' : '预览被阻断'}</strong></div>
+                <div>{previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<strong>{previewStatus === 'loading' ? '正在执行保存检查' : previewReady ? '保存检查通过' : '保存检查被阻断'}</strong></div>
                 {requestError ? <p>{requestError}</p> : null}
                 {previewStatus !== 'loading' && (previewResult?.errors.length || validation.length) ? (
                   <ul>{(previewResult?.errors.map(issue => issueMessages[issue.code] ?? issue.message) ?? validation).map(message => <li key={message}>{message}</li>)}</ul>
                 ) : null}
-                {previewReady ? <p>预览通过，此步骤尚未写入文件。</p> : null}
+                {previewReady ? <p>写入计划检查通过。</p> : null}
                 {previewResult?.warnings.map(warning => <p key={warning.code}>{issueMessages[warning.code] ?? warning.message}</p>)}
               </div>
-            ) : <div className="studio-preview-placeholder">填写表单并选择海报后生成预览。</div>}
+            ) : <div className="studio-preview-placeholder">填写表单并选择海报后可直接保存，系统会自动检查。</div>}
             {createStatus === 'error' ? (
               <div className="studio-validation has-errors"><div><AlertCircle size={18} /><strong>创建失败</strong></div><p>{requestError}</p></div>
             ) : null}
@@ -599,9 +590,8 @@ export default function ArchiveStudioVisionsPage() {
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>
-          <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}><SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}</button>
-          <button className="studio-button studio-button--secondary" type="button" onClick={runPreflight} disabled={!previewReady || preflightStatus === 'loading'}><ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}</button>
-          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}</button>
+          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createAvailable || createStatus === 'loading'}>{createStatus === 'loading' ? (mode === 'update' ? '检查并保存...' : '检查并创建...') : mode === 'update' ? '保存修改' : '创建条目'}</button>
+          {mode === 'update' ? <ArchiveStudioDeleteAction board="visions" entryId={selectedEntryId} title={form.title} disabled={createStatus === 'loading'} onDeleted={() => { reset(); setEntryListVersion(current => current + 1) }} /> : null}
         </div>
       </footer>
     </main>

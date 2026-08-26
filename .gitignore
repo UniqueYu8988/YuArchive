@@ -20,3 +20,6 @@ reports/history/legacy-game-assist/
 # AI Brain
 /brain
 .gemini
+
+.vercel
+.env*

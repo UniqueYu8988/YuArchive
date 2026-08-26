@@ -74,9 +74,10 @@ async function main() {
     const baseUrl = `http://127.0.0.1:${address.port}`;
     const profiles = await requestJson(baseUrl, '/api/studio/profiles');
     const profilesForGames = profiles.body.profiles.filter(profile => profile.board === 'games');
-    assert.equal(profilesForGames.length, 1);
-    assert.equal(profilesForGames[0].kind, 'normal_game');
-    assert.equal(profilesForGames[0].capabilities.publish, false);
+    assert.equal(profilesForGames.length, 2);
+    assert(profilesForGames.some(profile => profile.kind === 'normal_game'));
+    assert(profilesForGames.some(profile => profile.kind === 'season'));
+    assert(profilesForGames.every(profile => profile.capabilities.publish === false));
 
     const preview = await requestJson(baseUrl, '/api/studio/games/preview', jsonOptions(payload));
     assert.equal(preview.response.status, 200);

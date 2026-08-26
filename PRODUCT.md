@@ -27,7 +27,7 @@ YuArchive 是一个个人数字收藏馆，用网页方式展示用户长期整�
 - React 前端展示首页和四个分类页面；
 - 前端读取 `public\data\home.json`、`games.json`、`visions.json`、`music.json`、`texts.json`；
 - `build_archive.py` 从 OneDrive 源目录读取素材和 Markdown/YAML，生成 JSON、WebP、音频缓存和报告；
-- Archive Studio 提供四板块新建、公开同步和首页精选管理；所有写入均为本地显式操作，不自动发布；
+- Archive Studio 是独立本地管理工具，提供四板块新建、修改、公开同步和首页精选管理；公开网站不包含管理入口或管理代码，所有写入均为本地显式操作，不自动发布；
 - 页面提供主题切换、背景音乐入口、移动端提示等轻量交互；
 - `README.md` 是简洁人类入口，AI 第一入口是 `AGENTS.md`。
 
@@ -58,6 +58,7 @@ YuArchive 是一个个人数字收藏馆，用网页方式展示用户长期整�
 - 前端仍应从 `public\data` 读取生成后的分类数据；
 - 派生缓存不能被误认为唯一数据源；
 - 发布脚本不能被误运行；
+- 公开展示站不能暴露 Archive Studio 路由或管理入口；
 - 收藏标题、分类、评分和展示描述是网页展示资产，不按高敏感信息处理；
 - 密钥、token、账号凭据、本机绝对路径、OneDrive 真实源目录路径和大型媒体不应被无意上传到 GitHub。
 

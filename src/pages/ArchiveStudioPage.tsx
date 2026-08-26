@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import {
   AlertCircle,
   CheckCircle2,
@@ -15,6 +14,11 @@ import {
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
 import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
+import ArchiveStudioDisplayPreview from '../components/ArchiveStudioDisplayPreview'
+import ArchiveStudioDeleteAction from '../components/ArchiveStudioDeleteAction'
+import ArchiveStudioScaledPreview from '../components/ArchiveStudioScaledPreview'
+import MusicAlbumFeature, { MusicAlbumCard } from '../components/MusicAlbumFeature'
+import type { MusicItem } from '../types'
 
 type FormState = {
   title: string
@@ -197,8 +201,8 @@ function describeBlockedReason(reason: string) {
 
 function describeCreateError(details: ApiErrorResult['error']) {
   if (!details) return 'Archive Studio 无法创建条目。'
-  if (details.code === 'preflight_token_invalid') return '预检凭证已失效，请重新生成预览并运行预检。'
-  if (details.code === 'asset_name_mismatch') return '所选素材已变化，请重新生成预览并运行预检。'
+  if (details.code === 'preflight_token_invalid') return '保存凭证已失效，请重新点击保存。'
+  if (details.code === 'asset_name_mismatch') return '所选素材已变化，请重新点击保存。'
   if (details.code === 'create_disabled') return '本地创建功能当前未启用。'
   if (details.code === 'create_transaction_failed') {
     const stageNames: Record<string, string> = {
@@ -217,6 +221,7 @@ export default function ArchiveStudioPage() {
   const [form, setForm] = useState<FormState>(initialForm)
   const [mode, setMode] = useState<StudioMode>('create')
   const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [entryListVersion, setEntryListVersion] = useState(0)
   const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [fileInputVersion, setFileInputVersion] = useState(0)
   const [isDirty, setIsDirty] = useState(false)
@@ -234,6 +239,7 @@ export default function ArchiveStudioPage() {
   const [requestError, setRequestError] = useState('')
   const [coverPreviewUrl, setCoverPreviewUrl] = useState('')
   const [audioPreviewUrl, setAudioPreviewUrl] = useState('')
+  const [existingPreviewUrl, setExistingPreviewUrl] = useState('')
 
   const coverExtension = getExtension(form.cover)
   const audioExtension = getExtension(form.audio)
@@ -420,6 +426,7 @@ export default function ArchiveStudioPage() {
     if (mode === 'update') {
       setSelectedEntryId('')
       setExistingAssets({})
+      setExistingPreviewUrl('')
     }
   }
 
@@ -427,6 +434,7 @@ export default function ArchiveStudioPage() {
     setMode(nextMode)
     setSelectedEntryId('')
     setExistingAssets({})
+    setExistingPreviewUrl('')
     setForm(initialForm)
     setFileInputVersion(current => current + 1)
     setIsDirty(false)
@@ -439,6 +447,7 @@ export default function ArchiveStudioPage() {
   const loadExistingEntry = (detail: EditableEntryDetail) => {
     setSelectedEntryId(detail.id)
     setExistingAssets(detail.assets)
+    setExistingPreviewUrl(detail.thumbnail ? `/${detail.thumbnail.replace(/^\//, '')}` : '')
     setForm({
       title: String(detail.fields.title ?? ''),
       date: String(detail.fields.date ?? ''),
@@ -455,62 +464,6 @@ export default function ArchiveStudioPage() {
     setPreviewResult(null)
     setPreflightResult(null)
     setCreateResult(null)
-  }
-
-  const generatePreview = async () => {
-    if (!form.entryId) {
-      setForm(current => ({ ...current, entryId: suggestedEntryId }))
-    }
-    setPreviewRequested(true)
-    setPreviewStatus('loading')
-    setPreflightStatus('idle')
-    setPreflightResult(null)
-    setCreateStatus('idle')
-    setCreateResult(null)
-    setRequestError('')
-
-    try {
-      const endpoint = mode === 'update' ? '/api/studio/music/update-preview' : '/api/studio/music/album/preview'
-      const result = await postJson<ApiPreview>(endpoint, buildPayload())
-      setPreviewResult(result)
-      setPreviewStatus(result.ok ? 'success' : 'error')
-      setServiceStatus('online')
-    } catch (error) {
-      setPreviewResult(null)
-      setPreviewStatus('error')
-      setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : '生成预览失败。')
-    }
-  }
-
-  const runPreflight = async () => {
-    setPreflightStatus('loading')
-    setPreflightResult(null)
-    setRequestError('')
-
-    try {
-      const endpoint = mode === 'update' ? '/api/studio/music/update-preflight' : '/api/studio/music/album/preflight'
-      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(endpoint, buildPayload())
-      const result = mode === 'update' ? {
-        ...raw,
-        entryId: effectiveEntryId,
-        targetEntryExists: true,
-        targetFilesExisting: raw.operations?.length ?? 0,
-        blockedReasons: [],
-        scope: `entries/music/album/${effectiveEntryId}`,
-        dryRun: { status: 'ready', writeItems: raw.operations?.length ?? 0, backupItems: raw.operations?.length ?? 0, rollbackDeletes: 0, rollbackRestores: raw.operations?.length ?? 0 },
-        writeScope: `entries/music/album/${effectiveEntryId}`,
-        preflightToken: null,
-        preflightExpiresAt: null,
-      } : raw
-      setPreflightResult(result)
-      setPreflightStatus(result.ok ? 'success' : 'error')
-      setServiceStatus('online')
-    } catch (error) {
-      setPreflightStatus('error')
-      setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : '预检请求失败。')
-    }
   }
 
   const runMusicCheck = async () => {
@@ -531,20 +484,67 @@ export default function ArchiveStudioPage() {
   }
 
   const createEntry = async () => {
-    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
-    if (!token || (mode === 'create' && (!form.cover || !form.audio))) return
+    if (validation.length > 0) {
+      setPreviewRequested(true)
+      setPreviewStatus('error')
+      setPreviewResult(null)
+      setCreateStatus('error')
+      setRequestError(validation[0])
+      return
+    }
 
+    const payload = buildPayload()
     setCreateStatus('loading')
     setCreateResult(null)
+    setPreviewRequested(true)
+    setPreviewStatus('loading')
+    setPreviewResult(null)
+    setPreflightStatus('idle')
+    setPreflightResult(null)
     setRequestError('')
 
-    const body = new FormData()
-    body.set('payload', JSON.stringify(buildPayload()))
-    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
-    if (form.cover) body.set('cover', form.cover)
-    if (form.audio) body.set('audio', form.audio)
-
     try {
+      const previewEndpoint = mode === 'update' ? '/api/studio/music/update-preview' : '/api/studio/music/album/preview'
+      const preview = await postJson<ApiPreview>(previewEndpoint, payload)
+      setPreviewResult(preview)
+      setPreviewStatus(preview.ok ? 'success' : 'error')
+      setServiceStatus('online')
+      if (!preview.ok) {
+        setCreateStatus('error')
+        setRequestError(preview.errors[0] ? describeIssue(preview.errors[0]) : '预览检查未通过。')
+        return
+      }
+
+      setPreflightStatus('loading')
+      const preflightEndpoint = mode === 'update' ? '/api/studio/music/update-preflight' : '/api/studio/music/album/preflight'
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(preflightEndpoint, payload)
+      const preflight = mode === 'update' ? {
+        ...raw,
+        entryId: effectiveEntryId,
+        targetEntryExists: true,
+        targetFilesExisting: raw.operations?.length ?? 0,
+        blockedReasons: [],
+        scope: `entries/music/album/${effectiveEntryId}`,
+        dryRun: { status: 'ready', writeItems: raw.operations?.length ?? 0, backupItems: raw.operations?.length ?? 0, rollbackDeletes: 0, rollbackRestores: raw.operations?.length ?? 0 },
+        writeScope: `entries/music/album/${effectiveEntryId}`,
+        preflightToken: null,
+        preflightExpiresAt: null,
+      } : raw
+      setPreflightResult(preflight)
+      setPreflightStatus(preflight.ok ? 'success' : 'error')
+      const token = mode === 'update' ? preflight.updateToken : preflight.preflightToken
+      if (!preflight.ok || !preflight.writeEnabled || !token) {
+        setCreateStatus('error')
+        setRequestError(preflight.blockedReasons[0] ? describeBlockedReason(preflight.blockedReasons[0]) : '保存前检查未通过。')
+        return
+      }
+
+      const body = new FormData()
+      body.set('payload', JSON.stringify(payload))
+      body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
+      if (form.cover) body.set('cover', form.cover)
+      if (form.audio) body.set('audio', form.audio)
+
       const response = await fetch(mode === 'update' ? '/api/studio/music/update-apply' : '/api/studio/music/album/create', {
         method: 'POST',
         body,
@@ -565,6 +565,16 @@ export default function ArchiveStudioPage() {
       setMusicCheckResult(result.check)
       setMusicCheckStatus(result.check.ok ? 'success' : 'error')
       setServiceStatus('online')
+
+      if (mode === 'create') {
+        setForm(initialForm)
+        setFileInputVersion(current => current + 1)
+        setPreviewRequested(false)
+        setPreviewStatus('idle')
+        setPreviewResult(null)
+        setPreflightStatus('idle')
+        setPreflightResult(null)
+      }
     } catch (error) {
       setCreateStatus('error')
       setRequestError(error instanceof Error ? error.message : '创建条目失败。')
@@ -580,42 +590,20 @@ export default function ArchiveStudioPage() {
   }
 
   const previewReady = previewRequested && previewResult?.ok === true && validation.length === 0
-  const createReady = previewReady
-    && preflightResult?.ok === true
-    && preflightResult.writeEnabled
-    && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
-    && createAvailable
-    && createStatus !== 'loading'
-    && createStatus !== 'success'
-  const displayTitle = form.title.trim() || '专辑标题'
-  const displayMeta = form.date.trim() || '日期未填写'
-  const displayNote = form.note.trim() || '这里会显示你填写的备注。'
-  const displayContent = form.content.trim().replace(/\s+/g, ' ')
+  const displayCoverUrl = coverPreviewUrl || existingPreviewUrl
+  const previewItem: MusicItem = {
+    id: effectiveEntryId,
+    title: form.title.trim() || '专辑标题',
+    cover: displayCoverUrl,
+    description: form.note.trim(),
+    content: form.content,
+    audio: audioPreviewUrl,
+    url: form.url.trim(),
+  }
 
   return (
     <main className="studio-shell">
-      <header className="studio-topbar">
-        <div>
-          <div className="studio-kicker">本地收藏维护工具</div>
-          <h1>Archive Studio</h1>
-        </div>
-        <div className="studio-status-cluster">
-          <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}>
-            <ShieldCheck size={15} />
-            {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
-          </span>
-        </div>
-      </header>
-
-      <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
-        <NavLink to="/studio/home">首页</NavLink>
-        <NavLink to="/studio" end>音乐</NavLink>
-        <NavLink to="/studio/texts">文本</NavLink>
-        <NavLink to="/studio/visions">影视</NavLink>
-        <NavLink to="/studio/games">游戏</NavLink>
-      </nav>
-
-      <ArchiveStudioModePicker board="music" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
+      <ArchiveStudioModePicker board="music" mode={mode} selectedId={selectedEntryId} refreshKey={entryListVersion} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
@@ -634,7 +622,7 @@ export default function ArchiveStudioPage() {
         </section>
       ) : null}
 
-      <ArchiveStudioPublicSync board="music" refreshKey={createResult?.entryRelativeDir} />
+      <ArchiveStudioPublicSync board="music" refreshKey={`${createResult?.entryRelativeDir ?? ''}:${entryListVersion}`} />
 
       <div className="studio-workspace">
         <div className="studio-editor-column">
@@ -687,7 +675,7 @@ export default function ArchiveStudioPage() {
                 <small>根据标题生成；只允许小写字母、数字和连字符。</small>
               </label>
 
-              <label className="studio-field studio-field--wide">
+              <label className="studio-field studio-field--wide studio-field--full">
                 <span>备注</span>
                 <textarea
                   rows={3}
@@ -741,7 +729,7 @@ export default function ArchiveStudioPage() {
             <div className="studio-section-heading">
               <div>
                 <span>03</span>
-                <h2>Markdown 内容</h2>
+                <h2>正文</h2>
               </div>
               <p>原样保存为 content.md，不会自动改写。</p>
             </div>
@@ -762,47 +750,27 @@ export default function ArchiveStudioPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
-            <div className="studio-display-preview">
-              <div className="studio-display-preview__heading">
-                <span>展示预览</span>
-                <strong>音乐页面中的大致效果</strong>
-              </div>
-
-              <div className="studio-music-preview-card">
-                <div className="studio-music-preview-cover">
-                  {coverPreviewUrl ? (
-                    <img src={coverPreviewUrl} alt="" />
-                  ) : (
-                    <div>
-                      <FileImage size={26} />
-                      <span>{mode === 'update' ? '保留现有封面' : '选择封面后预览'}</span>
-                    </div>
-                  )}
+            <ArchiveStudioDisplayPreview
+              title="音乐页面实际专辑"
+              expandedChildren={(
+                <div className="studio-music-expanded-preview">
+                  <MusicAlbumFeature item={previewItem} allowExternalLink={false} />
+                  <div className="studio-music-expanded-preview__card">
+                    <MusicAlbumCard item={previewItem} />
+                  </div>
                 </div>
-
-                <div className="studio-music-preview-body">
-                  <span className="studio-music-preview-kind">Album</span>
-                  <h3>{displayTitle}</h3>
-                  <p>{displayMeta}</p>
-                  <blockquote>{displayNote}</blockquote>
-                  {displayContent ? <small>{displayContent.slice(0, 86)}{displayContent.length > 86 ? '...' : ''}</small> : null}
-                </div>
-
-                <div className="studio-music-preview-audio">
-                  {audioPreviewUrl ? (
-                    <audio controls src={audioPreviewUrl} />
-                  ) : (
-                    <span>{mode === 'update' ? '保留现有音频' : '选择音频后可试听'}</span>
-                  )}
-                </div>
-              </div>
-            </div>
+              )}
+            >
+              <ArchiveStudioScaledPreview width={760}>
+                <MusicAlbumFeature item={previewItem} allowExternalLink={false} />
+              </ArchiveStudioScaledPreview>
+            </ArchiveStudioDisplayPreview>
 
             <div className="studio-preview-title">
               <FolderTree size={19} />
               <div>
                 <span>写入详情</span>
-                <strong>生成预览后用于检查</strong>
+                <strong>保存时自动检查</strong>
               </div>
             </div>
 
@@ -838,7 +806,7 @@ export default function ArchiveStudioPage() {
                     ? preflightResult.targetEntryExists
                       ? '冲突：目标条目已经存在'
                       : '未发现目标条目冲突'
-                    : '生成预览后运行预检'}
+                    : '保存时自动检查目标冲突'}
               </span>
             </div>
 
@@ -895,7 +863,7 @@ export default function ArchiveStudioPage() {
                 <div>
                   {previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                   <strong>
-                    {previewStatus === 'loading' ? '正在生成预览' : previewReady ? '预览已就绪' : '预览被阻断'}
+                    {previewStatus === 'loading' ? '正在执行保存检查' : previewReady ? '保存检查通过' : '保存检查被阻断'}
                   </strong>
                 </div>
                 {requestError ? <p>{requestError}</p> : null}
@@ -904,12 +872,12 @@ export default function ArchiveStudioPage() {
                     {(previewResult?.errors.map(describeIssue) ?? validation).map(error => <li key={error}>{error}</li>)}
                   </ul>
                 ) : null}
-                {previewReady ? <p>预览检查通过，此步骤尚未写入文件。</p> : null}
+                {previewReady ? <p>写入计划检查通过。</p> : null}
                 {previewResult?.warnings.map(warning => <p key={warning.code}>{describeIssue(warning)}</p>)}
               </div>
             ) : (
               <div className="studio-preview-placeholder">
-                请先生成预览，检查草稿和目标文件。
+                填写表单后可直接保存，系统会自动检查草稿和目标文件。
               </div>
             )}
           </section>
@@ -925,25 +893,23 @@ export default function ArchiveStudioPage() {
           <button className="studio-button studio-button--quiet" type="button" onClick={resetForm}>
             <RefreshCcw size={16} /> 重置
           </button>
-          <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}>
-            <SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}
-          </button>
-          <button
-            className="studio-button studio-button--secondary"
-            type="button"
-            onClick={runPreflight}
-            disabled={!previewReady || preflightStatus === 'loading'}
-          >
-            <ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}
-          </button>
           <button
             className="studio-button studio-button--primary"
             type="button"
             onClick={createEntry}
-            disabled={!createReady}
+            disabled={!createAvailable || createStatus === 'loading'}
           >
-            {createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}
+            {createStatus === 'loading' ? (mode === 'update' ? '检查并保存...' : '检查并创建...') : mode === 'update' ? '保存修改' : '创建条目'}
           </button>
+          {mode === 'update' ? (
+            <ArchiveStudioDeleteAction
+              board="music"
+              entryId={selectedEntryId}
+              title={form.title}
+              disabled={createStatus === 'loading'}
+              onDeleted={() => { resetForm(); setEntryListVersion(current => current + 1) }}
+            />
+          ) : null}
         </div>
       </footer>
     </main>

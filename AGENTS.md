@@ -18,7 +18,7 @@ YuArchive 是一个个人数字收藏馆，用来展示和管理游戏、影视�
 
 `C:\Users\Yu\OneDrive\图片\Archive`
 
-当前阶段已进入 Archive + Archive Studio 本地可视化维护。旧 OneDrive Data 保持只读；新建条目、首页精选和公开 JSON 同步必须通过受控 preview / token / rollback 流程，不自动发布。
+当前阶段已进入 Archive + Archive Studio 本地可视化维护。公开网站只负责展示；Archive Studio 使用独立本地入口，不得重新加入公开站路由或生产构建。新建条目、首页精选和公开 JSON 同步必须通过受控 preview / token / rollback 流程，不自动发布。
 
 ## 2. 事实来源
 

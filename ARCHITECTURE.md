@@ -12,6 +12,8 @@
 - 启动方式：`npm run dev`，`启动.bat` 等价于 `npm run dev -- --host 127.0.0.1 --port 5173`。
 - 构建方式：`npm run build`，内部执行 `tsc -b && vite build`。
 - 部署相关：`vercel.json` 提供静态资源缓存头和 SPA rewrite。
+- 前端入口分离：公开站使用 `index.html` + `src/main.tsx`；本地管理工具使用 `archive-studio-local.html` + `src/studio-main.tsx`，后者不进入默认生产构建。
+- Archive Studio API 只监听本机地址，桌面快捷方式通过 `scripts/start-archive-studio.ps1` 在后台启动 API 与本地 Vite 页面。
 
 ## 2. 目录地图
 
@@ -28,6 +30,7 @@
 | `dist` | Vite 构建产物 | 不手改，可重新构建 |
 | `node_modules` | npm 依赖 | 不手改，可重新安装 |
 | `docs` | 新工作流文档、计划、任务模板 | 文档任务允许时修改 |
+| `archive-studio-local.html`、`srcStudioApp.tsx` | 本地 Archive Studio 独立入口与路由 | 管理工具任务允许时修改；不得加入公开构建入口 |
 | `C:\Users\Yu\OneDrive\图片\Data` | 真实收藏源数据 | 默认禁止修改 |
 | `C:\Users\Yu\OneDrive\图片\Archive` | 新工作流维护数据、稳定 ID 与媒体 | 仅由受控 Studio / 迁移任务修改 |
 
@@ -67,6 +70,15 @@ C:\Users\Yu\OneDrive\图片\Data
 → public\data\*.json + public\studio_media
 → React 前端
 ```
+
+展示与管理边界：
+
+```text
+公开 index.html → 展示路由 → public/data + public/studio_media
+本地 archive-studio-local.html → localhost API → Archive preview / preflight / write / sync
+```
+
+公开 `src/App.tsx` 不导入 Studio 页面、不注册 `/studio` 路由、不显示管理按钮。默认 `npm run build` 只构建 `index.html`，不会输出本地 Studio HTML 或管理代码。
 
 Archive Studio 公开媒体规则：
 

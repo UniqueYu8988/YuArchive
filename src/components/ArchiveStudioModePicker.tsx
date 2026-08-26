@@ -10,6 +10,7 @@ export type EditableEntryDetail = {
   fields: Record<string, unknown>
   content: string
   assets: Record<string, { name: string; extension: string } | null>
+  thumbnail: string
   publiclySynced: boolean
 }
 
@@ -25,12 +26,14 @@ export default function ArchiveStudioModePicker({
   board,
   mode,
   selectedId,
+  refreshKey = 0,
   onModeChange,
   onEntryLoad,
 }: {
   board: 'music' | 'texts' | 'visions' | 'games'
   mode: StudioMode
   selectedId: string
+  refreshKey?: number
   onModeChange: (mode: StudioMode) => void
   onEntryLoad: (detail: EditableEntryDetail) => void
 }) {
@@ -57,7 +60,7 @@ export default function ArchiveStudioModePicker({
       })
       .finally(() => setLoading(false))
     return () => controller.abort()
-  }, [board, mode])
+  }, [board, mode, refreshKey])
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase()

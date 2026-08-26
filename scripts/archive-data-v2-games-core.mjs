@@ -17,7 +17,7 @@ export const GAMES_LIVE_JSON = path.resolve('public', 'data', 'games.json');
 
 export const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.avif']);
 export const GAME_KINDS = new Set(['normal_game', 'dlc', 'live_game']);
-export const PLATFORM_CHOICES = new Set(['steam', 'xbox', 'riotgame', 'battlenet', 'playstation', 'switch']);
+export const PLATFORM_CHOICES = new Set(['steam', 'xbox', 'riotgame', 'battlenet', 'playstation', 'switch', 'others']);
 export const GENRE_CHOICES = new Set(['action', 'rpg', 'strategy', 'shooter', 'simulation', 'sports', 'racing', 'puzzle', 'casual']);
 export const GAME_ID_PATTERN = /^game-(?:[a-f0-9]{12}|\d{8}-[a-f0-9]{8})$/;
 export const MIGRATED_GAME_ID_PATTERN = /^game-[a-f0-9]{12}$/;

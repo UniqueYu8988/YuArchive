@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import http from 'node:http';
+import path from 'node:path';
 import { Readable } from 'node:stream';
 import { pathToFileURL } from 'node:url';
 import {
@@ -36,6 +38,13 @@ import { evaluateGamesWriteGate } from './check-archive-studio-v0-games-write-ga
 import { createGameEntry } from './archive-studio-v0-games-create-core.mjs';
 import { evaluateGamesV2Shape } from './check-archive-data-v2-games-shape.mjs';
 import {
+  assertGameSeasonPreviewSafe,
+  buildGameSeasonPreview,
+  createGameSeason,
+  evaluateGameSeasonWriteGate,
+  listGameSeasonParents,
+} from './archive-studio-games-season-core.mjs';
+import {
   applyPublicSync,
   buildPublicSyncPreview,
 } from './archive-studio-public-sync-core.mjs';
@@ -52,6 +61,10 @@ import {
   listEditableEntries,
   loadEditableEntry,
 } from './archive-studio-update-core.mjs';
+import {
+  applyEntryDelete,
+  buildDeletePreview,
+} from './archive-studio-delete-core.mjs';
 import { assertArchiveDataWriteRoot } from './archive-paths.mjs';
 
 const HOST = '127.0.0.1';
@@ -59,6 +72,34 @@ const DEFAULT_PORT = 4176;
 const MAX_JSON_BODY_BYTES = 1024 * 1024;
 const MAX_UPLOAD_BODY_BYTES = 300 * 1024 * 1024;
 const PREFLIGHT_TOKEN_TTL_MS = 5 * 60 * 1000;
+
+function countCurrentGameSeasons(v2Root) {
+  const liveRoot = path.join(v2Root, 'entries', 'games', 'live_game');
+  let count = 0;
+  let parents = [];
+  try {
+    parents = fs.readdirSync(liveRoot, { withFileTypes: true }).filter(item => item.isDirectory());
+  } catch {
+    return 0;
+  }
+  for (const parent of parents) {
+    const seasonsRoot = path.join(liveRoot, parent.name, 'seasons');
+    let seasons = [];
+    try {
+      seasons = fs.readdirSync(seasonsRoot, { withFileTypes: true }).filter(item => item.isDirectory());
+    } catch {
+      continue;
+    }
+    for (const season of seasons) {
+      try {
+        if (fs.statSync(path.join(seasonsRoot, season.name, 'season.yaml')).isFile()) count += 1;
+      } catch {
+        // The shape checker reports an incomplete season directory separately.
+      }
+    }
+  }
+  return count;
+}
 
 function sendJson(response, statusCode, payload) {
   const body = JSON.stringify(payload);
@@ -152,7 +193,7 @@ function buildProfilesResponse(writeEnabled) {
       {
         board: 'music',
         kind: 'album',
-        modes: ['create'],
+        modes: ['create', 'update'],
         capabilities: {
           preview: true,
           preflight: true,
@@ -160,13 +201,14 @@ function buildProfilesResponse(writeEnabled) {
           create: writeEnabled,
           sync: writeEnabled,
           update: writeEnabled,
+          delete: writeEnabled,
           publish: false,
         },
       },
       ...['article', 'book_note', 'series_note'].map(kind => ({
         board: 'texts',
         kind,
-        modes: ['create'],
+        modes: ['create', 'update'],
         capabilities: {
           preview: true,
           preflight: true,
@@ -174,13 +216,14 @@ function buildProfilesResponse(writeEnabled) {
           create: writeEnabled,
           sync: writeEnabled,
           update: writeEnabled,
+          delete: writeEnabled,
           publish: false,
         },
       })),
       ...['movie', 'series'].map(kind => ({
         board: 'visions',
         kind,
-        modes: ['create'],
+        modes: ['create', 'update'],
         capabilities: {
           preview: true,
           preflight: true,
@@ -188,13 +231,14 @@ function buildProfilesResponse(writeEnabled) {
           create: writeEnabled,
           sync: writeEnabled,
           update: writeEnabled,
+          delete: writeEnabled,
           publish: false,
         },
       })),
       {
         board: 'games',
         kind: 'normal_game',
-        modes: ['create'],
+        modes: ['create', 'update'],
         capabilities: {
           preview: true,
           preflight: true,
@@ -202,6 +246,22 @@ function buildProfilesResponse(writeEnabled) {
           create: writeEnabled,
           sync: writeEnabled,
           update: writeEnabled,
+          delete: writeEnabled,
+          publish: false,
+        },
+      },
+      {
+        board: 'games',
+        kind: 'season',
+        modes: ['create'],
+        capabilities: {
+          preview: true,
+          preflight: true,
+          check: true,
+          create: writeEnabled,
+          sync: writeEnabled,
+          update: false,
+          delete: false,
           publish: false,
         },
       },
@@ -467,6 +527,70 @@ async function routeRequest(request, response, context) {
       warnings: safePreview.warnings ?? [],
       updateToken: token,
       updateExpiresAt: expiresAt,
+      writeEnabled: Boolean(token),
+    });
+    return;
+  }
+
+  const deleteActionMatch = url.pathname.match(/^\/api\/studio\/(music|texts|visions|games)\/delete-(preview|preflight|apply)$/);
+  if (request.method === 'POST' && deleteActionMatch) {
+    const [, board, action] = deleteActionMatch;
+    const body = await readJsonBody(request);
+    const payload = body.payload ?? body;
+    if (payload.board !== board) {
+      sendError(response, 422, 'delete_board_mismatch', 'Delete board does not match route');
+      return;
+    }
+    if (action === 'apply') {
+      if (!context.writeEnabled) {
+        sendError(response, 403, 'delete_disabled', 'Archive Studio delete is disabled');
+        return;
+      }
+      const token = String(body.deleteToken ?? '');
+      const record = context.deleteTokens.get(token);
+      context.deleteTokens.delete(token);
+      if (
+        !record || record.board !== board || record.expiresAt < Date.now()
+        || record.fingerprint !== payloadFingerprint(payload)
+      ) {
+        sendError(response, 403, 'delete_token_invalid', 'Delete token is invalid or expired');
+        return;
+      }
+      const result = await applyEntryDelete({
+        board,
+        id: payload.id,
+        expectedDigest: record.digest,
+        v2Root: context.v2Root,
+        sourceRoot: context.sourceRoot,
+        projectRoot: context.projectRoot,
+      });
+      sendJson(response, 200, result);
+      return;
+    }
+
+    const preview = buildDeletePreview({
+      board,
+      id: payload.id,
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+    });
+    let token = null;
+    let expiresAt = null;
+    if (action === 'preflight' && preview.ok && context.writeEnabled) {
+      token = crypto.randomUUID();
+      expiresAt = Date.now() + PREFLIGHT_TOKEN_TTL_MS;
+      context.deleteTokens.set(token, {
+        board,
+        digest: preview.digest,
+        fingerprint: payloadFingerprint(payload),
+        expiresAt,
+      });
+    }
+    const { internal, digest, ...safePreview } = preview;
+    sendJson(response, preview.ok ? 200 : 422, {
+      ...safePreview,
+      deleteToken: token,
+      deleteExpiresAt: expiresAt,
       writeEnabled: Boolean(token),
     });
     return;
@@ -905,6 +1029,102 @@ async function routeRequest(request, response, context) {
     return;
   }
 
+  if (request.method === 'GET' && url.pathname === '/api/studio/games/live-parents') {
+    sendJson(response, 200, {
+      ok: true,
+      parents: listGameSeasonParents({ v2Root: context.v2Root, projectRoot: context.projectRoot }),
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/games/season-preview') {
+    const payload = await readJsonBody(request);
+    const preview = buildGameSeasonPreview(payload);
+    assertGameSeasonPreviewSafe(preview);
+    sendJson(response, preview.ok ? 200 : 422, {
+      ...preview,
+      writeEnabled: context.writeEnabled,
+      writeScope: 'none',
+    });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/games/season-preflight') {
+    const payload = await readJsonBody(request);
+    const gate = evaluateGameSeasonWriteGate(payload, {
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    const tokenRecord = gate.allowedToRequestWrite && context.writeEnabled
+      ? issuePreflightToken(context, payload)
+      : null;
+    sendJson(response, gate.allowedToRequestWrite ? 200 : 409, buildGamesPreflightResponse(gate, tokenRecord));
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/studio/games/season-create') {
+    if (!context.writeEnabled) {
+      sendError(response, 403, 'create_disabled', 'Archive Studio create is disabled');
+      return;
+    }
+    const form = await readMultipartForm(request);
+    const payloadText = requireFormText(form, 'payload');
+    const token = requireFormText(form, 'preflightToken');
+    const coverFile = requireFormFile(form, 'cover');
+    let payload;
+    try {
+      payload = JSON.parse(payloadText);
+    } catch {
+      const error = new Error('payload must be valid JSON');
+      error.statusCode = 400;
+      error.code = 'invalid_payload_json';
+      throw error;
+    }
+    if (!consumePreflightToken(context, token, payload)) {
+      sendError(response, 403, 'preflight_token_invalid', 'Preflight token is invalid or expired');
+      return;
+    }
+    const gate = evaluateGameSeasonWriteGate(payload, {
+      v2Root: context.v2Root,
+      projectRoot: context.projectRoot,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    if (!gate.allowedToRequestWrite) {
+      sendJson(response, 409, buildGamesPreflightResponse(gate));
+      return;
+    }
+    if (coverFile.name !== payload.assets?.cover?.originalName) {
+      sendError(response, 422, 'asset_name_mismatch', 'Selected cover no longer matches preview');
+      return;
+    }
+    const result = await createGameSeason({
+      payload,
+      coverBuffer: Buffer.from(await coverFile.arrayBuffer()),
+      v2Root: context.v2Root,
+      sourceRoot: context.sourceRoot,
+      projectRoot: context.projectRoot,
+      expectedMinimumEntries: context.expectedMinimumGamesEntries,
+      expectedMinimumKinds: context.expectedMinimumGamesKinds,
+      expectedSeasons: context.expectedGamesSeasons,
+      expectedMinimumMetadataDisabled: context.expectedMinimumGamesMetadataDisabled,
+      expectedLiveParentCovers: context.expectedGamesLiveParentCovers,
+      requireMigrationBaseline: context.requireGamesMigrationBaseline,
+    });
+    sendJson(response, 201, { ...result, publishTriggered: false });
+    return;
+  }
+
   if (request.method === 'POST' && url.pathname === '/api/studio/games/preflight') {
     const payload = await readJsonBody(request);
     const gate = evaluateGamesWriteGate(payload, {
@@ -1039,7 +1259,7 @@ export function createArchiveStudioServer({
   expectedVisionsCharacters = 20,
   expectedMinimumGamesEntries = 282,
   expectedMinimumGamesKinds,
-  expectedGamesSeasons = 40,
+  expectedGamesSeasons = null,
   expectedMinimumGamesMetadataDisabled = 93,
   expectedGamesLiveParentCovers = 2,
   requireMigrationBaseline = true,
@@ -1062,7 +1282,11 @@ export function createArchiveStudioServer({
     expectedVisionsCharacters,
     expectedMinimumGamesEntries,
     expectedMinimumGamesKinds,
-    expectedGamesSeasons,
+    get expectedGamesSeasons() {
+      return Number.isInteger(expectedGamesSeasons)
+        ? expectedGamesSeasons
+        : countCurrentGameSeasons(v2Root);
+    },
     expectedMinimumGamesMetadataDisabled,
     expectedGamesLiveParentCovers,
     requireMigrationBaseline,
@@ -1074,6 +1298,7 @@ export function createArchiveStudioServer({
     syncTokens: new Map(),
     homepageTokens: new Map(),
     updateTokens: new Map(),
+    deleteTokens: new Map(),
   };
   return http.createServer((request, response) => {
     routeRequest(request, response, context).catch((error) => {
@@ -1106,7 +1331,7 @@ export function startArchiveStudioServer({ port = DEFAULT_PORT } = {}) {
     console.log(`  host: ${HOST}`);
     console.log(`  port: ${port}`);
     console.log('  writeEnabled: true');
-    console.log('  writeScope: music/album/create, texts/*/create, visions/movie|series/create, games/normal_game/create');
+    console.log('  writeScope: four-board create, update, delete, public sync, homepage');
   });
   return server;
 }

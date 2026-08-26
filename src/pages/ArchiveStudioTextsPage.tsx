@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import {
   AlertCircle,
   BookOpen,
@@ -9,12 +8,15 @@ import {
   FolderTree,
   Newspaper,
   RefreshCcw,
-  SearchCheck,
   ShieldCheck,
 } from 'lucide-react'
 import './ArchiveStudioPage.css'
 import ArchiveStudioPublicSync from '../components/ArchiveStudioPublicSync'
 import ArchiveStudioModePicker, { type EditableEntryDetail, type StudioMode } from '../components/ArchiveStudioModePicker'
+import ArchiveStudioDisplayPreview from '../components/ArchiveStudioDisplayPreview'
+import ArchiveStudioDeleteAction from '../components/ArchiveStudioDeleteAction'
+import { TextBookCoverCard, TextEntryCardHeader, textSectionVariant } from '../components/TextDisplayCards'
+import type { TextItem } from '../types'
 
 type TextKind = 'article' | 'book_note' | 'series_note'
 type RequestStatus = 'idle' | 'loading' | 'success' | 'error'
@@ -190,6 +192,7 @@ export default function ArchiveStudioTextsPage() {
   const [kind, setKind] = useState<TextKind>('article')
   const [mode, setMode] = useState<StudioMode>('create')
   const [selectedEntryId, setSelectedEntryId] = useState('')
+  const [entryListVersion, setEntryListVersion] = useState(0)
   const [existingAssets, setExistingAssets] = useState<Record<string, { name: string; extension: string } | null>>({})
   const [section, setSection] = useState(sectionsByKind.article[0].key)
   const [entryId, setEntryId] = useState(newTextId)
@@ -200,7 +203,7 @@ export default function ArchiveStudioTextsPage() {
   const [createAvailable, setCreateAvailable] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<RequestStatus>('idle')
   const [previewResult, setPreviewResult] = useState<ApiPreview | null>(null)
-  const [preflightStatus, setPreflightStatus] = useState<RequestStatus>('idle')
+  const [, setPreflightStatus] = useState<RequestStatus>('idle')
   const [preflightResult, setPreflightResult] = useState<ApiPreflight | null>(null)
   const [createStatus, setCreateStatus] = useState<RequestStatus>('idle')
   const [createResult, setCreateResult] = useState<CreateResult | null>(null)
@@ -208,6 +211,7 @@ export default function ArchiveStudioTextsPage() {
   const [checkResult, setCheckResult] = useState<TextsCheck | null>(null)
   const [requestError, setRequestError] = useState('')
   const [coverPreviewUrl, setCoverPreviewUrl] = useState('')
+  const [existingPreviewUrl, setExistingPreviewUrl] = useState('')
 
   const isBookNote = kind === 'book_note'
   const coverExtension = fileExtension(form.cover)
@@ -358,6 +362,7 @@ export default function ArchiveStudioTextsPage() {
     if (mode === 'update') {
       setSelectedEntryId('')
       setExistingAssets({})
+      setExistingPreviewUrl('')
     }
   }
 
@@ -365,6 +370,7 @@ export default function ArchiveStudioTextsPage() {
     setMode(nextMode)
     setSelectedEntryId('')
     setExistingAssets({})
+    setExistingPreviewUrl('')
     setKind('article')
     setSection(sectionsByKind.article[0].key)
     setEntryId(newTextId())
@@ -383,6 +389,7 @@ export default function ArchiveStudioTextsPage() {
     setEntryId(detail.id)
     setSelectedEntryId(detail.id)
     setExistingAssets(detail.assets)
+    setExistingPreviewUrl(detail.thumbnail ? `/${detail.thumbnail.replace(/^\//, '')}` : '')
     setForm({
       title: String(detail.fields.title ?? ''),
       date: String(detail.fields.date ?? ''),
@@ -399,49 +406,6 @@ export default function ArchiveStudioTextsPage() {
     setCreateResult(null)
   }
 
-  const generatePreview = async () => {
-    setPreviewStatus('loading')
-    setPreviewResult(null)
-    setPreflightStatus('idle')
-    setPreflightResult(null)
-    setCreateStatus('idle')
-    setCreateResult(null)
-    setRequestError('')
-    try {
-      const result = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/texts/update-preview' : '/api/studio/texts/preview', buildPayload())
-      setPreviewResult(result)
-      setPreviewStatus(result.ok ? 'success' : 'error')
-      setServiceStatus('online')
-    } catch (error) {
-      setPreviewStatus('error')
-      setServiceStatus('offline')
-      setRequestError(error instanceof Error ? error.message : '生成预览失败。')
-    }
-  }
-
-  const runPreflight = async () => {
-    setPreflightStatus('loading')
-    setPreflightResult(null)
-    setCreateStatus('idle')
-    setCreateResult(null)
-    setRequestError('')
-    try {
-      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/texts/update-preflight' : '/api/studio/texts/preflight', buildPayload())
-      const result = mode === 'update' ? {
-        ...raw, targetEntryExists: true, targetFilesExisting: raw.operations?.length ?? 0,
-        blockedReasons: [], writeScope: `entries/texts/${kind}/${entryId}`,
-        preflightToken: null, preflightExpiresAt: null,
-        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
-      } : raw
-      setPreflightResult(result)
-      setPreflightStatus(result.ok ? 'success' : 'error')
-      setServiceStatus('online')
-    } catch (error) {
-      setPreflightStatus('error')
-      setRequestError(error instanceof Error ? error.message : '预检失败。')
-    }
-  }
-
   const runCheck = async () => {
     setCheckStatus('loading')
     setCheckResult(null)
@@ -455,16 +419,56 @@ export default function ArchiveStudioTextsPage() {
   }
 
   const createEntry = async () => {
-    const token = mode === 'update' ? preflightResult?.updateToken : preflightResult?.preflightToken
-    if (!token) return
+    if (validation.length > 0) {
+      setPreviewStatus('error')
+      setPreviewResult(null)
+      setCreateStatus('error')
+      setRequestError(validation[0])
+      return
+    }
+
+    const payload = buildPayload()
     setCreateStatus('loading')
     setCreateResult(null)
+    setPreviewStatus('loading')
+    setPreviewResult(null)
+    setPreflightStatus('idle')
+    setPreflightResult(null)
     setRequestError('')
-    const body = new FormData()
-    body.set('payload', JSON.stringify(buildPayload()))
-    body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
-    if (isBookNote && form.cover) body.set('cover', form.cover)
+
     try {
+      const preview = await postJson<ApiPreview>(mode === 'update' ? '/api/studio/texts/update-preview' : '/api/studio/texts/preview', payload)
+      setPreviewResult(preview)
+      setPreviewStatus(preview.ok ? 'success' : 'error')
+      setServiceStatus('online')
+      if (!preview.ok) {
+        setCreateStatus('error')
+        setRequestError(preview.errors[0] ? issueMessages[preview.errors[0].code] ?? preview.errors[0].message : '预览检查未通过。')
+        return
+      }
+
+      setPreflightStatus('loading')
+      const raw = await postJson<ApiPreflight & { operations?: unknown[] }>(mode === 'update' ? '/api/studio/texts/update-preflight' : '/api/studio/texts/preflight', payload)
+      const preflight = mode === 'update' ? {
+        ...raw, targetEntryExists: true, targetFilesExisting: raw.operations?.length ?? 0,
+        blockedReasons: [], writeScope: `entries/texts/${kind}/${entryId}`,
+        preflightToken: null, preflightExpiresAt: null,
+        dryRun: { writeItems: raw.operations?.length ?? 0, rollbackDeletes: 0 },
+      } : raw
+      setPreflightResult(preflight)
+      setPreflightStatus(preflight.ok ? 'success' : 'error')
+      const token = mode === 'update' ? preflight.updateToken : preflight.preflightToken
+      if (!preflight.ok || !token) {
+        setCreateStatus('error')
+        setRequestError('保存前检查未通过。')
+        return
+      }
+
+      const body = new FormData()
+      body.set('payload', JSON.stringify(payload))
+      body.set(mode === 'update' ? 'updateToken' : 'preflightToken', token)
+      if (isBookNote && form.cover) body.set('cover', form.cover)
+
       const response = await fetch(mode === 'update' ? '/api/studio/texts/update-apply' : '/api/studio/texts/create', { method: 'POST', body })
       const result = await response.json() as CreateResult | ErrorResult
       if (!response.ok || !result.ok) {
@@ -479,6 +483,18 @@ export default function ArchiveStudioTextsPage() {
       setCheckResult(result.check)
       setCheckStatus(result.check.ok ? 'success' : 'error')
       setIsDirty(false)
+
+      if (mode === 'create') {
+        setKind('article')
+        setSection(sectionsByKind.article[0].key)
+        setEntryId(newTextId())
+        setForm(initialForm)
+        setFileInputVersion(current => current + 1)
+        setPreviewStatus('idle')
+        setPreviewResult(null)
+        setPreflightStatus('idle')
+        setPreflightResult(null)
+      }
     } catch (error) {
       setCreateStatus('error')
       setRequestError(error instanceof Error ? error.message : '创建失败。')
@@ -493,47 +509,26 @@ export default function ArchiveStudioTextsPage() {
   }
 
   const previewReady = previewResult?.ok === true && validation.length === 0
-  const createReady = previewReady
-    && preflightResult?.ok === true
-    && Boolean(mode === 'update' ? preflightResult.updateToken : preflightResult.preflightToken)
-    && createAvailable
-    && createStatus !== 'loading'
-    && createStatus !== 'success'
   const KindIcon = kindOptions.find(option => option.kind === kind)?.icon ?? FileText
-  const currentKind = kindOptions.find(option => option.kind === kind)
   const currentSection = sectionsByKind[kind].find(option => option.key === section)?.label ?? section
-  const displayTitle = form.title.trim() || '文本标题'
-  const displaySummary = form.summary.trim() || form.content.trim().replace(/\s+/g, ' ').slice(0, 110) || '这里会显示摘要或正文开头。'
-  const displayMeta = [
-    currentSection,
-    form.date || (isBookNote ? '日期可选' : '日期未填'),
-    isBookNote && form.author.trim() ? form.author.trim() : '',
-  ].filter(Boolean).join(' · ')
+  const displayCoverUrl = coverPreviewUrl || existingPreviewUrl
+  const previewItem: TextItem = {
+    id: entryId,
+    title: form.title.trim() || '文本标题',
+    date: form.date || (isBookNote ? '' : '日期未填'),
+    section,
+    section_title: currentSection,
+    cover: displayCoverUrl,
+    author: isBookNote ? form.author.trim() : undefined,
+    summary: form.summary.trim(),
+    excerpt: form.content.trim().replace(/\s+/g, ' ').slice(0, 160),
+    tags,
+    content: form.content,
+  }
 
   return (
     <main className="studio-shell">
-      <header className="studio-topbar">
-        <div>
-          <div className="studio-kicker">本地收藏维护工具</div>
-          <h1>Archive Studio</h1>
-        </div>
-        <div className="studio-status-cluster">
-          <span className={`studio-status${serviceStatus === 'online' ? ' studio-status--safe' : ''}`}>
-            <ShieldCheck size={15} />
-            {serviceStatus === 'checking' ? '正在检查本地服务' : serviceStatus === 'online' ? '本地服务已连接' : '本地服务未连接'}
-          </span>
-        </div>
-      </header>
-
-      <nav className="studio-board-tabs" aria-label="Archive Studio 板块">
-        <NavLink to="/studio/home">首页</NavLink>
-        <NavLink to="/studio" end>音乐</NavLink>
-        <NavLink to="/studio/texts">文本</NavLink>
-        <NavLink to="/studio/visions">影视</NavLink>
-        <NavLink to="/studio/games">游戏</NavLink>
-      </nav>
-
-      <ArchiveStudioModePicker board="texts" mode={mode} selectedId={selectedEntryId} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
+      <ArchiveStudioModePicker board="texts" mode={mode} selectedId={selectedEntryId} refreshKey={entryListVersion} onModeChange={changeMode} onEntryLoad={loadExistingEntry} />
 
       {createResult ? (
         <section className="studio-save-result" role="status" aria-live="polite">
@@ -552,7 +547,7 @@ export default function ArchiveStudioTextsPage() {
         </section>
       ) : null}
 
-      <ArchiveStudioPublicSync board="texts" refreshKey={createResult?.entryRelativeDir} />
+      <ArchiveStudioPublicSync board="texts" refreshKey={`${createResult?.entryRelativeDir ?? ''}:${entryListVersion}`} />
 
       <div className="studio-workspace">
         <div className="studio-editor-column">
@@ -610,14 +605,14 @@ export default function ArchiveStudioTextsPage() {
                 <span>摘要</span>
                 <textarea rows={3} value={form.summary} onChange={event => updateField('summary', event.target.value)} placeholder="可选的简短摘要，不会自动生成" />
               </label>
-              <label className="studio-field studio-field--wide">
+              <label className="studio-field">
                 <span>标签</span>
                 <input value={form.tags} onChange={event => updateField('tags', event.target.value)} placeholder="用逗号分隔" />
                 <small>将保存 {tags.length} 个去重后的标签。</small>
               </label>
               <label className="studio-field studio-field--wide">
-                <span>条目 ID <b>系统生成</b></span>
-                <input value={entryId} readOnly />
+                <span>条目 ID <b>{mode === 'update' ? '固定' : '自动建议'}</b></span>
+                <input value={entryId} onChange={event => { setEntryId(event.target.value.toLowerCase()); invalidate() }} readOnly={mode === 'update'} />
               </label>
             </div>
           </section>
@@ -645,7 +640,7 @@ export default function ArchiveStudioTextsPage() {
 
           <section className="studio-section">
             <div className="studio-section-heading">
-              <div><span>{isBookNote ? '04' : '03'}</span><h2>Markdown 正文</h2></div>
+              <div><span>{isBookNote ? '04' : '03'}</span><h2>正文</h2></div>
               <p>正文原样保存为 content.md，不会自动改写。</p>
             </div>
             <label className="studio-field studio-field--wide">
@@ -664,44 +659,23 @@ export default function ArchiveStudioTextsPage() {
 
         <aside className="studio-preview-column">
           <section className="studio-preview-panel">
-            <div className="studio-display-preview">
-              <div className="studio-display-preview__heading">
-                <span>展示预览</span>
-                <strong>文本页面中的大致效果</strong>
-              </div>
-
-              <div className={`studio-text-preview-card${isBookNote ? ' studio-text-preview-card--book' : ''}`}>
-                {isBookNote ? (
-                  <div className="studio-text-preview-cover">
-                    {coverPreviewUrl ? (
-                      <img src={coverPreviewUrl} alt="" />
-                    ) : (
-                      <div>
-                        <FileImage size={24} />
-                        <span>{mode === 'update' ? '保留现有封面' : '选择封面后预览'}</span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <KindIcon size={22} className="studio-text-preview-icon" />
-                )}
-                <div className="studio-text-preview-body">
-                  <span className="studio-catalog-preview-kind">{currentKind?.label ?? '文本'}</span>
-                  <h3>{displayTitle}</h3>
-                  <p>{displayMeta}</p>
-                  <blockquote>{displaySummary}</blockquote>
-                  {tags.length ? (
-                    <div className="studio-catalog-preview-tags">
-                      {tags.slice(0, 4).map(tag => <span key={tag}>{tag}</span>)}
-                    </div>
-                  ) : null}
+            <ArchiveStudioDisplayPreview title={isBookNote ? '文本页面实际书架卡' : '文本页面实际条目卡'}>
+              {isBookNote ? (
+                <div className="studio-real-book-preview">
+                  {displayCoverUrl ? <TextBookCoverCard item={previewItem} /> : (
+                    <div className="studio-real-poster-preview__empty"><FileImage size={24} /><span>{mode === 'update' ? '重新选择封面后预览' : '选择封面后预览'}</span></div>
+                  )}
                 </div>
-              </div>
-            </div>
+              ) : (
+                <div className={`texts-entry-card texts-entry-card--${textSectionVariant(section)} studio-real-text-preview`}>
+                  <TextEntryCardHeader item={previewItem} />
+                </div>
+              )}
+            </ArchiveStudioDisplayPreview>
 
             <div className="studio-preview-title">
               <FolderTree size={19} />
-              <div><span>写入详情</span><strong>生成预览后用于检查</strong></div>
+              <div><span>写入详情</span><strong>保存时自动检查</strong></div>
             </div>
             <div className="studio-preview-id"><span>条目 ID</span><code>{entryId}</code></div>
             <div className="studio-operation-list">
@@ -733,16 +707,16 @@ export default function ArchiveStudioTextsPage() {
             ) : null}
             {previewStatus !== 'idle' ? (
               <div className={`studio-validation${previewReady ? ' is-valid' : ' has-errors'}`}>
-                <div>{previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<strong>{previewStatus === 'loading' ? '正在生成预览' : previewReady ? '预览已就绪' : '预览被阻断'}</strong></div>
+                <div>{previewReady ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<strong>{previewStatus === 'loading' ? '正在执行保存检查' : previewReady ? '保存检查通过' : '保存检查被阻断'}</strong></div>
                 {requestError ? <p>{requestError}</p> : null}
                 {previewStatus !== 'loading' && (previewResult?.errors.length || validation.length) ? (
                   <ul>{(previewResult?.errors.map(issueText) ?? validation).map(message => <li key={message}>{message}</li>)}</ul>
                 ) : null}
-                {previewReady ? <p>预览通过，此步骤尚未写入文件。</p> : null}
+                {previewReady ? <p>写入计划检查通过。</p> : null}
                 {previewResult?.warnings.map(warning => <p key={warning.code}>{issueText(warning)}</p>)}
               </div>
             ) : (
-              <div className="studio-preview-placeholder">填写表单后生成预览，检查目标文件和规则。</div>
+              <div className="studio-preview-placeholder">填写表单后可直接保存，系统会自动检查目标文件和规则。</div>
             )}
             {createStatus === 'error' ? (
               <div className="studio-validation has-errors"><div><AlertCircle size={18} /><strong>创建失败</strong></div><p>{requestError}</p></div>
@@ -758,9 +732,8 @@ export default function ArchiveStudioTextsPage() {
         </div>
         <div className="studio-actions">
           <button className="studio-button studio-button--quiet" type="button" onClick={reset}><RefreshCcw size={16} /> 重置</button>
-          <button className="studio-button studio-button--secondary" type="button" onClick={generatePreview}><SearchCheck size={16} /> {previewStatus === 'loading' ? '生成中...' : '生成预览'}</button>
-          <button className="studio-button studio-button--secondary" type="button" onClick={runPreflight} disabled={!previewReady || preflightStatus === 'loading'}><ShieldCheck size={16} /> {preflightStatus === 'loading' ? '检查中...' : '运行预检'}</button>
-          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createReady}>{createStatus === 'loading' ? (mode === 'update' ? '保存中...' : '创建中...') : createStatus === 'success' ? '保存成功' : mode === 'update' ? '保存修改' : '创建条目'}</button>
+          <button className="studio-button studio-button--primary" type="button" onClick={createEntry} disabled={!createAvailable || createStatus === 'loading'}>{createStatus === 'loading' ? (mode === 'update' ? '检查并保存...' : '检查并创建...') : mode === 'update' ? '保存修改' : '创建条目'}</button>
+          {mode === 'update' ? <ArchiveStudioDeleteAction board="texts" entryId={selectedEntryId} title={form.title} disabled={createStatus === 'loading'} onDeleted={() => { reset(); setEntryListVersion(current => current + 1) }} /> : null}
         </div>
       </footer>
     </main>

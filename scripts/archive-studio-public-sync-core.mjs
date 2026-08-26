@@ -171,12 +171,25 @@ function loadGames(v2Root) {
       const cover = kind === 'live_game'
         ? optionalAsset(entryRoot, 'cover', IMAGE_EXTENSIONS)
         : findAsset(entryRoot, 'cover', IMAGE_EXTENSIONS);
+      const seasons = kind === 'live_game'
+        ? listDirs(path.join(entryRoot, 'seasons')).map(seasonDir => {
+          const seasonRoot = path.join(entryRoot, 'seasons', seasonDir.name);
+          const seasonParsed = parseV2GameYaml(path.join(seasonRoot, 'season.yaml'));
+          if (seasonParsed.errors.length) throw new Error('games_season_yaml_invalid');
+          return {
+            id: seasonDir.name,
+            fields: seasonParsed.data,
+            media: publicMedia('games', `${child.name}/seasons/${seasonDir.name}`, 'cover', findAsset(seasonRoot, 'cover', IMAGE_EXTENSIONS)),
+          };
+        }).sort((left, right) => Number(left.fields.order) - Number(right.fields.order) || String(left.fields.title).localeCompare(String(right.fields.title)))
+        : [];
       entries.push({
         id: child.name,
         kind,
         fingerprint,
         fields,
         media: cover ? [publicMedia('games', child.name, 'cover', cover)] : [],
+        seasons,
       });
     }
   }
@@ -256,7 +269,7 @@ export function buildBoardPublicCatalog({ board, v2Root, projectRoot = process.c
   return { board, live, entries };
 }
 
-function buildPublicItem(board, entry, sectionTitles, mediaOverrides = {}, forcedId = '') {
+function buildPublicItem(board, entry, sectionTitles, mediaOverrides = {}, forcedId = '', existingItem = null, updateMarker = null) {
   const mediaByStem = new Map(entry.media.map(item => [
     path.basename(item.sourcePath, path.extname(item.sourcePath)),
     mediaOverrides[path.basename(item.sourcePath, path.extname(item.sourcePath))] ?? item.publicPath,
@@ -296,6 +309,55 @@ function buildPublicItem(board, entry, sectionTitles, mediaOverrides = {}, force
     type: entry.kind === 'series' ? 'tv' : 'movie',
   };
   const metadataEnabled = fields.metadata_enabled === true;
+  if (entry.kind === 'live_game') {
+    const existingSeasons = new Map((existingItem?.season_entries ?? []).map(season => [normalizeTitle(season.title), season]));
+    const seasonEntries = entry.seasons.map(season => {
+      const current = existingSeasons.get(normalizeTitle(season.fields.title));
+      const replacesSeasonCover = updateMarker?.seasonId === season.id
+        && updateMarker?.replacedAssets?.includes('season_cover');
+      return {
+        id: String(current?.id ?? season.id),
+        image_path: String(replacesSeasonCover ? season.media.publicPath : (current?.image_path ?? season.media.publicPath)),
+        icon_path: String(current?.icon_path ?? ''),
+        title: String(season.fields.title ?? ''),
+        label: String(season.fields.label ?? ''),
+        champion: String(season.fields.champion ?? ''),
+        note: String(season.fields.note ?? ''),
+        period: String(season.fields.period ?? ''),
+        theme: String(season.fields.theme ?? ''),
+        feature: String(season.fields.feature ?? ''),
+        build: String(season.fields.build ?? ''),
+        source_year: Number(current?.source_year ?? existingItem?.season_entries?.[0]?.source_year ?? 2026),
+        order: Number(season.fields.order),
+      };
+    });
+    return {
+      id: forcedId || entry.id,
+      image_path: mediaByStem.get('cover') ?? String(existingItem?.image_path ?? seasonEntries.at(-1)?.image_path ?? ''),
+      title: String(fields.title ?? ''),
+      cinema: false,
+      quote: '',
+      url: metadataEnabled ? String(fields.url ?? '') : '',
+      type: 'game',
+      game_meta_enabled: metadataEnabled,
+      english_title: metadataEnabled ? String(fields.english_title ?? '') : '',
+      platform: metadataEnabled ? String(fields.platform ?? '') : 'steam',
+      price: metadataEnabled ? String(fields.price ?? '') : '',
+      rating: metadataEnabled ? (fields.rating ?? '') : '',
+      playtime: metadataEnabled ? String(fields.playtime ?? '') : '',
+      completed: metadataEnabled && fields.completed === true,
+      genre: metadataEnabled ? String(fields.genre ?? '') : '',
+      seasonal: true,
+      dlc: false,
+      dlc_parent: '',
+      summary: metadataEnabled ? String(fields.summary ?? '') : '',
+      hover_note: metadataEnabled ? String(fields.hover_note ?? '') : '',
+      season_heading: metadataEnabled ? String(fields.season_heading ?? '') : '',
+      season_subheading: metadataEnabled ? String(fields.season_subheading ?? '') : '',
+      season_description: metadataEnabled ? String(fields.season_description ?? '') : '',
+      season_entries: seasonEntries,
+    };
+  }
   return {
     id: forcedId || entry.id,
     image_path: mediaByStem.get('cover') ?? '',
@@ -328,7 +390,42 @@ function pendingUpdateRecords(v2Root, board) {
     .map(item => {
       const filePath = path.join(root, item.name);
       return { ...JSON.parse(fs.readFileSync(filePath, 'utf8')), filePath };
-    });
+    })
+    .filter(marker => marker.state !== 'synced');
+}
+
+function pendingDeleteRecords(v2Root, board) {
+  const root = path.join(v2Root, 'migration', 'archive-studio-v0', 'pending-public-deletes', board);
+  return listFiles(root)
+    .filter(item => item.name.endsWith('.json'))
+    .map(item => {
+      const filePath = path.join(root, item.name);
+      return { ...JSON.parse(fs.readFileSync(filePath, 'utf8')), filePath };
+    })
+    .filter(marker => marker.state !== 'synced');
+}
+
+function removePublicItems(board, live, markers) {
+  const next = structuredClone(live);
+  const ids = new Set(markers.map(marker => String(marker.publicId)));
+  if (board === 'music' || board === 'texts') {
+    next.items = (next.items ?? []).filter(item => !ids.has(String(item.id)));
+    if (board === 'texts') {
+      const counts = next.items.reduce((result, item) => ({
+        ...result,
+        [item.section]: (result[item.section] ?? 0) + 1,
+      }), {});
+      next.sections = (next.sections ?? []).map(section => ({ ...section, count: counts[section.key] ?? 0 }));
+    }
+  } else {
+    next.years = (next.years ?? [])
+      .map(group => ({ ...group, items: (group.items ?? []).filter(item => !ids.has(String(item.id))) }))
+      .filter(group => group.items.length > 0);
+  }
+  next.total_count = board === 'music' || board === 'texts'
+    ? (next.items ?? []).length
+    : (next.years ?? []).reduce((sum, group) => sum + (group.items ?? []).length, 0);
+  return next;
 }
 
 function replacePublicItem(board, live, entry, marker, sectionTitles) {
@@ -346,7 +443,7 @@ function replacePublicItem(board, live, entry, marker, sectionTitles) {
         : (oldItem.audio ?? '');
     if (!marker.replacedAssets.includes(role)) overrides[role] = oldPath;
   }
-  const replacement = buildPublicItem(board, entry, sectionTitles, overrides, marker.publicId);
+  const replacement = buildPublicItem(board, entry, sectionTitles, overrides, marker.publicId, oldItem, marker);
   if (board === 'music' || board === 'texts') {
     const index = (next.items ?? []).findIndex(item => String(item.id) === String(marker.publicId));
     next.items[index] = replacement;
@@ -356,10 +453,12 @@ function replacePublicItem(board, live, entry, marker, sectionTitles) {
     }
   } else {
     let oldIndex = -1;
+    let oldGroup = null;
     for (const group of next.years ?? []) {
       const index = (group.items ?? []).findIndex(item => String(item.id) === String(marker.publicId));
       if (index >= 0) {
         oldIndex = index;
+        oldGroup = group;
         group.items.splice(index, 1);
         break;
       }
@@ -368,6 +467,9 @@ function replacePublicItem(board, live, entry, marker, sectionTitles) {
       const group = (next.years ?? []).find(candidate => candidate.folder === entry.fields.period);
       if (!group) throw new Error('visions_public_period_missing');
       group.items.splice(Math.max(0, oldIndex), 0, replacement);
+    } else if (entry.kind === 'live_game') {
+      if (!oldGroup) throw new Error('games_live_public_group_missing');
+      oldGroup.items.splice(Math.max(0, oldIndex), 0, replacement);
     } else {
       let group = (next.years ?? []).find(candidate => Number(candidate.year) === Number(entry.fields.year));
       if (!group) {
@@ -435,17 +537,25 @@ export function buildPublicSyncPreview({ board, v2Root, projectRoot = process.cw
   const live = JSON.parse(fs.readFileSync(publicJsonPath, 'utf8'));
   const entries = loadBoardEntries(board, v2Root);
   const entriesById = new Map(entries.map(entry => [entry.id, entry]));
+  const deleteMarkers = pendingDeleteRecords(v2Root, board);
+  const nextFromDeletes = removePublicItems(board, live, deleteMarkers);
   const updateMarkers = pendingUpdateRecords(v2Root, board);
-  let nextFromUpdates = live;
+  let nextFromUpdates = nextFromDeletes;
   const updateMedia = [];
   for (const marker of updateMarkers) {
     const entry = entriesById.get(marker.entryId);
     if (!entry) throw new Error('pending_public_update_entry_missing');
     nextFromUpdates = replacePublicItem(board, nextFromUpdates, entry, marker, board === 'texts' ? sectionTitles(v2Root) : new Map());
-    for (const role of marker.replacedAssets) {
-      const media = entry.media.find(item => path.basename(item.sourcePath, path.extname(item.sourcePath)) === role);
-      if (!media) throw new Error('pending_public_update_media_missing');
-      updateMedia.push(media);
+    if (marker.seasonId) {
+      const season = entry.seasons?.find(item => item.id === marker.seasonId);
+      if (!season?.media) throw new Error('pending_public_season_media_missing');
+      updateMedia.push(season.media);
+    } else {
+      for (const role of marker.replacedAssets) {
+        const media = entry.media.find(item => path.basename(item.sourcePath, path.extname(item.sourcePath)) === role);
+        if (!media) throw new Error('pending_public_update_media_missing');
+        updateMedia.push(media);
+      }
     }
   }
   const fingerprints = liveFingerprints(board, nextFromUpdates);
@@ -457,17 +567,22 @@ export function buildPublicSyncPreview({ board, v2Root, projectRoot = process.cw
   const serialized = `${JSON.stringify(next, null, 2)}\n`;
   if (PRIVACY_RULES.some(rule => rule.test(serialized))) throw new Error('public_sync_privacy_rule_hit');
   const media = [...updateMedia, ...pending.flatMap(entry => entry.media)];
-  const hasChanges = pending.length > 0 || updateMarkers.length > 0;
+  const deleteMediaPaths = [...new Set(deleteMarkers.flatMap(marker => (
+    Array.isArray(marker.mediaPaths) ? marker.mediaPaths : []
+  )))].filter(relativePath => String(relativePath).startsWith('studio_media/'));
+  const hasChanges = pending.length > 0 || updateMarkers.length > 0 || deleteMarkers.length > 0;
   const result = {
     ok: true,
     board,
     state: hasChanges ? 'ready' : 'current',
-    pendingEntries: pending.length + updateMarkers.length,
+    pendingEntries: pending.length + updateMarkers.length + deleteMarkers.length,
     pendingCreates: pending.length,
     pendingUpdates: updateMarkers.length,
+    pendingDeletes: deleteMarkers.length,
     currentEntries: Number(live.total_count ?? 0),
     nextEntries: Number(next.total_count ?? 0),
     mediaFiles: media.length,
+    deleteMediaFiles: deleteMediaPaths.length,
     mediaTransforms: media.map(item => ({
       role: item.role,
       profile: item.profile,
@@ -482,6 +597,7 @@ export function buildPublicSyncPreview({ board, v2Root, projectRoot = process.cw
     relativeTargets: [
       ...(hasChanges ? [`public/data/${board}.json`] : []),
       ...media.map(item => `public/${item.relativePath}`),
+      ...deleteMediaPaths.map(relativePath => `public/${relativePath}`),
     ],
   };
   return {
@@ -491,9 +607,14 @@ export function buildPublicSyncPreview({ board, v2Root, projectRoot = process.cw
       .update(JSON.stringify(media.map(({ relativePath, sourceBytes, sourceSha256, profile }) => ({
         relativePath, sourceBytes, sourceSha256, profile,
       }))))
+      .update(JSON.stringify(deleteMarkers.map(marker => ({
+        entryId: marker.entryId,
+        publicId: marker.publicId,
+        mediaPaths: marker.mediaPaths,
+      }))))
       .digest('hex'),
     internal: {
-      publicJsonPath, serialized, media, updateMarkers,
+      publicJsonPath, serialized, media, updateMarkers, deleteMarkers, deleteMediaPaths,
       replaceableMediaPaths: new Set(updateMedia.map(item => item.relativePath)),
     },
   };
@@ -515,6 +636,8 @@ export function applyPublicSync({ board, v2Root, projectRoot = process.cwd(), ex
   const before = fs.readFileSync(preview.internal.publicJsonPath);
   const created = [];
   const replaced = [];
+  const deletedMedia = [];
+  const settledMarkers = [];
   const optimized = [];
   const publicRoot = path.join(projectRoot, 'public');
   const tempJson = `${preview.internal.publicJsonPath}.studio-sync-${crypto.randomUUID()}.tmp`;
@@ -550,13 +673,42 @@ export function applyPublicSync({ board, v2Root, projectRoot = process.cwd(), ex
     fs.renameSync(tempJson, preview.internal.publicJsonPath);
     const written = JSON.parse(fs.readFileSync(preview.internal.publicJsonPath, 'utf8'));
     if (Number(written.total_count) !== preview.nextEntries) throw new Error('public_sync_json_verification_failed');
-    for (const marker of preview.internal.updateMarkers) fs.rmSync(marker.filePath, { force: true });
-    return { ...preview, state: 'synced', optimizedMedia: optimized, internal: undefined };
+    for (const relativePath of preview.internal.deleteMediaPaths) {
+      const target = path.resolve(publicRoot, ...String(relativePath).split('/'));
+      if (!target.startsWith(`${path.resolve(publicRoot)}${path.sep}`)) throw new Error('public_sync_delete_path_escaped');
+      if (!existsFile(target)) continue;
+      deletedMedia.push({ target, before: fs.readFileSync(target) });
+      fs.rmSync(target, { force: true });
+      removeEmptyParents(path.dirname(target), path.join(publicRoot, 'studio_media'));
+    }
+    for (const marker of [...preview.internal.updateMarkers, ...preview.internal.deleteMarkers]) {
+      const beforeMarker = fs.readFileSync(marker.filePath);
+      const { filePath, ...record } = marker;
+      const settled = { ...record, state: 'synced', syncedAt: new Date().toISOString() };
+      fs.writeFileSync(filePath, `${JSON.stringify(settled, null, 2)}\n`);
+      if (JSON.parse(fs.readFileSync(filePath, 'utf8')).state !== 'synced') {
+        throw new Error('public_sync_marker_settle_failed');
+      }
+      settledMarkers.push({ filePath, before: beforeMarker });
+    }
+    for (const marker of settledMarkers) {
+      try { fs.rmSync(marker.filePath, { force: true }); } catch {}
+    }
+    return { ...preview, state: 'synced', optimizedMedia: optimized, deletedMediaFiles: deletedMedia.length, internal: undefined };
   } catch (error) {
     try { fs.rmSync(tempJson, { force: true }); } catch {}
     try { fs.writeFileSync(preview.internal.publicJsonPath, before); } catch {}
     for (const item of replaced) {
       try { fs.writeFileSync(item.target, item.before); } catch {}
+    }
+    for (const item of deletedMedia) {
+      try {
+        fs.mkdirSync(path.dirname(item.target), { recursive: true });
+        fs.writeFileSync(item.target, item.before);
+      } catch {}
+    }
+    for (const marker of settledMarkers) {
+      try { fs.writeFileSync(marker.filePath, marker.before); } catch {}
     }
     for (const target of created.reverse()) {
       try { fs.rmSync(target, { force: true }); } catch {}

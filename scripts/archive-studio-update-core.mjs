@@ -174,6 +174,7 @@ export function loadEditableEntry({ board, id, v2Root, projectRoot = process.cwd
     ok: true, board, kind, id, fields,
     content: rule.content ? fs.readFileSync(path.join(root, 'content.md'), 'utf8') : '',
     assets,
+    thumbnail: publicRecord?.thumbnail ?? '',
     publicId: publicRecord?.publicId ?? '',
     publiclySynced: publicRecord?.synced === true,
   };

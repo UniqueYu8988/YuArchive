@@ -2,15 +2,30 @@
 
 本文件只记录 YuArchive 现在的状态，不保存完整历史。
 
-最后更新：2026-07-12
+最后更新：2026-08-25
 
 ## 当前阶段
 
-Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。Archive Studio 已具备四板块普通条目的轻量 `新建 / 修改` 模式、显式公开同步和首页精选管理：修改时搜索并回填原表单，稳定 ID / board / kind 不变，素材默认保留，preview 与 preflight 通过后才受控写入；旧 OneDrive Data 始终只读，发布不会自动触发。
+Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。Archive Studio 已从公开展示站拆分为独立本地管理工具，具备四板块普通条目的轻量 `新建 / 修改`、显式公开同步和首页精选管理。公开 `src/App.tsx` 不再包含 Studio 路由、按钮或管理代码；本地入口由桌面 `Archive Studio` 快捷方式启动。
 
-已启动旧 `Data` 退役审计第一阶段：当前只做只读关系确认和退役条件设计，不删除、不改名、不迁移旧 `Data`，不运行旧生成或发布流程。
+旧 `Data` 与活动 `Archive/migration` 已完成受控退役并转入 `[Archive]/_cold_storage`；当前日常维护只写 Archive，旧生成与旧发布入口继续受显式 gate 保护。
 
 ## 已完成
+
+- 已建立独立本地 Archive Studio：`archive-studio-local.html`、`src/studio-main.tsx`、`src/StudioApp.tsx` 和统一管理外壳。
+- 已从公开站删除 Studio imports、路由和导航按钮；访问历史 `/studio` 会回到公开首页。
+- 已精简五个管理页面的重复标题、服务状态、板块导航、解释性副标题和成功统计大表，保留表单、素材、展示预览、预检、保存、同步和首页精选。
+- 已建立 `scripts/start-archive-studio.ps1` 和桌面快捷方式安装脚本；桌面 `Archive Studio` 快捷方式已创建并使用网站图标。
+- 已验证本地 API 与独立页面均可由启动器拉起，五个管理板块导航正常，桌面和 390px 窄屏无横向溢出或预览遮挡。
+- `npm run build` 已通过；默认生产构建中不存在 Studio HTML 或管理代码。
+- 已完成 Archive Studio 紧凑工作台重设计：四板块统一为低高度表单、三列字段网格、细线章节分区和紧凑素材行，桌面左侧编辑区可在 1280 x 720 视口内完整显示。
+- Studio 视觉规则已对齐 `YuDesign`：暖纸色背景、陶土色操作强调、衬线章节标题和无衬线表单控件；解释性副标题与重复状态信息已收起。
+- 390px 窄屏保持单列与 44px 触控高度，无横向溢出；公开收藏展示端、数据结构、写入和同步逻辑均未改变。
+- Archive Studio 保存流程已简化：四板块不再要求手动点击“生成预览”和“运行预检”，单次创建或保存会在后台依次完成 preview、preflight、一次性 token 写入和写后检查。
+- 新建成功后表单、素材和上一条目 ID 会自动清空并进入新草稿；新建模式允许调整建议 ID，修改模式继续锁定已有 ID。
+- Archive Studio 四板块修改模式已具备整条目删除：删除完整 entry 目录和素材，经过首页引用阻断、一次性 token、事务备份、写后检查和失败回退。
+- 已公开条目删除后进入待同步状态；显式同步会从公开板块 JSON 移除条目并清理 Studio 自有媒体，不自动发布，也不清理旧共享缓存。
+- 删除事务已在系统临时目录覆盖四板块、token 重放、首页阻断、失败回退和公开同步；真实 Archive 仅完成只读删除预览，尚未执行真实删除。
 
 - 已确认项目根目录：`C:\Users\Yu\AI\Archive`。
 - 已确认旧版收藏源数据目录：`C:\Users\Yu\OneDrive\图片\Data`，当前只读保留。
@@ -198,6 +213,10 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 - 已移除五个 Studio 页面顶部重复的配置 / 槽位 / 来源状态栏，保留服务状态、板块导航和必要的同步提示。
 - 已建立 `docs/design/archive-studio-lightweight-editing.md`、`docs/tasks/archive-studio-lightweight-editing.md` 和 `scripts/archive-studio-update-core.mjs`。
 - Music album、Texts article / book_note / series_note、Visions movie / series、Games normal_game 均可在原页面切换到“修改”，搜索已有条目并回填表单。
+- Games 新建模式已增加 `普通游戏 / 赛季` 切换；赛季创建只允许挂到现有且已公开同步的 `live_game`，自动建议 ID、展示顺序和父游戏实际使用的扩展字段。
+- 赛季保存经过 preview、一次性 preflight token、Games v2 shape、旧 Data 摘要检查和事务回退；保存后由现有显式同步更新对应 live game 与新增赛季封面，不改变已有赛季 ID 和媒体路径。
+- Games 赛季首次真实同步已完成：Archive 与公开 JSON 均为 41 个赛季，新赛季派生封面存在，公开同步队列为 0。
+- 已修复同步面板的并发查询竞态：只接受最新响应，并在保存触发后短延迟复检；OneDrive 若保留云端控制文件，则以 `state: synced` 结算，不再重复进入同步队列。
 - 修改模式锁定稳定 ID、board 和 kind；现有素材默认保留，用户只选择需要替换的素材。
 - 更新使用一次性 token、staging checksum、事务备份、写后 v2 shape check、旧源摘要检查和失败回退；已公开条目会留下定向公开同步标记，标题或年份变化后仍替换原公开 ID，不会重复新增。
 - 已新增 `scripts/check-archive-studio-updates.mjs`，在系统临时目录覆盖四板块 list / detail / preview / preflight / apply、单素材替换、公开 ID 稳定、token 重放阻断和故障回退。
@@ -210,6 +229,9 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 - Visions 页面生产构建通过；桌面流程和 390px 移动视口只读验收通过，无横向溢出或控制台错误。
 - Visions 真实 API create + rollback smoke test 通过：临时 movie 使条目数 112 → 113 → 112，创建 2 个条目文件和 3 个事务文件，条目/事务残留均为 0。
 - 本次 smoke test 核对旧源 778 个文件前后不变，Archive 快照恢复一致，发布未触发。
+- Archive Studio 四板块的侧栏展示预览已从独立模拟卡改为高保真真实组件：Games / Visions 复用公开海报卡，Music 使用实际当前专辑结构并在放大层补充专辑卡，Texts 按类型使用实际条目卡或书架卡。
+- 展示预览支持轻量放大、Escape 关闭和本地 `blob:` 素材即时显示；侧栏中的 Music 真实布局通过固定画布缩放，避免增加表单页面高度。
+- 已有条目详情现在只读返回公开缩略图引用，修改模式在不重新选择素材时也可展示现有封面；不返回本机路径，不增加写入范围。
 
 ## 当前可正常使用的事实
 
@@ -238,7 +260,7 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 ## Git 状态
 
 - 当前分支：`master`
-- Archive Studio 轻量编辑实现已按事务核心 / UI / 状态文档拆分提交；本轮结束前自动推送。
+- 独立本地 Archive Studio 改造当前位于工作区，尚未执行 Git add、commit 或 push。
 - `src/data/archive_data.json` 继续只在本地保留并被 Git 忽略。
 
 ## 当前主要风险
@@ -265,7 +287,29 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 
 ## 当前下一步
 
-先完成新数据根目录和媒体优化同步的浏览器验收与提交；之后由用户实际体验公开同步的格式和加载效果。不扩展删除、批量编辑、Games DLC / live game / season、Visions showcase 或自动发布。
+由用户通过桌面 `Archive Studio` 实际体验 Games 赛季新建流程；确认父游戏选择、字段密度、赛季卡片预览和同步结果后再整理提交。下一步不扩展 live game 父条目编辑、已有赛季修改/删除、DLC、批量编辑或自动发布。
+
+## Games 赛季封面受控替换
+
+- 2026-08-25 已通过 Archive 源事务与现有 Games 公开同步流程替换 S17 赛季封面。
+- 源侧保留单一 PNG 封面；公开侧生成 600 x 900 WebP，并将目标赛季切换到新的 `studio_media` 引用。
+- 同步后 Games 条目总数与 41 个赛季均未变化，公开同步状态为 current，页面实际图片加载通过。
+- 旧封面和 rollback 记录保留在 Archive 事务目录；未运行 `build_archive.py`、发布脚本、Git add、commit 或 push。
+- 本次只开放了受控底层事务能力，尚未把“替换已有赛季封面”加入 Studio 可视化表单。
+
+## Games 赛季连续新建修复
+
+- 2026-08-25 修复 Games 赛季预检仍使用固定 40 赛季基线的问题。
+- Studio 服务现按当前 Archive 动态读取赛季数量，避免成功新增一次后下一次创建被误判为结构失败。
+- Games 赛季创建、连续预检、普通游戏 API 和 TypeScript 检查通过；真实 S18 表单等价预检在 41 个既有赛季环境下通过。
+- 本次未创建 S18、未修改其图片或表单数据，需用户在 Studio 中再次点击“创建赛季”。
+
+## Studio 删除确认修复
+
+- 2026-08-26 修复 Games 删除流程把赛季数量固定为 0 的过期安全基线。
+- 该问题会让删除请求在事务开始前失败，前端因此一直停留在确认弹窗并显示通用 API 错误。
+- 删除安全检查现按当前 Games Archive 动态读取赛季数量；四板块删除回归测试和 TypeScript 检查通过。
+- 已对截图中的 Games 条目完成真实 delete preview / preflight 验证，预检通过，未执行实际删除。
 
 ## 暂时不做
 
@@ -275,7 +319,7 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 - 不手工修改 `public\data`、`src\data` 或派生缓存；
 - 不运行发布脚本；
 - 不执行一键发布；
-- 不提供删除或批量编辑；
+- 不继续扩展批量编辑或复杂类型删除；
 - 不进入自动改写源数据的维护自动化开发。
 - 不进入数据生成或发布验收。
 - 不批量创建完整 `Archive` 四板块数据；
@@ -286,10 +330,11 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 
 - 项目能否启动：已受控启动本地 Vite 服务，仅用于 Archive Studio 页面验收。
 - 核心人工验收：已完成 Music、Texts、Visions、Games 修改模式桌面验收，确认搜索、表单回填、稳定 ID 只读、保留素材和差异预览；五个 Studio 路由在 390px 视口无横向溢出。
+- 高保真预览验收：四板块桌面路由、放大层和 390px 视口均无横向溢出；公开 Music、Texts、Visions、Games 页面继续正常渲染共享组件，未发现新增控制台错误。
 - 自动测试：四板块 create API、四板块 update 事务、公开同步、首页精选、public data shape、generated data privacy 和四板块 v2 shape 均通过。
 - 构建：`npm run build` 已通过。
 - 数据生成：本轮未运行 `build_archive.py`。
-- 最近一次验证日期：2026-06-22，数据目录改名逐文件哈希一致；媒体优化和公开同步集成测试只写系统临时目录；旧 OneDrive Data 的 775 个现存文件元数据未变化，3 个系统辅助元数据文件不再存在；生产构建和五个 Studio 页面桌面 / 移动浏览器验收通过。
+- 最近一次验证日期：2026-08-25。独立 Studio 启动、五板块导航、桌面 / 390px 布局、公开 `/studio` 回首页、Studio API 回归、update、公开同步、首页精选与生产构建均通过；生产构建不包含管理入口或管理代码。
 - 最近维护逻辑审计：2026-06-14，已确认真实维护流程、源数据/派生数据边界、`build_archive.py` 写回源 YAML 风险和发布脚本风险。
 
 ## 新对话需要知道
@@ -298,4 +343,4 @@ Archive 的 Music、Texts、Visions、Games 第一版新建闭环均已完成。
 
 `reports` 只能作为辅助参考，不是权威源数据，也不是当前任务清单。`reports/README.md` 是 reports 边界说明入口；历史游戏辅助报告已收束到 `reports/history/legacy-game-assist/`，旧 Vite 日志已收束到 `docs/history/legacy-logs/`。阶段 2 已基本完成，代码风险审计第一轮也已完成；当前已进入 Archive Studio 前端开发，但仍未修改源数据、派生数据或发布流程。
 
-长期方向是逐步把各板块接入 Archive 和 Archive Studio。Music、Texts、Visions 与 Games 均已完成第一版新建闭环和普通条目轻量修改；删除、复杂类型编辑、自动发布和旧 OneDrive Data 修改仍保持关闭。
+长期方向是逐步把各板块接入 Archive 和 Archive Studio。Music、Texts、Visions 与 Games 均已完成第一版新建闭环和普通条目轻量修改；Games 已额外开放现有 live game 下的新建赛季。live game 父条目编辑、已有赛季修改/删除、DLC、自动发布和旧 OneDrive Data 修改仍保持关闭。
